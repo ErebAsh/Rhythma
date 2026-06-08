@@ -10,18 +10,20 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Rhythma - AI for Every Phase of Her Health',
+  description:
+    'Track your menstrual cycle, get personalized health insights, and access AI-powered guidance in your language.',
   generator: 'v0.app',
+
   icons: {
     icon: [
       {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
+        url: '/favicon.ico',
+        type: 'image/x-icon',
       },
       {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
+        url: '/logo.png',
+        type: 'image/png',
       },
       {
         url: '/icon.svg',
