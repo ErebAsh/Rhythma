@@ -4,6 +4,7 @@ from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 import os
 from datetime import datetime, timedelta, timezone
+from services.firestore_service import UserService
 
 # --- Configuration ---
 SECRET_KEY = os.getenv("JWT_SECRET")
@@ -49,4 +50,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    return {"id": user_id}
+
+    user = UserService.get_user_by_id(user_id)
+    if user is None:
+        raise credentials_exception
+
+    return {"id": user["id"], "username": user["username"], "email": user["email"]}

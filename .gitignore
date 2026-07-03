@@ -105,3 +105,9 @@ htmlcov/
 # =========================
 *.hive
 *.lock
+
+# Firebase credentials
+*.json
+*.key
+.env
+.env.local
