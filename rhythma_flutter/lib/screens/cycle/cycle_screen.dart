@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 import '../../config/theme.dart';
 import '../../components/shared.dart';
@@ -13,10 +14,30 @@ class CycleScreen extends StatefulWidget {
 }
 
 class _CycleScreenState extends State<CycleScreen> {
+  DateTime _displayedMonth = DateTime(2025, 11);
   int _selectedDay = 14;
-  final int _today = 14;
-  final int _monthDays = 30;
-  final int _firstWeekday = 5; // Friday
+  final DateTime _today = DateTime(2025, 11, 14);
+
+  int get _monthDays =>
+      DateTime(_displayedMonth.year, _displayedMonth.month + 1, 0).day;
+
+  // Weekday of the 1st of the displayed month, 0 = Sunday .. 6 = Saturday
+  int get _firstWeekday =>
+      DateTime(_displayedMonth.year, _displayedMonth.month, 1).weekday % 7;
+
+  void _goToPreviousMonth() {
+    setState(() {
+      _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month - 1);
+      _selectedDay = 1;
+    });
+  }
+
+  void _goToNextMonth() {
+    setState(() {
+      _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month + 1);
+      _selectedDay = 1;
+    });
+  }
 
   // Day → phase
   static String _phase(int day, AppLocalizations l10n) {
@@ -45,7 +66,7 @@ class _CycleScreenState extends State<CycleScreen> {
           // Header
           _ScreenHeader(
             title: l10n.cycleTrackerTitle,
-            subtitle: 'November 2025',
+            subtitle: DateFormat('MMMM yyyy').format(_displayedMonth),
           ),
 
           // Calendar card
@@ -56,11 +77,11 @@ class _CycleScreenState extends State<CycleScreen> {
                 // Month nav
                 Row(
                   children: [
-                    _CircleBtn(icon: Icons.chevron_left_rounded, onTap: () {}),
+                    _CircleBtn(icon: Icons.chevron_left_rounded, onTap: _goToPreviousMonth),
                     Expanded(
                       child: Center(
                         child: Text(
-                          'November 2025',
+                          DateFormat('MMMM yyyy').format(_displayedMonth),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -70,7 +91,7 @@ class _CycleScreenState extends State<CycleScreen> {
                       ),
                     ),
                     _CircleBtn(
-                        icon: Icons.chevron_right_rounded, onTap: () {}),
+                        icon: Icons.chevron_right_rounded, onTap: _goToNextMonth),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -109,7 +130,9 @@ class _CycleScreenState extends State<CycleScreen> {
                       final phase = _phase(day, l10n);
                       final phaseColor = _phaseColor(day);
                       final isSelected = _selectedDay == day;
-                      final isToday = _today == day;
+                      final isToday = _today.year == _displayedMonth.year &&
+                          _today.month == _displayedMonth.month &&
+                          _today.day == day;
 
                       return GestureDetector(
                         onTap: () => setState(() => _selectedDay = day),
@@ -190,7 +213,7 @@ class _CycleScreenState extends State<CycleScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              '${l10n.logFor} Nov $_selectedDay · ${_phase(_selectedDay, l10n)}',
+              '${l10n.logFor} ${DateFormat('MMM').format(_displayedMonth)} $_selectedDay · ${_phase(_selectedDay, l10n)}',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,

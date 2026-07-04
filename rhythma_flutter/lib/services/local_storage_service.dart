@@ -104,6 +104,22 @@ class LocalStorageService {
     await _userBox.put('profile', profile);
   }
 
+  /// Save (merge) a single field into today's — or a given date's — cycle log
+  /// entry. Used by quick log actions (e.g. Home screen Flow/Mood/Sleep/Stress
+  /// buttons) that log one value at a time rather than a full CycleLog form.
+  static Future<void> saveQuickLogField(DateTime date, String field, String value) async {
+    final key = _dateKey(date);
+    final existing = _cycleBox.get(key);
+    final data = existing != null
+        ? Map<String, dynamic>.from(existing)
+        : <String, dynamic>{'start_date': key};
+    data[field] = value;
+    await _cycleBox.put(key, data);
+  }
+
+  static String _dateKey(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
   // ── Emergency Contacts ────────────────────────────────────────────────────
 
   /// Returns a list of saved emergency contacts.
@@ -126,6 +142,25 @@ class LocalStorageService {
     }
     await _settings.put('emergency_contacts', contacts);
   }
+
+  // ── Assistant Chat History ────────────────────────────────────────────────
+
+  /// Returns the saved assistant conversation (role/text pairs), oldest first.
+  static List<Map<String, String>> getChatHistory() {
+    final raw = _settings.get('chat_history');
+    if (raw != null) {
+      return List<Map<String, String>>.from(
+        (raw as List).map((e) => Map<String, String>.from(e as Map)),
+      );
+    }
+    return [];
+  }
+
+  /// Persists the assistant conversation so it survives app restarts.
+  static Future<void> saveChatHistory(List<Map<String, String>> history) =>
+      _settings.put('chat_history', history);
+
+  static Future<void> clearChatHistory() => _settings.delete('chat_history');
 
   // ── Clear all data ────────────────────────────────────────────────────────
 
