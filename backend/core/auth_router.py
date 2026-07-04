@@ -9,14 +9,13 @@ from core.auth import (
 )
 from models.user import UserCreate, UserResponse
 from services.firestore_service import UserService
-import logging
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Authentication"])
 
 @router.post("/register", response_model=UserResponse)
 async def register(user_data: UserCreate):
+    # NOTE: This check-then-create flow has a race condition under concurrent requests.
+    # For production, consider using Firestore transactions or unique key constraints to prevent duplicate users entirely.
     existing_username = UserService.get_user_by_username(user_data.username)
     if existing_username:
         raise HTTPException(
