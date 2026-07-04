@@ -1,13 +1,25 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from core.auth import get_current_user
+from services.firestore_service import UserService
 from pydantic import BaseModel, Field
+from typing import Optional
 from datetime import datetime, timedelta, timezone
 import os
+import re
 
-# ─── Pydantic Model ──────────────────────────────────────────────────────────
+# ─── Pydantic Models ─────────────────────────────────────────────────────────
 class SMSRequest(BaseModel):
     phone_number: str = Field(..., pattern=r"^\+[1-9]\d{1,14}$")
     message: str
+
+
+class SMSSettings(BaseModel):
+    phoneNumber: Optional[str] = ""
+    enabled: bool = False
+
+    @property
+    def normalized_phone(self) -> Optional[str]:
+        return self.phoneNumber.strip() if self.phoneNumber else None
 
 
 # ─── Rate Limiter (in-memory) ──────────────────────────────────────────────
@@ -29,6 +41,42 @@ def is_rate_limited(user_id: str, limit: int = 1, window_seconds: int = 60) -> b
 
 # ─── Router ──────────────────────────────────────────────────────────────────
 router = APIRouter(tags=["SMS"])
+
+
+@router.get("/settings")
+async def get_sms_settings(current_user: dict = Depends(get_current_user)):
+    user = UserService.get_user_by_id(current_user["id"])
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {
+        "phoneNumber": user.get("sms_phone_number", "") or "",
+        "enabled": bool(user.get("sms_enabled", False)),
+    }
+
+
+@router.post("/settings")
+async def save_sms_settings(
+    settings: SMSSettings,
+    current_user: dict = Depends(get_current_user),
+):
+    phone = settings.normalized_phone
+    if settings.enabled and not phone:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A phone number is required to enable SMS summaries.",
+        )
+    if phone and not re.match(r"^\+[1-9]\d{1,14}$", phone):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Phone number must be in E.164 format, e.g. +919876543210.",
+        )
+
+    UserService.update_user(
+        current_user["id"],
+        {"sms_phone_number": phone or "", "sms_enabled": settings.enabled},
+    )
+    return {"phoneNumber": phone or "", "enabled": settings.enabled}
+
 
 @router.post("/send-summary")
 async def send_sms_summary(
