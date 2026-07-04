@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="screenshots/logo.png" alt="Rhythma logo" width="120" />
+  <img src="screenshots/logo1.png" alt="Rhythma logo" width="120" />
 </p>
 
 <h1 align="center">Rhythma 🌸</h1>
