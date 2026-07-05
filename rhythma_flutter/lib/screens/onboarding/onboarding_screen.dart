@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
@@ -25,10 +25,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   int _currentPage = 0;
   static const int _totalPages = 5;
 
-  // Step 1 – Language
+  // Step 1 â€“ Language
   String _selectedLanguage = 'en';
 
-  // Step 2 – Basic Profile
+  // Step 2 â€“ Basic Profile
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   final _heightController = TextEditingController();
@@ -39,18 +39,18 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   String? _heightError;
   String? _weightError;
 
-  // Step 3 – Menstrual Profile
+  // Step 3 â€“ Menstrual Profile
   DateTime? _lastPeriodDate;
   int _cycleLength = 28;
   int _periodDuration = 5;
   bool _isRegular = true;
 
-  // Step 4 – Optional Info
+  // Step 4 â€“ Optional Info
   final _phoneController = TextEditingController();
   final _cityController = TextEditingController();
   final _stateController = TextEditingController();
 
-  // Step 5 – Permissions
+  // Step 5 â€“ Permissions
   bool _notificationsEnabled = false;
   bool _dataConsent = false;
   String? _consentError;
@@ -88,23 +88,23 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     super.dispose();
   }
 
-  // ── Data ──────────────────────────────────────────────────────────────────
+  // â”€â”€ Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   static const List<Map<String, String>> _languages = [
     {'code': 'en', 'label': 'English'},
-    {'code': 'hi', 'label': 'हिन्दी'},
-    {'code': 'ta', 'label': 'தமிழ்'},
-    {'code': 'te', 'label': 'తెలుగు'},
-    {'code': 'mr', 'label': 'मराठी'},
+    {'code': 'hi', 'label': 'à¤¹à¤¿à¤¨à¥à¤¦à¥€'},
+    {'code': 'ta', 'label': 'à®¤à®®à®¿à®´à¯'},
+    {'code': 'te', 'label': 'à°¤à±†à°²à±à°—à±'},
+    {'code': 'mr', 'label': 'à¤®à¤°à¤¾à¤ à¥€'},
   ];
 
   static const List<String> _avatarEmojis = [
-    '🌸', '🌺', '🌻', '🌷', '🌹',
-    '🦋', '🌙', '⭐', '💫', '🌈',
-    '🍀', '🌿', '🦄', '🐝', '🌊',
+    'ðŸŒ¸', 'ðŸŒº', 'ðŸŒ»', 'ðŸŒ·', 'ðŸŒ¹',
+    'ðŸ¦‹', 'ðŸŒ™', 'â­', 'ðŸ’«', 'ðŸŒˆ',
+    'ðŸ€', 'ðŸŒ¿', 'ðŸ¦„', 'ðŸ', 'ðŸŒŠ',
   ];
 
-  // ── Navigation ────────────────────────────────────────────────────────────
+  // â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   bool _validateCurrentPage() {
     final l = AppLocalizations.of(context)!;
@@ -191,7 +191,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Future<void> _saveAndComplete() async {
     final profile = <String, dynamic>{
       'name': _nameController.text.trim().isEmpty ? 'User' : _nameController.text.trim(),
-      'avatar': _selectedAvatar ?? '🌸',
+      'avatar': _selectedAvatar ?? 'ðŸŒ¸',
       'language': _selectedLanguage,
     };
     final age = int.tryParse(_ageController.text);
@@ -220,7 +220,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     widget.onComplete();
   }
 
-  // ── UI ────────────────────────────────────────────────────────────────────
+  // â”€â”€ UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   @override
   Widget build(BuildContext context) {
@@ -326,7 +326,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 1: Language & Trust ───────────────────────────────────────────────
+  // â”€â”€ Step 1: Language & Trust â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildStep1(AppLocalizations l) {
     return SingleChildScrollView(
@@ -334,7 +334,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepHeader('🌐', l.onboardingStep1Title, l.onboardingStep1Subtitle),
+          _buildStepHeader('ðŸŒ', l.onboardingStep1Title, l.onboardingStep1Subtitle),
           const SizedBox(height: 32),
           ...List.generate(_languages.length, (i) {
             final lang = _languages[i];
@@ -364,7 +364,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-                        color: selected ? RhythmaColors.primary : RhythmaColors.textPrimary,
+                        color: selected ? RhythmaColors.primary : RhythmaColors.foreground,
                       ),
                     ),
                     const Spacer(),
@@ -385,14 +385,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('🔒', style: TextStyle(fontSize: 20)),
+                const Text('ðŸ”’', style: TextStyle(fontSize: 20)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     l.onboardingPrivacyNote,
                     style: TextStyle(
                       fontSize: 13,
-                      color: RhythmaColors.textSecondary,
+                      color: RhythmaColors.mutedFg,
                       height: 1.5,
                     ),
                   ),
@@ -405,7 +405,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 2: Basic Profile ─────────────────────────────────────────────────
+  // â”€â”€ Step 2: Basic Profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildStep2(AppLocalizations l) {
     return SingleChildScrollView(
@@ -413,12 +413,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepHeader('👤', l.onboardingStep2Title, l.onboardingStep2Subtitle),
+          _buildStepHeader('ðŸ‘¤', l.onboardingStep2Title, l.onboardingStep2Subtitle),
           const SizedBox(height: 28),
           // Avatar picker
           Text(
             l.onboardingAvatarLabel,
-            style: TextStyle(fontSize: 14, color: RhythmaColors.textSecondary),
+            style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -499,7 +499,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 3: Menstrual Profile ─────────────────────────────────────────────
+  // â”€â”€ Step 3: Menstrual Profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildStep3(AppLocalizations l) {
     return SingleChildScrollView(
@@ -507,11 +507,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepHeader('🌙', l.onboardingStep3Title, l.onboardingStep3Subtitle),
+          _buildStepHeader('ðŸŒ™', l.onboardingStep3Title, l.onboardingStep3Subtitle),
           const SizedBox(height: 28),
           // Last period date picker
           Text(l.onboardingLastPeriodLabel,
-              style: TextStyle(fontSize: 14, color: RhythmaColors.textSecondary)),
+              style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
           const SizedBox(height: 8),
           GestureDetector(
             onTap: () async {
@@ -549,8 +549,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
                     style: TextStyle(
                       color: _lastPeriodDate == null
-                          ? RhythmaColors.textSecondary
-                          : RhythmaColors.textPrimary,
+                          ? RhythmaColors.mutedFg
+                          : RhythmaColors.foreground,
                       fontSize: 15,
                     ),
                   ),
@@ -583,7 +583,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           const SizedBox(height: 24),
           // Regularity toggle
           Text(l.onboardingCycleRegularityLabel,
-              style: TextStyle(fontSize: 14, color: RhythmaColors.textSecondary)),
+              style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -599,7 +599,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 4: Optional Info ─────────────────────────────────────────────────
+  // â”€â”€ Step 4: Optional Info â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildStep4(AppLocalizations l) {
     return SingleChildScrollView(
@@ -607,7 +607,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepHeader('📍', l.onboardingStep4Title, l.onboardingStep4Subtitle),
+          _buildStepHeader('ðŸ“', l.onboardingStep4Title, l.onboardingStep4Subtitle),
           const SizedBox(height: 28),
           _buildTextField(
             controller: _phoneController,
@@ -632,7 +632,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 5: Permissions ───────────────────────────────────────────────────
+  // â”€â”€ Step 5: Permissions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildStep5(AppLocalizations l) {
     return SingleChildScrollView(
@@ -640,11 +640,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepHeader('🔔', l.onboardingStep5Title, l.onboardingStep5Subtitle),
+          _buildStepHeader('ðŸ””', l.onboardingStep5Title, l.onboardingStep5Subtitle),
           const SizedBox(height: 36),
           // Notification toggle
           _buildSwitchTile(
-            icon: '📅',
+            icon: 'ðŸ“…',
             title: l.onboardingEnableNotifications,
             subtitle: l.onboardingNotificationsDesc,
             value: _notificationsEnabled,
@@ -688,7 +688,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       Text(
                         l.onboardingDataConsentLabel,
                         style: TextStyle(
-                          color: RhythmaColors.textPrimary,
+                          color: RhythmaColors.foreground,
                           fontSize: 14,
                           height: 1.4,
                         ),
@@ -711,7 +711,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Shared helpers ────────────────────────────────────────────────────────
+  // â”€â”€ Shared helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildStepHeader(String emoji, String title, String subtitle) {
     return Column(
@@ -724,7 +724,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.bold,
-            color: RhythmaColors.textPrimary,
+            color: RhythmaColors.foreground,
           ),
         ),
         const SizedBox(height: 8),
@@ -732,7 +732,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           subtitle,
           style: TextStyle(
             fontSize: 15,
-            color: RhythmaColors.textSecondary,
+            color: RhythmaColors.mutedFg,
             height: 1.5,
           ),
         ),
@@ -752,13 +752,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       controller: controller,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
-      style: TextStyle(color: RhythmaColors.textPrimary),
+      style: TextStyle(color: RhythmaColors.foreground),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         errorText: error,
-        labelStyle: TextStyle(color: RhythmaColors.textSecondary),
-        hintStyle: TextStyle(color: RhythmaColors.textSecondary.withOpacity(0.6)),
+        labelStyle: TextStyle(color: RhythmaColors.mutedFg),
+        hintStyle: TextStyle(color: RhythmaColors.mutedFg.withOpacity(0.6)),
         filled: true,
         fillColor: RhythmaColors.surface,
         border: OutlineInputBorder(
@@ -796,7 +796,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         Row(
           children: [
             Text(label,
-                style: TextStyle(fontSize: 14, color: RhythmaColors.textSecondary)),
+                style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
             const Spacer(),
             Text(
               displayValue,
@@ -840,7 +840,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             label,
             style: TextStyle(
               fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-              color: selected ? RhythmaColors.primary : RhythmaColors.textPrimary,
+              color: selected ? RhythmaColors.primary : RhythmaColors.foreground,
               fontSize: 15,
             ),
           ),
@@ -878,7 +878,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: RhythmaColors.textPrimary,
+                    color: RhythmaColors.foreground,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -886,7 +886,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   subtitle,
                   style: TextStyle(
                     fontSize: 13,
-                    color: RhythmaColors.textSecondary,
+                    color: RhythmaColors.mutedFg,
                     height: 1.4,
                   ),
                 ),
@@ -903,3 +903,4 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 }
+
