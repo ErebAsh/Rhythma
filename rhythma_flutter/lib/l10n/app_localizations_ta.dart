@@ -63,7 +63,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get selectLanguage => 'மொழியைத் தேர்ந்தெடுக்கவும்';
 
   @override
-  String get homeGreeting => 'வணக்கம், ஆர்யா';
+  String get homeGreeting => 'வணக்கம்';
 
   @override
   String get homePhaseDesc => 'நாள் 14 · அண்டவிடுப்பின் நிலை';

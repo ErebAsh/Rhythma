@@ -2,6 +2,41 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 
+/// Wraps a screen that normally lives inside RhythmaShell's IndexedStack
+/// (Home/Cycle/Assistant/Insights/Profile all assume that background) so it
+/// still looks right when pushed as a standalone route instead — e.g. from
+/// a shortcut on the Home screen. Without this, the pushed screen loses the
+/// shared gradient backdrop that GlassCard's frosted-glass blur needs to
+/// look right, and renders against a flat default background instead,
+/// which can look broken (empty-looking gaps, washed-out cards, mismatched
+/// contrast). A back button is included since there's no bottom nav on a
+/// standalone route to return to the previous screen.
+class ShellBackground extends StatelessWidget {
+  final Widget child;
+  final bool showBackButton;
+  const ShellBackground({Key? key, required this.child, this.showBackButton = true})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(gradient: RhythmaGradients.bg),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBody: true,
+        appBar: showBackButton
+            ? AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: BackButton(color: RhythmaColors.foreground),
+              )
+            : null,
+        body: SafeArea(top: !showBackButton, child: child),
+      ),
+    );
+  }
+}
+
 /// Glassmorphism card — mirrors the web .glass-card utility
 class GlassCard extends StatelessWidget {
   final Widget child;
@@ -74,12 +109,12 @@ class GradientBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = colors?.first ?? RhythmaColors.primary;
-    
+
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        gradient: isDark 
-            ? null 
+        gradient: isDark
+            ? null
             : LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -89,8 +124,8 @@ class GradientBox extends StatelessWidget {
         color: isDark ? primaryColor.withOpacity(0.15) : null,
         border: isDark ? Border.all(color: primaryColor.withOpacity(0.3)) : null,
         borderRadius: BorderRadius.circular(borderRadius),
-        boxShadow: isDark 
-            ? null 
+        boxShadow: isDark
+            ? null
             : [
                 BoxShadow(
                   color: primaryColor.withOpacity(0.28),

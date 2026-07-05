@@ -6,20 +6,92 @@ import '../../components/shared.dart';
 import '../../components/charts.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/profile_provider.dart';
+import '../../services/api_client.dart';
+import '../../services/local_storage_service.dart';
+import '../../utils/secure_storage.dart';
+import '../cycle/cycle_screen.dart';
+import '../insights/insights_screen.dart';
+import '../settings/language_screen.dart';
+import 'dart:convert';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _loading = true;
+  Map<String, dynamic> _userData = {};
+  Map<String, dynamic> _cycleData = {};
+  Map<String, dynamic> _insights = {};
+  String _error = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDashboardData();
+  }
+
+  Future<void> _fetchDashboardData() async {
+    setState(() => _loading = true);
+    try {
+      final dio = ApiClient.dio;
+      final response = await dio.get('/dashboard');
+      setState(() {
+        _userData = response.data['user'] ?? {};
+        _cycleData = response.data['cycle'] ?? {};
+        _insights = response.data['insights'] ?? {};
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
     final l10n = AppLocalizations.of(context)!;
-    final profile = context.watch<ProfileProvider>().profile;
-    final name = profile['name'] as String?;
-    final greetingPrefix = l10n.homeGreeting.split(',').first.trim();
-    final greeting = name != null && name.trim().isNotEmpty
-        ? '$greetingPrefix, ${name.trim().split(' ').first}'
-        : greetingPrefix;
+
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 48, color: RhythmaColors.rose),
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load dashboard',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Text(_error, style: TextStyle(color: RhythmaColors.mutedFg)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _fetchDashboardData,
+              child: Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final userName = _userData['name'] ?? 'User';
+    final nextPeriodDays = _cycleData['nextPeriodDays'] ?? 14;
+    final cycleDay = _cycleData['day'] ?? 14;
+    final totalCycle = _cycleData['total'] ?? 28;
+    final mhs = _insights['mhs'] ?? 82;
+    final cvi = _insights['cvi'] ?? 'Low';
+    final sleepHours = _insights['sleepHours'] ?? '7.2h';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
@@ -54,9 +126,20 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                _HeaderIcon(icon: Icons.language_rounded),
+                _HeaderIcon(
+                  icon: Icons.language_rounded,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LanguageScreen()),
+                    );
+                  },
+                ),
                 const SizedBox(width: 8),
-                _HeaderIcon(icon: Icons.shield_outlined),
+                _HeaderIcon(
+                  icon: Icons.shield_outlined,
+                  onTap: () => _showComingSoonDialog(context, 'Privacy & Security'),
+                ),
               ],
             ),
           ),
@@ -75,14 +158,13 @@ class HomeScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: RhythmaGradients.primary,
                     ),
-                    // ignore: use_decorated_box
                   ).opacity(0.22),
                 ),
                 Column(
                   children: [
                     Row(
                       children: [
-                        const CycleRing(day: 14, total: 28, size: 88),
+                        CycleRing(day: cycleDay, total: totalCycle, size: 88),
                         const SizedBox(width: 18),
                         Expanded(
                           child: Column(
@@ -103,7 +185,7 @@ class HomeScreen extends StatelessWidget {
                                 textBaseline: TextBaseline.alphabetic,
                                 children: [
                                   Text(
-                                    '14',
+                                    '$nextPeriodDays',
                                     style: TextStyle(
                                       fontSize: 36,
                                       fontWeight: FontWeight.w700,
@@ -153,11 +235,11 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        _StatCell(label: 'MHS', value: '82', color: RhythmaColors.primary),
+                        _StatCell(label: 'MHS', value: '$mhs', color: RhythmaColors.primary),
                         _StatDivider(),
-                        _StatCell(label: 'CVI', value: 'Low', color: RhythmaColors.teal),
+                        _StatCell(label: 'CVI', value: '$cvi', color: RhythmaColors.teal),
                         _StatDivider(),
-                        _StatCell(label: 'Sleep', value: '7.2h', color: RhythmaColors.coral),
+                        _StatCell(label: 'Sleep', value: '$sleepHours', color: RhythmaColors.coral),
                       ],
                     ),
                   ],
@@ -187,8 +269,7 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.auto_awesome_rounded,
-                            size: 14, color: Colors.white),
+                        Icon(Icons.auto_awesome_rounded, size: 14, color: Colors.white),
                         const SizedBox(width: 6),
                         Text(
                           l10n.homeAiTitle,
@@ -215,27 +296,33 @@ class HomeScreen extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
+                          child: GestureDetector(
+                            onTap: () {
+                              // Navigate to Assistant Screen
+                              Navigator.pushNamed(context, '/assistant');
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.chat_bubble_outline_rounded,
-                                    size: 15,
-                                    color: Colors.white.withOpacity(0.9)),
-                                const SizedBox(width: 8),
-                                Text(
-                                  l10n.homeAiPrompt,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.white.withOpacity(0.9),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.chat_bubble_outline_rounded,
+                                      size: 15,
+                                      color: Colors.white.withOpacity(0.9)),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    l10n.homeAiPrompt,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -247,8 +334,7 @@ class HomeScreen extends StatelessWidget {
                             color: Colors.white.withOpacity(0.25),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Icon(Icons.mic_rounded,
-                              size: 18, color: Colors.white),
+                          child: Icon(Icons.mic_rounded, size: 18, color: Colors.white),
                         ),
                       ],
                     ),
@@ -264,6 +350,12 @@ class HomeScreen extends StatelessWidget {
           SectionHeader(
             title: l10n.homeFeelingTitle,
             action: l10n.homeLogAll,
+            onAction: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ShellBackground(child: CycleScreen())),
+              );
+            },
           ),
           Row(
             children: [
@@ -271,24 +363,52 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.water_drop_outlined,
                 label: l10n.homeLogFlow,
                 color: RhythmaColors.rose,
+                onTap: () => _showQuickLogSheet(
+                  field: 'flow_intensity',
+                  label: l10n.homeLogFlow,
+                  icon: Icons.water_drop_outlined,
+                  color: RhythmaColors.rose,
+                  options: [l10n.logNone, l10n.logLight, l10n.logMedium, l10n.logHeavy],
+                ),
               ),
               const SizedBox(width: 10),
               _LogButton(
                 icon: Icons.favorite_border_rounded,
                 label: l10n.homeLogMood,
                 color: RhythmaColors.coral,
+                onTap: () => _showQuickLogSheet(
+                  field: 'mood',
+                  label: l10n.homeLogMood,
+                  icon: Icons.favorite_border_rounded,
+                  color: RhythmaColors.coral,
+                  options: const ['😊', '😐', '😔', '😤', '🥰'],
+                ),
               ),
               const SizedBox(width: 10),
               _LogButton(
                 icon: Icons.bedtime_outlined,
                 label: l10n.homeLogSleep,
                 color: RhythmaColors.primary,
+                onTap: () => _showQuickLogSheet(
+                  field: 'sleep_hours',
+                  label: l10n.homeLogSleep,
+                  icon: Icons.bedtime_outlined,
+                  color: RhythmaColors.primary,
+                  options: [l10n.logSleep1, l10n.logSleep2, l10n.logSleep3, l10n.logSleep4],
+                ),
               ),
               const SizedBox(width: 10),
               _LogButton(
                 icon: Icons.air_rounded,
                 label: l10n.homeLogStress,
                 color: RhythmaColors.teal,
+                onTap: () => _showQuickLogSheet(
+                  field: 'stress_level',
+                  label: l10n.homeLogStress,
+                  icon: Icons.air_rounded,
+                  color: RhythmaColors.teal,
+                  options: [l10n.logEnergyLow, l10n.logEnergyMid, l10n.logEnergyHigh],
+                ),
               ),
             ],
           ),
@@ -296,7 +416,14 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 14),
 
           // ── Insight card ───────────────────────────────────
-          GlassCard(
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ShellBackground(child: InsightsScreen())),
+              );
+            },
+            child: GlassCard(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -336,9 +463,9 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(Icons.chevron_right_rounded,
-                    color: RhythmaColors.mutedFg),
+                Icon(Icons.chevron_right_rounded, color: RhythmaColors.mutedFg),
               ],
+            ),
             ),
           ),
 
@@ -351,15 +478,139 @@ class HomeScreen extends StatelessWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _LearnCard(title: l10n.homeLearnPcos, color: RhythmaColors.rose, label: l10n.homeArticle),
+                _LearnCard(
+                  title: l10n.homeLearnPcos,
+                  color: RhythmaColors.rose,
+                  label: l10n.homeArticle,
+                  onTap: () => _showComingSoonDialog(context, l10n.homeLearnPcos),
+                ),
                 const SizedBox(width: 10),
-                _LearnCard(title: l10n.homeLearnHormones, color: RhythmaColors.primary, label: l10n.homeArticle),
+                _LearnCard(
+                  title: l10n.homeLearnHormones,
+                  color: RhythmaColors.primary,
+                  label: l10n.homeArticle,
+                  onTap: () => _showComingSoonDialog(context, l10n.homeLearnHormones),
+                ),
                 const SizedBox(width: 10),
-                _LearnCard(title: l10n.homeLearnIron, color: RhythmaColors.coral, label: l10n.homeArticle),
+                _LearnCard(
+                  title: l10n.homeLearnIron,
+                  color: RhythmaColors.coral,
+                  label: l10n.homeArticle,
+                  onTap: () => _showComingSoonDialog(context, l10n.homeLearnIron),
+                ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ─── Helpers ────────────────────────────────────────────────────────────
+
+  void _showComingSoonDialog(BuildContext context, String topic) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Coming Soon', textAlign: TextAlign.center, style: TextStyle(color: RhythmaColors.primary)),
+        content: Text(
+          '$topic is currently under development.',
+          textAlign: TextAlign.center,
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: RhythmaColors.primary,
+              foregroundColor: RhythmaColors.primaryFg,
+            ),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showQuickLogSheet({
+    required String field,
+    required String label,
+    required IconData icon,
+    required Color color,
+    required List<String> options,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: Container(
+          decoration: BoxDecoration(
+            color: RhythmaColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, color: color, size: 17),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Log $label',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: RhythmaColors.foreground,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: options.map((opt) {
+                  return GestureDetector(
+                    onTap: () async {
+                      await LocalStorageService.saveQuickLogField(DateTime.now(), field, opt);
+                      if (ctx.mounted) Navigator.pop(ctx);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('$label logged: $opt')),
+                        );
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                      decoration: BoxDecoration(
+                        color: RhythmaColors.surfaceMuted,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: RhythmaColors.border),
+                      ),
+                      child: Text(
+                        opt,
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: RhythmaColors.foreground),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -369,13 +620,15 @@ class HomeScreen extends StatelessWidget {
 
 class _HeaderIcon extends StatelessWidget {
   final IconData icon;
-  const _HeaderIcon({required this.icon});
+  final VoidCallback? onTap;
+  const _HeaderIcon({required this.icon, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GlassCard(
       padding: EdgeInsets.zero,
       borderRadius: 20,
+      onTap: onTap,
       child: SizedBox(
         width: 38,
         height: 38,
@@ -431,15 +684,17 @@ class _LogButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final VoidCallback? onTap;
 
   const _LogButton(
-      {required this.icon, required this.label, required this.color});
+      {required this.icon, required this.label, required this.color, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: GlassCard(
         padding: const EdgeInsets.symmetric(vertical: 14),
+        onTap: onTap,
         child: Column(
           children: [
             Container(
@@ -468,14 +723,17 @@ class _LearnCard extends StatelessWidget {
   final String title;
   final Color color;
   final String label;
+  final VoidCallback? onTap;
 
-  const _LearnCard({required this.title, required this.color, required this.label});
+  const _LearnCard({required this.title, required this.color, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    return Container(
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       width: 152,
       decoration: BoxDecoration(
         gradient: isDark
@@ -513,6 +771,7 @@ class _LearnCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

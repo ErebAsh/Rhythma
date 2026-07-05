@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 
-import 'config/theme.dart';
 import 'components/bottom_nav.dart';
-import 'screens/home/home_screen.dart';
-import 'screens/cycle/cycle_screen.dart';
+import 'components/shared.dart';
+import 'config/theme.dart';
+import 'providers/locale_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/assistant/assistant_screen.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/auth/register_screen.dart';
+import 'screens/cycle/cycle_screen.dart';
+import 'screens/home/home_screen.dart';
 import 'screens/insights/insights_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
@@ -17,22 +21,24 @@ import 'services/local_storage_service.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/profile_provider.dart';
+import 'services/api_client.dart';
+import 'services/auth_service.dart';
+import 'services/local_storage_service.dart';
 import 'services/notification_service.dart';
+
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables (.env is in gitignore; .env.example is provided)
-  await dotenv.load(fileName: '.env').catchError((_) {
-    // .env may be absent in CI or during first clone — that's fine
-    debugPrint('No .env file found. Using defaults / demo mode.');
-  });
-
-  // Initialise local offline storage
   await LocalStorageService.init();
-
-  // Initialize notifications
   await NotificationService.instance.init();
+
+  ApiClient.init(onUnauthorized: () {
+    final navigator = rootNavigatorKey.currentState;
+    if (navigator == null) return;
+    navigator.pushNamedAndRemoveUntil('/login', (route) => false);
+  });
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -54,13 +60,14 @@ Future<void> main() async {
 }
 
 class RhythmaApp extends StatelessWidget {
-  const RhythmaApp({Key? key}) : super(key: key);
+  const RhythmaApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
-    
+
     return MaterialApp(
+      navigatorKey: rootNavigatorKey,
       title: 'Rhythma',
       theme: RhythmaTheme.theme,
       themeMode: themeProvider.themeMode,
@@ -79,7 +86,24 @@ class RhythmaApp extends StatelessWidget {
         Locale('te'),
         Locale('mr'),
       ],
-      home: const RhythmaRoot(),
+      home: FutureBuilder<String?>(
+        // Confirms the stored token is still genuinely valid (not merely
+        // present) via a lightweight /auth/me check, and scopes local
+        // storage to the resulting account — see AuthService.validateSession.
+        future: AuthService().validateSession(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SplashScreen();
+          }
+          return snapshot.data != null ? const RhythmaShell() : const LoginScreen();
+        },
+      ),
+      routes: {
+        '/login': (_) => const LoginScreen(),
+        '/register': (_) => const RegisterScreen(),
+        '/home': (_) => const RhythmaShell(),
+        '/assistant': (_) => const ShellBackground(child: AssistantScreen()),
+      },
     );
   }
 }
@@ -117,7 +141,7 @@ class _RhythmaRootState extends State<RhythmaRoot> {
 }
 
 class RhythmaShell extends StatefulWidget {
-  const RhythmaShell({Key? key}) : super(key: key);
+  const RhythmaShell({super.key});
 
   @override
   State<RhythmaShell> createState() => _RhythmaShellState();
@@ -154,6 +178,39 @@ class _RhythmaShellState extends State<RhythmaShell> {
         bottomNavigationBar: RhythmaBottomNav(
           currentIndex: _currentIndex,
           onTap: (i) => setState(() => _currentIndex = i),
+        ),
+      ),
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.favorite,
+              size: 80,
+              color: Theme.of(context).primaryColor,
+            ),
+            const SizedBox(height: 24),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              'Rhythma',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+          ],
         ),
       ),
     );

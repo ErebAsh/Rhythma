@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from datetime import date
 from typing import Optional, List
 
+from services.firestore_service import CycleService
+
 # ─── Pydantic Model ──────────────────────────────────────────────────────────
 class CycleLog(BaseModel):
     start_date: date
@@ -25,9 +27,10 @@ async def log_cycle(
     current_user: dict = Depends(get_current_user)
 ):
     user_id = current_user["id"]
-    # TODO: Save to database
+    log_id = CycleService.create_log(user_id, log.model_dump())
     return {
         "message": f"Cycle logged for user {user_id}",
+        "id": log_id,
         "data": log.model_dump()
     }
 
@@ -42,5 +45,5 @@ async def get_cycle_history(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to view this user's data"
         )
-    # TODO: Fetch from database with limit
-    return {"message": f"History for user {user_id}", "entries": []}
+    entries = CycleService.get_logs_for_user(user_id, limit=limit or 10)
+    return {"message": f"History for user {user_id}", "entries": entries}

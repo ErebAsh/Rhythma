@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import firestore, credentials
 import os
 import json
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Optional, Dict, Any
 from fastapi import HTTPException, status
 
@@ -110,4 +110,72 @@ class UserService:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to update user: {str(e)}"
+            )
+
+
+class CycleService:
+    """Persists and retrieves per-user cycle logs in Firestore."""
+
+    @staticmethod
+    def create_log(user_id: str, log_data: Dict[str, Any]) -> str:
+        """Create a new cycle log document for a user."""
+        try:
+            data = dict(log_data)
+            # Firestore's client stores Python `date` values fine, but to
+            # keep this consistent and avoid surprises with the query below,
+            # normalize any bare `date` values to UTC `datetime`s.
+            from datetime import date as date_type
+            for key, value in list(data.items()):
+                if isinstance(value, date_type) and not isinstance(value, datetime):
+                    data[key] = datetime.combine(value, datetime.min.time(), tzinfo=timezone.utc)
+
+            data["user_id"] = user_id
+            data["created_at"] = datetime.now(timezone.utc)
+            doc_ref = db.collection("cycle_logs").add(data)
+            return doc_ref[1].id
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to save cycle log: {str(e)}"
+            )
+
+    @staticmethod
+    def get_logs_for_user(user_id: str, limit: int = 10) -> list:
+        """Return a user's cycle logs, most recent (by start_date) first.
+
+        Deliberately queries with only the `user_id ==` equality filter and
+        sorts/limits in Python, rather than chaining `.order_by("start_date")`
+        onto it. Firestore auto-creates single-field indexes, but a query
+        that combines an equality filter on one field with an order_by on a
+        *different* field needs a composite index that must be created
+        manually (or via the link in Firestore's own error message) before
+        it will run at all — until then every call raises
+        FAILED_PRECONDITION, which is what was surfacing as a 500 here.
+        """
+        try:
+            docs = (
+                db.collection("cycle_logs")
+                .where("user_id", "==", user_id)
+                .stream()
+            )
+            results = []
+            for doc in docs:
+                data = doc.to_dict()
+                data["id"] = doc.id
+                results.append(data)
+
+            def _sort_key(entry: Dict[str, Any]):
+                start = entry.get("start_date")
+                if isinstance(start, datetime):
+                    return start
+                if isinstance(start, date):
+                    return datetime.combine(start, datetime.min.time(), tzinfo=timezone.utc)
+                return datetime.min.replace(tzinfo=timezone.utc)
+
+            results.sort(key=_sort_key, reverse=True)
+            return results[:limit]
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to fetch cycle logs: {str(e)}"
             )

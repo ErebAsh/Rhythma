@@ -14,6 +14,8 @@ class ThemeProvider extends ChangeNotifier {
     _loadTheme();
   }
 
+  ThemeData? get theme => null;
+
   Future<void> _loadTheme() async {
     // Load Dark Mode
     String? modeStr = LocalStorageService.getThemeMode();

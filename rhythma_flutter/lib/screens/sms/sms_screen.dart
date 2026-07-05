@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import '../../components/shared.dart';
+import '../../services/api_client.dart';
+import '../../utils/secure_storage.dart';
 
 /// SMS Health Summary screen.
 /// Users can configure their phone number to receive weekly
@@ -16,6 +18,13 @@ class _SmsScreenState extends State<SmsScreen> {
   final _phoneCtrl = TextEditingController();
   bool _smsEnabled = false;
   bool _saving = false;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
 
   @override
   void dispose() {
@@ -23,16 +32,85 @@ class _SmsScreenState extends State<SmsScreen> {
     super.dispose();
   }
 
+  Future<void> _loadSettings() async {
+    setState(() => _loading = true);
+    try {
+      final dio = ApiClient.dio;
+      final response = await dio.get('/sms/settings');
+      setState(() {
+        _phoneCtrl.text = response.data['phoneNumber'] ?? '';
+        _smsEnabled = response.data['enabled'] ?? false;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() => _loading = false);
+      // If endpoint returns 404, user has no settings yet – that's fine.
+    }
+  }
+
+  Future<void> _save() async {
+    final phone = _phoneCtrl.text.trim();
+    if (_smsEnabled && phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a phone number'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _saving = true);
+    try {
+      final dio = ApiClient.dio;
+      final response = await dio.post(
+        '/sms/settings',
+        data: {
+          'phoneNumber': phone,
+          'enabled': _smsEnabled,
+        },
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('SMS settings saved successfully!'),
+            backgroundColor: RhythmaColors.teal,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _saving = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          const Padding(
-            padding: EdgeInsets.only(bottom: 20, top: 8),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20, top: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -41,7 +119,7 @@ class _SmsScreenState extends State<SmsScreen> {
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
                         color: RhythmaColors.foreground)),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text('Stay informed even without the app',
                     style:
                         TextStyle(fontSize: 13, color: RhythmaColors.mutedFg)),
@@ -116,7 +194,8 @@ class _SmsScreenState extends State<SmsScreen> {
                     Switch(
                       value: _smsEnabled,
                       onChanged: (v) => setState(() => _smsEnabled = v),
-                      activeColor: RhythmaColors.primary,
+                      activeThumbColor: RhythmaColors.primary,
+                      activeTrackColor: RhythmaColors.primary.withValues(alpha: 0.5), // ✅ Fixed: withValues instead of withOpacity
                     ),
                   ],
                 ),
@@ -131,7 +210,7 @@ class _SmsScreenState extends State<SmsScreen> {
                             height: 18,
                             child: CircularProgressIndicator(
                                 strokeWidth: 2, color: Colors.white))
-                        : Text('Save Settings'),
+                        : const Text('Save Settings'),
                   ),
                 ),
               ],
@@ -177,19 +256,5 @@ class _SmsScreenState extends State<SmsScreen> {
         ],
       ),
     );
-  }
-
-  Future<void> _save() async {
-    setState(() => _saving = true);
-    await Future.delayed(const Duration(milliseconds: 600));
-    // TODO: Save to LocalStorageService + call backend SMS API
-    setState(() => _saving = false);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Settings saved!'),
-            backgroundColor: RhythmaColors.teal),
-      );
-    }
   }
 }

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 import '../../components/shared.dart';
 import '../../config/theme.dart';
-import '../../services/local_storage_service.dart';
+import '../../services/auth_service.dart';
 import '../../services/notification_service.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -86,17 +86,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: ElevatedButton(
                           onPressed: () async {
                             Navigator.pop(context); // Close dialog
-                            
-                            // Mocking clearing state/data
-                            await LocalStorageService.clearAll();
-                            
+
+                            // Clear the JWT token so the user is actually logged out.
+                            //
+                            // Intentional: we do NOT wipe local storage here.
+                            // Profile info, cycle logs, chat history, and
+                            // settings are stored on-device (see
+                            // LocalStorageService) and are meant to persist
+                            // across logins — wiping them on every logout was
+                            // the cause of the profile resetting to its
+                            // defaults each time (see PR history).
+                            //
+                            // Profile/chat-history/cycle-log data is now
+                            // namespaced per account (LocalStorageService's
+                            // currentUserId scoping), so a second person
+                            // logging into a different account on this same
+                            // device gets their own data, not the previous
+                            // person's. AuthService.logout() clears the
+                            // "which account is active" pointer below.
+                            await AuthService().logout();
+
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(l10n.loggedOutSuccess),
                                 ),
                               );
-                              Navigator.pop(context); // Go back to Profile screen
+                              // Clear the entire navigation stack and go back to
+                              // the Login screen — a simple Navigator.pop only
+                              // returned to the previous screen, leaving the
+                              // user "logged in" in the UI even though nothing
+                              // else about the session had changed.
+                              Navigator.of(context, rootNavigator: true)
+                                  .pushNamedAndRemoveUntil('/login', (route) => false);
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -217,7 +239,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Notifications Section
             SectionHeader(title: l10n.notificationsTitle),
             GlassCard(
@@ -435,7 +457,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     path: 'support@rhythma.com',
                     query: 'subject=Rhythma Support & Bug Report&body=Hi Rhythma Team,%0D%0A%0D%0AI need help with...', // %0D%0A is for line breaks
                   );
-                  
+
                   if (await canLaunchUrl(emailUri)) {
                     await launchUrl(emailUri, mode: LaunchMode.externalApplication);
                   } else {
@@ -449,7 +471,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             GlassCard(
               padding: EdgeInsets.zero,
               child: ListTile(
@@ -476,4 +498,3 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
-

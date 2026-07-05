@@ -19,6 +19,11 @@ android {
         applicationId = "com.example.rhythma"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
+        isCoreLibraryDesugaringEnabled = true   // <-- ADD THIS
+    }
+
+    defaultConfig {
+        applicationId = "com.example.rhythma"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -42,4 +47,9 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Core library desugaring for older Android versions
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

@@ -6,6 +6,7 @@ from core.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     get_password_hash,
     verify_password,
+    get_current_user,
 )
 from models.user import UserCreate, UserResponse
 from services.firestore_service import UserService
@@ -14,8 +15,7 @@ router = APIRouter(tags=["Authentication"])
 
 @router.post("/register", response_model=UserResponse)
 async def register(user_data: UserCreate):
-    # NOTE: This check-then-create flow has a race condition under concurrent requests.
-    # For production, consider using Firestore transactions or unique key constraints to prevent duplicate users entirely.
+    # ─── Check if username already exists ──────────────────────────────
     existing_username = UserService.get_user_by_username(user_data.username)
     if existing_username:
         raise HTTPException(
@@ -23,6 +23,7 @@ async def register(user_data: UserCreate):
             detail="Username already exists"
         )
 
+    # ─── Check if email already exists ──────────────────────────────────
     existing_email = UserService.get_user_by_email(user_data.email)
     if existing_email:
         raise HTTPException(
@@ -30,8 +31,9 @@ async def register(user_data: UserCreate):
             detail="Email already exists"
         )
 
+    # ─── Hash password and create user ─────────────────────────────────
     hashed_password = get_password_hash(user_data.password)
-    user_dict = user_data.dict()
+    user_dict = user_data.model_dump()
     user_dict["password"] = hashed_password
 
     user_id = UserService.create_user(user_dict)
@@ -66,3 +68,16 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user["id"]}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/me")
+async def get_me(current_user: dict = Depends(get_current_user)):
+    """Returns the signed-in user's basic identity.
+
+    This is deliberately lightweight — its main purpose is to double as a
+    token-validation check: `get_current_user` already raises 401 if the
+    token is expired, malformed, or the account no longer exists, so a
+    successful response here means the stored token is genuinely still
+    good (used by the Flutter app at launch, see main.dart).
+    """
+    return current_user

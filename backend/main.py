@@ -2,14 +2,14 @@
 Rhythma AI — FastAPI Backend
 Entry point for all API services.
 """
-
 from dotenv import load_dotenv
 
 load_dotenv()
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 
 # Direct imports from API modules
 from api.health import router as health_router
@@ -17,8 +17,9 @@ from api.assistant import router as assistant_router
 from api.cycle import router as cycle_router
 from api.insights import router as insights_router
 from api.sms import router as sms_router
+from api.dashboard import router as dashboard_router
 
-# Auth router is now in core (not in api) to avoid duplicate registration
+# Auth router lives in core (not in api) to avoid duplicate registration
 from core.auth_router import router as auth_router
 
 from utils.logger import logger
@@ -53,13 +54,14 @@ app.add_middleware(
 )
 
 # ── Routers ───────────────────────────────────────────────────────────────────
-# Auth is registered FIRST to ensure it's not auto-imported elsewhere
+# Auth is registered first so protected-route dependencies resolve cleanly.
 app.include_router(auth_router,      prefix="/api/v1/auth",      tags=["Authentication"])
 app.include_router(health_router,    prefix="/api/v1/health",    tags=["Health Check"])
 app.include_router(assistant_router, prefix="/api/v1/assistant", tags=["AI Assistant"])
 app.include_router(cycle_router,     prefix="/api/v1/cycle",     tags=["Cycle Tracking"])
 app.include_router(insights_router,  prefix="/api/v1/insights",  tags=["Insights"])
 app.include_router(sms_router,       prefix="/api/v1/sms",       tags=["SMS"])
+app.include_router(dashboard_router, prefix="/api/v1",           tags=["Dashboard"])
 
 
 @app.get("/")

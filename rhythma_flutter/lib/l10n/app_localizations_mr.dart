@@ -64,7 +64,7 @@ class AppLocalizationsMr extends AppLocalizations {
   String get selectLanguage => 'भाषा निवडा';
 
   @override
-  String get homeGreeting => 'नमस्कार, आर्या';
+  String get homeGreeting => 'नमस्कार';
 
   @override
   String get homePhaseDesc => 'दिवस 14 · ओव्हुलेशन टप्पा';

@@ -215,7 +215,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeGreeting.
   ///
   /// In en, this message translates to:
-  /// **'Namaste, Aarya'**
+  /// **'Namaste'**
   String get homeGreeting;
 
   /// No description provided for @homePhaseDesc.

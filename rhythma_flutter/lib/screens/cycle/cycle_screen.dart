@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 import '../../config/theme.dart';
 import '../../components/shared.dart';
@@ -13,10 +14,39 @@ class CycleScreen extends StatefulWidget {
 }
 
 class _CycleScreenState extends State<CycleScreen> {
-  int _selectedDay = 14;
-  final int _today = 14;
-  final int _monthDays = 30;
-  final int _firstWeekday = 5; // Friday
+  // Always derive "today" from the real clock — never hardcode a date here.
+  final DateTime _today = DateTime.now();
+
+  late DateTime _displayedMonth = DateTime(_today.year, _today.month);
+  late int _selectedDay = _today.day;
+
+  int get _monthDays =>
+      DateTime(_displayedMonth.year, _displayedMonth.month + 1, 0).day;
+
+  // Weekday of the 1st of the displayed month, 0 = Sunday .. 6 = Saturday
+  int get _firstWeekday =>
+      DateTime(_displayedMonth.year, _displayedMonth.month, 1).weekday % 7;
+
+  void _goToPreviousMonth() {
+    setState(() {
+      _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month - 1);
+      _selectedDay = 1;
+    });
+  }
+
+  void _goToNextMonth() {
+    setState(() {
+      _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month + 1);
+      _selectedDay = 1;
+    });
+  }
+
+  void _jumpToToday() {
+    setState(() {
+      _displayedMonth = DateTime(_today.year, _today.month);
+      _selectedDay = _today.day;
+    });
+  }
 
   // Day → phase
   static String _phase(int day, AppLocalizations l10n) {
@@ -37,15 +67,35 @@ class _CycleScreenState extends State<CycleScreen> {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
     final l10n = AppLocalizations.of(context)!;
+    final cellWidth = (MediaQuery.of(context).size.width - 40 - 32) / 7;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          _ScreenHeader(
-            title: l10n.cycleTrackerTitle,
-            subtitle: 'November 2025',
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _ScreenHeader(
+                  title: l10n.cycleTrackerTitle,
+                  subtitle: DateFormat('MMMM yyyy').format(_displayedMonth),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: TextButton.icon(
+                  onPressed: _jumpToToday,
+                  icon: const Icon(Icons.today_rounded, size: 16),
+                  label: const Text('Today'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: RhythmaColors.primary,
+                  ),
+                ),
+              ),
+            ],
           ),
 
           // Calendar card
@@ -56,11 +106,11 @@ class _CycleScreenState extends State<CycleScreen> {
                 // Month nav
                 Row(
                   children: [
-                    _CircleBtn(icon: Icons.chevron_left_rounded, onTap: () {}),
+                    _CircleBtn(icon: Icons.chevron_left_rounded, onTap: _goToPreviousMonth),
                     Expanded(
                       child: Center(
                         child: Text(
-                          'November 2025',
+                          DateFormat('MMMM yyyy').format(_displayedMonth),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -70,7 +120,7 @@ class _CycleScreenState extends State<CycleScreen> {
                       ),
                     ),
                     _CircleBtn(
-                        icon: Icons.chevron_right_rounded, onTap: () {}),
+                        icon: Icons.chevron_right_rounded, onTap: _goToNextMonth),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -97,24 +147,27 @@ class _CycleScreenState extends State<CycleScreen> {
                 // Days grid
                 Wrap(
                   children: [
-                    // empty cells for first weekday
+                    // Empty cells for the leading gap before day 1. These must
+                    // have a *finite* width — `double.infinity / 7` is still
+                    // `double.infinity`, which blew this grid out with a huge
+                    // blank gap. Use the same width as the real day cells.
                     ...List.generate(
                       _firstWeekday,
-                      (_) => const SizedBox(
-                          width: double.infinity / 7,
-                          height: 44),
+                      (_) => SizedBox(width: cellWidth, height: 46),
                     ),
                     ...List.generate(_monthDays, (i) {
                       final day = i + 1;
                       final phase = _phase(day, l10n);
                       final phaseColor = _phaseColor(day);
                       final isSelected = _selectedDay == day;
-                      final isToday = _today == day;
+                      final isToday = _today.year == _displayedMonth.year &&
+                          _today.month == _displayedMonth.month &&
+                          _today.day == day;
 
                       return GestureDetector(
                         onTap: () => setState(() => _selectedDay = day),
                         child: SizedBox(
-                          width: MediaQuery.of(context).size.width / 7 - 3,
+                          width: cellWidth,
                           height: 46,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -128,6 +181,9 @@ class _CycleScreenState extends State<CycleScreen> {
                                       ? phaseColor
                                       : phaseColor.withOpacity(0.14),
                                   borderRadius: BorderRadius.circular(10),
+                                  border: isToday && !isSelected
+                                      ? Border.all(color: phaseColor, width: 1.4)
+                                      : null,
                                 ),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -190,7 +246,7 @@ class _CycleScreenState extends State<CycleScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              '${l10n.logFor} Nov $_selectedDay · ${_phase(_selectedDay, l10n)}',
+              '${l10n.logFor} ${DateFormat('MMM').format(_displayedMonth)} $_selectedDay · ${_phase(_selectedDay, l10n)}',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,

@@ -64,7 +64,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectLanguage => 'Select Language';
 
   @override
-  String get homeGreeting => 'Namaste, Aarya';
+  String get homeGreeting => 'Namaste';
 
   @override
   String get homePhaseDesc => 'Day 14 · Ovulation phase';

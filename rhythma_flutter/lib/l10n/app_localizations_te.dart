@@ -64,7 +64,7 @@ class AppLocalizationsTe extends AppLocalizations {
   String get selectLanguage => 'భాషను ఎంచుకోండి';
 
   @override
-  String get homeGreeting => 'నమస్తే, ఆర్య';
+  String get homeGreeting => 'నమస్తే';
 
   @override
   String get homePhaseDesc => 'రోజు 14 · అండోత్సర్గ దశ';

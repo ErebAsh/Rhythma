@@ -29,22 +29,93 @@ class LocalStorageService {
     _initialised = true;
   }
 
+  // ── Per-account data scoping ────────────────────────────────────────────
+  //
+  // This store was originally shared by whoever happened to be logged in —
+  // profile/chat history/cycle logs weren't tied to an account, just the
+  // device. That meant a second person logging into a different account on
+  // the same phone would see the first person's data. Personal data below
+  // is now namespaced by the signed-in user's id. Device-level preferences
+  // (theme, language, notification toggles) intentionally stay un-scoped,
+  // since those are reasonably "this phone's" settings rather than "this
+  // account's".
+
+  static const _kCurrentUserId = 'current_user_id';
+
+  /// The id of the currently signed-in user. Set by AuthService right after
+  /// a successful login or a successful session validation at launch.
+  static String? get currentUserId => _settings.get(_kCurrentUserId) as String?;
+
+  static Future<void> setCurrentUserId(String? userId) async {
+    if (userId == null) {
+      // Just clears the "which account is active" pointer — does NOT
+      // delete anyone's data, so it's still there if they log back in.
+      await _settings.delete(_kCurrentUserId);
+      return;
+    }
+    await _migrateLegacyDataIfNeeded(userId);
+    await _settings.put(_kCurrentUserId, userId);
+  }
+
+  static String _scoped(String baseKey) {
+    final uid = currentUserId;
+    return uid == null ? baseKey : '$uid::$baseKey';
+  }
+
+  /// One-time migration: silently moves any pre-existing un-scoped entries
+  /// into the first account that logs in after this update, so an
+  /// existing user's profile/chat history/cycle logs don't appear to
+  /// vanish just because storage is now namespaced.
+  static Future<void> _migrateLegacyDataIfNeeded(String uid) async {
+    final scopedProfileKey = '$uid::profile';
+    if (_userBox.containsKey('profile') && !_userBox.containsKey(scopedProfileKey)) {
+      final legacyProfile = _userBox.get('profile');
+      if (legacyProfile != null) {
+        await _userBox.put(scopedProfileKey, legacyProfile);
+      }
+      await _userBox.delete('profile');
+    }
+
+    const legacyChatKey = 'chat_history';
+    final scopedChatKey = '$uid::chat_history';
+    if (_settings.containsKey(legacyChatKey) && !_settings.containsKey(scopedChatKey)) {
+      await _settings.put(scopedChatKey, _settings.get(legacyChatKey));
+      await _settings.delete(legacyChatKey);
+    }
+
+    final legacyCycleKeys =
+        _cycleBox.keys.where((k) => !k.toString().contains('::')).toList();
+    for (final key in legacyCycleKeys) {
+      final legacyLog = _cycleBox.get(key);
+      if (legacyLog != null) {
+        await _cycleBox.put('$uid::$key', legacyLog);
+      }
+      await _cycleBox.delete(key);
+    }
+  }
+
   // ── Cycle Logs ────────────────────────────────────────────────────────────
 
   static Box<Map> get _cycleBox => Hive.box<Map>(_Keys.cycleBox);
 
-  /// Save a cycle log entry. Key = ISO date string of start_date.
+  /// Save a cycle log entry. Key = ISO date string of start_date, scoped
+  /// to the currently signed-in user.
   static Future<void> saveCycleLog(Map<String, dynamic> log) async {
     if (isTesting) return;
     final key = log['start_date'] as String;
-    await _cycleBox.put(key, log);
+    await _cycleBox.put(_scoped(key), log);
   }
 
-  /// Returns all cycle logs sorted by date (most recent first).
+  /// Returns all cycle logs for the current user, sorted most recent first.
   static List<Map<String, dynamic>> getCycleLogs() {
-    if (isTesting) return [];
-    return _cycleBox.values
-        .map((e) => Map<String, dynamic>.from(e))
+    final uid = currentUserId;
+    final prefix = uid == null ? null : '$uid::';
+    return _cycleBox.keys
+        .where((k) {
+          final key = k.toString();
+          return prefix != null ? key.startsWith(prefix) : !key.contains('::');
+        })
+        .map((k) => Map<String, dynamic>.from(_cycleBox.get(k) as Map))
         .toList()
       ..sort((a, b) =>
           (b['start_date'] as String).compareTo(a['start_date'] as String));
@@ -132,7 +203,7 @@ class LocalStorageService {
 
   static Map<String, dynamic>? getProfile() {
     if (isTesting) return mockProfile;
-    final raw = _userBox.get('profile');
+    final raw = _userBox.get(_scoped('profile'));
     return raw != null ? Map<String, dynamic>.from(raw) : null;
   }
 
@@ -141,7 +212,20 @@ class LocalStorageService {
       mockProfile = profile;
       return;
     }
-    await _userBox.put('profile', profile);
+    await _userBox.put(_scoped('profile'), profile);
+  }
+
+  /// Save (merge) a single field into today's — or a given date's — cycle log
+  /// entry. Used by quick log actions (e.g. Home screen Flow/Mood/Sleep/Stress
+  /// buttons) that log one value at a time rather than a full CycleLog form.
+  static Future<void> saveQuickLogField(DateTime date, String field, String value) async {
+    final key = _scoped(_dateKey(date));
+    final existing = _cycleBox.get(key);
+    final data = existing != null
+        ? Map<String, dynamic>.from(existing)
+        : <String, dynamic>{'start_date': _dateKey(date)};
+    data[field] = value;
+    await _cycleBox.put(key, data);
   }
 
   /// Merges [updates] into the existing profile instead of overwriting it.
@@ -153,6 +237,8 @@ class LocalStorageService {
     await saveProfile(merged);
     if (isTesting) mockProfile = merged;
   }
+  static String _dateKey(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   // ── Emergency Contacts ────────────────────────────────────────────────────
 
@@ -177,8 +263,31 @@ class LocalStorageService {
     await _settings.put('emergency_contacts', contacts);
   }
 
+  // ── Assistant Chat History ────────────────────────────────────────────────
+
+  /// Returns the saved assistant conversation (role/content pairs), oldest first.
+  static List<Map<String, String>> getChatHistory() {
+    final raw = _settings.get(_scoped('chat_history'));
+    if (raw != null) {
+      return List<Map<String, String>>.from(
+        (raw as List).map((e) => Map<String, String>.from(e as Map)),
+      );
+    }
+    return [];
+  }
+
+  /// Persists the assistant conversation so it survives app restarts.
+  static Future<void> saveChatHistory(List<Map<String, String>> history) =>
+      _settings.put(_scoped('chat_history'), history);
+
+  static Future<void> clearChatHistory() => _settings.delete(_scoped('chat_history'));
+
   // ── Clear all data ────────────────────────────────────────────────────────
 
+  /// Wipes every local box for every account that's ever used this device
+  /// (not just the currently signed-in one) — this is a full device reset,
+  /// not a per-account logout. Not currently called anywhere in the app;
+  /// kept for a future "reset this device" debug/support feature.
   static Future<void> clearAll() async {
     if (isTesting) {
       mockProfile = null;
