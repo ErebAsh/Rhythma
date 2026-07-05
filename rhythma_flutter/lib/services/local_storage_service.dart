@@ -17,6 +17,7 @@ class LocalStorageService {
   static bool isTesting = false;
   static Map<String, dynamic>? mockProfile;
   static List<Map<String, String>> mockEmergencyContacts = [];
+  static bool mockOnboardingCompleted = false;
 
   /// Call once at app startup (after WidgetsFlutterBinding.ensureInitialized)
   static Future<void> init() async {
@@ -86,6 +87,22 @@ class LocalStorageService {
   static Future<void> setPrimaryColor(int colorValue) =>
       _settings.put('primary_color', colorValue);
 
+  // ── Onboarding ────────────────────────────────────────────────────────────
+
+  /// Returns true if the user has completed onboarding at least once.
+  static bool get onboardingCompleted {
+    if (isTesting) return mockOnboardingCompleted;
+    return _settings.get('onboarding_completed', defaultValue: false) as bool;
+  }
+
+  static Future<void> setOnboardingCompleted(bool value) async {
+    if (isTesting) {
+      mockOnboardingCompleted = value;
+      return;
+    }
+    await _settings.put('onboarding_completed', value);
+  }
+
   // ── User Profile ──────────────────────────────────────────────────────────
 
   static Box<Map> get _userBox => Hive.box<Map>(_Keys.userBox);
@@ -102,6 +119,16 @@ class LocalStorageService {
       return;
     }
     await _userBox.put('profile', profile);
+  }
+
+  /// Merges [updates] into the existing profile instead of overwriting it.
+  /// Fields present in [updates] overwrite existing values; other fields
+  /// (e.g. those saved during onboarding) are left untouched.
+  static Future<void> mergeProfile(Map<String, dynamic> updates) async {
+    final existing = getProfile() ?? {};
+    final merged = {...existing, ...updates};
+    await saveProfile(merged);
+    if (isTesting) mockProfile = merged;
   }
 
   // ── Emergency Contacts ────────────────────────────────────────────────────
@@ -133,6 +160,7 @@ class LocalStorageService {
     if (isTesting) {
       mockProfile = null;
       mockEmergencyContacts = [];
+      mockOnboardingCompleted = false;
       return;
     }
     await _cycleBox.clear();
