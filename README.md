@@ -1,25 +1,16 @@
-<p align="center">
-  <img src="landing-page/public/logo1.png" alt="Rhythma logo" width="120" />
-</p>
+[![Rhythma logo](https://github.com/ishita2740/Rhythma/raw/main/landing-page/public/logo1.png)](/ishita2740/Rhythma/blob/main/landing-page/public/logo1.png)
 
-<h1 align="center">Rhythma 🌸</h1>
-<p align="center"><em>Her Rhythm. Her Health. Her Power.</em></p>
+# Rhythma 🌸
 
-<p align="center">
- A multilingual, offline-capable AI-powered women's health companion built for women in India.
-</p>
+*Her Rhythm. Her Health. Her Power.*
 
-<p align="center">
-  <a href="https://flutter.dev"><img src="https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter" alt="Flutter"></a>
-  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-0.111-green?logo=fastapi" alt="FastAPI"></a>
-  <a href="https://ai.google.dev"><img src="https://img.shields.io/badge/Gemini-API-orange?logo=google" alt="Gemini API"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-purple.svg" alt="License: MIT"></a>
-  <a href="#project-status"><img src="https://img.shields.io/badge/Status-Acitve%20Development-yellow" alt="Status"></a>
-</p>
+A multilingual, offline-capable AI-powered women's health companion built for women in India.
+
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)](https://flutter.dev) [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green?logo=fastapi)](https://fastapi.tiangolo.com) [![Gemini API](https://img.shields.io/badge/Gemini-API-orange?logo=google)](https://ai.google.dev) [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://github.com/ishita2740/Rhythma/blob/main/LICENSE) [![Status](https://img.shields.io/badge/Status-Active%20Development-yellow)](#project-status)
 
 ---
 
-> **A note on this README:** This document is kept in sync with the actual code in this repository, not with the long-term vision for the product. If a feature isn't in the code yet, it's listed under **In Progress** or **Future Features**, not under **Implemented**. See [Project Status](#project-status) for the full breakdown.
+> **A note on this README:** This document is kept in sync with the actual code in this repository, not with the long-term vision for the product. If a feature isn't in the code yet, it's listed under **Future Features**, not under **Implemented**. See [Project Status](#project-status) for the full breakdown.
 
 ---
 
@@ -39,9 +30,10 @@
 
 ## Solution
 
-Rhythma aims to be an offline-first, multilingual women health companion for women in tier-2 and tier-3 Indian cities — supporting cycle tracking, an AI health assistant, and personalized wellness scoring in regional languages.
+Rhythma aims to be an offline-first, multilingual women's health companion for tier-2 and tier-3 Indian cities — supporting cycle tracking, an AI health assistant, and personalized wellness scoring in regional languages.
 
 Today, the repository contains:
+
 - A **polished, mostly-static Flutter UI** for five core screens (Home, Cycle, AI Assistant, Insights, Profile) plus Settings, in 5 languages, with light/dark theming.
 - A **working FastAPI backend** with real authentication (JWT + bcrypt) and a Firestore-backed user store.
 - A **directly-integrated Gemini AI assistant** in the Flutter app (calls Google's API straight from the client).
@@ -50,6 +42,17 @@ Today, the repository contains:
 - A separate **Next.js marketing landing page**, unrelated to the app's functionality.
 
 Several pieces (cloud sync, on-device encryption, cycle-log persistence, SMS delivery from the app, WhatsApp access, first-period onboarding, Ayurvedic content) are **not yet functional** — see [Implemented Features](#implemented-features) vs. [Features In Progress](#features-in-progress) vs. [Future Features](#future-features) below for the exact line.
+
+---
+
+## Platforms
+
+Rhythma is planned as **two front ends sharing one backend**, not two separate products:
+
+1. **Flutter mobile app** (`rhythma_flutter/`) — the primary experience today. Most of the UI described in this README lives here.
+2. **Website** — a planned browser-based client with **the same features as the app** (cycle tracking, AI Assistant, Insights, Profile), talking to the same FastAPI backend, for women who don't have or don't want to install a mobile app.
+
+**This does not exist yet.** The only web-facing thing in the repo today is `landing-page/`, a Next.js **marketing** site — it explains the product, it does not run any of the product's functionality (no login, no cycle tracking, no AI assistant). Don't confuse the two when navigating the codebase. Building the real web app is tracked under [Future Features](#future-features) and [Roadmap Phase 6](#phase-6--platform-expansion); it will need the backend integration work in Phases 1–2 to land first, since the website would consume the same `/auth`, `/cycle`, `/insights`, and `/assistant` endpoints the Flutter app is only partway through using.
 
 ---
 
@@ -73,12 +76,12 @@ Contributors working on onboarding flows, content, or accessibility should keep 
 *(Screenshots below reflect UI mockups for screens that are visually complete but, in some cases, not yet wired to real data — see [Project Status](#project-status).)*
 
 | Dashboard | Cycle Calendar | AI Assistant |
-|---|---|---|
-| ![Dashboard](screenshots/dashboard.png) | ![Calendar](screenshots/calender.png) | ![AI Assistant](screenshots/AI_assistant.png) |
+| --- | --- | --- |
+| [![Dashboard](https://github.com/ishita2740/Rhythma/raw/main/screenshots/dashboard.png)](/ishita2740/Rhythma/blob/main/screenshots/dashboard.png) | [![Calendar](https://github.com/ishita2740/Rhythma/raw/main/screenshots/calender.png)](/ishita2740/Rhythma/blob/main/screenshots/calender.png) | [![AI Assistant](https://github.com/ishita2740/Rhythma/raw/main/screenshots/AI_assistant.png)](/ishita2740/Rhythma/blob/main/screenshots/AI_assistant.png) |
 
 | Health Insights | CVI Score | MHS Score | SMS Summary |
-|---|---|---|---|
-| ![Health Insights](screenshots/Health_Insights.png) | ![CVI](screenshots/CVI.png) | ![MHS](screenshots/MHS.png) | ![SMS](screenshots/SMS.png) |
+| --- | --- | --- | --- |
+| [![Health Insights](https://github.com/ishita2740/Rhythma/raw/main/screenshots/Health_Insights.png)](/ishita2740/Rhythma/blob/main/screenshots/Health_Insights.png) | [![CVI](https://github.com/ishita2740/Rhythma/raw/main/screenshots/CVI.png)](/ishita2740/Rhythma/blob/main/screenshots/CVI.png) | [![MHS](https://github.com/ishita2740/Rhythma/raw/main/screenshots/MHS.png)](/ishita2740/Rhythma/blob/main/screenshots/MHS.png) | [![SMS](https://github.com/ishita2740/Rhythma/raw/main/screenshots/SMS.png)](/ishita2740/Rhythma/blob/main/screenshots/SMS.png) |
 
 ---
 
@@ -98,6 +101,7 @@ Contributors working on onboarding flows, content, or accessibility should keep 
 | 🩸 **First Period Guidance** | A dedicated, age-appropriate onboarding and education flow for first-time users (ages 12–17) — separate tone, content, and simplicity level from the adult cycle-tracking experience. | ❌ Not implemented — see [Future Features](#future-features) |
 | 🌿 **Ayurvedic Correlation Layer** | Educational wellness insights that connect lifestyle and cycle patterns with traditional Ayurvedic wellness concepts, for cultural relevance (educational only, not medical advice). | ❌ Not implemented — see [Future Features](#future-features) |
 | 💬 **WhatsApp Bot Integration** | Gemini-powered WhatsApp assistant (via Twilio/Meta Cloud API) for cycle tracking and health Q&A without requiring an app install — aimed at community/self-help-group users on shared or low-end devices. | ❌ Not implemented — see [Future Features](#future-features) |
+| 🌐 **Website (feature parity)** | A browser-based client offering the same cycle tracking, AI Assistant, Insights, and Profile features as the Flutter app, on the same backend. | ❌ Not implemented — see [Platforms](#platforms) |
 
 ---
 
@@ -139,13 +143,13 @@ These are on the roadmap but have **no implementation yet** — no code, no cont
 - **First Period Guidance** — a separate onboarding path and education content for girls aged 12–17 experiencing their first period. Needs its own tone, simplified UI, and content review (likely with input from a health educator) before implementation. Nothing exists in the codebase yet — no screen, no content, no data model changes.
 - **Ayurvedic Correlation Layer** — educational content connecting lifestyle and cycle patterns to traditional Ayurvedic wellness concepts. Requires sourcing and reviewing culturally accurate, non-prescriptive content, plus a lightweight rules layer to surface it contextually. No content or code exists yet.
 - **WhatsApp Bot Integration** — a Gemini-powered WhatsApp assistant (via Twilio/Meta Cloud API) offering cycle tracking and health Q&A without an app install, aimed at community/self-help-group users and shared/low-end devices. Depends on the backend `/assistant/chat` endpoint being production-ready first (see [Features In Progress](#features-in-progress)).
+- **Website (feature parity)** — a second, browser-based client offering the same core features as the Flutter app (see [Platforms](#platforms)), built against the same backend endpoints. Distinct from the existing `landing-page/` marketing site, which has no product functionality. No code exists yet.
 - End-to-end offline-first sync with conflict resolution and a visible sync-status indicator
 - On-device encryption for locally stored health data
 - Connectivity-aware sync (detecting online/offline state)
 - Water, weight, and medication tracking
 - Data export/import and shareable health reports
 - A trained CVI/MHS model (current logic runs on a heuristic, not a trained model)
-- A web application with feature parity
 - Verified healthcare-provider directory / connect feature
 - Regional, anonymized health-trend insights
 - CI/CD pipelines and an automated release process
@@ -158,6 +162,8 @@ These are on the roadmap but have **no implementation yet** — no code, no cont
 | Layer | Technology | Status | Why |
 | --- | --- | --- | --- |
 | Mobile app | **Flutter** | Implemented (UI) | Single codebase across Android/iOS |
+| Website (planned product client) | Not yet chosen | Not implemented | Will consume the same backend as the Flutter app; not to be confused with the Next.js marketing site below |
+| Marketing landing page | **Next.js** | Implemented | Public-facing site explaining the product; no app functionality |
 | Backend | **FastAPI** | Implemented | Lightweight async Python API layer |
 | Auth | **JWT + bcrypt** | Implemented (backend only) | Stateless, standard token auth |
 | Cloud database | **Firebase / Firestore** | Implemented for user accounts only; not yet used for health data | Managed NoSQL store, pairs with Firebase Auth long-term |
@@ -196,11 +202,11 @@ Rhythma currently consists of two independently runnable pieces that are **not y
 │  Gemini API ◄── called directly for AI chat   │
 └──────────────────────────────────────────────┘
 
-┌──────────────────────────────────────────────┐
-│               FastAPI Backend                 │
-│                                                │
-│  /auth      → real JWT auth, Firestore users  │
-│  /assistant → real Gemini call (unused by app)│
+┌──────────────────────────────────────────────┐          ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
+│               FastAPI Backend                 │◄─────────  Website (planned, no code   
+│                                                │          │  yet) — same feature set as   
+│  /auth      → real JWT auth, Firestore users  │           the Flutter app, same backend │
+│  /assistant → real Gemini call (unused by app)│          └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
 │  /cycle     → stub, returns empty/static data │
 │  /insights  → stub, returns static data       │
 │  /sms       → real Twilio integration         │
@@ -210,7 +216,7 @@ Rhythma currently consists of two independently runnable pieces that are **not y
 
 The Flutter app and FastAPI backend do not currently share data — the app works entirely off local Hive storage and a direct Gemini connection, while the backend's auth, cycle, insights, and assistant endpoints are functional in isolation but are not yet called by the client.
 
-There is no WhatsApp, first-period, or Ayurvedic-content layer in this architecture yet — they would each attach to the backend (`/assistant` for WhatsApp; new endpoints/content sources for the other two).
+There is no WhatsApp, first-period, Ayurvedic-content, or website layer in this architecture yet — they would each attach to the backend (`/assistant` for WhatsApp; new endpoints/content sources for first-period and Ayurvedic content; the full existing `/auth`, `/cycle`, `/insights`, `/assistant` set for the planned website). The dashed box above marks the one piece of this diagram that is a plan, not running code — see [Platforms](#platforms).
 
 ---
 
@@ -259,7 +265,9 @@ Rhythma/
 │   *(Note: `android/` and `ios/` platform folders are not committed; run
 │   `flutter create .` before building for a device.)*
 │
-├── landing-page/                   Standalone Next.js marketing site (Vercel)
+├── landing-page/                   Standalone Next.js marketing site (Vercel) —
+│                                    NOT the planned product website; see "Platforms"
+│                                    (no product website folder exists yet)
 ├── docs/architecture.md            System design notes (describes target architecture)
 ├── design-concepts/                UI demo videos
 ├── screenshots/
@@ -267,8 +275,9 @@ Rhythma/
 ├── CONTRIBUTING.md
 ├── LICENSE
 └── README.md
-
 ```
+
+---
 
 ## Installation
 
@@ -281,14 +290,14 @@ Rhythma/
 - A Gemini API key ([get one here](https://ai.google.dev))
 - A Twilio account (optional — only needed for SMS)
 
-```bash
+```
 git clone https://github.com/ishita2740/Rhythma.git
 cd Rhythma
 ```
 
 ### Running Flutter
 
-```bash
+```
 cd rhythma_flutter
 
 # Platform folders are not committed — generate them first
@@ -305,7 +314,7 @@ flutter run
 
 ### Running Backend
 
-```bash
+```
 cd backend
 
 python -m venv venv
@@ -323,7 +332,7 @@ The API will be available at `http://127.0.0.1:8000`, with interactive docs at `
 
 To run backend tests:
 
-```bash
+```
 cd backend
 pytest
 ```
@@ -384,6 +393,7 @@ The backend currently uses Firebase **only for user accounts** (via the Admin SD
 | First Period Guidance | ❌ Not implemented — no design, content, or code yet |
 | Ayurvedic Correlation Layer | ❌ Not implemented — no content or code yet |
 | WhatsApp Bot Integration | ❌ Not implemented — depends on backend assistant endpoint going live first |
+| Website (feature parity with the app) | ❌ Not implemented — no framework chosen, no code; not to be confused with the existing marketing `landing-page/` |
 | Testing | ⚠️ Basic backend suite passing; Flutter suite needs reconciliation with current UI |
 | CI/CD | ❌ Not set up |
 | Deployment | ⚠️ Landing page only (Vercel) |
@@ -427,7 +437,7 @@ The backend currently uses Firebase **only for user accounts** (via the Admin SD
 
 ### Phase 6 — Platform expansion
 
-- Web application with feature parity
+- **Website with feature parity**: a new, separate front end (framework not yet decided) covering cycle tracking, AI Assistant, Insights, and Profile against the same backend the Flutter app uses — not an extension of the existing `landing-page/` marketing site. See [Platforms](#platforms).
 - **WhatsApp-based assistant access**, built on top of the existing (but currently unused) `/assistant/chat` backend endpoint
 - CI/CD, automated releases, and healthcare-provider partnerships
 
@@ -435,7 +445,7 @@ The backend currently uses Firebase **only for user accounts** (via the Admin SD
 
 ## Contributing
 
-Contributions are welcome. Please read [CONTRIBUTING.md](https://github.com/ishita2740/Rhythma/blob/main/CONTRIBUTING.md) before opening a pull request. Since large parts of the app are still being wired together (see [Project Status](#project-status)), issues that clarify or fix the frontend/backend integration gaps above are especially useful right now. First Period Guidance, the Ayurvedic Correlation Layer, and WhatsApp Bot Integration are open, clean-slate feature areas — see [CONTRIBUTING.md](./CONTRIBUTING.md#feature-areas-open-for-contribution) for how to propose an approach.
+Contributions are welcome. Please read [CONTRIBUTING.md](https://github.com/ishita2740/Rhythma/blob/main/CONTRIBUTING.md) before opening a pull request. Since large parts of the app are still being wired together (see [Project Status](#project-status)), issues that clarify or fix the frontend/backend integration gaps above are especially useful right now. First Period Guidance, the Ayurvedic Correlation Layer, WhatsApp Bot Integration, and the planned website are open, clean-slate feature areas — see [CONTRIBUTING.md](./CONTRIBUTING.md#feature-areas-open-for-contribution) for how to propose an approach.
 
 ---
 
@@ -461,4 +471,4 @@ Rhythma is intended for **educational and general wellness purposes only**. It i
 
 ---
 
-<p align="center"><em>Built with 💜 for the women India's apps forgot.</em></p>
+*Built with 💜 for the women India's apps forgot.*
