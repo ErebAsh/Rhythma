@@ -7,20 +7,21 @@ import 'package:rhythma/l10n/app_localizations.dart';
 import 'components/bottom_nav.dart';
 import 'components/shared.dart';
 import 'config/theme.dart';
+
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/cycle_provider.dart';
+import 'providers/profile_provider.dart';
+
 import 'screens/assistant/assistant_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/cycle/cycle_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/insights/insights_screen.dart';
-import 'screens/profile/profile_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
-import 'services/local_storage_service.dart';
-import 'providers/locale_provider.dart';
-import 'providers/theme_provider.dart';
-import 'providers/profile_provider.dart';
+import 'screens/profile/profile_screen.dart';
+
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
 import 'services/local_storage_service.dart';
@@ -52,6 +53,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => CycleProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
       ],
       child: const RhythmaApp(),
@@ -95,7 +97,7 @@ class RhythmaApp extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const SplashScreen();
           }
-          return snapshot.data != null ? const RhythmaShell() : const LoginScreen();
+          return snapshot.data != null ? const RhythmaRoot() : const LoginScreen();
         },
       ),
       routes: {
