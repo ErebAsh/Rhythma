@@ -5,6 +5,7 @@ import '../../config/theme.dart';
 import '../../components/shared.dart';
 import '../../components/charts.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/profile_provider.dart';
 import '../../services/api_client.dart';
 import '../../services/local_storage_service.dart';
 import '../../utils/secure_storage.dart';
@@ -107,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${l10n.homeGreeting}, $userName',
+                        greeting,
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.w700,

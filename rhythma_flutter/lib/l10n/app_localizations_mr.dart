@@ -366,7 +366,7 @@ class AppLocalizationsMr extends AppLocalizations {
   String get navAsk => 'आस्क';
 
   @override
-  String get navInsights => 'Insights';
+  String get navInsights => 'अंतर्ज्ञान';
 
   @override
   String get navYou => 'यू';
@@ -383,4 +383,128 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get settingsEmailError =>
       'ईमेल ॲप उघडू शकलो नाही. कृपया आम्हाला support@rhythma.com वर ईमेल करा';
+
+  @override
+  String get onboardingPrivacyNote =>
+      'तुमची माहिती तुमच्या डिव्हाइसवर राहते. तुमच्या परवानगीशिवाय आम्ही कधीही तुमचा डेटा शेअर करत नाही.';
+
+  @override
+  String get onboardingNext => 'पुढे';
+
+  @override
+  String get onboardingBack => 'मागे';
+
+  @override
+  String get onboardingSkip => 'वगळा';
+
+  @override
+  String get onboardingDone => 'सुरू करा';
+
+  @override
+  String get onboardingStep1Title => 'तुमची भाषा निवडा';
+
+  @override
+  String get onboardingStep1Subtitle =>
+      'तुम्हाला सर्वात सोयीस्कर वाटणारी भाषा निवडा';
+
+  @override
+  String get onboardingStep2Title => 'स्वतःबद्दल सांगा';
+
+  @override
+  String get onboardingStep2Subtitle =>
+      'यामुळे आम्हाला तुमचा अनुभव वैयक्तिक बनवण्यास मदत होते';
+
+  @override
+  String get onboardingNameHint => 'तुमचे नाव किंवा टोपणनाव';
+
+  @override
+  String get onboardingNameLabel => 'नाव';
+
+  @override
+  String get onboardingAgeLabel => 'वय';
+
+  @override
+  String get onboardingHeightLabel => 'उंची (सेमी)';
+
+  @override
+  String get onboardingWeightLabel => 'वजन (किग्रा)';
+
+  @override
+  String get onboardingAvatarLabel => 'अवतार निवडा';
+
+  @override
+  String get onboardingStep3Title => 'तुमचे चक्र';
+
+  @override
+  String get onboardingStep3Subtitle =>
+      'तुमच्या चक्राबद्दल सांगा — माहीत नसल्यास वगळू शकता';
+
+  @override
+  String get onboardingLastPeriodLabel => 'शेवटच्या मासिक पाळीची सुरुवात';
+
+  @override
+  String get onboardingCycleLengthLabel => 'सरासरी चक्र कालावधी (दिवस)';
+
+  @override
+  String get onboardingPeriodDurationLabel =>
+      'सरासरी मासिक पाळी कालावधी (दिवस)';
+
+  @override
+  String get onboardingCycleRegularityLabel => 'चक्र नियमितता';
+
+  @override
+  String get onboardingRegular => 'नियमित';
+
+  @override
+  String get onboardingIrregular => 'अनियमित';
+
+  @override
+  String get onboardingStep4Title => 'थोडे अधिक (वैकल्पिक)';
+
+  @override
+  String get onboardingStep4Subtitle => 'प्रादेशिक आरोग्य टिप्ससाठी';
+
+  @override
+  String get onboardingPhoneLabel => 'फोन नंबर (वैकल्पिक)';
+
+  @override
+  String get onboardingCityLabel => 'शहर (वैकल्पिक)';
+
+  @override
+  String get onboardingStateLabel => 'राज्य / पिन कोड (वैकल्पिक)';
+
+  @override
+  String get onboardingStep5Title => 'अपडेट राहा';
+
+  @override
+  String get onboardingStep5Subtitle =>
+      'सूचना सक्षम करा जेणेकरून Rhythma योग्य वेळी आठवण करून देईल';
+
+  @override
+  String get onboardingEnableNotifications => 'चक्र स्मरणपत्रे सक्षम करा';
+
+  @override
+  String get onboardingNotificationsDesc =>
+      'मासिक पाळी आणि ओव्हुलेशनपूर्वी सौम्य स्मरणपत्रे मिळवा';
+
+  @override
+  String get onboardingDataConsentLabel =>
+      'मी या डिव्हाइसवर माझा आरोग्य डेटा स्थानिकपणे संग्रहित करण्यास संमती देते';
+
+  @override
+  String get onboardingDataConsentRequired => 'सुरू ठेवण्यासाठी स्वीकारा';
+
+  @override
+  String get onboardingNameRequired => 'कृपया तुमचे नाव प्रविष्ट करा';
+
+  @override
+  String get onboardingAgeInvalid => 'कृपया वैध वय प्रविष्ट करा (10–120)';
+
+  @override
+  String get onboardingHeightInvalid =>
+      'कृपया वैध उंची प्रविष्ट करा (50–250 सेमी)';
+
+  @override
+  String get onboardingWeightInvalid =>
+      'कृपया वैध वजन प्रविष्ट करा (20–300 किग्रा)';
 }

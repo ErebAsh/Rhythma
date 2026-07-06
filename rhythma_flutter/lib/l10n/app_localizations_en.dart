@@ -382,4 +382,128 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsEmailError =>
       'Could not open email app. Please email us at support@rhythma.com';
+
+  @override
+  String get onboardingPrivacyNote =>
+      'Your information stays on your device. We never share your data without your permission.';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingBack => 'Back';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingDone => 'Get Started';
+
+  @override
+  String get onboardingStep1Title => 'Choose Your Language';
+
+  @override
+  String get onboardingStep1Subtitle =>
+      'Select the language you are most comfortable with';
+
+  @override
+  String get onboardingStep2Title => 'Tell us about you';
+
+  @override
+  String get onboardingStep2Subtitle =>
+      'This helps us personalise your experience';
+
+  @override
+  String get onboardingNameHint => 'Your name or nickname';
+
+  @override
+  String get onboardingNameLabel => 'Name';
+
+  @override
+  String get onboardingAgeLabel => 'Age';
+
+  @override
+  String get onboardingHeightLabel => 'Height (cm)';
+
+  @override
+  String get onboardingWeightLabel => 'Weight (kg)';
+
+  @override
+  String get onboardingAvatarLabel => 'Choose an Avatar';
+
+  @override
+  String get onboardingStep3Title => 'Your Cycle';
+
+  @override
+  String get onboardingStep3Subtitle =>
+      'Help us understand your cycle — you can skip if unsure';
+
+  @override
+  String get onboardingLastPeriodLabel => 'Last Period Start Date';
+
+  @override
+  String get onboardingCycleLengthLabel => 'Average Cycle Length (days)';
+
+  @override
+  String get onboardingPeriodDurationLabel => 'Average Period Duration (days)';
+
+  @override
+  String get onboardingCycleRegularityLabel => 'Cycle Regularity';
+
+  @override
+  String get onboardingRegular => 'Regular';
+
+  @override
+  String get onboardingIrregular => 'Irregular';
+
+  @override
+  String get onboardingStep4Title => 'A Little More (Optional)';
+
+  @override
+  String get onboardingStep4Subtitle =>
+      'Helps us suggest region-specific wellness tips';
+
+  @override
+  String get onboardingPhoneLabel => 'Phone Number (optional)';
+
+  @override
+  String get onboardingCityLabel => 'City (optional)';
+
+  @override
+  String get onboardingStateLabel => 'State / PIN Code (optional)';
+
+  @override
+  String get onboardingStep5Title => 'Stay in the loop';
+
+  @override
+  String get onboardingStep5Subtitle =>
+      'Enable notifications so Rhythma can remind you at the right time';
+
+  @override
+  String get onboardingEnableNotifications => 'Enable Cycle Reminders';
+
+  @override
+  String get onboardingNotificationsDesc =>
+      'Get gentle reminders before your period and ovulation window';
+
+  @override
+  String get onboardingDataConsentLabel =>
+      'I consent to storing my health data locally on this device';
+
+  @override
+  String get onboardingDataConsentRequired => 'Please accept to continue';
+
+  @override
+  String get onboardingNameRequired => 'Please enter your name';
+
+  @override
+  String get onboardingAgeInvalid => 'Please enter a valid age (10–120)';
+
+  @override
+  String get onboardingHeightInvalid =>
+      'Please enter a valid height (50–250 cm)';
+
+  @override
+  String get onboardingWeightInvalid =>
+      'Please enter a valid weight (20–300 kg)';
 }

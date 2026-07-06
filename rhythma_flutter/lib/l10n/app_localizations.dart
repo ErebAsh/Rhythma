@@ -841,6 +841,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open email app. Please email us at support@rhythma.com'**
   String get settingsEmailError;
+
+  /// No description provided for @onboardingPrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your information stays on your device. We never share your data without your permission.'**
+  String get onboardingPrivacyNote;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get onboardingBack;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get onboardingDone;
+
+  /// No description provided for @onboardingStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Your Language'**
+  String get onboardingStep1Title;
+
+  /// No description provided for @onboardingStep1Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the language you are most comfortable with'**
+  String get onboardingStep1Subtitle;
+
+  /// No description provided for @onboardingStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us about you'**
+  String get onboardingStep2Title;
+
+  /// No description provided for @onboardingStep2Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This helps us personalise your experience'**
+  String get onboardingStep2Subtitle;
+
+  /// No description provided for @onboardingNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name or nickname'**
+  String get onboardingNameHint;
+
+  /// No description provided for @onboardingNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get onboardingNameLabel;
+
+  /// No description provided for @onboardingAgeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get onboardingAgeLabel;
+
+  /// No description provided for @onboardingHeightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Height (cm)'**
+  String get onboardingHeightLabel;
+
+  /// No description provided for @onboardingWeightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight (kg)'**
+  String get onboardingWeightLabel;
+
+  /// No description provided for @onboardingAvatarLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an Avatar'**
+  String get onboardingAvatarLabel;
+
+  /// No description provided for @onboardingStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Cycle'**
+  String get onboardingStep3Title;
+
+  /// No description provided for @onboardingStep3Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us understand your cycle — you can skip if unsure'**
+  String get onboardingStep3Subtitle;
+
+  /// No description provided for @onboardingLastPeriodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Period Start Date'**
+  String get onboardingLastPeriodLabel;
+
+  /// No description provided for @onboardingCycleLengthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Cycle Length (days)'**
+  String get onboardingCycleLengthLabel;
+
+  /// No description provided for @onboardingPeriodDurationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Period Duration (days)'**
+  String get onboardingPeriodDurationLabel;
+
+  /// No description provided for @onboardingCycleRegularityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle Regularity'**
+  String get onboardingCycleRegularityLabel;
+
+  /// No description provided for @onboardingRegular.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular'**
+  String get onboardingRegular;
+
+  /// No description provided for @onboardingIrregular.
+  ///
+  /// In en, this message translates to:
+  /// **'Irregular'**
+  String get onboardingIrregular;
+
+  /// No description provided for @onboardingStep4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'A Little More (Optional)'**
+  String get onboardingStep4Title;
+
+  /// No description provided for @onboardingStep4Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Helps us suggest region-specific wellness tips'**
+  String get onboardingStep4Subtitle;
+
+  /// No description provided for @onboardingPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number (optional)'**
+  String get onboardingPhoneLabel;
+
+  /// No description provided for @onboardingCityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'City (optional)'**
+  String get onboardingCityLabel;
+
+  /// No description provided for @onboardingStateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'State / PIN Code (optional)'**
+  String get onboardingStateLabel;
+
+  /// No description provided for @onboardingStep5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay in the loop'**
+  String get onboardingStep5Title;
+
+  /// No description provided for @onboardingStep5Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notifications so Rhythma can remind you at the right time'**
+  String get onboardingStep5Subtitle;
+
+  /// No description provided for @onboardingEnableNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Cycle Reminders'**
+  String get onboardingEnableNotifications;
+
+  /// No description provided for @onboardingNotificationsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get gentle reminders before your period and ovulation window'**
+  String get onboardingNotificationsDesc;
+
+  /// No description provided for @onboardingDataConsentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'I consent to storing my health data locally on this device'**
+  String get onboardingDataConsentLabel;
+
+  /// No description provided for @onboardingDataConsentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please accept to continue'**
+  String get onboardingDataConsentRequired;
+
+  /// No description provided for @onboardingNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name'**
+  String get onboardingNameRequired;
+
+  /// No description provided for @onboardingAgeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid age (10–120)'**
+  String get onboardingAgeInvalid;
+
+  /// No description provided for @onboardingHeightInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid height (50–250 cm)'**
+  String get onboardingHeightInvalid;
+
+  /// No description provided for @onboardingWeightInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid weight (20–300 kg)'**
+  String get onboardingWeightInvalid;
 }
 
 class _AppLocalizationsDelegate

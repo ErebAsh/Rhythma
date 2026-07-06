@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from core.auth import (
     create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -10,25 +10,75 @@ from core.auth import (
 )
 from models.user import UserCreate, UserResponse
 from services.firestore_service import UserService
+from typing import Dict, List
 
 router = APIRouter(tags=["Authentication"])
 
+# ─── Rate Limiting ──────────────────────────────────────────────────────────
+# In-memory stores for rate limiting (resets on server restart)
+login_attempts: Dict[str, List[datetime]] = {}
+register_attempts: Dict[str, List[datetime]] = {}
+
+def is_rate_limited(
+    attempts_store: Dict[str, List[datetime]],
+    key: str,
+    limit: int = 5,
+    window_seconds: int = 300,
+) -> bool:
+    """
+    Returns True if the key has exceeded the allowed number of attempts
+    within the rolling time window.
+    """
+    now = datetime.now(timezone.utc)
+    # Clean old entries
+    if key in attempts_store:
+        attempts_store[key] = [
+            t for t in attempts_store[key]
+            if now - t < timedelta(seconds=window_seconds)
+        ]
+    else:
+        attempts_store[key] = []
+
+    if len(attempts_store[key]) >= limit:
+        return True
+
+    attempts_store[key].append(now)
+    return False
+
+def get_client_ip(request: Request) -> str:
+    """Extract the client's IP address from the request."""
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host or "unknown"
+
+# ─── Endpoints ──────────────────────────────────────────────────────────────
+
 @router.post("/register", response_model=UserResponse)
-async def register(user_data: UserCreate):
-    # ─── Check if username already exists ──────────────────────────────
-    existing_username = UserService.get_user_by_username(user_data.username)
-    if existing_username:
+async def register(request: Request, user_data: UserCreate):
+    # Rate limit by IP address (10 attempts per 5 minutes)
+    client_ip = get_client_ip(request)
+    if is_rate_limited(register_attempts, client_ip, limit=10, window_seconds=300):
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Username already exists"
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many registration attempts. Please wait 5 minutes."
         )
 
-    # ─── Check if email already exists ──────────────────────────────────
+    # ─── Check for an existing account ──────────────────────────────────
+    # Check both username and email regardless of whether the first check
+    # already found a match, and return one identical message either way.
+    # Returning distinct "Username already exists" vs "Email already
+    # exists" responses (or short-circuiting on the first match) lets an
+    # attacker enumerate which specific accounts exist on the system by
+    # trying registrations — this keeps the *existence* check useful for
+    # legitimate re-registration attempts without revealing which field
+    # matched.
+    existing_username = UserService.get_user_by_username(user_data.username)
     existing_email = UserService.get_user_by_email(user_data.email)
-    if existing_email:
+    if existing_username or existing_email:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email already exists"
+            detail="An account with this username or email already exists"
         )
 
     # ─── Hash password and create user ─────────────────────────────────
@@ -48,19 +98,27 @@ async def register(user_data: UserCreate):
         updated_at=created_user.get("updated_at")
     )
 
+
 @router.post("/token")
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = UserService.get_user_by_username(form_data.username)
-    if not user:
+async def login_for_access_token(
+    request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends()
+):
+    # Rate limit by username (5 attempts per 5 minutes)
+    key = form_data.username or "unknown"
+    if is_rate_limited(login_attempts, key, limit=5, window_seconds=300):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many login attempts. Please wait 5 minutes."
         )
 
-    if not verify_password(form_data.password, user["password"]):
+    user = UserService.get_user_by_username(form_data.username)
+
+    # Generic error message: same for missing user or wrong password
+    if not user or not verify_password(form_data.password, user["password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Invalid username or password"
         )
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

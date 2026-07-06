@@ -6,6 +6,8 @@ import '../../services/local_storage_service.dart';
 import '../settings/settings_screen.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/profile_provider.dart';
+import '../onboarding/onboarding_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -110,6 +112,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   void _showEditProfileSheet() {
+    final profile = context.read<ProfileProvider>().profile;
+    String selectedAvatar = profile['avatar'] as String? ?? 'assets/avatars/avatar_1.png';
+    if (!selectedAvatar.startsWith('assets/') || !selectedAvatar.endsWith('.png')) {
+      selectedAvatar = 'assets/avatars/avatar_1.png';
+    }
+
     final nameController = TextEditingController(text: _userName);
     final ageController = TextEditingController(text: _userAge.toString());
     final cycleController = TextEditingController(text: _cycleLength.toString());
@@ -138,6 +146,49 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SectionHeader(title: AppLocalizations.of(context)!.profileEditProfile),
+                const SizedBox(height: 16),
+                Text(
+                  AppLocalizations.of(context)!.onboardingAvatarLabel,
+                  style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 64,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: OnboardingScreen.avatars.length,
+                    itemBuilder: (_, i) {
+                      final avatarPath = OnboardingScreen.avatars[i];
+                      final isSelected = selectedAvatar == avatarPath;
+                      return GestureDetector(
+                        onTap: () => setSheetState(() => selectedAvatar = avatarPath),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          margin: const EdgeInsets.only(right: 12),
+                          width: 54,
+                          height: 54,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isSelected
+                                ? RhythmaColors.primary.withOpacity(0.2)
+                                : RhythmaColors.surface,
+                            border: Border.all(
+                              color: isSelected ? RhythmaColors.primary : Colors.transparent,
+                              width: 2.5,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(3.0),
+                            child: CircleAvatar(
+                              backgroundImage: AssetImage(avatarPath),
+                              backgroundColor: Colors.transparent,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: nameController,
@@ -201,10 +252,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         _cycleLength = cycleVal!;
                       });
                       
-                      await LocalStorageService.saveProfile({
+                      await context.read<ProfileProvider>().mergeProfile({
                         'name': name,
                         'age': ageVal!,
                         'cycle_length': cycleVal!,
+                        'avatar': selectedAvatar,
                       });
 
                       if (context.mounted) {
@@ -407,6 +459,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   Widget _buildHeader() {
+    final profile = context.read<ProfileProvider>().profile;
+    String avatarPath = profile['avatar'] as String? ?? 'assets/avatars/avatar_1.png';
+    if (!avatarPath.startsWith('assets/') || !avatarPath.endsWith('.png')) {
+      avatarPath = 'assets/avatars/avatar_1.png';
+    }
+
     return Column(
       children: [
         Container(
@@ -423,12 +481,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
             child: CircleAvatar(
               radius: 48,
-              backgroundColor: RhythmaColors.primary.withValues(alpha: 0.1),
-              child: Icon(
-                Icons.person_rounded,
-                size: 48,
-                color: RhythmaColors.primary,
-              ),
+              backgroundImage: AssetImage(avatarPath),
+              backgroundColor: Colors.transparent,
             ),
           ),
         ),
@@ -629,6 +683,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>();
+    final profile = context.watch<ProfileProvider>().profile;
+    if (profile.isNotEmpty) {
+      _userName = profile['name'] as String? ?? 'Aarya';
+      _userAge = profile['age'] as int? ?? 28;
+      _cycleLength = profile['cycle_length'] as int? ?? 28;
+    }
     return Scaffold(
       body: ListView(
         padding: const EdgeInsets.all(20).copyWith(bottom: 100, top: 24),

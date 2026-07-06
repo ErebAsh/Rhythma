@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:rhythma/l10n/app_localizations.dart';
 import 'package:rhythma/screens/profile/profile_screen.dart';
 import 'package:rhythma/screens/settings/settings_screen.dart';
 import 'package:rhythma/services/local_storage_service.dart';
+import 'package:rhythma/providers/locale_provider.dart';
+import 'package:rhythma/providers/theme_provider.dart';
+import 'package:rhythma/providers/profile_provider.dart';
 
 void main() {
   setUp(() {
@@ -26,9 +32,29 @@ void main() {
     });
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: ProfileScreen(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ],
+        child: const MaterialApp(
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: [
+            Locale('en'),
+            Locale('hi'),
+            Locale('ta'),
+            Locale('te'),
+            Locale('mr'),
+          ],
+          home: Scaffold(
+            body: ProfileScreen(),
+          ),
         ),
       ),
     );
@@ -146,12 +172,7 @@ void main() {
     expect(find.text('Mom'), findsOneWidget);
     expect(find.text('+919876543210'), findsOneWidget);
 
-    // ── Edit Contact ──
-    // Tap Edit (pencil icon) inside the ListView
-    final editIconButton = find.descendant(
-      of: find.byType(ListView),
-      matching: find.byIcon(Icons.edit_rounded),
-    );
+    final editIconButton = find.byIcon(Icons.edit_rounded).last;
     await tester.tap(editIconButton);
     await tester.pumpAndSettle();
 
@@ -185,7 +206,7 @@ void main() {
     // Verify settings screen is opened and header/tiles are present
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('App Preferences'), findsOneWidget);
-    expect(find.text('Cloud Synchronization'), findsOneWidget);
+    expect(find.text('Security & Privacy'), findsOneWidget);
 
     // Tap Log Out button pinned at the bottom-side
     await tester.tap(find.text('Log Out'));

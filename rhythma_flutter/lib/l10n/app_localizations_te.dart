@@ -367,7 +367,7 @@ class AppLocalizationsTe extends AppLocalizations {
   String get navAsk => 'ఆస్క్';
 
   @override
-  String get navInsights => 'Insights';
+  String get navInsights => 'విశ్లేషణలు';
 
   @override
   String get navYou => 'యూ';
@@ -384,4 +384,129 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get settingsEmailError =>
       'ఇమెయిల్ యాప్‌ను తెరవలేకపోయాము. దయచేసి మాకు support@rhythma.com లో ఇమెయిల్ చేయండి';
+
+  @override
+  String get onboardingPrivacyNote =>
+      'మీ సమాచారం మీ పరికరంలో మాత్రమే ఉంటుంది. మీ అనుమతి లేకుండా మేము ఎప్పుడూ మీ డేటాను పంచుకోము.';
+
+  @override
+  String get onboardingNext => 'తదుపరి';
+
+  @override
+  String get onboardingBack => 'వెనుక';
+
+  @override
+  String get onboardingSkip => 'దాటవేయి';
+
+  @override
+  String get onboardingDone => 'ప్రారంభించు';
+
+  @override
+  String get onboardingStep1Title => 'మీ భాషను ఎంచుకోండి';
+
+  @override
+  String get onboardingStep1Subtitle =>
+      'మీకు అత్యంత సౌకర్యంగా అనిపించే భాషను ఎంచుకోండి';
+
+  @override
+  String get onboardingStep2Title => 'మీ గురించి చెప్పండి';
+
+  @override
+  String get onboardingStep2Subtitle =>
+      'ఇది మీ అనుభవాన్ని వ్యక్తిగతీకరించడంలో మాకు సహాయపడుతుంది';
+
+  @override
+  String get onboardingNameHint => 'మీ పేరు లేదా మారుపేరు';
+
+  @override
+  String get onboardingNameLabel => 'పేరు';
+
+  @override
+  String get onboardingAgeLabel => 'వయసు';
+
+  @override
+  String get onboardingHeightLabel => 'ఎత్తు (సెమీ)';
+
+  @override
+  String get onboardingWeightLabel => 'బరువు (కిలో)';
+
+  @override
+  String get onboardingAvatarLabel => 'అవతార్ ఎంచుకోండి';
+
+  @override
+  String get onboardingStep3Title => 'మీ చక్రం';
+
+  @override
+  String get onboardingStep3Subtitle =>
+      'మీ చక్రం గురించి చెప్పండి — తెలియకపోతే దాటవేయవచ్చు';
+
+  @override
+  String get onboardingLastPeriodLabel => 'చివరి ఋతుక్రమం ప్రారంభ తేదీ';
+
+  @override
+  String get onboardingCycleLengthLabel => 'సగటు చక్రం వ్యవధి (రోజులు)';
+
+  @override
+  String get onboardingPeriodDurationLabel => 'సగటు ఋతుక్రమం వ్యవధి (రోజులు)';
+
+  @override
+  String get onboardingCycleRegularityLabel => 'చక్రం క్రమబద్ధత';
+
+  @override
+  String get onboardingRegular => 'క్రమబద్ధం';
+
+  @override
+  String get onboardingIrregular => 'అక్రమం';
+
+  @override
+  String get onboardingStep4Title => 'కొంచెం ఇంకా (ఐచ్ఛికం)';
+
+  @override
+  String get onboardingStep4Subtitle => 'ప్రాంతీయ ఆరోగ్య చిట్కాల కోసం';
+
+  @override
+  String get onboardingPhoneLabel => 'ఫోన్ నంబర్ (ఐచ్ఛికం)';
+
+  @override
+  String get onboardingCityLabel => 'నగరం (ఐచ్ఛికం)';
+
+  @override
+  String get onboardingStateLabel => 'రాష్ట్రం / పిన్ కోడ్ (ఐచ్ఛికం)';
+
+  @override
+  String get onboardingStep5Title => 'అప్‌డేట్‌గా ఉండండి';
+
+  @override
+  String get onboardingStep5Subtitle =>
+      'Rhythma సరైన సమయంలో గుర్తు చేయడానికి నోటిఫికేషన్‌లను ప్రారంభించండి';
+
+  @override
+  String get onboardingEnableNotifications =>
+      'చక్రం రిమైండర్‌లను ప్రారంభించండి';
+
+  @override
+  String get onboardingNotificationsDesc =>
+      'ఋతుక్రమం మరియు అండోత్సర్గానికి ముందు సున్నితమైన రిమైండర్‌లు పొందండి';
+
+  @override
+  String get onboardingDataConsentLabel =>
+      'ఈ పరికరంలో నా ఆరోగ్య డేటాను స్థానికంగా నిల్వ చేయడానికి నేను అంగీకరిస్తున్నాను';
+
+  @override
+  String get onboardingDataConsentRequired => 'కొనసాగించడానికి అంగీకరించండి';
+
+  @override
+  String get onboardingNameRequired => 'దయచేసి మీ పేరు నమోదు చేయండి';
+
+  @override
+  String get onboardingAgeInvalid =>
+      'దయచేసి చెల్లుబాటు అయ్యే వయసు నమోదు చేయండి (10–120)';
+
+  @override
+  String get onboardingHeightInvalid =>
+      'దయచేసి చెల్లుబాటు అయ్యే ఎత్తు నమోదు చేయండి (50–250 సెమీ)';
+
+  @override
+  String get onboardingWeightInvalid =>
+      'దయచేసి చెల్లుబాటు అయ్యే బరువు నమోదు చేయండి (20–300 కిలో)';
 }

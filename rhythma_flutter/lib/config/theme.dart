@@ -32,12 +32,15 @@ class RhythmaColors {
   // Border
   static Color border = const Color(0xFFE8DFF5);
 
+  static bool isDark = false;
+
   // Glass card helper — used many places
   static Color get glassCard => surface.withOpacity(0.75);
   static Color get glassBorder => lavender.withOpacity(0.4);
 
-  static void updateTheme(bool isDark, Color selectedPrimary) {
-    if (isDark) {
+  static void updateTheme(bool isDarkMode, Color selectedPrimary) {
+    isDark = isDarkMode;
+    if (isDarkMode) {
       // In dark mode, keep the background dark but use the selected primary color
       primary = selectedPrimary;
       primaryFg = const Color(0xFFFCFAFF);
@@ -95,20 +98,36 @@ class RhythmaGradients {
 }
 
 class RhythmaTheme {
-  static ThemeData get theme => ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Nunito',
-        colorScheme: ColorScheme.light(
-          primary: RhythmaColors.primary,
-          secondary: RhythmaColors.teal,
-          tertiary: RhythmaColors.rose,
-          surface: RhythmaColors.surface,
-          background: RhythmaColors.background,
-          onPrimary: RhythmaColors.primaryFg,
-          onSecondary: RhythmaColors.tealFg,
-          onSurface: RhythmaColors.foreground,
-          onBackground: RhythmaColors.foreground,
-        ),
+  static ThemeData get theme {
+    final colorScheme = RhythmaColors.isDark
+        ? ColorScheme.dark(
+            primary: RhythmaColors.primary,
+            secondary: RhythmaColors.teal,
+            tertiary: RhythmaColors.rose,
+            surface: RhythmaColors.surface,
+            background: RhythmaColors.background,
+            onPrimary: RhythmaColors.primaryFg,
+            onSecondary: RhythmaColors.tealFg,
+            onSurface: RhythmaColors.foreground,
+            onBackground: RhythmaColors.foreground,
+          )
+        : ColorScheme.light(
+            primary: RhythmaColors.primary,
+            secondary: RhythmaColors.teal,
+            tertiary: RhythmaColors.rose,
+            surface: RhythmaColors.surface,
+            background: RhythmaColors.background,
+            onPrimary: RhythmaColors.primaryFg,
+            onSecondary: RhythmaColors.tealFg,
+            onSurface: RhythmaColors.foreground,
+            onBackground: RhythmaColors.foreground,
+          );
+
+    return ThemeData(
+      useMaterial3: true,
+      fontFamily: 'Nunito',
+      brightness: RhythmaColors.isDark ? Brightness.dark : Brightness.light,
+      colorScheme: colorScheme,
         scaffoldBackgroundColor: Colors.transparent,
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.transparent,
@@ -191,4 +210,5 @@ class RhythmaTheme {
               const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         ),
       );
+  }
 }
