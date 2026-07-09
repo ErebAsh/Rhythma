@@ -4,8 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 import 'package:rhythma/providers/cycle_provider.dart';
 import 'package:rhythma/screens/cycle/components/calendar_grid.dart';
+import 'package:rhythma/services/local_storage_service.dart';
 
 void main() {
+  setUp(() {
+    LocalStorageService.isTesting = true;
+    LocalStorageService.mockCycleLogs = [];
+  });
   Widget buildTestableWidget({required Widget child}) {
     return MultiProvider(
       providers: [

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rhythma/l10n/app_localizations.dart';
 import '../../../config/theme.dart';
 import '../../../providers/cycle_provider.dart';
 import '../../../services/local_storage_service.dart';

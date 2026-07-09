@@ -18,6 +18,7 @@ class LocalStorageService {
   static Map<String, dynamic>? mockProfile;
   static List<Map<String, String>> mockEmergencyContacts = [];
   static bool mockOnboardingCompleted = false;
+  static List<Map<String, dynamic>> mockCycleLogs = [];
 
   /// Call once at app startup (after WidgetsFlutterBinding.ensureInitialized)
   static Future<void> init() async {
@@ -101,13 +102,27 @@ class LocalStorageService {
   /// Save a cycle log entry. Key = ISO date string of start_date, scoped
   /// to the currently signed-in user.
   static Future<void> saveCycleLog(Map<String, dynamic> log) async {
-    if (isTesting) return;
+    if (isTesting) {
+      // Find and replace or add new
+      final index = mockCycleLogs.indexWhere((l) => l['start_date'] == log['start_date']);
+      if (index != -1) {
+        mockCycleLogs[index] = log;
+      } else {
+        mockCycleLogs.add(log);
+      }
+      return;
+    }
     final key = log['start_date'] as String;
     await _cycleBox.put(_scoped(key), log);
   }
 
   /// Returns all cycle logs for the current user, sorted most recent first.
   static List<Map<String, dynamic>> getCycleLogs() {
+    if (isTesting) {
+      return List<Map<String, dynamic>>.from(mockCycleLogs)
+        ..sort((a, b) =>
+            (b['start_date'] as String).compareTo(a['start_date'] as String));
+    }
     final uid = currentUserId;
     final prefix = uid == null ? null : '$uid::';
     return _cycleBox.keys

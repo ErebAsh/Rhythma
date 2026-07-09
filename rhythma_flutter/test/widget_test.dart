@@ -247,6 +247,13 @@ void main() {
   });
 
   testWidgets('5. Log Entry Sheet create, edit, save flows', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     await tester.pumpWidget(
       MultiProvider(
         providers: [
