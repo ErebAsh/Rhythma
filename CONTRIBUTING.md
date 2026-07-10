@@ -18,6 +18,7 @@ Please read this guide before opening an issue or pull request.
   * [General](#general)
   * [Flutter](#flutter)
   * [Backend](#backend)
+  * [Web](#web)
 - [Commit Message Format](#commit-message-format)
 - [Code Quality Requirements](#code-quality-requirements)
 - [How to Test](#how-to-test)
@@ -60,6 +61,17 @@ cp .env.example .env    # JWT_SECRET and Firebase credentials are required
 uvicorn main:app --reload
 ```
 
+**Web app:**
+
+```
+cd web
+cp .env.example .env.local   # VITE_API_BASE_URL defaults to a local backend, adjust if needed
+npm install
+npm run dev
+```
+
+Note that the web app is an early scaffold — you'll get a working login/register flow and a placeholder home page, not the full feature set. See the README's [Platforms](https://github.com/ishita2740/Rhythma/blob/main/README.md#platforms) section for what exists there today.
+
 Full setup details, environment variables, and Firebase configuration live in the [README](https://github.com/ishita2740/Rhythma/blob/main/README.md#installation) — not duplicating that here; keeping this file focused on the *contribution process*.
 
 ---
@@ -70,10 +82,12 @@ The [README's Project Status](https://github.com/ishita2740/Rhythma/blob/main/RE
 
 **Before starting on any of these, open an issue first** (see [Issue Workflow](#issue-workflow)). Each one needs a scoping discussion, since the "right" first version is genuinely open, not just an implementation detail.
 
+> **Highest-priority non-clean-slate gap:** wiring the Cycle screen's daily-logging bottom sheet to persist real data (via Hive and/or the backend's working `POST /cycle/log`). This isn't clean-slate — the UI, the backend endpoint, and the `/dashboard` scoring that would consume the data all already exist — but closing it is what unblocks the Insights screen, real CVI/MHS, and the Home screen's dashboard actually showing something. If you want a smaller, well-scoped, high-impact issue rather than a clean-slate feature, ask about this one.
+
 - **First Period Guidance** — a dedicated onboarding and education flow for first-time users aged 12–17, with simpler language, a different tone, and content distinct from the general cycle-tracking experience. Open questions before code gets written: how do we determine a user is in this age group, how much of the existing navigation should this flow reuse vs. replace, and where does the educational content itself come from (needs review, ideally from someone with relevant health-education background).
 - **Ayurvedic Correlation Layer** — educational content connecting lifestyle and cycle patterns to traditional Ayurvedic wellness concepts, surfaced contextually alongside cycle/insight data. This is content-heavy work as much as code: sourcing accurate, non-prescriptive material is the harder half of this feature, and it needs to stay clearly educational rather than reading as medical advice (see [Disclaimer](https://github.com/ishita2740/Rhythma/blob/main/README.md#disclaimer)).
-- **WhatsApp Bot Integration** — a Gemini-powered WhatsApp assistant (via Twilio/Meta Cloud API) for cycle tracking and health Q&A without an app install. This one has a real dependency: it should build on the existing `backend/api/assistant.py` endpoint, which currently exists but isn't called by the Flutter app yet. If you're interested in this, it's worth first checking in on the plan to consolidate the two AI-assistant paths (client-direct vs. backend-proxied — see the README's [Features In Progress](https://github.com/ishita2740/Rhythma/blob/main/README.md#features-in-progress)), since building on the wrong one means redoing the work later.
-- **Website (feature parity with the app)** — a second front end, separate from the existing `landing-page/` marketing site, covering the same core features (cycle tracking, AI Assistant, Insights, Profile) against the same backend. No framework has been chosen yet — that's an open discussion, not a decided one, so raise it in the scoping issue rather than assuming Next.js just because the marketing site uses it. This is a large effort; it's reasonable to propose tackling one feature area of the website at a time rather than all of it in one PR (see [Maximum Recommended PR Size](#maximum-recommended-pr-size)).
+- **WhatsApp Bot Integration** — a Gemini-powered WhatsApp assistant (via Twilio/Meta Cloud API) for cycle tracking and health Q&A without an app install. This one has a real dependency: it should build on the existing `backend/api/assistant.py` endpoint, which currently exists but isn't called by the Flutter app or the web app yet. If you're interested in this, it's worth first checking in on the plan to consolidate the two AI-assistant paths (client-direct vs. backend-proxied — see the README's [Features In Progress](https://github.com/ishita2740/Rhythma/blob/main/README.md#features-in-progress)), since building on the wrong one means redoing the work later.
+- **Website product pages** — `web/` now has a working login/register/protected-route scaffold (React + Vite + TypeScript), but cycle tracking, AI Assistant, and Insights pages don't exist yet — only a placeholder home page. Building these against the existing backend endpoints (the same ones the Flutter app calls) is open work, and it's reasonable to propose tackling one page at a time rather than all of it in one PR (see [Maximum Recommended PR Size](#maximum-recommended-pr-size)).
 
 If you have an idea that isn't listed in the README's Future Features section at all, that's fine too — open an issue describing it and we can discuss whether and how it fits before any code is written.
 
@@ -156,6 +170,14 @@ Use lowercase, hyphen-separated, descriptive names — not issue numbers alone (
 - Keep route handlers lightweight.
 - Move reusable logic into services.
 
+### Web
+
+- TypeScript, not plain JS — the project is set up with `tsc -b` as part of the build.
+- Follow the existing `web/src/api/client.ts` pattern for backend calls (shared Axios instance, token interceptor) rather than creating ad-hoc `fetch`/`axios` calls per page.
+- Use `react-i18next` for user-facing strings, mirroring the same locale set as Flutter (`en`, `hi`, `mr`, `ta`, `te`) — add new keys to `web/src/i18n/locales/en.json` at minimum.
+- Keep new product pages (cycle tracking, Insights, Assistant) behind `ProtectedRoute`, consistent with the existing auth pages.
+- Run `npm run lint` (oxlint) before opening a PR.
+
 ---
 
 ## Commit Message Format
@@ -213,6 +235,16 @@ cd backend
 pytest -v
 ```
 
+**Web:**
+
+```
+cd web
+npm run lint
+npm run build   # tsc -b && vite build — catches type errors even without a dedicated test suite yet
+```
+
+There's no automated test suite in `web/` yet — if you're adding meaningful logic (not just markup), consider adding one rather than relying on manual checking.
+
 If you added an endpoint, manually exercise it via the interactive docs at `http://127.0.0.1:8000/docs` (or `curl`/Postman) in addition to any automated tests, and describe what you checked in the PR description.
 
 ---
@@ -254,10 +286,10 @@ If you added an endpoint, manually exercise it via the interactive docs at `http
 
 ## Required Screenshots/Videos for UI PRs
 
-Any PR that changes a Flutter screen's appearance or interaction must include:
+Any PR that changes a Flutter screen's or web page's appearance or interaction must include:
 
 - A **before/after screenshot** (or a screen recording for animations, gestures, or multi-step flows)
-- Screenshots for **both light and dark mode** if the change could plausibly render differently between them
+- Screenshots for **both light and dark mode** if the change could plausibly render differently between them (Flutter only — the web app doesn't have a dark mode yet)
 - If the change affects a screen with existing localized strings, a screenshot in at least one non-English locale (e.g., Hindi) to confirm text doesn't overflow or truncate
 
 Attach these directly in the PR description (drag-and-drop into the GitHub PR body works fine).
@@ -293,7 +325,7 @@ Please:
 
 - If your change alters **user-facing behavior**, update the relevant section of the [README](https://github.com/ishita2740/Rhythma/blob/main/README.md) in the same PR — particularly the [Project Status](https://github.com/ishita2740/Rhythma/blob/main/README.md#project-status) table, since it's the single source of truth for what's implemented vs. in progress. A PR that makes a feature work end-to-end but leaves it listed as "❌ Not implemented" in the README will be asked to update that table before merge.
 - If your change alters the **system design** (new data flow, new dependency between the Flutter app and backend, new external service), update `docs/architecture.md` accordingly.
-- If you add a **new environment variable**, update the corresponding `.env.example` file (`backend/.env.example` or `rhythma_flutter/env.example`) and the README's [Environment Variables](https://github.com/ishita2740/Rhythma/blob/main/README.md#environment-variables) table.
+- If you add a **new environment variable**, update the corresponding `.env.example` file (`backend/.env.example`, `rhythma_flutter/env.example`, or `web/.env.example`) and the README's [Environment Variables](https://github.com/ishita2740/Rhythma/blob/main/README.md#environment-variables) table.
 - If you add a **new user-facing string**, add it to `app_en.arb` at minimum; adding it to the other four locale files (`hi`, `mr`, `ta`, `te`) is strongly encouraged but won't block a PR if you leave a note asking for translation help.
 - Documentation should describe **what the code currently does**, not the eventual vision for it. When in doubt, describe the current behavior and put aspirational notes clearly under a "Future Features" or "planned" heading.
 
