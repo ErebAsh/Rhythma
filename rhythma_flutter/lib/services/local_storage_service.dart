@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 /// Keys used in Hive boxes
@@ -21,12 +23,57 @@ class LocalStorageService {
   static List<Map<String, dynamic>> mockCycleLogs = [];
 
   /// Call once at app startup (after WidgetsFlutterBinding.ensureInitialized)
-  static Future<void> init() async {
+  static Future<void> init({String? testPath}) async {
     if (_initialised) return;
-    await Hive.initFlutter();
-    await Hive.openBox<Map>(_Keys.cycleBox);
+    
+    if (testPath != null) {
+      Hive.init(testPath);
+    } else {
+      await Hive.initFlutter();
+    }
+    
+    const secureStorage = FlutterSecureStorage();
+    var encryptionKeyString = await secureStorage.read(key: 'hive_key');
+    bool needsMigration = false;
+
+    if (encryptionKeyString == null) {
+      final key = Hive.generateSecureKey();
+      encryptionKeyString = base64UrlEncode(key);
+      await secureStorage.write(key: 'hive_key', value: encryptionKeyString);
+      needsMigration = true; // Flag that existing data is unencrypted
+    }
+
+    final cipher = HiveAesCipher(base64Url.decode(encryptionKeyString));
+
+    // 1. Handle migration for existing users for cycleBox
+    if (needsMigration && await Hive.boxExists(_Keys.cycleBox)) {
+      final oldBox = await Hive.openBox<Map>(_Keys.cycleBox);
+      final oldData = oldBox.toMap();
+      await oldBox.close();
+      await Hive.deleteBoxFromDisk(_Keys.cycleBox); // Delete unencrypted file
+      
+      final newBox = await Hive.openBox<Map>(_Keys.cycleBox, encryptionCipher: cipher);
+      await newBox.putAll(oldData); // Restore data securely
+    } else {
+      await Hive.openBox<Map>(_Keys.cycleBox, encryptionCipher: cipher);
+    }
+
+    // 2. Handle migration for existing users for userBox
+    if (needsMigration && await Hive.boxExists(_Keys.userBox)) {
+      final oldBox = await Hive.openBox<Map>(_Keys.userBox);
+      final oldData = oldBox.toMap();
+      await oldBox.close();
+      await Hive.deleteBoxFromDisk(_Keys.userBox); // Delete unencrypted file
+      
+      final newBox = await Hive.openBox<Map>(_Keys.userBox, encryptionCipher: cipher);
+      await newBox.putAll(oldData); // Restore data securely
+    } else {
+      await Hive.openBox<Map>(_Keys.userBox, encryptionCipher: cipher);
+    }
+
+    // 3. Open non-sensitive settings unencrypted
     await Hive.openBox<dynamic>(_Keys.settingsBox);
-    await Hive.openBox<Map>(_Keys.userBox);
+
     _initialised = true;
   }
 
