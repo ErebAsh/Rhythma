@@ -57,6 +57,9 @@
     }
   },
   "homePrivacySecurity": "Privacy & Security",
+  "homeMhs": "MHS",
+  "homeCvi": "CVI",
+  "homeSleep": "Sleep",
   "homeOk": "OK",
   "cycleTrackerTitle": "Cycle Tracker",
   "cyclePhasePeriod": "Period",
@@ -91,6 +94,98 @@
   "logSympFatigue": "Fatigue",
   "logSympNausea": "Nausea",
   "logSympBackPain": "Back Pain",
+  
+  "homeErrorNetwork": "Please check your internet connection and try again.",
+  "homeErrorAuth": "Your session has expired. Please log in again.",
+  "homeErrorServer": "Something went wrong on our end. Please try again later.",
+  "homeErrorGeneric": "Unable to load data. Please try again.",
+  "homeQuickLogTitle": "Log {label}",
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "homeQuickLogSaved": "{label} logged: {value}",
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "value": { "type": "String" }
+    }
+  },
+
+  "loginWelcomeBack": "Welcome back",
+  "loginSubtitle": "Log in to continue your private Rhythma journey.",
+  "loginUsername": "Username",
+  "loginPassword": "Password",
+  "loginShowPassword": "Show password",
+  "loginHidePassword": "Hide password",
+  "loginLoggingIn": "Logging in...",
+  "loginButton": "Login",
+  "loginNoAccount": "Don't have an account? Register",
+  "loginFieldsRequired": "Please enter your username and password.",
+  "loginErrorNetwork": "Please check your internet connection and try again.",
+  "loginErrorInvalidCredentials": "Invalid username or password.",
+  "loginErrorGeneric": "Login failed. Please try again.",
+
+  "registerTitle": "Create Account",
+  "registerSubtitle": "Set up secure access to your Rhythma assistant.",
+  "registerFullName": "Full Name (optional)",
+  "registerEmail": "Email",
+  "registerUsernameHelper": "6-30 characters: letters, numbers, underscore",
+  "registerAge": "Age",
+  "registerAgeHelper": "Between 10 and 120",
+  "registerCycleLength": "Average Cycle Length (days)",
+  "registerCycleHelper": "Between 15 and 45 days",
+  "registerPasswordHelper": "Minimum 8 characters",
+  "registerCreating": "Creating account...",
+  "registerButton": "Register",
+  "registerHaveAccount": "Already have an account? Login",
+  "registerSuccess": "Account created successfully! Please login.",
+  "registerErrorNetwork": "Please check your internet connection and try again.",
+  "registerErrorConflict": "An account with this username or email already exists.",
+  "registerErrorGeneric": "Registration failed. Please try again.",
+  "registerEmailRequired": "Email is required",
+  "registerEmailInvalid": "Please enter a valid email address",
+  "registerPasswordRequired": "Password is required",
+  "registerPasswordTooShort": "Password must be at least 8 characters",
+  "registerUsernameRequired": "Username is required",
+  "registerUsernameTooShort": "Username must be at least 6 characters",
+  "registerUsernameTooLong": "Username must not exceed 30 characters",
+  "registerUsernameInvalid": "Username can only contain letters, numbers, and underscores",
+  "registerAgeInvalid": "Please enter a valid age",
+  "registerAgeRange": "Age must be between 10 and 120",
+  "registerCycleInvalid": "Please enter a valid average cycle length",
+  "registerCycleRange": "Cycle length must be between 15 and 45 days",
+
+  "settingsConfirmTurnOn": "Are you sure you want to turn ON {feature}?",
+  "@settingsConfirmTurnOn": {
+    "placeholders": {
+      "feature": { "type": "String" }
+    }
+  },
+  "settingsConfirmTurnOff": "Are you sure you want to turn OFF {feature}?",
+  "@settingsConfirmTurnOff": {
+    "placeholders": {
+      "feature": { "type": "String" }
+    }
+  },
+  "settingsConfirm": "Confirm",
+  "settingsTestNotification": "Test Notification Now",
+  "settingsTestNotificationDesc": "Sends an instant alert",
+  "settingsTestNotificationTitle": "Rhythma Test",
+  "settingsTestNotificationBody": "Native notifications are working perfectly!",
+  "settingsMedicineReminderTitle": "Medicine Reminder",
+  "settingsMedicineReminderBody": "Time to take your iron supplement!",
+  "settingsThemeColor": "Theme Color",
+
+  "profileNameRequired": "Name cannot be empty",
+  "profileAgeInvalid": "Age must be between 10 and 120",
+  "profileCycleInvalid": "Cycle length must be between 15 and 45 days",
+  "profilePhoneInvalid": "Enter a valid phone number (min 8 digits)",
+
+  "cycleToday": "Today",
+
+  "assistantError": "Something went wrong. Please try again.",
   
   "assistantTitle": "Rhythma Assistant",
   "assistantSubtitle": "Your private health companion",

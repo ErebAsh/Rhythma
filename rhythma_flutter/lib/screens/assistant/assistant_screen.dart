@@ -135,7 +135,8 @@ class _AssistantScreenState extends State<AssistantScreen> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _messages.add(_Msg(role: 'model', content: 'Error: ${e.toString()}', isError: true));
+        final l10n = AppLocalizations.of(context)!;
+        _messages.add(_Msg(role: 'model', content: l10n.assistantError, isError: true));
       });
     }
     _scrollToBottom();

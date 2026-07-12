@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 import '../config/theme.dart';
+import '../utils/date_utils.dart';
 
 class CycleProvider extends ChangeNotifier {
   final DateTime _today = DateTime.now();
@@ -16,9 +17,9 @@ class CycleProvider extends ChangeNotifier {
     _displayedMonth = DateTime(_today.year, _today.month);
 
     // Add some mock logged days for visual testing
-    _loggedDays.add(DateTime(_today.year, _today.month, _today.day - 1).toIso8601String().split('T').first);
-    _loggedDays.add(DateTime(_today.year, _today.month, _today.day - 3).toIso8601String().split('T').first);
-    _loggedDays.add(DateTime(_today.year, _today.month, _today.day + 2).toIso8601String().split('T').first);
+    _loggedDays.add(RhythmaDateUtils.toDateKey(DateTime(_today.year, _today.month, _today.day - 1)));
+    _loggedDays.add(RhythmaDateUtils.toDateKey(DateTime(_today.year, _today.month, _today.day - 3)));
+    _loggedDays.add(RhythmaDateUtils.toDateKey(DateTime(_today.year, _today.month, _today.day + 2)));
   }
 
   DateTime get selectedDate => _selectedDate;
@@ -45,11 +46,11 @@ class CycleProvider extends ChangeNotifier {
   }
 
   bool hasLogsForDate(DateTime date) {
-    return _loggedDays.contains(date.toIso8601String().split('T').first);
+    return _loggedDays.contains(RhythmaDateUtils.toDateKey(date));
   }
 
   void toggleLogForDate(DateTime date) {
-    final key = date.toIso8601String().split('T').first;
+    final key = RhythmaDateUtils.toDateKey(date);
     if (_loggedDays.contains(key)) {
       _loggedDays.remove(key);
     } else {

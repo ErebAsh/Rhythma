@@ -112,6 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   void _showEditProfileSheet() {
+    final l10n = AppLocalizations.of(context)!;
     final profile = context.read<ProfileProvider>().profile;
     String selectedAvatar = profile['avatar'] as String? ?? 'assets/avatars/avatar_1.png';
     if (!selectedAvatar.startsWith('assets/') || !selectedAvatar.endsWith('.png')) {
@@ -231,17 +232,17 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     bool isValid = true;
 
                     if (name.isEmpty) {
-                      setSheetState(() => nameError = 'Name cannot be empty');
+                      setSheetState(() => nameError = l10n.profileNameRequired);
                       isValid = false;
                     }
 
                     if (ageVal == null || ageVal < 10 || ageVal > 120) {
-                      setSheetState(() => ageError = 'Age must be between 10 and 120');
+                      setSheetState(() => ageError = l10n.profileAgeInvalid);
                       isValid = false;
                     }
 
                     if (cycleVal == null || cycleVal < 15 || cycleVal > 45) {
-                      setSheetState(() => cycleError = 'Cycle length must be between 15 and 45 days');
+                      setSheetState(() => cycleError = l10n.profileCycleInvalid);
                       isValid = false;
                     }
 
@@ -276,6 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   void _showAddEditContactDialog(int? editIndex, StateSetter setSheetState) {
+    final l10n = AppLocalizations.of(context)!;
     final contact = editIndex != null ? _emergencyContacts[editIndex] : null;
     final nameController = TextEditingController(text: contact?['name']);
     final phoneController = TextEditingController(text: contact?['phone']);
@@ -327,11 +329,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
                 bool isValid = true;
                 if (name.isEmpty) {
-                  setDialogState(() => nameError = 'Name is required');
+                  setDialogState(() => nameError = l10n.profileNameRequired);
                   isValid = false;
                 }
                 if (phone.isEmpty || phone.length < 8 || !RegExp(r'^\+?[0-9\s\-]+$').hasMatch(phone)) {
-                  setDialogState(() => phoneError = 'Enter a valid phone number (min 8 digits)');
+                  setDialogState(() => phoneError = l10n.profilePhoneInvalid);
                   isValid = false;
                 }
 

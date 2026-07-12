@@ -12,6 +12,7 @@ import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/cycle_provider.dart';
 import 'providers/profile_provider.dart';
+import 'providers/dashboard_provider.dart';
 
 import 'screens/assistant/assistant_screen.dart';
 import 'screens/auth/login_screen.dart';
@@ -55,6 +56,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => CycleProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),
       ],
       child: const RhythmaApp(),
     ),

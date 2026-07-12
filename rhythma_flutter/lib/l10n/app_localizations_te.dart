@@ -153,6 +153,15 @@ class AppLocalizationsTe extends AppLocalizations {
   String get homePrivacySecurity => 'గోప్యత & భద్రత';
 
   @override
+  String get homeMhs => 'MHS';
+
+  @override
+  String get homeCvi => 'CVI';
+
+  @override
+  String get homeSleep => 'నిద్ర';
+
+  @override
   String get homeOk => 'సరే';
 
   @override
@@ -224,6 +233,7 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get logLabelSymptoms => 'లక్షణాలు';
 
+  @override
   String get logToday => 'ఈ రోజు లాగ్ చేయండి';
 
   @override
@@ -252,6 +262,230 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get logSympBackPain => 'వెన్నునొప్పి';
+
+  @override
+  String get homeErrorNetwork =>
+      'దయచేసి మీ ఇంటర్నెట్ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get homeErrorAuth =>
+      'మీ సెషన్ గడువు ముగిసింది. దయచేసి మళ్లీ లాగిన్ చేయండి.';
+
+  @override
+  String get homeErrorServer =>
+      'మా వైపు ఏదో తప్పు జరిగింది. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get homeErrorGeneric =>
+      'డేటాను లోడ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return '$label నమోదు చేయండి';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label నమోదు చేయబడింది: $value';
+  }
+
+  @override
+  String get loginWelcomeBack => 'తిరిగి స్వాగతం';
+
+  @override
+  String get loginSubtitle =>
+      'మీ వ్యక్తిగత రిథ్మా ప్రయాణాన్ని కొనసాగించడానికి లాగిన్ చేయండి.';
+
+  @override
+  String get loginUsername => 'వినియోగదారు పేరు';
+
+  @override
+  String get loginPassword => 'పాస్‌వర్డ్';
+
+  @override
+  String get loginShowPassword => 'పాస్‌వర్డ్ చూపించు';
+
+  @override
+  String get loginHidePassword => 'పాస్‌వర్డ్ దాచు';
+
+  @override
+  String get loginLoggingIn => 'లాగిన్ అవుతోంది...';
+
+  @override
+  String get loginButton => 'లాగిన్';
+
+  @override
+  String get loginNoAccount => 'ఖాతా లేదా? నమోదు చేయండి';
+
+  @override
+  String get loginFieldsRequired =>
+      'దయచేసి మీ వినియోగదారు పేరు మరియు పాస్‌వర్డ్ నమోదు చేయండి.';
+
+  @override
+  String get loginErrorNetwork =>
+      'దయచేసి మీ ఇంటర్నెట్ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get loginErrorInvalidCredentials =>
+      'చెల్లని వినియోగదారు పేరు లేదా పాస్‌వర్డ్.';
+
+  @override
+  String get loginErrorGeneric =>
+      'లాగిన్ విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get registerTitle => 'ఖాతాను సృష్టించండి';
+
+  @override
+  String get registerSubtitle =>
+      'మీ రిథ్మా సహాయకురాలికి సురక్షిత యాక్సెస్‌ను సెటప్ చేయండి.';
+
+  @override
+  String get registerFullName => 'పూర్తి పేరు (ఐచ్ఛికం)';
+
+  @override
+  String get registerEmail => 'ఇమెయిల్';
+
+  @override
+  String get registerUsernameHelper =>
+      '6-30 అక్షరాలు: అక్షరాలు, సంఖ్యలు, అండర్‌స్కోర్';
+
+  @override
+  String get registerAge => 'వయస్సు';
+
+  @override
+  String get registerAgeHelper => '10 మరియు 120 మధ్య';
+
+  @override
+  String get registerCycleLength => 'సగటు చక్రం పొడవు (రోజులు)';
+
+  @override
+  String get registerCycleHelper => '15 మరియు 45 రోజుల మధ్య';
+
+  @override
+  String get registerPasswordHelper => 'కనీసం 8 అక్షరాలు';
+
+  @override
+  String get registerCreating => 'ఖాతా సృష్టిస్తోంది...';
+
+  @override
+  String get registerButton => 'నమోదు చేయండి';
+
+  @override
+  String get registerHaveAccount => 'ఇప్పటికే ఖాతా ఉందా? లాగిన్';
+
+  @override
+  String get registerSuccess =>
+      'ఖాతా విజయవంతంగా సృష్టించబడింది! దయచేసి లాగిన్ చేయండి.';
+
+  @override
+  String get registerErrorNetwork =>
+      'దయచేసి మీ ఇంటర్నెట్ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get registerErrorConflict =>
+      'ఈ వినియోగదారు పేరు లేదా ఇమెయిల్‌తో ఖాతా ఇప్పటికే ఉంది.';
+
+  @override
+  String get registerErrorGeneric =>
+      'నమోదు విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get registerEmailRequired => 'ఇమెయిల్ అవసరం';
+
+  @override
+  String get registerEmailInvalid =>
+      'దయచేసి చెల్లుబాటు అయ్యే ఇమెయిల్ చిరునామా నమోదు చేయండి';
+
+  @override
+  String get registerPasswordRequired => 'పాస్‌వర్డ్ అవసరం';
+
+  @override
+  String get registerPasswordTooShort => 'పాస్‌వర్డ్ కనీసం 8 అక్షరాలు ఉండాలి';
+
+  @override
+  String get registerUsernameRequired => 'వినియోగదారు పేరు అవసరం';
+
+  @override
+  String get registerUsernameTooShort =>
+      'వినియోగదారు పేరు కనీసం 6 అక్షరాలు ఉండాలి';
+
+  @override
+  String get registerUsernameTooLong =>
+      'వినియోగదారు పేరు 30 అక్షరాలను మించకూడదు';
+
+  @override
+  String get registerUsernameInvalid =>
+      'వినియోగదారు పేరులో అక్షరాలు, సంఖ్యలు మరియు అండర్‌స్కోర్లు మాత్రమే ఉండవచ్చు';
+
+  @override
+  String get registerAgeInvalid => 'దయచేసి చెల్లుబాటు అయ్యే వయసు నమోదు చేయండి';
+
+  @override
+  String get registerAgeRange => 'వయస్సు 10 మరియు 120 మధ్య ఉండాలి';
+
+  @override
+  String get registerCycleInvalid =>
+      'దయచేసి చెల్లుబాటు అయ్యే సగటు చక్రం పొడవు నమోదు చేయండి';
+
+  @override
+  String get registerCycleRange => 'చక్రం పొడవు 15 మరియు 45 రోజుల మధ్య ఉండాలి';
+
+  @override
+  String settingsConfirmTurnOn(String feature) {
+    return '$feature ను ఆన్ చేయాలనుకుంటున్నారా?';
+  }
+
+  @override
+  String settingsConfirmTurnOff(String feature) {
+    return '$feature ను ఆఫ్ చేయాలనుకుంటున్నారా?';
+  }
+
+  @override
+  String get settingsConfirm => 'నిర్ధారించు';
+
+  @override
+  String get settingsTestNotification => 'ఇప్పుడు నోటిఫికేషన్ పరీక్షించండి';
+
+  @override
+  String get settingsTestNotificationDesc => 'తక్షణ హెచ్చరిక పంపుతుంది';
+
+  @override
+  String get settingsTestNotificationTitle => 'రిథ్మా పరీక్ష';
+
+  @override
+  String get settingsTestNotificationBody =>
+      'నేటివ్ నోటిఫికేషన్‌లు పరిపూర్ణంగా పని చేస్తున్నాయి!';
+
+  @override
+  String get settingsMedicineReminderTitle => 'మందు రిమైండర్';
+
+  @override
+  String get settingsMedicineReminderBody =>
+      'మీ ఇనుము సప్లిమెంట్ తీసుకునే సమయం!';
+
+  @override
+  String get settingsThemeColor => 'థీమ్ రంగు';
+
+  @override
+  String get profileNameRequired => 'పేరు ఖాళీగా ఉండకూడదు';
+
+  @override
+  String get profileAgeInvalid => 'వయస్సు 10 మరియు 120 మధ్య ఉండాలి';
+
+  @override
+  String get profileCycleInvalid => 'చక్రం పొడవు 15 మరియు 45 రోజుల మధ్య ఉండాలి';
+
+  @override
+  String get profilePhoneInvalid =>
+      'చెల్లుబాటు అయ్యే ఫోన్ నంబర్ నమోదు చేయండి (కనీసం 8 అంకెలు)';
+
+  @override
+  String get cycleToday => 'ఈ రోజు';
+
+  @override
+  String get assistantError =>
+      'ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి.';
 
   @override
   String get assistantTitle => 'రిథ్మా సహాయకురాలు';

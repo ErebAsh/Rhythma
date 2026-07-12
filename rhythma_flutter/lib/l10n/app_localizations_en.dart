@@ -153,6 +153,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homePrivacySecurity => 'Privacy & Security';
 
   @override
+  String get homeMhs => 'MHS';
+
+  @override
+  String get homeCvi => 'CVI';
+
+  @override
+  String get homeSleep => 'Sleep';
+
+  @override
   String get homeOk => 'OK';
 
   @override
@@ -253,6 +262,223 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logSympBackPain => 'Back Pain';
+
+  @override
+  String get homeErrorNetwork =>
+      'Please check your internet connection and try again.';
+
+  @override
+  String get homeErrorAuth => 'Your session has expired. Please log in again.';
+
+  @override
+  String get homeErrorServer =>
+      'Something went wrong on our end. Please try again later.';
+
+  @override
+  String get homeErrorGeneric => 'Unable to load data. Please try again.';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return 'Log $label';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label logged: $value';
+  }
+
+  @override
+  String get loginWelcomeBack => 'Welcome back';
+
+  @override
+  String get loginSubtitle =>
+      'Log in to continue your private Rhythma journey.';
+
+  @override
+  String get loginUsername => 'Username';
+
+  @override
+  String get loginPassword => 'Password';
+
+  @override
+  String get loginShowPassword => 'Show password';
+
+  @override
+  String get loginHidePassword => 'Hide password';
+
+  @override
+  String get loginLoggingIn => 'Logging in...';
+
+  @override
+  String get loginButton => 'Login';
+
+  @override
+  String get loginNoAccount => 'Don\'t have an account? Register';
+
+  @override
+  String get loginFieldsRequired => 'Please enter your username and password.';
+
+  @override
+  String get loginErrorNetwork =>
+      'Please check your internet connection and try again.';
+
+  @override
+  String get loginErrorInvalidCredentials => 'Invalid username or password.';
+
+  @override
+  String get loginErrorGeneric => 'Login failed. Please try again.';
+
+  @override
+  String get registerTitle => 'Create Account';
+
+  @override
+  String get registerSubtitle =>
+      'Set up secure access to your Rhythma assistant.';
+
+  @override
+  String get registerFullName => 'Full Name (optional)';
+
+  @override
+  String get registerEmail => 'Email';
+
+  @override
+  String get registerUsernameHelper =>
+      '6-30 characters: letters, numbers, underscore';
+
+  @override
+  String get registerAge => 'Age';
+
+  @override
+  String get registerAgeHelper => 'Between 10 and 120';
+
+  @override
+  String get registerCycleLength => 'Average Cycle Length (days)';
+
+  @override
+  String get registerCycleHelper => 'Between 15 and 45 days';
+
+  @override
+  String get registerPasswordHelper => 'Minimum 8 characters';
+
+  @override
+  String get registerCreating => 'Creating account...';
+
+  @override
+  String get registerButton => 'Register';
+
+  @override
+  String get registerHaveAccount => 'Already have an account? Login';
+
+  @override
+  String get registerSuccess => 'Account created successfully! Please login.';
+
+  @override
+  String get registerErrorNetwork =>
+      'Please check your internet connection and try again.';
+
+  @override
+  String get registerErrorConflict =>
+      'An account with this username or email already exists.';
+
+  @override
+  String get registerErrorGeneric => 'Registration failed. Please try again.';
+
+  @override
+  String get registerEmailRequired => 'Email is required';
+
+  @override
+  String get registerEmailInvalid => 'Please enter a valid email address';
+
+  @override
+  String get registerPasswordRequired => 'Password is required';
+
+  @override
+  String get registerPasswordTooShort =>
+      'Password must be at least 8 characters';
+
+  @override
+  String get registerUsernameRequired => 'Username is required';
+
+  @override
+  String get registerUsernameTooShort =>
+      'Username must be at least 6 characters';
+
+  @override
+  String get registerUsernameTooLong =>
+      'Username must not exceed 30 characters';
+
+  @override
+  String get registerUsernameInvalid =>
+      'Username can only contain letters, numbers, and underscores';
+
+  @override
+  String get registerAgeInvalid => 'Please enter a valid age';
+
+  @override
+  String get registerAgeRange => 'Age must be between 10 and 120';
+
+  @override
+  String get registerCycleInvalid =>
+      'Please enter a valid average cycle length';
+
+  @override
+  String get registerCycleRange =>
+      'Cycle length must be between 15 and 45 days';
+
+  @override
+  String settingsConfirmTurnOn(String feature) {
+    return 'Are you sure you want to turn ON $feature?';
+  }
+
+  @override
+  String settingsConfirmTurnOff(String feature) {
+    return 'Are you sure you want to turn OFF $feature?';
+  }
+
+  @override
+  String get settingsConfirm => 'Confirm';
+
+  @override
+  String get settingsTestNotification => 'Test Notification Now';
+
+  @override
+  String get settingsTestNotificationDesc => 'Sends an instant alert';
+
+  @override
+  String get settingsTestNotificationTitle => 'Rhythma Test';
+
+  @override
+  String get settingsTestNotificationBody =>
+      'Native notifications are working perfectly!';
+
+  @override
+  String get settingsMedicineReminderTitle => 'Medicine Reminder';
+
+  @override
+  String get settingsMedicineReminderBody =>
+      'Time to take your iron supplement!';
+
+  @override
+  String get settingsThemeColor => 'Theme Color';
+
+  @override
+  String get profileNameRequired => 'Name cannot be empty';
+
+  @override
+  String get profileAgeInvalid => 'Age must be between 10 and 120';
+
+  @override
+  String get profileCycleInvalid =>
+      'Cycle length must be between 15 and 45 days';
+
+  @override
+  String get profilePhoneInvalid => 'Enter a valid phone number (min 8 digits)';
+
+  @override
+  String get cycleToday => 'Today';
+
+  @override
+  String get assistantError => 'Something went wrong. Please try again.';
 
   @override
   String get assistantTitle => 'Rhythma Assistant';

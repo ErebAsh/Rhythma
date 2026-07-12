@@ -144,18 +144,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<bool> _showConfirmationDialog(String title, String content, bool newValue) async {
+    final l10n = AppLocalizations.of(context)!;
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(title, style: TextStyle(color: RhythmaColors.primary)),
         content: Text(
-          newValue ? 'Are you sure you want to turn ON $content?' : 'Are you sure you want to turn OFF $content?',
+          newValue ? l10n.settingsConfirmTurnOn(content) : l10n.settingsConfirmTurnOff(content),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -163,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               backgroundColor: RhythmaColors.primary,
               foregroundColor: RhythmaColors.primaryFg,
             ),
-            child: const Text('Confirm'),
+            child: Text(l10n.settingsConfirm),
           ),
         ],
       ),
@@ -287,8 +288,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // Schedule a test medicine alert for 10 seconds from now
                           NotificationService.instance.scheduleMedicineAlert(
                             id: 1001,
-                            title: 'Medicine Reminder',
-                            body: 'Time to take your iron supplement!',
+                            title: l10n.settingsMedicineReminderTitle,
+                            body: l10n.settingsMedicineReminderBody,
                             scheduledDate: DateTime.now().add(const Duration(seconds: 10)),
                           );
                         } else {
@@ -328,16 +329,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: RhythmaColors.primary,
                       size: 36,
                     ),
-                    title: const Text('Test Notification Now'),
-                    subtitle: const Text('Sends an instant alert'),
+                    title: Text(l10n.settingsTestNotification),
+                    subtitle: Text(l10n.settingsTestNotificationDesc),
                     trailing: Icon(Icons.send_rounded, color: RhythmaColors.mutedFg),
                     onTap: () async {
                       bool granted = await NotificationService.instance.requestPermissions();
                       if (granted) {
                         NotificationService.instance.showInstantNotification(
                           id: 9999,
-                          title: 'Rhythma Test',
-                          body: 'Native notifications are working perfectly!',
+                          title: l10n.settingsTestNotificationTitle,
+                          body: l10n.settingsTestNotificationBody,
                         );
                       }
                     },
@@ -369,12 +370,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           title: Text(
-                            'Coming Soon',
+                            l10n.homeComingSoon,
                             textAlign: TextAlign.center,
                             style: TextStyle(color: RhythmaColors.primary),
                           ),
-                          content: const Text(
-                            'This feature is currently under development.',
+                          content: Text(
+                            l10n.homeUnderDevelopment(l10n.appPermissions),
                             textAlign: TextAlign.center,
                           ),
                           actionsAlignment: MainAxisAlignment.center,
@@ -385,7 +386,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 foregroundColor: RhythmaColors.primaryFg,
                               ),
                               onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
+                              child: Text(l10n.homeOk),
                             ),
                           ],
                         ),
@@ -409,12 +410,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           title: Text(
-                            'Coming Soon',
+                            l10n.homeComingSoon,
                             textAlign: TextAlign.center,
                             style: TextStyle(color: RhythmaColors.primary),
                           ),
-                          content: const Text(
-                            'This feature is currently under development.',
+                          content: Text(
+                            l10n.homeUnderDevelopment(l10n.privacyPolicy),
                             textAlign: TextAlign.center,
                           ),
                           actionsAlignment: MainAxisAlignment.center,
@@ -425,7 +426,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 foregroundColor: RhythmaColors.primaryFg,
                               ),
                               onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
+                              child: Text(l10n.homeOk),
                             ),
                           ],
                         ),

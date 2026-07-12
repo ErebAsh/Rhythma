@@ -380,6 +380,24 @@ abstract class AppLocalizations {
   /// **'Privacy & Security'**
   String get homePrivacySecurity;
 
+  /// No description provided for @homeMhs.
+  ///
+  /// In en, this message translates to:
+  /// **'MHS'**
+  String get homeMhs;
+
+  /// No description provided for @homeCvi.
+  ///
+  /// In en, this message translates to:
+  /// **'CVI'**
+  String get homeCvi;
+
+  /// No description provided for @homeSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get homeSleep;
+
   /// No description provided for @homeOk.
   ///
   /// In en, this message translates to:
@@ -583,6 +601,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back Pain'**
   String get logSympBackPain;
+
+  /// No description provided for @homeErrorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your internet connection and try again.'**
+  String get homeErrorNetwork;
+
+  /// No description provided for @homeErrorAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please log in again.'**
+  String get homeErrorAuth;
+
+  /// No description provided for @homeErrorServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong on our end. Please try again later.'**
+  String get homeErrorServer;
+
+  /// No description provided for @homeErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load data. Please try again.'**
+  String get homeErrorGeneric;
+
+  /// No description provided for @homeQuickLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log {label}'**
+  String homeQuickLogTitle(String label);
+
+  /// No description provided for @homeQuickLogSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} logged: {value}'**
+  String homeQuickLogSaved(String label, String value);
+
+  /// No description provided for @loginWelcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get loginWelcomeBack;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in to continue your private Rhythma journey.'**
+  String get loginSubtitle;
+
+  /// No description provided for @loginUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get loginUsername;
+
+  /// No description provided for @loginPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get loginPassword;
+
+  /// No description provided for @loginShowPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get loginShowPassword;
+
+  /// No description provided for @loginHidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get loginHidePassword;
+
+  /// No description provided for @loginLoggingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Logging in...'**
+  String get loginLoggingIn;
+
+  /// No description provided for @loginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get loginButton;
+
+  /// No description provided for @loginNoAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? Register'**
+  String get loginNoAccount;
+
+  /// No description provided for @loginFieldsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your username and password.'**
+  String get loginFieldsRequired;
+
+  /// No description provided for @loginErrorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your internet connection and try again.'**
+  String get loginErrorNetwork;
+
+  /// No description provided for @loginErrorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid username or password.'**
+  String get loginErrorInvalidCredentials;
+
+  /// No description provided for @loginErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed. Please try again.'**
+  String get loginErrorGeneric;
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get registerTitle;
+
+  /// No description provided for @registerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up secure access to your Rhythma assistant.'**
+  String get registerSubtitle;
+
+  /// No description provided for @registerFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name (optional)'**
+  String get registerFullName;
+
+  /// No description provided for @registerEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get registerEmail;
+
+  /// No description provided for @registerUsernameHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'6-30 characters: letters, numbers, underscore'**
+  String get registerUsernameHelper;
+
+  /// No description provided for @registerAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get registerAge;
+
+  /// No description provided for @registerAgeHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Between 10 and 120'**
+  String get registerAgeHelper;
+
+  /// No description provided for @registerCycleLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Cycle Length (days)'**
+  String get registerCycleLength;
+
+  /// No description provided for @registerCycleHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Between 15 and 45 days'**
+  String get registerCycleHelper;
+
+  /// No description provided for @registerPasswordHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum 8 characters'**
+  String get registerPasswordHelper;
+
+  /// No description provided for @registerCreating.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating account...'**
+  String get registerCreating;
+
+  /// No description provided for @registerButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get registerButton;
+
+  /// No description provided for @registerHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Login'**
+  String get registerHaveAccount;
+
+  /// No description provided for @registerSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created successfully! Please login.'**
+  String get registerSuccess;
+
+  /// No description provided for @registerErrorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your internet connection and try again.'**
+  String get registerErrorNetwork;
+
+  /// No description provided for @registerErrorConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this username or email already exists.'**
+  String get registerErrorConflict;
+
+  /// No description provided for @registerErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration failed. Please try again.'**
+  String get registerErrorGeneric;
+
+  /// No description provided for @registerEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is required'**
+  String get registerEmailRequired;
+
+  /// No description provided for @registerEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get registerEmailInvalid;
+
+  /// No description provided for @registerPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get registerPasswordRequired;
+
+  /// No description provided for @registerPasswordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters'**
+  String get registerPasswordTooShort;
+
+  /// No description provided for @registerUsernameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Username is required'**
+  String get registerUsernameRequired;
+
+  /// No description provided for @registerUsernameTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Username must be at least 6 characters'**
+  String get registerUsernameTooShort;
+
+  /// No description provided for @registerUsernameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Username must not exceed 30 characters'**
+  String get registerUsernameTooLong;
+
+  /// No description provided for @registerUsernameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Username can only contain letters, numbers, and underscores'**
+  String get registerUsernameInvalid;
+
+  /// No description provided for @registerAgeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid age'**
+  String get registerAgeInvalid;
+
+  /// No description provided for @registerAgeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Age must be between 10 and 120'**
+  String get registerAgeRange;
+
+  /// No description provided for @registerCycleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid average cycle length'**
+  String get registerCycleInvalid;
+
+  /// No description provided for @registerCycleRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle length must be between 15 and 45 days'**
+  String get registerCycleRange;
+
+  /// No description provided for @settingsConfirmTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to turn ON {feature}?'**
+  String settingsConfirmTurnOn(String feature);
+
+  /// No description provided for @settingsConfirmTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to turn OFF {feature}?'**
+  String settingsConfirmTurnOff(String feature);
+
+  /// No description provided for @settingsConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get settingsConfirm;
+
+  /// No description provided for @settingsTestNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Notification Now'**
+  String get settingsTestNotification;
+
+  /// No description provided for @settingsTestNotificationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Sends an instant alert'**
+  String get settingsTestNotificationDesc;
+
+  /// No description provided for @settingsTestNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rhythma Test'**
+  String get settingsTestNotificationTitle;
+
+  /// No description provided for @settingsTestNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Native notifications are working perfectly!'**
+  String get settingsTestNotificationBody;
+
+  /// No description provided for @settingsMedicineReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Medicine Reminder'**
+  String get settingsMedicineReminderTitle;
+
+  /// No description provided for @settingsMedicineReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to take your iron supplement!'**
+  String get settingsMedicineReminderBody;
+
+  /// No description provided for @settingsThemeColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Color'**
+  String get settingsThemeColor;
+
+  /// No description provided for @profileNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Name cannot be empty'**
+  String get profileNameRequired;
+
+  /// No description provided for @profileAgeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Age must be between 10 and 120'**
+  String get profileAgeInvalid;
+
+  /// No description provided for @profileCycleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle length must be between 15 and 45 days'**
+  String get profileCycleInvalid;
+
+  /// No description provided for @profilePhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number (min 8 digits)'**
+  String get profilePhoneInvalid;
+
+  /// No description provided for @cycleToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get cycleToday;
+
+  /// No description provided for @assistantError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get assistantError;
 
   /// No description provided for @assistantTitle.
   ///

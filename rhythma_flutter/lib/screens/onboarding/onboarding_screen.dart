@@ -6,6 +6,7 @@ import '../../config/theme.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/local_storage_service.dart';
 import '../../providers/profile_provider.dart';
+import '../../utils/date_utils.dart';
 
 /// The 5-step offline-first onboarding flow.
 /// On completion, writes all collected data to LocalStorageService and
@@ -205,7 +206,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final w = double.tryParse(_weightController.text);
     if (w != null) profile['weight_kg'] = w;
     if (_lastPeriodDate != null) {
-      profile['last_period'] = _lastPeriodDate!.toIso8601String().split('T').first;
+      profile['last_period'] = RhythmaDateUtils.toDateKey(_lastPeriodDate!);
     }
     profile['cycle_length'] = _cycleLength;
     profile['period_duration'] = _periodDuration;

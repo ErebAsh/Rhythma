@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../utils/date_utils.dart';
 
 /// Keys used in Hive boxes
 class _Keys {
@@ -187,6 +188,18 @@ class LocalStorageService {
   static List<Map<String, dynamic>> getRecentCycleLogs({int n = 6}) {
     if (isTesting) return [];
     return getCycleLogs().take(n).toList();
+  }
+
+  /// Finds the existing cycle log entry for [date], or returns null.
+  /// This centralises the "fetch existing log by date" pattern that was
+  /// previously duplicated in HomeScreen and CalendarGrid.
+  static Map<String, dynamic>? getLogForDate(DateTime date) {
+    final dateKey = RhythmaDateUtils.toDateKey(date);
+    final logs = getCycleLogs();
+    return logs.cast<Map<String, dynamic>?>().firstWhere(
+          (log) => log?['start_date'] == dateKey,
+          orElse: () => null,
+        );
   }
 
   // ── User Settings ─────────────────────────────────────────────────────────

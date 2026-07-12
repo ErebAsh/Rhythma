@@ -12,6 +12,9 @@
   "wellnessTips": "நல்வாழ்வு குறிப்புகள்",
   "securityPrivacyTitle": "பாதுகாப்பு & தனியுரிமை",
   "appPermissions": "அனுமதிகள்",
+  "homeMhs": "MHS",
+  "homeCvi": "CVI",
+  "homeSleep": "தூக்கம்",
   "privacyPolicy": "தனியுரிமைக் கொள்கை",
   "logOut": "வெளியேறு",
   "logoutConfirmation": "ரித்மாவில் இருந்து வெளியேற வேண்டுமா?",
@@ -66,6 +69,98 @@
   "logSympAcne": "முகப்பரு",
   "logLabelEnergy": "ஆற்றல்",
   "logLabelSymptoms": "அறிகுறிகள்",
+  
+  "homeErrorNetwork": "இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
+  "homeErrorAuth": "உங்கள் அமர்வு காலாவதியாகிவிட்டது. மீண்டும் உள்நுழையவும்.",
+  "homeErrorServer": "எங்கள் பக்கம் ஏதோ தவறு நடந்தது. பின்னர் மீண்டும் முயற்சிக்கவும்.",
+  "homeErrorGeneric": "தரவை ஏற்ற முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+  "homeQuickLogTitle": "{label} பதிவு செய்யுங்கள்",
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "homeQuickLogSaved": "{label} பதிவு செய்யப்பட்டது: {value}",
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "value": { "type": "String" }
+    }
+  },
+
+  "loginWelcomeBack": "மீண்டும் வரவேற்கிறோம்",
+  "loginSubtitle": "உங்கள் தனிப்பட்ட ரித்மா பயணத்தைத் தொடர உள்நுழையவும்.",
+  "loginUsername": "பயனர்பெயர்",
+  "loginPassword": "கடவுச்சொல்",
+  "loginShowPassword": "கடவுச்சொல்லைக் காட்டு",
+  "loginHidePassword": "கடவுச்சொல்லை மறை",
+  "loginLoggingIn": "உள்நுழைகிறது...",
+  "loginButton": "உள்நுழை",
+  "loginNoAccount": "கணக்கு இல்லையா? பதிவு செய்யுங்கள்",
+  "loginFieldsRequired": "உங்கள் பயனர்பெயர் மற்றும் கடவுச்சொல்லை உள்ளிடவும்.",
+  "loginErrorNetwork": "இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
+  "loginErrorInvalidCredentials": "தவறான பயனர்பெயர் அல்லது கடவுச்சொல்.",
+  "loginErrorGeneric": "உள்நுழைவு தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.",
+
+  "registerTitle": "கணக்கை உருவாக்கு",
+  "registerSubtitle": "உங்கள் ரித்மா உதவியாளருக்கு பாதுகாப்பான அணுகலை அமைக்கவும்.",
+  "registerFullName": "முழு பெயர் (விரும்பினால்)",
+  "registerEmail": "மின்னஞ்சல்",
+  "registerUsernameHelper": "6-30 எழுத்துகள்: எழுத்துகள், எண்கள், அண்டர்ஸ்கோர்",
+  "registerAge": "வயது",
+  "registerAgeHelper": "10 மற்றும் 120 க்கு இடையில்",
+  "registerCycleLength": "சராசரி சுழற்சி நீளம் (நாட்கள்)",
+  "registerCycleHelper": "15 மற்றும் 45 நாட்களுக்கு இடையில்",
+  "registerPasswordHelper": "குறைந்தது 8 எழுத்துகள்",
+  "registerCreating": "கணக்கை உருவாக்குகிறது...",
+  "registerButton": "பதிவு செய்",
+  "registerHaveAccount": "ஏற்கனவே கணக்கு உள்ளதா? உள்நுழை",
+  "registerSuccess": "கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது! உள்நுழையவும்.",
+  "registerErrorNetwork": "இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
+  "registerErrorConflict": "இந்த பயனர்பெயர் அல்லது மின்னஞ்சலுடன் கணக்கு ஏற்கனவே உள்ளது.",
+  "registerErrorGeneric": "பதிவு தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.",
+  "registerEmailRequired": "மின்னஞ்சல் அவசியம்",
+  "registerEmailInvalid": "சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்",
+  "registerPasswordRequired": "கடவுச்சொல் அவசியம்",
+  "registerPasswordTooShort": "கடவுச்சொல் குறைந்தது 8 எழுத்துகள் இருக்க வேண்டும்",
+  "registerUsernameRequired": "பயனர்பெயர் அவசியம்",
+  "registerUsernameTooShort": "பயனர்பெயர் குறைந்தது 6 எழுத்துகள் இருக்க வேண்டும்",
+  "registerUsernameTooLong": "பயனர்பெயர் 30 எழுத்துகளை மீறக்கூடாது",
+  "registerUsernameInvalid": "பயனர்பெயரில் எழுத்துகள், எண்கள் மற்றும் அண்டர்ஸ்கோர்கள் மட்டுமே இருக்கலாம்",
+  "registerAgeInvalid": "சரியான வயதை உள்ளிடவும்",
+  "registerAgeRange": "வயது 10 மற்றும் 120 க்கு இடையில் இருக்க வேண்டும்",
+  "registerCycleInvalid": "சரியான சராசரி சுழற்சி நீளத்தை உள்ளிடவும்",
+  "registerCycleRange": "சுழற்சி நீளம் 15 மற்றும் 45 நாட்களுக்கு இடையில் இருக்க வேண்டும்",
+
+  "settingsConfirmTurnOn": "{feature} ஐ இயக்க விரும்புகிறீர்களா?",
+  "@settingsConfirmTurnOn": {
+    "placeholders": {
+      "feature": { "type": "String" }
+    }
+  },
+  "settingsConfirmTurnOff": "{feature} ஐ அணைக்க விரும்புகிறீர்களா?",
+  "@settingsConfirmTurnOff": {
+    "placeholders": {
+      "feature": { "type": "String" }
+    }
+  },
+  "settingsConfirm": "உறுதிப்படுத்து",
+  "settingsTestNotification": "இப்போது அறிவிப்பை சோதி",
+  "settingsTestNotificationDesc": "உடனடி எச்சரிக்கை அனுப்புகிறது",
+  "settingsTestNotificationTitle": "ரித்மா சோதனை",
+  "settingsTestNotificationBody": "நேட்டிவ் அறிவிப்புகள் சரியாக வேலை செய்கின்றன!",
+  "settingsMedicineReminderTitle": "மருந்து நினைவூட்டல்",
+  "settingsMedicineReminderBody": "உங்கள் இரும்புச் சத்து துணை எடுக்கும் நேரம்!",
+  "settingsThemeColor": "தீம் நிறம்",
+
+  "profileNameRequired": "பெயர் காலியாக இருக்கக்கூடாது",
+  "profileAgeInvalid": "வயது 10 மற்றும் 120 க்கு இடையில் இருக்க வேண்டும்",
+  "profileCycleInvalid": "சுழற்சி நீளம் 15 மற்றும் 45 நாட்களுக்கு இடையில் இருக்க வேண்டும்",
+  "profilePhoneInvalid": "சரியான தொலைபேசி எண்ணை உள்ளிடவும் (குறைந்தது 8 இலக்கங்கள்)",
+
+  "cycleToday": "இன்று",
+
+  "assistantError": "ஏதோ தவறு நடந்தது. மீண்டும் முயற்சிக்கவும்.",
   
   "assistantTitle": "ரித்மா உதவியாளர்",
   "assistantSubtitle": "உங்கள் தனிப்பட்ட சுகாதார துணை",

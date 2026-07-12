@@ -12,6 +12,11 @@
   "wellnessTips": "कल्याण टिप्स",
   "securityPrivacyTitle": "सुरक्षा और गोपनीयता",
   "appPermissions": "ऐप अनुमतियां",
+  "homePrivacySecurity": "गोपनीयता और सुरक्षा",
+  "homeMhs": "MHS",
+  "homeCvi": "CVI",
+  "homeSleep": "नींद",
+  "homeOk": "ठीक है",
   "privacyPolicy": "गोपनीयता नीति",
   "logOut": "लॉग आउट",
   "logoutConfirmation": "क्या आप वाकई Rhythma से लॉग आउट करना चाहते हैं?",
@@ -66,6 +71,98 @@
   "logSympAcne": "मुंहासे",
   "logLabelEnergy": "ऊर्जा",
   "logLabelSymptoms": "लक्षण",
+  
+  "homeErrorNetwork": "कृपया अपना इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।",
+  "homeErrorAuth": "आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।",
+  "homeErrorServer": "हमारी तरफ से कुछ गड़बड़ हुई है। कृपया बाद में फिर से प्रयास करें।",
+  "homeErrorGeneric": "डेटा लोड करने में असमर्थ। कृपया फिर से प्रयास करें।",
+  "homeQuickLogTitle": "{label} लॉग करें",
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "homeQuickLogSaved": "{label} लॉग किया गया: {value}",
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "value": { "type": "String" }
+    }
+  },
+
+  "loginWelcomeBack": "वापसी पर स्वागत है",
+  "loginSubtitle": "अपनी निजी रिद्मा यात्रा जारी रखने के लिए लॉग इन करें।",
+  "loginUsername": "उपयोगकर्ता नाम",
+  "loginPassword": "पासवर्ड",
+  "loginShowPassword": "पासवर्ड दिखाएं",
+  "loginHidePassword": "पासवर्ड छुपाएं",
+  "loginLoggingIn": "लॉग इन हो रहा है...",
+  "loginButton": "लॉग इन",
+  "loginNoAccount": "खाता नहीं है? रजिस्टर करें",
+  "loginFieldsRequired": "कृपया अपना उपयोगकर्ता नाम और पासवर्ड दर्ज करें।",
+  "loginErrorNetwork": "कृपया अपना इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।",
+  "loginErrorInvalidCredentials": "अमान्य उपयोगकर्ता नाम या पासवर्ड।",
+  "loginErrorGeneric": "लॉग इन विफल रहा। कृपया फिर से प्रयास करें।",
+
+  "registerTitle": "खाता बनाएं",
+  "registerSubtitle": "अपने रिद्मा सहायक तक सुरक्षित पहुंच स्थापित करें।",
+  "registerFullName": "पूरा नाम (वैकल्पिक)",
+  "registerEmail": "ईमेल",
+  "registerUsernameHelper": "6-30 अक्षर: अक्षर, संख्याएं, अंडरस्कोर",
+  "registerAge": "उम्र",
+  "registerAgeHelper": "10 और 120 के बीच",
+  "registerCycleLength": "औसत चक्र की लंबाई (दिन)",
+  "registerCycleHelper": "15 और 45 दिनों के बीच",
+  "registerPasswordHelper": "न्यूनतम 8 अक्षर",
+  "registerCreating": "खाता बना रहे हैं...",
+  "registerButton": "रजिस्टर",
+  "registerHaveAccount": "पहले से खाता है? लॉग इन",
+  "registerSuccess": "खाता सफलतापूर्वक बनाया गया! कृपया लॉग इन करें।",
+  "registerErrorNetwork": "कृपया अपना इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।",
+  "registerErrorConflict": "इस उपयोगकर्ता नाम या ईमेल से खाता पहले से मौजूद है।",
+  "registerErrorGeneric": "पंजीकरण विफल रहा। कृपया फिर से प्रयास करें।",
+  "registerEmailRequired": "ईमेल आवश्यक है",
+  "registerEmailInvalid": "कृपया एक वैध ईमेल पता दर्ज करें",
+  "registerPasswordRequired": "पासवर्ड आवश्यक है",
+  "registerPasswordTooShort": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए",
+  "registerUsernameRequired": "उपयोगकर्ता नाम आवश्यक है",
+  "registerUsernameTooShort": "उपयोगकर्ता नाम कम से कम 6 अक्षरों का होना चाहिए",
+  "registerUsernameTooLong": "उपयोगकर्ता नाम 30 अक्षरों से अधिक नहीं होना चाहिए",
+  "registerUsernameInvalid": "उपयोगकर्ता नाम में केवल अक्षर, संख्याएं और अंडरस्कोर हो सकते हैं",
+  "registerAgeInvalid": "कृपया एक वैध आयु दर्ज करें",
+  "registerAgeRange": "आयु 10 और 120 के बीच होनी चाहिए",
+  "registerCycleInvalid": "कृपया एक वैध औसत चक्र लंबाई दर्ज करें",
+  "registerCycleRange": "चक्र की लंबाई 15 और 45 दिनों के बीच होनी चाहिए",
+
+  "settingsConfirmTurnOn": "क्या आप वाकई {feature} चालू करना चाहते हैं?",
+  "@settingsConfirmTurnOn": {
+    "placeholders": {
+      "feature": { "type": "String" }
+    }
+  },
+  "settingsConfirmTurnOff": "क्या आप वाकई {feature} बंद करना चाहते हैं?",
+  "@settingsConfirmTurnOff": {
+    "placeholders": {
+      "feature": { "type": "String" }
+    }
+  },
+  "settingsConfirm": "पुष्टि करें",
+  "settingsTestNotification": "अभी सूचना परीक्षण करें",
+  "settingsTestNotificationDesc": "तत्काल अलर्ट भेजता है",
+  "settingsTestNotificationTitle": "रिद्मा परीक्षण",
+  "settingsTestNotificationBody": "नेटिव सूचनाएं पूरी तरह से काम कर रही हैं!",
+  "settingsMedicineReminderTitle": "दवा अनुस्मारक",
+  "settingsMedicineReminderBody": "अपना आयरन सप्लीमेंट लेने का समय!",
+  "settingsThemeColor": "थीम रंग",
+
+  "profileNameRequired": "नाम खाली नहीं हो सकता",
+  "profileAgeInvalid": "आयु 10 और 120 के बीच होनी चाहिए",
+  "profileCycleInvalid": "चक्र की लंबाई 15 और 45 दिनों के बीच होनी चाहिए",
+  "profilePhoneInvalid": "एक वैध फोन नंबर दर्ज करें (न्यूनतम 8 अंक)",
+
+  "cycleToday": "आज",
+
+  "assistantError": "कुछ गलत हो गया। कृपया फिर से प्रयास करें।",
   
   "assistantTitle": "रिद्मा सहायक",
   "assistantSubtitle": "आपकी स्वास्थ्य साथी • निजी और सुरक्षित",

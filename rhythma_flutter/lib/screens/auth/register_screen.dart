@@ -1,5 +1,6 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:rhythma/l10n/app_localizations.dart';
 import 'package:rhythma/screens/auth/login_screen.dart';
 import 'package:rhythma/services/auth_service.dart';
 import 'package:rhythma/services/local_storage_service.dart';
@@ -33,6 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _register() async {
+    final l10n = AppLocalizations.of(context)!;
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     final username = _usernameController.text.trim();
@@ -40,11 +42,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final ageVal = int.tryParse(_ageController.text.trim());
     final cycleVal = int.tryParse(_cycleLengthController.text.trim());
 
-    final validationError = _validateUsername(username) ??
-        _validateEmail(email) ??
-        _validatePassword(password) ??
-        _validateAge(ageVal) ??
-        _validateCycleLength(cycleVal);
+    final validationError = _validateUsername(l10n, username) ??
+        _validateEmail(l10n, email) ??
+        _validatePassword(l10n, password) ??
+        _validateAge(l10n, ageVal) ??
+        _validateCycleLength(l10n, cycleVal);
     if (validationError != null) {
       _showMessage(validationError);
       return;
@@ -70,8 +72,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account created successfully! Please login.'),
+        SnackBar(
+          content: Text(l10n.registerSuccess),
           backgroundColor: Colors.green,
         ),
       );
@@ -80,44 +82,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
         MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
     } catch (e) {
-      if (mounted) _showMessage(e.toString());
+      if (mounted) _showMessage(_friendlyErrorMessage(l10n, e));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  String? _validateEmail(String email) {
-    if (email.isEmpty) return 'Email is required';
-    if (!EmailValidator.validate(email)) return 'Please enter a valid email address';
+  String _friendlyErrorMessage(AppLocalizations l10n, Object error) {
+    final msg = error.toString();
+    if (msg.contains('SocketException') || msg.contains('TimeoutException')) {
+      return l10n.registerErrorNetwork;
+    }
+    if (msg.contains('409')) return l10n.registerErrorConflict;
+    return l10n.registerErrorGeneric;
+  }
+
+  String? _validateEmail(AppLocalizations l10n, String email) {
+    if (email.isEmpty) return l10n.registerEmailRequired;
+    if (!EmailValidator.validate(email)) return l10n.registerEmailInvalid;
     return null;
   }
 
-  String? _validatePassword(String password) {
-    if (password.isEmpty) return 'Password is required';
-    if (password.length < 8) return 'Password must be at least 8 characters';
+  String? _validatePassword(AppLocalizations l10n, String password) {
+    if (password.isEmpty) return l10n.registerPasswordRequired;
+    if (password.length < 8) return l10n.registerPasswordTooShort;
     return null;
   }
 
-  String? _validateUsername(String username) {
-    if (username.isEmpty) return 'Username is required';
-    if (username.length < 6) return 'Username must be at least 6 characters';
-    if (username.length > 30) return 'Username must not exceed 30 characters';
+  String? _validateUsername(AppLocalizations l10n, String username) {
+    if (username.isEmpty) return l10n.registerUsernameRequired;
+    if (username.length < 6) return l10n.registerUsernameTooShort;
+    if (username.length > 30) return l10n.registerUsernameTooLong;
     if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(username)) {
-      return 'Username can only contain letters, numbers, and underscores';
+      return l10n.registerUsernameInvalid;
     }
     return null;
   }
 
-  String? _validateAge(int? age) {
-    if (age == null) return 'Please enter a valid age';
-    if (age < 10 || age > 120) return 'Age must be between 10 and 120';
+  String? _validateAge(AppLocalizations l10n, int? age) {
+    if (age == null) return l10n.registerAgeInvalid;
+    if (age < 10 || age > 120) return l10n.registerAgeRange;
     return null;
   }
 
-  String? _validateCycleLength(int? cycleLength) {
-    if (cycleLength == null) return 'Please enter a valid average cycle length';
+  String? _validateCycleLength(AppLocalizations l10n, int? cycleLength) {
+    if (cycleLength == null) return l10n.registerCycleInvalid;
     if (cycleLength < 15 || cycleLength > 45) {
-      return 'Cycle length must be between 15 and 45 days';
+      return l10n.registerCycleRange;
     }
     return null;
   }
@@ -130,6 +141,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -144,14 +156,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 color: Theme.of(context).primaryColor,
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Create Account',
+              Text(
+                l10n.registerTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                'Set up secure access to your Rhythma assistant.',
+                l10n.registerSubtitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Theme.of(context).hintColor),
               ),
@@ -160,10 +172,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 controller: _nameController,
                 enabled: !_loading,
                 textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(
-                  labelText: 'Full Name (optional)',
-                  prefixIcon: Icon(Icons.badge_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.registerFullName,
+                  prefixIcon: const Icon(Icons.badge_outlined),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -172,10 +184,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 enabled: !_loading,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.registerEmail,
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -183,11 +195,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 controller: _usernameController,
                 enabled: !_loading,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  helperText: '6-30 characters: letters, numbers, underscore',
-                  prefixIcon: Icon(Icons.person_outline),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.loginUsername,
+                  helperText: l10n.registerUsernameHelper,
+                  prefixIcon: const Icon(Icons.person_outline),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -196,11 +208,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 enabled: !_loading,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: 'Age',
-                  helperText: 'Between 10 and 120',
-                  prefixIcon: Icon(Icons.cake_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.registerAge,
+                  helperText: l10n.registerAgeHelper,
+                  prefixIcon: const Icon(Icons.cake_outlined),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -209,11 +221,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 enabled: !_loading,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: 'Average Cycle Length (days)',
-                  helperText: 'Between 15 and 45 days',
-                  prefixIcon: Icon(Icons.calendar_month_outlined),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.registerCycleLength,
+                  helperText: l10n.registerCycleHelper,
+                  prefixIcon: const Icon(Icons.calendar_month_outlined),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -223,12 +235,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 obscureText: _obscurePassword,
                 onSubmitted: (_) => _register(),
                 decoration: InputDecoration(
-                  labelText: 'Password',
-                  helperText: 'Minimum 8 characters',
+                  labelText: l10n.loginPassword,
+                  helperText: l10n.registerPasswordHelper,
                   prefixIcon: const Icon(Icons.lock_outline),
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                    tooltip: _obscurePassword ? l10n.loginShowPassword : l10n.loginHidePassword,
                     icon: Icon(
                       _obscurePassword ? Icons.visibility_off : Icons.visibility,
                     ),
@@ -248,7 +260,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.person_add_alt_1_rounded),
-                label: Text(_loading ? 'Creating account...' : 'Register'),
+                label: Text(_loading ? l10n.registerCreating : l10n.registerButton),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),
@@ -262,7 +274,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           MaterialPageRoute(builder: (_) => const LoginScreen()),
                         );
                       },
-                child: const Text('Already have an account? Login'),
+                child: Text(l10n.registerHaveAccount),
               ),
             ],
           ),

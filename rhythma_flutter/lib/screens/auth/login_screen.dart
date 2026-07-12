@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rhythma/l10n/app_localizations.dart';
 import 'package:rhythma/screens/auth/register_screen.dart';
 import 'package:rhythma/services/auth_service.dart';
 
@@ -23,11 +24,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
+    final l10n = AppLocalizations.of(context)!;
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
     if (username.isEmpty || password.isEmpty) {
-      _showMessage('Please enter your username and password.');
+      _showMessage(l10n.loginFieldsRequired);
       return;
     }
 
@@ -37,10 +39,19 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     } catch (e) {
-      if (mounted) _showMessage(e.toString());
+      if (mounted) _showMessage(_friendlyErrorMessage(l10n, e));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  String _friendlyErrorMessage(AppLocalizations l10n, Object error) {
+    final msg = error.toString();
+    if (msg.contains('SocketException') || msg.contains('TimeoutException')) {
+      return l10n.loginErrorNetwork;
+    }
+    if (msg.contains('401')) return l10n.loginErrorInvalidCredentials;
+    return l10n.loginErrorGeneric;
   }
 
   void _showMessage(String message) {
@@ -51,6 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -66,14 +78,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Theme.of(context).primaryColor,
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Welcome back',
+                Text(
+                  l10n.loginWelcomeBack,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Log in to continue your private Rhythma journey.',
+                  l10n.loginSubtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Theme.of(context).hintColor),
                 ),
@@ -82,10 +94,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _usernameController,
                   enabled: !_loading,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Username',
-                    prefixIcon: Icon(Icons.person_outline),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.loginUsername,
+                    prefixIcon: const Icon(Icons.person_outline),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -95,11 +107,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: _obscurePassword,
                   onSubmitted: (_) => _login(),
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: l10n.loginPassword,
                     prefixIcon: const Icon(Icons.lock_outline),
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
-                      tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                      tooltip: _obscurePassword ? l10n.loginShowPassword : l10n.loginHidePassword,
                       icon: Icon(
                         _obscurePassword ? Icons.visibility_off : Icons.visibility,
                       ),
@@ -119,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.login_rounded),
-                  label: Text(_loading ? 'Logging in...' : 'Login'),
+                  label: Text(_loading ? l10n.loginLoggingIn : l10n.loginButton),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
                   ),
@@ -133,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             MaterialPageRoute(builder: (_) => const RegisterScreen()),
                           );
                         },
-                  child: const Text("Don't have an account? Register"),
+                  child: Text(l10n.loginNoAccount),
                 ),
               ],
             ),

@@ -57,7 +57,7 @@ class ThemeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const SectionHeader(title: 'Theme Color'), // Ideally localized later
+            const SectionHeader(title: 'Theme Color'), // TODO: add to l10n
             GlassCard(
               padding: const EdgeInsets.all(20),
               child: Wrap(

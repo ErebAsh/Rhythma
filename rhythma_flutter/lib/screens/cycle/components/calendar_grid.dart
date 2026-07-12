@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../config/theme.dart';
+import '../../../config/constants.dart';
+import '../../../utils/date_utils.dart';
 import '../../../providers/cycle_provider.dart';
 import '../../../services/local_storage_service.dart';
 import 'log_entry_sheet.dart';
@@ -30,10 +32,10 @@ class _CalendarGridState extends State<CalendarGrid> {
     final cycleProvider = context.watch<CycleProvider>();
 
     // Calculate cell width based on screen size, similar to before
-    final cellWidth = (MediaQuery.of(context).size.width - 40 - 32) / 7;
+    final cellWidth = (MediaQuery.of(context).size.width - RhythmaDimens.pageHorizontal * 2 - 32) / 7;
 
     return SizedBox(
-      height: 330, // Approximate fixed height to prevent PageView issues
+      height: RhythmaDimens.calendarPageViewHeight,
       child: PageView.builder(
         controller: widget.pageController,
         onPageChanged: (index) {
@@ -57,7 +59,7 @@ class _CalendarGridState extends State<CalendarGrid> {
               // Empty cells for the leading gap
               ...List.generate(
                 firstWeekday,
-                (_) => SizedBox(width: cellWidth, height: 46),
+                (_) => SizedBox(width: cellWidth, height: RhythmaDimens.calendarCellHeight),
               ),
               // Actual days
               ...List.generate(monthDays, (i) {
@@ -65,26 +67,16 @@ class _CalendarGridState extends State<CalendarGrid> {
                 final currentDate = DateTime(monthDate.year, monthDate.month, day);
                 final phaseColor = cycleProvider.phaseColor(currentDate);
                 
-                final isSelected = cycleProvider.selectedDate.year == currentDate.year &&
-                                   cycleProvider.selectedDate.month == currentDate.month &&
-                                   cycleProvider.selectedDate.day == currentDate.day;
-                
-                final isToday = today.year == currentDate.year &&
-                                today.month == currentDate.month &&
-                                today.day == currentDate.day;
+          final isSelected = RhythmaDateUtils.isSameDay(cycleProvider.selectedDate, currentDate);
+                 final isToday = RhythmaDateUtils.isToday(currentDate);
                 
                 final hasLog = cycleProvider.hasLogsForDate(currentDate);
 
                 return GestureDetector(
                   onTap: () {
                     context.read<CycleProvider>().selectDate(currentDate);
-                    
-                    final dateKey = currentDate.toIso8601String().split('T')[0];
-                    final logs = LocalStorageService.getCycleLogs();
-                    final existingLog = logs.cast<Map<String, dynamic>?>().firstWhere(
-                          (log) => log?['start_date'] == dateKey,
-                          orElse: () => null,
-                        );
+
+                    final existingLog = LocalStorageService.getLogForDate(currentDate);
 
                     LogEntrySheet.show(
                       context,
@@ -98,14 +90,14 @@ class _CalendarGridState extends State<CalendarGrid> {
                   },
                   child: SizedBox(
                     width: cellWidth,
-                    height: 46,
+                    height: RhythmaDimens.calendarCellHeight,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 180),
-                          width: 34,
-                          height: 34,
+                          width: RhythmaDimens.calendarDaySize,
+                          height: RhythmaDimens.calendarDaySize,
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? phaseColor
