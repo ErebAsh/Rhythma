@@ -85,7 +85,7 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get homeAiSubtitle =>
-      'உங்கள் உடல் பற்றி என்னிடம் கேளுங்கள்,\nஉங்கள் மொழியில்.';
+      'உங்கள் உடல் பற்றி உங்கள் மொழியிலேயே என்னிடம் கேளுங்கள்.';
 
   @override
   String get homeAiPrompt => 'எனது மாதவிடாய் ஏன் ஒழுங்கற்றது?';
@@ -170,13 +170,13 @@ class AppLocalizationsTa extends AppLocalizations {
   String get cyclePhasePeriod => 'மாதவிடாய்';
 
   @override
-  String get cyclePhaseFollicular => 'நுண்ணறை';
+  String get cyclePhaseFollicular => 'ஃபோலிகுலர்';
 
   @override
-  String get cyclePhaseOvulation => 'அண்டவிடுப்பின்';
+  String get cyclePhaseOvulation => 'அண்டவிடுப்பு';
 
   @override
-  String get cyclePhaseLuteal => 'லூட்டல்';
+  String get cyclePhaseLuteal => 'லூட்டியல்';
 
   @override
   String get logFor => 'பதிவு';
@@ -215,13 +215,13 @@ class AppLocalizationsTa extends AppLocalizations {
   String get logSleep4 => '9+ மணிநேரம்';
 
   @override
-  String get logSympCramps => 'தசைப்பிடிப்பு';
+  String get logSympCramps => 'மாதவிடாய் வலி';
 
   @override
   String get logSympHeadache => 'தலைவலி';
 
   @override
-  String get logSympBloating => 'வீக்கம்';
+  String get logSympBloating => 'வயிறு வீக்கம்';
 
   @override
   String get logSympAcne => 'முகப்பரு';
@@ -432,12 +432,12 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String settingsConfirmTurnOn(String feature) {
-    return '$feature ஐ இயக்க விரும்புகிறீர்களா?';
+    return '$feature அம்சத்தை இயக்க விரும்புகிறீர்களா?';
   }
 
   @override
   String settingsConfirmTurnOff(String feature) {
-    return '$feature ஐ அணைக்க விரும்புகிறீர்களா?';
+    return '$feature அம்சத்தை அணைக்க விரும்புகிறீர்களா?';
   }
 
   @override
@@ -540,7 +540,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get insightsModerate => 'மிதமான';
 
   @override
-  String get insightsTrendLabel => 'சுழற்சி நீளத்தின் போக்கு';
+  String get insightsTrendLabel => 'சுழற்சி காலப்போக்கு';
 
   @override
   String get insightsStabilizing => 'சீரடைகிறது';
@@ -643,19 +643,19 @@ class AppLocalizationsTa extends AppLocalizations {
       'அவசரத் தொடர்புகள் எதுவும் இன்னும் அமைக்கப்படவில்லை.';
 
   @override
-  String get navHome => 'ஹோம்';
+  String get navHome => 'முகப்பு';
 
   @override
-  String get navCycle => 'சைக்கிள்';
+  String get navCycle => 'சுழற்சி';
 
   @override
-  String get navAsk => 'ஆஸ்க்';
+  String get navAsk => 'கேள்வி';
 
   @override
-  String get navInsights => 'உள்நோக்குகள்';
+  String get navInsights => 'நுண்ணறிவுகள்';
 
   @override
-  String get navYou => 'யூ';
+  String get navYou => 'நீங்கள்';
 
   @override
   String get settingsHelpSupport => 'உதவி மற்றும் ஆதரவு';
@@ -778,7 +778,7 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get onboardingDataConsentLabel =>
-      'இந்த சாதனத்தில் என் சுகாதார தரவை உள்ளூரில் சேமிக்க ஒப்புகிறேன்';
+      'எனது சுகாதாரத் தரவுகளை இந்தச் சாதனத்திலேயே பாதுகாப்பாகச் சேமிக்க சம்மதிக்கிறேன்';
 
   @override
   String get onboardingDataConsentRequired => 'தொடர ஏற்றுக்கொள்ளவும்';

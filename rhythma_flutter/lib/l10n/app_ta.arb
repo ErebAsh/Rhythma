@@ -29,7 +29,7 @@
   "homeFertileWindow": "கருவுறுதல் காலம் · ",
   "homeHighEnergy": "அதிக ஆற்றல்",
   "homeAiTitle": "ரித்மா ஏஐ (Rhythma AI)",
-  "homeAiSubtitle": "உங்கள் உடல் பற்றி என்னிடம் கேளுங்கள்,\nஉங்கள் மொழியில்.",
+  "homeAiSubtitle": "உங்கள் உடல் பற்றி உங்கள் மொழியிலேயே என்னிடம் கேளுங்கள்.",
   "homeAiPrompt": "எனது மாதவிடாய் ஏன் ஒழுங்கற்றது?",
   "homeFeelingTitle": "இன்று நீங்கள் எப்படி உணர்கிறீர்கள்?",
   "homeLogAll": "அனைத்தையும் பதிவு செய்",
@@ -48,9 +48,9 @@
   
   "cycleTrackerTitle": "சுழற்சி டிராக்கர்",
   "cyclePhasePeriod": "மாதவிடாய்",
-  "cyclePhaseFollicular": "நுண்ணறை",
-  "cyclePhaseOvulation": "அண்டவிடுப்பின்",
-  "cyclePhaseLuteal": "லூட்டல்",
+  "cyclePhaseFollicular": "ஃபோலிகுலர்",
+  "cyclePhaseOvulation": "அண்டவிடுப்பு",
+  "cyclePhaseLuteal": "லூட்டியல்",
   "logFor": "பதிவு",
   "logNone": "எதுவுமில்லை",
   "logLight": "லேசான",
@@ -63,9 +63,9 @@
   "logSleep2": "5-7 மணிநேரம்",
   "logSleep3": "7-9 மணிநேரம்",
   "logSleep4": "9+ மணிநேரம்",
-  "logSympCramps": "தசைப்பிடிப்பு",
+  "logSympCramps": "மாதவிடாய் வலி",
   "logSympHeadache": "தலைவலி",
-  "logSympBloating": "வீக்கம்",
+  "logSympBloating": "வயிறு வீக்கம்",
   "logSympAcne": "முகப்பரு",
   "logLabelEnergy": "ஆற்றல்",
   "logLabelSymptoms": "அறிகுறிகள்",
@@ -132,13 +132,13 @@
   "registerCycleInvalid": "சரியான சராசரி சுழற்சி நீளத்தை உள்ளிடவும்",
   "registerCycleRange": "சுழற்சி நீளம் 15 மற்றும் 45 நாட்களுக்கு இடையில் இருக்க வேண்டும்",
 
-  "settingsConfirmTurnOn": "{feature} ஐ இயக்க விரும்புகிறீர்களா?",
+  "settingsConfirmTurnOn": "{feature} அம்சத்தை இயக்க விரும்புகிறீர்களா?",
   "@settingsConfirmTurnOn": {
     "placeholders": {
       "feature": { "type": "String" }
     }
   },
-  "settingsConfirmTurnOff": "{feature} ஐ அணைக்க விரும்புகிறீர்களா?",
+  "settingsConfirmTurnOff": "{feature} அம்சத்தை அணைக்க விரும்புகிறீர்களா?",
   "@settingsConfirmTurnOff": {
     "placeholders": {
       "feature": { "type": "String" }
@@ -180,7 +180,7 @@
   "insightsAvgCycle": "சராசரி சுழற்சி",
   "insightsRegular": "வழக்கமான",
   "insightsModerate": "மிதமான",
-  "insightsTrendLabel": "சுழற்சி நீளத்தின் போக்கு",
+  "insightsTrendLabel": "சுழற்சி காலப்போக்கு",
   "insightsStabilizing": "சீரடைகிறது",
   "insightsHealthy": "ஆரோக்கியமான",
   "insightsSymptomsLabel": "அறிகுறி முறைகள்",
@@ -215,11 +215,11 @@
   "profileAddNew": "புதிதாகச் சேர்க்கவும்",
   "profileNoContacts": "அவசரத் தொடர்புகள் எதுவும் இன்னும் அமைக்கப்படவில்லை.",
   
-  "navHome": "ஹோம்",
-  "navCycle": "சைக்கிள்",
-  "navAsk": "ஆஸ்க்",
-  "navYou": "யூ",
-  "navInsights": "உள்நோக்குகள்",
+  "navHome": "முகப்பு",
+  "navCycle": "சுழற்சி",
+  "navAsk": "கேள்வி",
+  "navYou": "நீங்கள்",
+  "navInsights": "நுண்ணறிவுகள்",
   
   "settingsHelpSupport": "உதவி மற்றும் ஆதரவு",
   "settingsContactUs": "எங்களைத் தொடர்பு கொள்ளவும் / பிழையைப் புகாரளிக்கவும்",
@@ -258,7 +258,7 @@
   "onboardingStep5Subtitle": "Rhythma சரியான நேரத்தில் நினைவூட்டுவதற்கு அறிவிப்புகளை இயக்கவும்",
   "onboardingEnableNotifications": "சுழற்சி நினைவூட்டல்களை இயக்கவும்",
   "onboardingNotificationsDesc": "மாதவிடாய் மற்றும் கருமுட்டை வெளியீட்டிற்கு முன் மென்மையான நினைவூட்டல்களைப் பெறவும்",
-  "onboardingDataConsentLabel": "இந்த சாதனத்தில் என் சுகாதார தரவை உள்ளூரில் சேமிக்க ஒப்புகிறேன்",
+  "onboardingDataConsentLabel": "எனது சுகாதாரத் தரவுகளை இந்தச் சாதனத்திலேயே பாதுகாப்பாகச் சேமிக்க சம்மதிக்கிறேன்",
   "onboardingDataConsentRequired": "தொடர ஏற்றுக்கொள்ளவும்",
   "onboardingNameRequired": "தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்",
   "onboardingAgeInvalid": "தயவுசெய்து சரியான வயதை உள்ளிடவும் (10–120)",
