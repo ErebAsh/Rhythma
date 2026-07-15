@@ -34,8 +34,8 @@ class InsightsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(l10n.insightsSubtitle,
-                    style: TextStyle(
-                        fontSize: 13, color: RhythmaColors.mutedFg)),
+                    style:
+                        TextStyle(fontSize: 13, color: RhythmaColors.mutedFg)),
               ],
             ),
           ),
@@ -404,8 +404,7 @@ class _SymptomBar extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: RhythmaColors.foreground)),
             Text('${(fraction * 100).round()}%',
-                style: TextStyle(
-                    fontSize: 12, color: RhythmaColors.mutedFg)),
+                style: TextStyle(fontSize: 12, color: RhythmaColors.mutedFg)),
           ],
         ),
         const SizedBox(height: 6),

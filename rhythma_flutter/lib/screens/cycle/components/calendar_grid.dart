@@ -28,7 +28,7 @@ class _CalendarGridState extends State<CalendarGrid> {
   @override
   Widget build(BuildContext context) {
     final cycleProvider = context.watch<CycleProvider>();
-    
+
     // Calculate cell width based on screen size, similar to before
     final cellWidth = (MediaQuery.of(context).size.width - 40 - 32) / 7;
 
@@ -47,9 +47,11 @@ class _CalendarGridState extends State<CalendarGrid> {
         },
         itemBuilder: (context, index) {
           final monthDate = _monthForIndex(index);
-          final monthDays = DateTime(monthDate.year, monthDate.month + 1, 0).day;
-          final firstWeekday = DateTime(monthDate.year, monthDate.month, 1).weekday % 7;
-          
+          final monthDays =
+              DateTime(monthDate.year, monthDate.month + 1, 0).day;
+          final firstWeekday =
+              DateTime(monthDate.year, monthDate.month, 1).weekday % 7;
+
           final today = DateTime.now();
 
           return Wrap(
@@ -62,29 +64,32 @@ class _CalendarGridState extends State<CalendarGrid> {
               // Actual days
               ...List.generate(monthDays, (i) {
                 final day = i + 1;
-                final currentDate = DateTime(monthDate.year, monthDate.month, day);
+                final currentDate =
+                    DateTime(monthDate.year, monthDate.month, day);
                 final phaseColor = cycleProvider.phaseColor(currentDate);
-                
-                final isSelected = cycleProvider.selectedDate.year == currentDate.year &&
-                                   cycleProvider.selectedDate.month == currentDate.month &&
-                                   cycleProvider.selectedDate.day == currentDate.day;
-                
+
+                final isSelected =
+                    cycleProvider.selectedDate.year == currentDate.year &&
+                        cycleProvider.selectedDate.month == currentDate.month &&
+                        cycleProvider.selectedDate.day == currentDate.day;
+
                 final isToday = today.year == currentDate.year &&
-                                today.month == currentDate.month &&
-                                today.day == currentDate.day;
-                
+                    today.month == currentDate.month &&
+                    today.day == currentDate.day;
+
                 final hasLog = cycleProvider.hasLogsForDate(currentDate);
 
                 return GestureDetector(
                   onTap: () {
                     context.read<CycleProvider>().selectDate(currentDate);
-                    
+
                     final dateKey = currentDate.toIso8601String().split('T')[0];
                     final logs = LocalStorageService.getCycleLogs();
-                    final existingLog = logs.cast<Map<String, dynamic>?>().firstWhere(
-                          (log) => log?['start_date'] == dateKey,
-                          orElse: () => null,
-                        );
+                    final existingLog =
+                        logs.cast<Map<String, dynamic>?>().firstWhere(
+                              (log) => log?['start_date'] == dateKey,
+                              orElse: () => null,
+                            );
 
                     LogEntrySheet.show(
                       context,
@@ -138,7 +143,8 @@ class _CalendarGridState extends State<CalendarGrid> {
                                   height: 4,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: isSelected ? Colors.white : phaseColor,
+                                    color:
+                                        isSelected ? Colors.white : phaseColor,
                                   ),
                                 ),
                             ],

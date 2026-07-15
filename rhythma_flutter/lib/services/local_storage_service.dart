@@ -21,6 +21,7 @@ class LocalStorageService {
   static List<Map<String, String>> mockEmergencyContacts = [];
   static bool mockOnboardingCompleted = false;
   static List<Map<String, dynamic>> mockCycleLogs = [];
+  static String? mockCurrentUserId;
 
   /// Call once at app startup (after WidgetsFlutterBinding.ensureInitialized)
   static Future<void> init({String? testPath}) async {
@@ -92,9 +93,16 @@ class LocalStorageService {
 
   /// The id of the currently signed-in user. Set by AuthService right after
   /// a successful login or a successful session validation at launch.
-  static String? get currentUserId => _settings.get(_kCurrentUserId) as String?;
+  static String? get currentUserId {
+    if (isTesting) return mockCurrentUserId;
+    return _settings.get(_kCurrentUserId) as String?;
+  }
 
   static Future<void> setCurrentUserId(String? userId) async {
+    if (isTesting) {
+      mockCurrentUserId = userId;
+      return;
+    }
     if (userId == null) {
       // Just clears the "which account is active" pointer — does NOT
       // delete anyone's data, so it's still there if they log back in.
@@ -116,7 +124,8 @@ class LocalStorageService {
   /// vanish just because storage is now namespaced.
   static Future<void> _migrateLegacyDataIfNeeded(String uid) async {
     final scopedProfileKey = '$uid::profile';
-    if (_userBox.containsKey('profile') && !_userBox.containsKey(scopedProfileKey)) {
+    if (_userBox.containsKey('profile') &&
+        !_userBox.containsKey(scopedProfileKey)) {
       final legacyProfile = _userBox.get('profile');
       if (legacyProfile != null) {
         await _userBox.put(scopedProfileKey, legacyProfile);
@@ -126,7 +135,8 @@ class LocalStorageService {
 
     const legacyChatKey = 'chat_history';
     final scopedChatKey = '$uid::chat_history';
-    if (_settings.containsKey(legacyChatKey) && !_settings.containsKey(scopedChatKey)) {
+    if (_settings.containsKey(legacyChatKey) &&
+        !_settings.containsKey(scopedChatKey)) {
       await _settings.put(scopedChatKey, _settings.get(legacyChatKey));
       await _settings.delete(legacyChatKey);
     }
@@ -151,7 +161,8 @@ class LocalStorageService {
   static Future<void> saveCycleLog(Map<String, dynamic> log) async {
     if (isTesting) {
       // Find and replace or add new
-      final index = mockCycleLogs.indexWhere((l) => l['start_date'] == log['start_date']);
+      final index =
+          mockCycleLogs.indexWhere((l) => l['start_date'] == log['start_date']);
       if (index != -1) {
         mockCycleLogs[index] = log;
       } else {
@@ -248,7 +259,8 @@ class LocalStorageService {
   /// Returns true if the user has completed onboarding at least once.
   static bool get onboardingCompleted {
     if (isTesting) return mockOnboardingCompleted;
-    return _settings.get('onboarding_completed', defaultValue: false) as bool;
+    return _settings.get(_scoped('onboarding_completed'), defaultValue: false)
+        as bool;
   }
 
   static Future<void> setOnboardingCompleted(bool value) async {
@@ -256,7 +268,7 @@ class LocalStorageService {
       mockOnboardingCompleted = value;
       return;
     }
-    await _settings.put('onboarding_completed', value);
+    await _settings.put(_scoped('onboarding_completed'), value);
   }
 
   // ── User Profile ──────────────────────────────────────────────────────────
@@ -275,12 +287,17 @@ class LocalStorageService {
       return;
     }
     await _userBox.put(_scoped('profile'), profile);
+    final lang = profile['language'] as String?;
+    if (lang != null) {
+      await setPreferredLanguage(lang);
+    }
   }
 
   /// Save (merge) a single field into today's — or a given date's — cycle log
   /// entry. Used by quick log actions (e.g. Home screen Flow/Mood/Sleep/Stress
   /// buttons) that log one value at a time rather than a full CycleLog form.
-  static Future<void> saveQuickLogField(DateTime date, String field, String value) async {
+  static Future<void> saveQuickLogField(
+      DateTime date, String field, String value) async {
     final key = _scoped(_dateKey(date));
     final existing = _cycleBox.get(key);
     final data = existing != null
@@ -299,6 +316,7 @@ class LocalStorageService {
     await saveProfile(merged);
     if (isTesting) mockProfile = merged;
   }
+
   static String _dateKey(DateTime date) =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
@@ -317,7 +335,8 @@ class LocalStorageService {
   }
 
   /// Save the list of emergency contacts.
-  static Future<void> saveEmergencyContacts(List<Map<String, String>> contacts) async {
+  static Future<void> saveEmergencyContacts(
+      List<Map<String, String>> contacts) async {
     if (isTesting) {
       mockEmergencyContacts = contacts;
       return;
@@ -342,7 +361,8 @@ class LocalStorageService {
   static Future<void> saveChatHistory(List<Map<String, String>> history) =>
       _settings.put(_scoped('chat_history'), history);
 
-  static Future<void> clearChatHistory() => _settings.delete(_scoped('chat_history'));
+  static Future<void> clearChatHistory() =>
+      _settings.delete(_scoped('chat_history'));
 
   // ── Clear all data ────────────────────────────────────────────────────────
 

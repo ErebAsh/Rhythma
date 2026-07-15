@@ -7,6 +7,7 @@ import '../../components/charts.dart';
 import '../../services/api_client.dart';
 import '../../services/local_storage_service.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/profile_provider.dart';
 import '../cycle/components/log_entry_sheet.dart';
 import '../insights/insights_screen.dart';
 import '../settings/language_screen.dart';
@@ -64,7 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: RhythmaColors.rose),
+            const Icon(Icons.error_outline,
+                size: 48, color: RhythmaColors.rose),
             const SizedBox(height: 16),
             Text(
               l10n.homeFailedLoad,
@@ -82,7 +84,18 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    final userName = _userData['name'] ?? 'User';
+    // Prefer the locally-stored profile name (set during onboarding) over
+    // the API username, since the profile name is the user's display name.
+    // Fall back chain: local name → API username → 'User'.
+    final localProfile = context.watch<ProfileProvider>().profile;
+    final localName = localProfile['name'] as String?;
+    final apiName = _userData['name'] as String?;
+    final userName = (localName != null && localName.isNotEmpty)
+        ? localName
+        : (apiName ?? 'User');
+
+    final avatarPath =
+        localProfile['avatar'] as String? ?? 'assets/avatars/avatar_1.png';
     final nextPeriodDays = _cycleData['nextPeriodDays'] ?? 14;
     final cycleDay = _cycleData['day'] ?? 14;
     final totalCycle = _cycleData['total'] ?? 28;
@@ -100,6 +113,13 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.fromLTRB(2, 8, 2, 20),
             child: Row(
               children: [
+                // Avatar from onboarding profile
+                CircleAvatar(
+                  radius: 22,
+                  backgroundImage: AssetImage(avatarPath),
+                  backgroundColor: RhythmaColors.primary.withOpacity(0.15),
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

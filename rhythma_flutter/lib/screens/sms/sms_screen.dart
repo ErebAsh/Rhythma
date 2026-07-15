@@ -151,9 +151,7 @@ class _SmsScreenState extends State<SmsScreen> {
                   'cycle status, health score, and any important patterns — '
                   'directly to your phone via SMS. Works without data or the app.',
                   style: TextStyle(
-                      fontSize: 13,
-                      color: RhythmaColors.mutedFg,
-                      height: 1.5),
+                      fontSize: 13, color: RhythmaColors.mutedFg, height: 1.5),
                 ),
               ],
             ),
@@ -187,14 +185,15 @@ class _SmsScreenState extends State<SmsScreen> {
                     Expanded(
                       child: Text('Enable weekly SMS',
                           style: TextStyle(
-                              fontSize: 14,
-                              color: RhythmaColors.foreground)),
+                              fontSize: 14, color: RhythmaColors.foreground)),
                     ),
                     Switch(
                       value: _smsEnabled,
                       onChanged: (v) => setState(() => _smsEnabled = v),
                       activeThumbColor: RhythmaColors.primary,
-                      activeTrackColor: RhythmaColors.primary.withValues(alpha: 0.5), // ✅ Fixed: withValues instead of withOpacity
+                      activeTrackColor: RhythmaColors.primary.withValues(
+                          alpha:
+                              0.5), // ✅ Fixed: withValues instead of withOpacity
                     ),
                   ],
                 ),

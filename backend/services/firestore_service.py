@@ -6,9 +6,76 @@ from datetime import date, datetime, timezone
 from typing import Optional, Dict, Any
 from fastapi import HTTPException, status
 
+# ─── Mock Firestore Client for Local Development (fallback) ────────────────
+class MockDocumentReference:
+    def __init__(self, doc_id, data, collection):
+        self.id = doc_id
+        self.data = data
+        self.collection = collection
+        self.exists = data is not None
+
+    def get(self):
+        return self
+
+    def to_dict(self):
+        return self.data.copy() if self.data is not None else None
+
+    def update(self, update_data):
+        if self.data:
+            self.data.update(update_data)
+            self.collection.store[self.id] = self.data
+
+class MockQuery:
+    def __init__(self, stream_generator):
+        self.stream_generator = stream_generator
+
+    def limit(self, count):
+        return self
+
+    def stream(self):
+        return self.stream_generator()
+
+class MockCollectionReference:
+    _next_id = 1
+
+    def __init__(self, name, db):
+        self.name = name
+        self.db = db
+        if name not in db._collections:
+            db._collections[name] = {}
+        self.store = db._collections[name]
+
+    def add(self, document_data):
+        doc_id = f"mock-doc-id-{MockCollectionReference._next_id}"
+        MockCollectionReference._next_id += 1
+        self.store[doc_id] = document_data
+        return (None, MockDocumentReference(doc_id, document_data, self))
+
+    def document(self, doc_id):
+        data = self.store.get(doc_id)
+        return MockDocumentReference(doc_id, data, self)
+
+    def where(self, field, op, value):
+        filtered = []
+        for doc_id, data in self.store.items():
+            if data.get(field) == value:
+                filtered.append(MockDocumentReference(doc_id, data, self))
+        return MockQuery(lambda: filtered)
+
+class MockFirestoreClient:
+    def __init__(self):
+        self._collections = {}
+
+    def collection(self, name):
+        return MockCollectionReference(name, self)
+
 # ─── Initialize Firebase (only once) ──────────────────────────────────────
+db = None
+
 def initialize_firebase():
+    global db
     if firebase_admin._apps:
+        db = firestore.client()
         return
 
     # Option 1: JSON string from environment
@@ -16,6 +83,7 @@ def initialize_firebase():
     if cred_json:
         cred = credentials.Certificate(json.loads(cred_json))
         firebase_admin.initialize_app(cred)
+        db = firestore.client()
         return
 
     # Option 2: Path to JSON file
@@ -23,15 +91,15 @@ def initialize_firebase():
     if cred_path and os.path.exists(cred_path):
         cred = credentials.Certificate(cred_path)
         firebase_admin.initialize_app(cred)
+        db = firestore.client()
         return
 
-    raise ValueError(
-        "Firebase credentials not found. Set FIREBASE_SERVICE_ACCOUNT_JSON "
-        "or FIREBASE_SERVICE_ACCOUNT_PATH in .env"
-    )
+    # Fallback to in-memory Firestore mock
+    import sys
+    print("WARNING: Firebase credentials not found. Falling back to an in-memory mock Firestore database.", file=sys.stderr)
+    db = MockFirestoreClient()
 
 initialize_firebase()
-db = firestore.client()
 
 
 class UserService:

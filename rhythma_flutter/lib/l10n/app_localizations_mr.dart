@@ -52,7 +52,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get logoutConfirmation =>
-      'तुम्हाला नक्की रिद्मा मधून लॉग आउट करायचे आहे का?';
+      'तुम्हाला रिद्मामधून नक्की लॉग आउट करायचे आहे का?';
 
   @override
   String get cancel => 'रद्द करा';
@@ -101,7 +101,7 @@ class AppLocalizationsMr extends AppLocalizations {
   String get homeLogFlow => 'प्रवाह';
 
   @override
-  String get homeLogMood => 'मूड';
+  String get homeLogMood => 'मनःस्थिती';
 
   @override
   String get homeLogSleep => 'झोप';
@@ -121,7 +121,7 @@ class AppLocalizationsMr extends AppLocalizations {
       'ओव्हुलेशनपूर्वी सातत्यपूर्ण विश्रांती हार्मोनल संतुलनास समर्थन देते.';
 
   @override
-  String get homeLearnTitle => 'रिद्मा सोबत शिका';
+  String get homeLearnTitle => 'रिद्मासोबत शिका';
 
   @override
   String get homeLearnPcos => 'PCOS समजून घेणे';
@@ -277,7 +277,7 @@ class AppLocalizationsMr extends AppLocalizations {
   String get assistantSug3 => '35 दिवसांचे चक्र सामान्य आहे का?';
 
   @override
-  String get assistantSug4 => 'पीएमएस मध्ये मदत करणारे पदार्थ';
+  String get assistantSug4 => 'पीएमएसमध्ये उपयुक्त आहार';
 
   @override
   String get assistantSug5 => 'माझे पीरियड्स अनियमित आहेत — हे सामान्य आहे का?';
@@ -413,13 +413,13 @@ class AppLocalizationsMr extends AppLocalizations {
   String get navCycle => 'सायकल';
 
   @override
-  String get navAsk => 'आस्क';
+  String get navAsk => 'विचारा';
 
   @override
   String get navInsights => 'अंतर्ज्ञान';
 
   @override
-  String get navYou => 'यू';
+  String get navYou => 'प्रोफाइल';
 
   @override
   String get settingsHelpSupport => 'मदत आणि समर्थन';

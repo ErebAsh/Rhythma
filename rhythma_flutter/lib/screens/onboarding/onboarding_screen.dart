@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../config/theme.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/local_storage_service.dart';
+import '../../services/profile_service.dart';
 import '../../providers/profile_provider.dart';
 
 /// The 5-step offline-first onboarding flow.
@@ -127,17 +128,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         valid = false;
       }
       final age = int.tryParse(_ageController.text);
-      if (_ageController.text.isNotEmpty && (age == null || age < 10 || age > 120)) {
+      if (_ageController.text.isNotEmpty &&
+          (age == null || age < 10 || age > 120)) {
         setState(() => _ageError = l.onboardingAgeInvalid);
         valid = false;
       }
       final h = double.tryParse(_heightController.text);
-      if (_heightController.text.isNotEmpty && (h == null || h < 50 || h > 250)) {
+      if (_heightController.text.isNotEmpty &&
+          (h == null || h < 50 || h > 250)) {
         setState(() => _heightError = l.onboardingHeightInvalid);
         valid = false;
       }
       final w = double.tryParse(_weightController.text);
-      if (_weightController.text.isNotEmpty && (w == null || w < 20 || w > 300)) {
+      if (_weightController.text.isNotEmpty &&
+          (w == null || w < 20 || w > 300)) {
         setState(() => _weightError = l.onboardingWeightInvalid);
         valid = false;
       }
@@ -194,7 +198,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Future<void> _saveAndComplete() async {
     final profile = <String, dynamic>{
-      'name': _nameController.text.trim().isEmpty ? 'User' : _nameController.text.trim(),
+      'name': _nameController.text.trim().isEmpty
+          ? 'User'
+          : _nameController.text.trim(),
       'avatar': _selectedAvatar ?? 'assets/avatars/avatar_1.png',
       'language': _selectedLanguage,
     };
@@ -205,7 +211,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final w = double.tryParse(_weightController.text);
     if (w != null) profile['weight_kg'] = w;
     if (_lastPeriodDate != null) {
-      profile['last_period'] = _lastPeriodDate!.toIso8601String().split('T').first;
+      profile['last_period'] =
+          _lastPeriodDate!.toIso8601String().split('T').first;
     }
     profile['cycle_length'] = _cycleLength;
     profile['period_duration'] = _periodDuration;
@@ -218,7 +225,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (state.isNotEmpty) profile['state'] = state;
     profile['notifications_enabled'] = _notificationsEnabled;
 
+    // 1. Persist locally first — data is never lost even if backend is down.
     await context.read<ProfileProvider>().saveProfile(profile);
+
+    // 2. Sync to backend — offline-safe: errors are swallowed by ProfileService.
+    await ProfileService.patchProfile(profile);
+
+    // 3. Mark onboarding done for this user account.
     await LocalStorageService.setOnboardingCompleted(true);
 
     widget.onComplete();
@@ -299,7 +312,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   foregroundColor: RhythmaColors.primary,
                   side: BorderSide(color: RhythmaColors.primary),
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                 ),
                 child: Text(l.onboardingBack),
               ),
@@ -312,7 +326,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: RhythmaColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
                 elevation: 0,
               ),
               child: Text(
@@ -351,16 +366,16 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: selected
                       ? RhythmaColors.primary.withOpacity(0.15)
                       : RhythmaColors.surface,
                   border: Border.all(
-                    color: selected
-                        ? RhythmaColors.primary
-                        : Colors.transparent,
+                    color:
+                        selected ? RhythmaColors.primary : Colors.transparent,
                     width: 2,
                   ),
                 ),
@@ -370,13 +385,17 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       lang['label']!,
                       style: TextStyle(
                         fontSize: 17,
-                        fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-                        color: selected ? RhythmaColors.primary : RhythmaColors.foreground,
+                        fontWeight:
+                            selected ? FontWeight.bold : FontWeight.w500,
+                        color: selected
+                            ? RhythmaColors.primary
+                            : RhythmaColors.foreground,
                       ),
                     ),
                     const Spacer(),
                     if (selected)
-                      Icon(Icons.check_circle_rounded, color: RhythmaColors.primary),
+                      Icon(Icons.check_circle_rounded,
+                          color: RhythmaColors.primary),
                   ],
                 ),
               ),
@@ -449,7 +468,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           ? RhythmaColors.primary.withOpacity(0.2)
                           : RhythmaColors.surface,
                       border: Border.all(
-                        color: selected ? RhythmaColors.primary : Colors.transparent,
+                        color: selected
+                            ? RhythmaColors.primary
+                            : Colors.transparent,
                         width: 2.5,
                       ),
                     ),
@@ -489,7 +510,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   controller: _heightController,
                   label: l.onboardingHeightLabel,
                   error: _heightError,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   textInputAction: TextInputAction.next,
                 ),
               ),
@@ -499,7 +521,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   controller: _weightController,
                   label: l.onboardingWeightLabel,
                   error: _weightError,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   textInputAction: TextInputAction.done,
                 ),
               ),
@@ -528,11 +551,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             onTap: () async {
               final picked = await showDatePicker(
                 context: context,
-                initialDate: _lastPeriodDate ?? DateTime.now().subtract(const Duration(days: 14)),
+                initialDate: _lastPeriodDate ??
+                    DateTime.now().subtract(const Duration(days: 14)),
                 firstDate: DateTime.now().subtract(const Duration(days: 365)),
                 lastDate: DateTime.now(),
                 builder: (context, child) {
-                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
                   return Theme(
                     data: Theme.of(context).copyWith(
                       colorScheme: isDark
@@ -560,11 +585,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 color: RhythmaColors.surface,
-                border: Border.all(color: RhythmaColors.primary.withOpacity(0.3)),
+                border:
+                    Border.all(color: RhythmaColors.primary.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_today_rounded, color: RhythmaColors.primary, size: 20),
+                  Icon(Icons.calendar_today_rounded,
+                      color: RhythmaColors.primary, size: 20),
                   const SizedBox(width: 12),
                   Text(
                     _lastPeriodDate == null
@@ -610,11 +637,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           const SizedBox(height: 10),
           Row(
             children: [
-              Expanded(child: _buildToggleChip(l.onboardingRegular, _isRegular,
-                  () => setState(() => _isRegular = true))),
+              Expanded(
+                  child: _buildToggleChip(l.onboardingRegular, _isRegular,
+                      () => setState(() => _isRegular = true))),
               const SizedBox(width: 12),
-              Expanded(child: _buildToggleChip(l.onboardingIrregular, !_isRegular,
-                  () => setState(() => _isRegular = false))),
+              Expanded(
+                  child: _buildToggleChip(l.onboardingIrregular, !_isRegular,
+                      () => setState(() => _isRegular = false))),
             ],
           ),
         ],
@@ -691,7 +720,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   height: 24,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
-                    color: _dataConsent ? RhythmaColors.primary : Colors.transparent,
+                    color: _dataConsent
+                        ? RhythmaColors.primary
+                        : Colors.transparent,
                     border: Border.all(
                       color: _consentError != null
                           ? Colors.redAccent
@@ -720,7 +751,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         const SizedBox(height: 4),
                         Text(
                           _consentError!,
-                          style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+                          style: const TextStyle(
+                              color: Colors.redAccent, fontSize: 12),
                         ),
                       ],
                     ],
@@ -856,7 +888,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: selected ? RhythmaColors.primary.withOpacity(0.15) : RhythmaColors.surface,
+          color: selected
+              ? RhythmaColors.primary.withOpacity(0.15)
+              : RhythmaColors.surface,
           border: Border.all(
             color: selected ? RhythmaColors.primary : Colors.transparent,
             width: 2,
@@ -867,7 +901,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             label,
             style: TextStyle(
               fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-              color: selected ? RhythmaColors.primary : RhythmaColors.foreground,
+              color:
+                  selected ? RhythmaColors.primary : RhythmaColors.foreground,
               fontSize: 15,
             ),
           ),
@@ -889,7 +924,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         borderRadius: BorderRadius.circular(16),
         color: RhythmaColors.surface,
         border: Border.all(
-          color: value ? RhythmaColors.primary.withOpacity(0.4) : Colors.transparent,
+          color: value
+              ? RhythmaColors.primary.withOpacity(0.4)
+              : Colors.transparent,
         ),
       ),
       child: Row(
@@ -930,4 +967,3 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 }
-

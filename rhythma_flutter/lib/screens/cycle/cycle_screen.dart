@@ -59,7 +59,7 @@ class _CycleScreenState extends State<CycleScreen> {
     context.watch<ThemeProvider>();
     final cycleProvider = context.watch<CycleProvider>();
     final l10n = AppLocalizations.of(context)!;
-    
+
     final displayedMonth = cycleProvider.displayedMonth;
     final selectedDate = cycleProvider.selectedDate;
 
@@ -100,7 +100,9 @@ class _CycleScreenState extends State<CycleScreen> {
                 // Month nav
                 Row(
                   children: [
-                    _CircleBtn(icon: Icons.chevron_left_rounded, onTap: _goToPreviousMonth),
+                    _CircleBtn(
+                        icon: Icons.chevron_left_rounded,
+                        onTap: _goToPreviousMonth),
                     Expanded(
                       child: Center(
                         child: Text(
@@ -114,7 +116,8 @@ class _CycleScreenState extends State<CycleScreen> {
                       ),
                     ),
                     _CircleBtn(
-                        icon: Icons.chevron_right_rounded, onTap: _goToNextMonth),
+                        icon: Icons.chevron_right_rounded,
+                        onTap: _goToNextMonth),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -180,7 +183,12 @@ class _CycleScreenState extends State<CycleScreen> {
           _LogRow(
             icon: Icons.water_drop_outlined,
             label: l10n.homeLogFlow,
-            options: [l10n.logNone, l10n.logLight, l10n.logMedium, l10n.logHeavy],
+            options: [
+              l10n.logNone,
+              l10n.logLight,
+              l10n.logMedium,
+              l10n.logHeavy
+            ],
             color: RhythmaColors.rose,
           ),
           const SizedBox(height: 10),
@@ -201,14 +209,24 @@ class _CycleScreenState extends State<CycleScreen> {
           _LogRow(
             icon: Icons.bedtime_outlined,
             label: l10n.homeLogSleep,
-            options: [l10n.logSleep1, l10n.logSleep2, l10n.logSleep3, l10n.logSleep4],
+            options: [
+              l10n.logSleep1,
+              l10n.logSleep2,
+              l10n.logSleep3,
+              l10n.logSleep4
+            ],
             color: RhythmaColors.primary,
           ),
           const SizedBox(height: 10),
           _LogRow(
             icon: Icons.psychology_outlined,
             label: l10n.logLabelSymptoms,
-            options: [l10n.logSympCramps, l10n.logSympHeadache, l10n.logSympBloating, l10n.logSympAcne],
+            options: [
+              l10n.logSympCramps,
+              l10n.logSympHeadache,
+              l10n.logSympBloating,
+              l10n.logSympAcne
+            ],
             color: RhythmaColors.teal,
           ),
         ],
@@ -276,16 +294,15 @@ class _LogRowState extends State<_LogRow> {
                 onTap: () {
                   setState(() => _selectedSelected(opt, sel));
                   // We simulate updating the logs when a symptom is toggled
-                  context.read<CycleProvider>().toggleLogForDate(context.read<CycleProvider>().selectedDate);
+                  context.read<CycleProvider>().toggleLogForDate(
+                      context.read<CycleProvider>().selectedDate);
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 160),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 7),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                   decoration: BoxDecoration(
-                    color: sel
-                        ? widget.color
-                        : RhythmaColors.surfaceMuted,
+                    color: sel ? widget.color : RhythmaColors.surfaceMuted,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -293,9 +310,7 @@ class _LogRowState extends State<_LogRow> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: sel
-                          ? Colors.white
-                          : RhythmaColors.foreground,
+                      color: sel ? Colors.white : RhythmaColors.foreground,
                     ),
                   ),
                 ),
@@ -325,8 +340,7 @@ class _Legend extends StatelessWidget {
         Container(
             width: 8,
             height: 8,
-            decoration:
-                BoxDecoration(color: color, shape: BoxShape.circle)),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 5),
         Text(label,
             style: TextStyle(
@@ -381,8 +395,7 @@ class _ScreenHeader extends StatelessWidget {
           if (subtitle != null) ...[
             const SizedBox(height: 2),
             Text(subtitle!,
-                style: TextStyle(
-                    fontSize: 13, color: RhythmaColors.mutedFg)),
+                style: TextStyle(fontSize: 13, color: RhythmaColors.mutedFg)),
           ],
         ],
       ),
