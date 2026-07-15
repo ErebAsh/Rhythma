@@ -18,7 +18,6 @@
   "cancel": "रद्द करें",
   "loggedOutSuccess": "सफलतापूर्वक लॉग आउट हो गया",
   "selectLanguage": "भाषा चुनें",
-  
   "homeGreeting": "नमस्ते",
   "homePhaseDesc": "दिन 14 · ओव्यूलेशन चरण",
   "homeNextPeriod": "अगला मासिक धर्म",
@@ -42,7 +41,6 @@
   "homeLearnHormones": "हार्मोन 101",
   "homeLearnIron": "आयरन से भरपूर खाद्य पदार्थ",
   "homeArticle": "लेख",
-  
   "cycleTrackerTitle": "चक्र ट्रैकर",
   "cyclePhasePeriod": "मासिक धर्म",
   "cyclePhaseFollicular": "कूपिक",
@@ -66,7 +64,6 @@
   "logSympAcne": "मुंहासे",
   "logLabelEnergy": "ऊर्जा",
   "logLabelSymptoms": "लक्षण",
-  
   "assistantTitle": "रिद्मा सहायक",
   "assistantSubtitle": "आपकी स्वास्थ्य साथी • निजी और सुरक्षित",
   "assistantInputHint": "अपना सवाल पूछें...",
@@ -76,7 +73,6 @@
   "assistantSug3": "क्या 35 दिन का चक्र सामान्य है?",
   "assistantSug4": "पीएमएस में मदद करने वाले खाद्य पदार्थ",
   "assistantSug5": "मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?",
-
   "insightsTitle": "स्वास्थ्य अंतर्दृष्टि",
   "insightsSubtitle": "पिछले 90 दिन",
   "insightsMhsLabel": "मासिक धर्म स्वास्थ्य स्कोर",
@@ -94,7 +90,6 @@
   "insightsRec1": "मासिक धर्म शुरू होने के करीब आयरन युक्त खाद्य पदार्थ शामिल करें",
   "insightsRec2": "ल्यूटियल चरण के दिनों में 10 मिनट का योग आज़माएं",
   "insightsRec3": "ओव्यूलेशन सप्ताह के दौरान 2.5L पानी पिएं",
-  
   "profileTitle": "प्रोफ़ाइल",
   "profileYearsOld": "साल की",
   "profileCycleDay": "चक्र का दिन",
@@ -119,18 +114,15 @@
   "profileEmergencyContactsTitle": "आपातकालीन संपर्क",
   "profileAddNew": "नया जोड़ें",
   "profileNoContacts": "अभी तक कोई आपातकालीन संपर्क सेट नहीं किया गया है।",
-  
   "navHome": "होम",
   "navCycle": "साइकिल",
   "navAsk": "आस्क",
   "navYou": "यू",
   "navInsights": "अंतर्दृष्टि",
-  
   "settingsHelpSupport": "सहायता और समर्थन",
   "settingsContactUs": "हमसे संपर्क करें / बग की रिपोर्ट करें",
   "settingsContactDesc": "हमारी सहायता टीम को ईमेल भेजें",
   "settingsEmailError": "ईमेल ऐप नहीं खुल सका। कृपया हमें support@rhythma.com पर ईमेल करें",
-
   "onboardingPrivacyNote": "आपकी जानकारी आपके डिवाइस पर रहती है। हम आपकी अनुमति के बिना कभी भी आपका डेटा साझा नहीं करते।",
   "onboardingNext": "आगे",
   "onboardingBack": "वापस",
@@ -168,5 +160,29 @@
   "onboardingNameRequired": "कृपया अपना नाम दर्ज करें",
   "onboardingAgeInvalid": "कृपया वैध आयु दर्ज करें (10–120)",
   "onboardingHeightInvalid": "कृपया वैध ऊंचाई दर्ज करें (50–250 सेमी)",
-  "onboardingWeightInvalid": "कृपया वैध वज़न दर्ज करें (20–300 किग्रा)"
+  "onboardingWeightInvalid": "कृपया वैध वज़न दर्ज करें (20–300 किग्रा)",
+  "smsScreenTitle": "एसएमएस सारांश",
+  "smsScreenSubtitle": "ऐप के बिना भी जानकारी पाएं",
+  "smsInfoCardTitle": "साप्ताहिक स्वास्थ्य सारांश",
+  "smsInfoCardBody": "हर सप्ताह, रिद्मा आपको आपके चक्र की स्थिति, स्वास्थ्य स्कोर और किसी भी महत्वपूर्ण पैटर्न का संक्षिप्त सारांश सीधे एसएमएस के ज़रिए आपके फ़ोन पर भेजेगी, बिना डेटा या ऐप के भी काम करता है।",
+  "smsConfigTitle": "कॉन्फ़िगरेशन",
+  "smsPhoneLabel": "फ़ोन नंबर",
+  "smsPhoneHint": "+91 98765 43210",
+  "smsEnableWeekly": "साप्ताहिक एसएमएस सक्षम करें",
+  "smsSaveSettings": "सेटिंग्स सहेजें",
+  "smsSendSectionTitle": "अभी सारांश भेजें",
+  "smsSendRecipientPrefix": "नीचे दिया गया संदेश इस नंबर पर भेजा जाएगा:",
+  "smsSendNoPhone": "पहले ऊपर फ़ोन नंबर जोड़ें और सहेजें।",
+  "smsSendButton": "सारांश अभी भेजें",
+  "smsErrorEnterPhone": "कृपया फ़ोन नंबर दर्ज करें",
+  "smsErrorInvalidPhone": "अंतरराष्ट्रीय प्रारूप में मान्य फ़ोन नंबर दर्ज करें, जैसे +919876543210",
+  "smsSuccessSaved": "एसएमएस सेटिंग्स सफलतापूर्वक सहेजी गईं!",
+  "smsErrorAddPhoneFirst": "पहले फ़ोन नंबर जोड़ें और सहेजें",
+  "smsSuccessSent": "सारांश आपके फ़ोन पर भेज दिया गया!",
+  "smsErrorRateLimit": "आप प्रति मिनट केवल एक सारांश भेज सकते हैं, कृपया थोड़ी देर बाद पुनः प्रयास करें।",
+  "smsErrorSessionExpired": "आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।",
+  "smsErrorNetwork": "सर्वर तक नहीं पहुंच सके। अपना कनेक्शन जांचें और पुनः प्रयास करें।",
+  "smsErrorGeneric": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।",
+  "smsLoadError": "आपकी एसएमएस सेटिंग्स लोड नहीं हो सकीं। रीफ्रेश करें या पुनः प्रयास करें।",
+  "smsSummaryMessage": "🌸 रिद्मा स्वास्थ्य सारांश\nयह रिद्मा से आपका ऑन-डिमांड सारांश है।\nअपनी नवीनतम चक्र जानकारी के लिए ऐप खोलें।\nसदस्यता समाप्त करने के लिए STOP उत्तर दें।"
 }

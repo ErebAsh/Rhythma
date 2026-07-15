@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:rhythma/l10n/app_localizations.dart';
 import '../../config/theme.dart';
 import '../../components/shared.dart';
 import '../../services/sms_service.dart';
@@ -8,7 +9,7 @@ import '../../services/sms_service.dart';
 /// Users configure a phone number to receive summaries via SMS, useful in
 /// low-data areas, and can trigger an on-demand summary right now.
 class SmsScreen extends StatefulWidget {
-  const SmsScreen({Key? key}) : super(key: key);
+  const SmsScreen({super.key});
 
   @override
   State<SmsScreen> createState() => _SmsScreenState();
@@ -21,20 +22,21 @@ class _SmsScreenState extends State<SmsScreen> {
   bool _saving = false;
   bool _sending = false;
   bool _loading = true;
+  String _loadError = '';
+  bool _initialized = false;
 
-  // The phone number is loaded from the user's saved settings (their
-  // "profile" for this feature) and reused for sending, no separate
-  // manual-entry field for the Send action itself.
-  static const _summaryMessage =
-      '🌸 Rhythma Health Summary\n'
-      'This is your on-demand summary from Rhythma.\n'
-      'Open the app for your latest cycle insights.\n'
-      'Reply STOP to unsubscribe.';
+  // E.164: a leading '+', then 1-15 digits, first digit 1-9. This is a
+  // basic client-side check to catch obvious typos before hitting the
+  // backend — the backend remains the source of truth for validation.
+  static final _e164 = RegExp(r'^\+[1-9]\d{1,14}$');
 
   @override
-  void initState() {
-    super.initState();
-    _loadSettings();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _loadSettings();
+    }
   }
 
   @override
@@ -43,52 +45,80 @@ class _SmsScreenState extends State<SmsScreen> {
     super.dispose();
   }
 
+  // The phone number here is loaded from /sms/settings, which is where
+  // this feature's phone number actually lives on the backend — there is
+  // no separate "profile" endpoint with a phone field to load from
+  // instead. This is intentional, not a placeholder: it's the same
+  // number the user set up for weekly summaries, reused here so the Send
+  // action doesn't need its own manual-entry field.
   Future<void> _loadSettings() async {
-    setState(() => _loading = true);
+    final l10n = AppLocalizations.of(context)!;
+    setState(() {
+      _loading = true;
+      _loadError = '';
+    });
     try {
       final settings = await _sms.getSettings();
       setState(() {
         _phoneCtrl.text = (settings['phoneNumber'] as String?) ?? '';
         _smsEnabled = settings['enabled'] as bool? ?? false;
       });
-    } catch (_) {
-      // No saved settings yet is fine, fields just stay empty.
+    } on DioException catch (e) {
+      // A 404 here just means the user has no saved settings yet, which
+      // is a normal first-run state, not an error to surface. Anything
+      // else (network failure, auth failure, server error) is a real
+      // problem and should be shown, not swallowed silently.
+      if (e.response?.statusCode != 404) {
+        setState(() => _loadError = _friendlyError(e, l10n));
+      }
+    } catch (e) {
+      setState(() => _loadError = l10n.smsErrorGeneric);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
   Future<void> _saveSettings() async {
+    final l10n = AppLocalizations.of(context)!;
     final phone = _phoneCtrl.text.trim();
     if (_smsEnabled && phone.isEmpty) {
-      _showSnack('Please enter a phone number', isError: true);
+      _showSnack(l10n.smsErrorEnterPhone, isError: true);
+      return;
+    }
+    if (phone.isNotEmpty && !_e164.hasMatch(phone)) {
+      _showSnack(l10n.smsErrorInvalidPhone, isError: true);
       return;
     }
 
     setState(() => _saving = true);
     try {
       await _sms.saveSettings(phoneNumber: phone, enabled: _smsEnabled);
-      _showSnack('SMS settings saved successfully!');
+      _showSnack(l10n.smsSuccessSaved);
     } catch (e) {
-      _showSnack(_friendlyError(e), isError: true);
+      _showSnack(_friendlyError(e, l10n), isError: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
   }
 
   Future<void> _sendSummaryNow() async {
+    final l10n = AppLocalizations.of(context)!;
     final phone = _phoneCtrl.text.trim();
     if (phone.isEmpty) {
-      _showSnack('Add and save a phone number first', isError: true);
+      _showSnack(l10n.smsErrorAddPhoneFirst, isError: true);
+      return;
+    }
+    if (!_e164.hasMatch(phone)) {
+      _showSnack(l10n.smsErrorInvalidPhone, isError: true);
       return;
     }
 
     setState(() => _sending = true);
     try {
-      await _sms.sendSummary(phoneNumber: phone, message: _summaryMessage);
-      _showSnack('Summary sent to your phone!');
+      await _sms.sendSummary(phoneNumber: phone, message: l10n.smsSummaryMessage);
+      _showSnack(l10n.smsSuccessSent);
     } catch (e) {
-      _showSnack(_friendlyError(e), isError: true);
+      _showSnack(_friendlyError(e, l10n), isError: true);
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -99,14 +129,14 @@ class _SmsScreenState extends State<SmsScreen> {
   /// backend rate limiting, falling back to the backend's own error detail
   /// (e.g. an invalid phone format, or a Twilio-side error) when it's none
   /// of those.
-  String _friendlyError(Object e) {
+  String _friendlyError(Object e, AppLocalizations l10n) {
     if (e is DioException) {
       final status = e.response?.statusCode;
       if (status == 429) {
-        return "You can send one summary per minute, please wait a bit and try again.";
+        return l10n.smsErrorRateLimit;
       }
       if (status == 401) {
-        return "Your session has expired. Please log in again.";
+        return l10n.smsErrorSessionExpired;
       }
       final data = e.response?.data;
       if (data is Map && data['detail'] is String && (data['detail'] as String).isNotEmpty) {
@@ -117,11 +147,11 @@ class _SmsScreenState extends State<SmsScreen> {
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.sendTimeout ||
           e.type == DioExceptionType.unknown) {
-        return "Couldn't reach the server. Check your connection and try again.";
+        return l10n.smsErrorNetwork;
       }
-      return "Something went wrong. Please try again.";
+      return l10n.smsErrorGeneric;
     }
-    return "Something went wrong. Please try again.";
+    return l10n.smsErrorGeneric;
   }
 
   void _showSnack(String text, {bool isError = false}) {
@@ -136,6 +166,7 @@ class _SmsScreenState extends State<SmsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hasPhone = _phoneCtrl.text.trim().isNotEmpty;
 
     // Matches the same Container(gradient) + Scaffold(transparent) + AppBar
@@ -148,7 +179,7 @@ class _SmsScreenState extends State<SmsScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: const Text('SMS Summaries'),
+          title: Text(l10n.smsScreenTitle),
           centerTitle: true,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -157,153 +188,188 @@ class _SmsScreenState extends State<SmsScreen> {
         ),
         body: _loading
             ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Stay informed even without the app',
-                        style: TextStyle(fontSize: 13, color: RhythmaColors.mutedFg)),
-                    const SizedBox(height: 20),
+            : RefreshIndicator(
+                onRefresh: _loadSettings,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.smsScreenSubtitle,
+                          style: TextStyle(fontSize: 13, color: RhythmaColors.mutedFg)),
+                      const SizedBox(height: 20),
 
-                    // Info card
-                    GlassCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              TintedIcon(icon: Icons.sms_rounded, color: RhythmaColors.teal),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text('Weekly Health Summary',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: RhythmaColors.foreground)),
-                              ),
-                            ],
+                      if (_loadError.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: GlassCard(
+                            child: Row(
+                              children: [
+                                Icon(Icons.error_outline, color: RhythmaColors.rose, size: 20),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    _loadError,
+                                    style: TextStyle(color: RhythmaColors.mutedFg, fontSize: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Every week, Rhythma will send you a brief summary of your '
-                            'cycle status, health score, and any important patterns, '
-                            'directly to your phone via SMS. Works without data or the app.',
-                            style: TextStyle(
-                                fontSize: 13, color: RhythmaColors.mutedFg, height: 1.5),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
 
-                    const SizedBox(height: 16),
-
-                    // Config card
-                    GlassCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Configuration',
+                      // Info card
+                      GlassCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                TintedIcon(icon: Icons.sms_rounded, color: RhythmaColors.teal),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(l10n.smsInfoCardTitle,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: RhythmaColors.foreground)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              l10n.smsInfoCardBody,
                               style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: RhythmaColors.foreground)),
-                          const SizedBox(height: 16),
-                          TextField(
-                            controller: _phoneCtrl,
-                            keyboardType: TextInputType.phone,
-                            onChanged: (_) => setState(() {}),
-                            decoration: const InputDecoration(
-                              labelText: 'Phone Number',
-                              hintText: '+91 98765 43210',
-                              prefixIcon: Icon(Icons.phone_rounded),
+                                  fontSize: 13, color: RhythmaColors.mutedFg, height: 1.5),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text('Enable weekly SMS',
-                                    style: TextStyle(fontSize: 14, color: RhythmaColors.foreground)),
-                              ),
-                              Switch(
-                                value: _smsEnabled,
-                                onChanged: (v) => setState(() => _smsEnabled = v),
-                                activeThumbColor: RhythmaColors.primary,
-                                activeTrackColor: RhythmaColors.primary.withValues(alpha: 0.5),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _saving ? null : _saveSettings,
-                              child: _saving
-                                  ? const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                  : const Text('Save Settings'),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 16),
 
-                    // On-demand summary, a real action wired to the backend,
-                    // replacing the previous static "Sample SMS" placeholder.
-                    GlassCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Send a Summary Now',
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: RhythmaColors.foreground)),
-                          const SizedBox(height: 4),
-                          Text(
-                            hasPhone
-                                ? 'Sends the message below to ${_phoneCtrl.text.trim()}.'
-                                : 'Add and save a phone number above first.',
-                            style: TextStyle(fontSize: 12, color: RhythmaColors.mutedFg),
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: RhythmaColors.surfaceMuted,
-                              borderRadius: BorderRadius.circular(12),
+                      // Config card
+                      GlassCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l10n.smsConfigTitle,
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: RhythmaColors.foreground)),
+                            const SizedBox(height: 16),
+                            TextField(
+                              controller: _phoneCtrl,
+                              keyboardType: TextInputType.phone,
+                              onChanged: (_) => setState(() {}),
+                              decoration: InputDecoration(
+                                labelText: l10n.smsPhoneLabel,
+                                hintText: l10n.smsPhoneHint,
+                                prefixIcon: const Icon(Icons.phone_rounded),
+                              ),
                             ),
-                            child: Text(
-                              _summaryMessage,
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  color: RhythmaColors.foreground,
-                                  height: 1.6,
-                                  fontFamily: 'monospace'),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(l10n.smsEnableWeekly,
+                                      style: TextStyle(
+                                          fontSize: 14, color: RhythmaColors.foreground)),
+                                ),
+                                Switch(
+                                  value: _smsEnabled,
+                                  onChanged: (v) => setState(() => _smsEnabled = v),
+                                  activeThumbColor: RhythmaColors.primary,
+                                  activeTrackColor: RhythmaColors.primary.withValues(alpha: 0.5),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: (_sending || !hasPhone) ? null : _sendSummaryNow,
-                              child: _sending
-                                  ? const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                  : const Text('Send Summary Now'),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _saving ? null : _saveSettings,
+                                child: _saving
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2, color: Colors.white))
+                                    : Text(l10n.smsSaveSettings),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+
+                      const SizedBox(height: 12),
+
+                      // On-demand summary, a real action wired to the backend,
+                      // replacing the previous static "Sample SMS" placeholder.
+                      GlassCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l10n.smsSendSectionTitle,
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: RhythmaColors.foreground)),
+                            const SizedBox(height: 4),
+                            if (hasPhone) ...[
+                              Text(
+                                l10n.smsSendRecipientPrefix,
+                                style: TextStyle(fontSize: 12, color: RhythmaColors.mutedFg),
+                              ),
+                              Text(
+                                _phoneCtrl.text.trim(),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: RhythmaColors.foreground),
+                              ),
+                            ] else
+                              Text(
+                                l10n.smsSendNoPhone,
+                                style: TextStyle(fontSize: 12, color: RhythmaColors.mutedFg),
+                              ),
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: RhythmaColors.surfaceMuted,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                l10n.smsSummaryMessage,
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: RhythmaColors.foreground,
+                                    height: 1.6,
+                                    fontFamily: 'monospace'),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: (_sending || !hasPhone) ? null : _sendSummaryNow,
+                                child: _sending
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2, color: Colors.white))
+                                    : Text(l10n.smsSendButton),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
       ),

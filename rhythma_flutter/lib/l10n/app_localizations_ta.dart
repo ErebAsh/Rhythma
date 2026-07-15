@@ -563,4 +563,87 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get onboardingWeightInvalid =>
       'தயவுசெய்து சரியான எடையை உள்ளிடவும் (20–300 கிகி)';
+
+  @override
+  String get smsScreenTitle => 'எஸ்எம்எஸ் சுருக்கங்கள்';
+
+  @override
+  String get smsScreenSubtitle => 'ஆப் இல்லாமலும் தகவல் பெறுங்கள்';
+
+  @override
+  String get smsInfoCardTitle => 'வாராந்திர சுகாதார சுருக்கம்';
+
+  @override
+  String get smsInfoCardBody =>
+      'ஒவ்வொரு வாரமும், உங்கள் சுழற்சி நிலை, சுகாதார மதிப்பெண் மற்றும் முக்கியமான போக்குகளின் சுருக்கமான தகவலை Rhythma உங்கள் தொலைபேசிக்கு நேரடியாக எஸ்எம்எஸ் மூலம் அனுப்பும், டேட்டா அல்லது ஆப் இல்லாமலும் இயங்கும்.';
+
+  @override
+  String get smsConfigTitle => 'கட்டமைப்பு';
+
+  @override
+  String get smsPhoneLabel => 'தொலைபேசி எண்';
+
+  @override
+  String get smsPhoneHint => '+91 98765 43210';
+
+  @override
+  String get smsEnableWeekly => 'வாராந்திர எஸ்எம்எஸ்-ஐ இயக்கவும்';
+
+  @override
+  String get smsSaveSettings => 'அமைப்புகளை சேமிக்கவும்';
+
+  @override
+  String get smsSendSectionTitle => 'இப்போது சுருக்கத்தை அனுப்பவும்';
+
+  @override
+  String get smsSendRecipientPrefix =>
+      'கீழே உள்ள செய்தி இந்த எண்ணுக்கு அனுப்பப்படும்:';
+
+  @override
+  String get smsSendNoPhone =>
+      'முதலில் மேலே தொலைபேசி எண்ணைச் சேர்த்து சேமிக்கவும்.';
+
+  @override
+  String get smsSendButton => 'இப்போது சுருக்கத்தை அனுப்பவும்';
+
+  @override
+  String get smsErrorEnterPhone => 'தொலைபேசி எண்ணை உள்ளிடவும்';
+
+  @override
+  String get smsErrorInvalidPhone =>
+      'சர்வதேச வடிவத்தில் சரியான தொலைபேசி எண்ணை உள்ளிடவும், எ.கா. +919876543210';
+
+  @override
+  String get smsSuccessSaved =>
+      'எஸ்எம்எஸ் அமைப்புகள் வெற்றிகரமாக சேமிக்கப்பட்டன!';
+
+  @override
+  String get smsErrorAddPhoneFirst =>
+      'முதலில் தொலைபேசி எண்ணைச் சேர்த்து சேமிக்கவும்';
+
+  @override
+  String get smsSuccessSent => 'சுருக்கம் உங்கள் தொலைபேசிக்கு அனுப்பப்பட்டது!';
+
+  @override
+  String get smsErrorRateLimit =>
+      'நீங்கள் நிமிடத்திற்கு ஒரு சுருக்கத்தை மட்டுமே அனுப்ப முடியும், சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get smsErrorSessionExpired =>
+      'உங்கள் அமர்வு காலாவதியானது. மீண்டும் உள்நுழையவும்.';
+
+  @override
+  String get smsErrorNetwork =>
+      'சர்வரை அடைய முடியவில்லை. உங்கள் இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get smsErrorGeneric => 'ஏதோ தவறு நடந்தது. மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get smsLoadError =>
+      'உங்கள் எஸ்எம்எஸ் அமைப்புகளை ஏற்ற முடியவில்லை. புதுப்பிக்கவும் அல்லது மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get smsSummaryMessage =>
+      '🌸 Rhythma சுகாதார சுருக்கம்\nஇது Rhythma-விலிருந்து உங்கள் உடனடி சுருக்கம்.\nஉங்கள் சமீபத்திய சுழற்சி தகவலுக்கு ஆப்பைத் திறக்கவும்.\nசந்தா நீக்க STOP என பதிலளிக்கவும்.';
 }
