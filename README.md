@@ -4,30 +4,57 @@
 
 *Her Rhythm. Her Health. Her Power.*
 
-An AI-powered, offline-first, multilingual women's health companion — built for the women India's apps forgot.
+**A multilingual, offline-first, AI-powered menstrual & women's health companion — built from the ground up for Indian women.**
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)](https://flutter.dev) [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green?logo=fastapi)](https://fastapi.tiangolo.com) [![Gemini API](https://img.shields.io/badge/Gemini-API-orange?logo=google)](https://ai.google.dev) [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://github.com/ishita2740/Rhythma/blob/main/LICENSE) [![Status](https://img.shields.io/badge/Status-Active%20Development-yellow)](#project-status)
+
+---
+
+## Table of Contents
+
+- [The Problem](#-the-problem)
+- [What Rhythma Does](#-what-rhythma-does)
+- [Platforms](#platforms)
+- [Who Rhythma Is For](#who-rhythma-is-for)
+- [Screenshots](#screenshots)
+- [Demo Video](#demo-video)
+- [Live Demo](#live-demo)
+- [How Rhythma Compares](#-how-rhythma-compares)
+- [Key Features](#-key-features)
+- [Detailed Technology Stack](#️-detailed-technology-stack)
+- [Project Status](#project-status)
+- [Folder Structure](#folder-structure)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Future Features](#future-features)
+- [Roadmap](#️-roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
+- [Disclaimer](#disclaimer)
 
 ---
 
 ## 🎯 The Problem
 
 **1 in 5 Indian women** experience PCOD/PCOS symptoms, and national studies show a **19.6% PCOS prevalence** using Rotterdam criteria — yet most cases go unnoticed for years. Women in Tier-2, Tier-3, and semi-urban India face a compounding set of barriers:
- 
+
 - Popular period-tracking apps (Flo, Clue) assume 28-day cycles, English fluency, and stable internet
 - Gynecologist access remains limited outside major cities
 - Deep social stigma discourages open conversations about reproductive health
 - Only **26%** of Indian women have regular mobile internet access
 - No AI tool built natively for Indian languages, realities, and connectivity constraints
+
 > *"Women's healthcare is not inaccessible because solutions don't exist. It is inaccessible because current solutions are not designed around Indian realities."*
- 
+
 **Rhythma is built from the ground up for Indian women — not adapted from a solution built for another market.**
 
 ---
 
 ## ✨ What Rhythma Does
- 
+
 Rhythma helps women **understand, track, and act** on their health privately, in their own language. Users log cycles, symptoms, mood, sleep, and lifestyle habits; Rhythma turns that data into personalized, on-device health insights instead of just raw charts.
+
 Rhythma aims to be an offline-first, multilingual women's health companion for tier-2 and tier-3 Indian cities — supporting cycle tracking, an AI health assistant, and personalized wellness scoring in regional languages.
 
 ---
@@ -49,14 +76,14 @@ Rhythma is designed to grow into support for multiple groups of Indian women, ea
 
 | Group | Age / context | What they need |
 | --- | --- | --- |
-| **Teen girls (first period journey)** | 12–17 | Simple, non-clinical first-period guidance and menstrual education — **planned, not yet built** (see [First Period Guidance](#future-features)) |
+| **Teen girls (first period journey)** | 12–17 | Simple, non-clinical first-period guidance and menstrual education — **planned, not yet built** (see [Future Features](#future-features)) |
 | **College students & working women** | 18–35 | Irregular-cycle tracking, PCOD/PCOS awareness, hormonal health support — **primary users of the current app** |
-| **Women with irregular cycles** | 18–35+ | Long-term pattern detection (CVI), not single-cycle guesswork | 
-| **Community / self-help groups** | Extended ecosystem (NGOs, rural users, shared devices)  across Tier-2, Tier-3 & semi-urban India | Offline access, SMS support, and eventually WhatsApp-based access without needing to install an app — **partially planned** |
+| **Women with irregular cycles** | 18–35+ | Long-term pattern detection (CVI), not single-cycle guesswork |
+| **Community / self-help groups** | Extended ecosystem (NGOs, rural users, shared devices) across Tier-2, Tier-3 & semi-urban India | Offline access, SMS support, and eventually WhatsApp-based access without needing to install an app — **partially planned** |
 
 | **Feature** | **Details** |
 | --- | --- |
-| **Languages** | Hindi, Marathi, Tamil, English — more planned |
+| **Languages** | Hindi, Marathi, Tamil, Telugu, English — more planned |
 | **Health scores** | CVI™ (Cycle Variability Index) + MHS™ (Menstrual Health Score) — proprietary |
 | **Connectivity** | Offline-first; core features work with zero internet, sync when available |
 | **Privacy** | 100% on-device processing and storage by default |
@@ -79,8 +106,22 @@ Contributors working on onboarding flows, content, or accessibility should keep 
 
 ---
 
+## Demo Video
+
+Two UI walkthroughs are included in the repo under [`design-concepts/`](design-concepts):
+- [`UI_Demo_1.mp4`](design-concepts/UI_Demo_1.mp4)
+- [`UI_Demo_2.mp4`](design-concepts/UI_Demo_2.mp4)
+
+---
+
+## Live Demo
+
+The public landing page is live at **[rhythma-navy.vercel.app](https://rhythma-navy.vercel.app)**. (This is the marketing site, not the app itself — the Flutter app and backend currently need to be run locally; see [Installation](#installation).)
+
+---
+
 ## 🆚 How Rhythma Compares
- 
+
 | Feature | Flo | SheBloom | HerMantra | **Rhythma** |
 |---|:---:|:---:|:---:|:---:|
 | PCOS/PCOD Support | ✅ | ✅ | ✅ | ✅ |
@@ -93,9 +134,8 @@ Contributors working on onboarding flows, content, or accessibility should keep 
 | MHS™ Score (Proprietary) | ❌ | ❌ | ❌ | ✅ |
 | Educational Ayurvedic Layer | ❌ | ➖ | ✅ | ✅ |
 
- 
 *Feature comparison based on publicly available information from official websites, app stores, and product documentation. Availability may change over time.*
- 
+
 **Key insight:** Existing platforms solve specific problems. Rhythma combines multiple underserved needs into one India-first ecosystem.
 
 ---
@@ -104,27 +144,27 @@ Contributors working on onboarding flows, content, or accessibility should keep 
 
 | Feature | Description |
 | --- | --- |
-| 🔐 **Account Login / Registration** | JWT-based sign up and sign in, gating access to the app. | 
+| 🔐 **Account Login / Registration** | JWT-based sign up and sign in, gating access to the app. |
 | 🌸 **Smart Cycle Tracking** | Handles irregular cycles. No fixed 28-day assumption. Tracks flow, mood, and daily symptoms. |
-| 🤖 **Gemini-Powered AI Assistant** | Multilingual health education and wellness guidance in Hindi, Marathi, Tamil, English, and more. |
+| 🤖 **Gemini-Powered AI Assistant** | Multilingual health education and wellness guidance in Hindi, Marathi, Tamil, Telugu, English, and more. |
 | 📊 **Cycle Variability Index™ (CVI)** | Proprietary 0–100 score quantifying hormonal instability over rolling 6–12 months. |
-| ❤️ **Menstrual Health Score™ (MHS)** | Holistic composite score: CVI + lifestyle + sleep + stress + symptoms. | 
-| 🏥 **Hormonal Risk Indicator** | 3-tier alert system (Low / Medium / High) based on cycle gaps and symptom clusters. (Awareness tool, not a diagnosis.) | 
-| 📱 **Offline-First Architecture** | Hive local storage → Firestore cloud sync when connectivity is available. | 
-| 🔒 **Privacy-First Design** | On-device encryption. No data leaves the phone without explicit user consent. | 
-| 🌍 **Indian Regional Languages** | Full UI localization across Indian languages. | 
-| 📩 **SMS Health Summaries** | Weekly summaries via Twilio SMS for users in low-data areas. | 
-| 🩸 **First Period Guidance** | A dedicated, age-appropriate onboarding and education flow for first-time users (ages 12–17) — separate tone, content, and simplicity level from the adult cycle-tracking experience. |
-| 🌿 **Ayurvedic Correlation Layer** | Educational wellness insights that connect lifestyle and cycle patterns with traditional Ayurvedic wellness concepts, for cultural relevance (educational only, not medical advice). | 
-| 💬 **WhatsApp Bot Integration** | Gemini-powered WhatsApp assistant (via Twilio/Meta Cloud API) for cycle tracking and health Q&A without requiring an app install — aimed at community/self-help-group users on shared or low-end devices. | 
-| 🌐 **Website (feature parity)** | A browser-based client offering the same cycle tracking, AI Assistant, Insights, and Profile features as the Flutter app, on the same backend. | 
+| ❤️ **Menstrual Health Score™ (MHS)** | Holistic composite score: CVI + lifestyle + sleep + stress + symptoms. |
+| 🏥 **Hormonal Risk Indicator** | 3-tier alert system (Low / Medium / High) based on cycle gaps and symptom clusters. (Awareness tool, not a diagnosis.) |
+| 📱 **Offline-First Architecture** | Hive local storage → Firestore cloud sync when connectivity is available. |
+| 🔒 **Privacy-First Design** | On-device encryption. No data leaves the phone without explicit user consent. |
+| 🌍 **Indian Regional Languages** | Full UI localization across Indian languages. |
+| 📩 **SMS Health Summaries** | Weekly summaries via Twilio SMS for users in low-data areas. |
+| 🩸 **First Period Guidance** | A dedicated, age-appropriate onboarding and education flow for first-time users (ages 12–17) — separate tone, content, and simplicity level from the adult cycle-tracking experience. *(Planned — see [Future Features](#future-features).)* |
+| 🌿 **Ayurvedic Correlation Layer** | Educational wellness insights that connect lifestyle and cycle patterns with traditional Ayurvedic wellness concepts, for cultural relevance (educational only, not medical advice). |
+| 💬 **WhatsApp Bot Integration** | Gemini-powered WhatsApp assistant (via Twilio/Meta Cloud API) for cycle tracking and health Q&A without requiring an app install — aimed at community/self-help-group users on shared or low-end devices. *(Planned — see [Future Features](#future-features).)* |
+| 🌐 **Website (feature parity)** | A browser-based client offering the same cycle tracking, AI Assistant, Insights, and Profile features as the Flutter app, on the same backend. *(In progress — auth only today.)* |
 
 > **ML models run entirely on-device.** No sensitive health data leaves the phone unless the user explicitly enables cloud sync.
 
 ---
 
 ## 🛠️ Detailed Technology Stack
- 
+
 ### Mobile — `rhythma_flutter/`
 | Package | Version | Purpose | Status in code |
 |---|---|---|---|
@@ -144,10 +184,10 @@ Contributors working on onboarding flows, content, or accessibility should keep 
 | connectivity_plus | ^6.0.3 | Network state | **In pubspec.yaml but not imported anywhere in `lib/`** |
 | shared_preferences | ^2.3.2 | Lightweight key-value storage | Present |
 | url_launcher | ^6.3.0 | Open external links | Present |
-| flutter_local_notifications / timezone | ^22.0.1 / ^0.11.1 | Local notifications | Used, but only wired to one manual Settings toggle |
+| flutter_local_notifications / timezone | ^22.0.1 / ^0.11.1 | Local notifications | Used, but only wired to manual Settings toggles |
 | email_validator | ^3.0.0 | Form validation | Present |
 | flutter_lints | ^4.0.0 (dev) | Linting | Used in CI |
- 
+
 ### Backend — `backend/` (`requirements.txt`)
 | Package | Version | Purpose |
 |---|---|---|
@@ -155,7 +195,7 @@ Contributors working on onboarding flows, content, or accessibility should keep 
 | uvicorn[standard] | 0.30.1 | ASGI server |
 | pydantic / pydantic-settings | 2.7.4 / 2.3.3 | Validation |
 | firebase-admin | 6.5.0 | Server-side Firestore access |
-| google-generativeai | 0.7.2 | Gemini API (model: `gemini-2.5-flash`, hardcoded in `assistant.py`) |
+| google-generativeai | 0.7.2 | Gemini API (model: `models/gemini-2.5-flash`, hardcoded in `assistant.py`) |
 | xgboost | 2.0.3 | CVI model (declared, no trained artifact committed) |
 | scikit-learn | 1.5.0 | MHS model (declared) |
 | numpy / pandas / joblib | 1.26.4 / 2.2.2 / 1.4.2 | Data handling / model I/O |
@@ -165,25 +205,25 @@ Contributors working on onboarding flows, content, or accessibility should keep 
 | httpx | 0.27.0 | Async HTTP client |
 | python-dotenv | 1.0.1 | Env config |
 | loguru | 0.7.2 | Logging |
-| pytest / pytest-asyncio | 8.2.2 / 0.23.7 | Testing (1 test file, auth only) |
- 
+| pytest / pytest-asyncio | 8.2.2 / 0.23.7 | Testing (1 backend test file, auth only) |
+
 ### Web App — `web/` (React, separate from landing page)
 React 19.2, Vite 8, TypeScript 6, react-router-dom 7, i18next + react-i18next + browser language detector, axios. No UI component library, no chart library yet.
- 
+
 ### Landing Page — `landing-page/` (Next.js, separate app)
 Next.js 16, React 19, Tailwind CSS 4, shadcn/ui, class-variance-authority, lucide-react, @vercel/analytics. Deployed at `rhythma-navy.vercel.app`.
- 
+
 ### CI/CD — `.github/workflows/`
 GitHub Actions already configured for **backend** (`pytest`, path-filtered) and **Flutter** (`flutter analyze` + `flutter test`, path-filtered). No workflow yet for `web/` or `landing-page/`.
- 
+
 ---
 
- ## Current Status — Done / Partial / Not Implemented
- 
+## Project Status
+
 Legend: ✅ **Done** (real, working, no mocks) · 🟡 **Partial / Needs Attention** (real code exists but incomplete, hardcoded piece, or disconnected) · ❌ **Not Implemented** (stub, placeholder, or absent)
- 
+
 ### Backend
- 
+
 | Item | Status | Evidence |
 |---|---|---|
 | Auth: register / login / JWT / rate limiting | ✅ Done | `auth_router.py` — bcrypt hashing, rate-limited, generic error messages to prevent enumeration |
@@ -201,9 +241,9 @@ Legend: ✅ **Done** (real, working, no mocks) · 🟡 **Partial / Needs Attenti
 | CORS config | 🟡 Partial | Hardcoded localhost origins in `main.py` with an explicit `# TODO: Tighten this in production` |
 | Backend test coverage | 🟡 Partial | Only `test_auth.py` exists; no tests for cycle, dashboard, sms, or assistant endpoints |
 | API documentation (OpenAPI descriptions) | 🟡 Partial | FastAPI auto-generates `/docs`, but most routes lack descriptive docstrings/response models beyond basic type hints |
- 
+
 ### Mobile (Flutter)
- 
+
 | Item | Status | Evidence |
 |---|---|---|
 | All core screens (Home, Cycle, Assistant, Insights, Profile, Settings, SMS, Onboarding, Auth) | ✅ Done | All present in `lib/screens/`, referenced from `main.dart`/navigation |
@@ -212,19 +252,19 @@ Legend: ✅ **Done** (real, working, no mocks) · 🟡 **Partial / Needs Attenti
 | Firestore client sync (issue #27) | ❌ Not Implemented | `firestore_service.dart` has Firebase imports **commented out**; both `syncCycleLogs()` and `pullCycleLogs()` are no-op stubs that just log a debug string |
 | Connectivity detection (issue #30) | ❌ Not Implemented | `connectivity_plus` is a declared dependency but not imported/used anywhere in `lib/` |
 | Sync status indicator (issue #20) | ❌ Not Implemented | Depends on #27/#30, neither of which exist yet |
-| Local notifications | 🟡 Partial | Real `flutter_local_notifications` integration, initialized at app start, but only wired to a single manual "medicine alert" toggle in Settings — **not** connected to period predictions or logging reminders |
-| Localization — English | ✅ Done | 180 keys |
-| Localization — Telugu | 🟡 Partial | 178/180 keys (2 missing vs. English) |
-| Localization — Hindi, Marathi, Tamil | 🟡 Partial | 162/180 keys each (18 missing vs. English in each) |
-| Localization native-speaker review | ❌ Not Implemented | Matches open issues #38–#41 — no review has happened yet |
+| Local notifications | 🟡 Partial | Real `flutter_local_notifications` integration, initialized at app start, wired to manual "medicine alert" and "instant notification" toggles in Settings — **not** connected to period predictions or logging reminders |
+| Localization — English | ✅ Done | 177 keys (baseline) |
+| Localization — Telugu | ✅ Done | 177/177 keys — full parity with English |
+| Localization — Hindi, Marathi, Tamil | 🟡 Partial | 161/177 keys each (16 missing vs. English in each) |
+| Localization native-speaker review | ❌ Not Implemented | Matches open issues #38–#41 — no review has happened yet for any locale, including Telugu despite its full key coverage |
 | CVI/MHS display on Insights screen | 🟡 Partial | Screen exists and renders; depends on backend `/dashboard`, which itself is 🟡 (heuristic CVI, hardcoded MHS lifestyle component) |
 | Onboarding flow | ✅ Done (generic) / ❌ Not Implemented (age-gated) | `onboarding_screen.dart` exists and is tested (`onboarding_test.dart`), but the age-gated "First Period" simplified flow from issue #42 doesn't exist as a separate path |
 | Ayurvedic correlation content (issue #43) | ❌ Not Implemented | No `assets/content/ayurveda/` or equivalent data file found anywhere in the repo |
-| Widget/unit tests | 🟡 Partial | 4 test files exist (local storage migration, onboarding, generic widget test, calendar grid) — good start, far from full coverage |
+| Widget/unit tests | 🟡 Partial | 5 test files exist (local storage migration, onboarding, generic widget test, calendar grid, Settings screens) — good start, far from full coverage |
 | Encryption at rest | 🟡 Partial | `encrypt` package is a dependency; not verified in this pass whether Hive boxes are actually opened with encryption enabled (worth a dedicated audit — this was already flagged as its own backlog item) |
- 
+
 ### Web (`web/` — React/Vite)
- 
+
 | Item | Status | Evidence |
 |---|---|---|
 | App scaffold, routing | ✅ Done | `App.tsx`, `react-router-dom` configured |
@@ -237,23 +277,23 @@ Legend: ✅ **Done** (real, working, no mocks) · 🟡 **Partial / Needs Attenti
 | Insights page | ❌ Not Implemented | No corresponding page file exists |
 | Profile / Settings pages | ❌ Not Implemented | No corresponding page file exists |
 | CI for `web/` | ❌ Not Implemented | No GitHub Actions workflow targets `web/` |
- 
+
 ### Landing Page (`landing-page/` — Next.js)
- 
+
 | Item | Status | Evidence |
 |---|---|---|
 | Deployed, live | ✅ Done | Live at `rhythma-navy.vercel.app` |
-| CTA / navigation interactions | ❌ Not Implemented | Matches open issue #73 — "Get Started," "Learn More," and feature-section links don't work |
+| CTA / navigation interactions | ❌ Not Implemented | Matches open issue #73 — "Get Started" and "Learn More" are `<button>` elements with no `onClick` handler; they render but do nothing |
 | CI | ❌ Not Implemented | No workflow targets `landing-page/` |
- 
+
 ### WhatsApp Bot
- 
+
 | Item | Status |
 |---|---|
 | Everything (webhook, message routing, session identity) | ❌ Not Implemented — no code for this exists anywhere in the repo |
- 
+
 ### Cross-Cutting
- 
+
 | Item | Status |
 |---|---|
 | CI — Backend | ✅ Done (`backend.yml`) |
@@ -264,6 +304,8 @@ Legend: ✅ **Done** (real, working, no mocks) · 🟡 **Partial / Needs Attenti
 | Sourced medical/symptom reference dataset | ❌ Not Implemented — nothing resembling this exists in `backend/` or `rhythma_flutter/assets/` |
 | PR template enforcing source citations for health content | ❌ Not Implemented |
 | Issue templates / CODEOWNERS | ❌ Not Implemented |
+
+> This table is maintained by contributors alongside their PRs — see [CONTRIBUTING.md → Documentation Guidelines](CONTRIBUTING.md#documentation-guidelines). A PR that implements something listed here as ❌ or 🟡 should update the relevant row in the same PR.
 
 ---
 
@@ -318,7 +360,8 @@ Rhythma/
 │   │   │   ├── bottom_nav.dart
 │   │   │   ├── charts.dart
 │   │   │   └── shared.dart
-│   │   ├── l10n/                   # 5 languages: en (180 keys), hi/mr/ta (162 keys each), te (178 keys)
+│   │   ├── l10n/                   # 5 languages: en (177 keys), te (177 keys, full parity),
+│   │   │   │                        # hi/mr/ta (161 keys each, 16 missing vs. en)
 │   │   │   ├── app_en.arb / app_hi.arb / app_mr.arb / app_ta.arb / app_te.arb
 │   │   │   └── app_localizations*.dart (generated)
 │   │   ├── models/
@@ -345,15 +388,18 @@ Rhythma/
 │   │   │   ├── auth_service.dart           # Calls backend /auth/* — real
 │   │   │   ├── firestore_service.dart      # STUB — Firebase imports commented out, no-op sync
 │   │   │   ├── local_storage_service.dart  # Hive-based local persistence — largest service (363 lines)
-│   │   │   └── notification_service.dart   # flutter_local_notifications — wired ONLY to a manual
-│   │   │                                     "medicine alert" toggle in Settings, not to period/log reminders
+│   │   │   └── notification_service.dart   # flutter_local_notifications — wired ONLY to manual
+│   │   │                                     toggles in Settings, not to period/log reminders
 │   │   └── utils/
 │   │       └── secure_storage.dart
 │   ├── test/
 │   │   ├── local_storage_migration_test.dart
 │   │   ├── onboarding_test.dart
 │   │   ├── widget_test.dart
-│   │   └── widgets/calendar_grid_test.dart
+│   │   ├── test_helpers/platform_channel_mocks.dart   # shared test mocks, not a test itself
+│   │   └── widgets/
+│   │       ├── calendar_grid_test.dart
+│   │       └── settings/settings_screens_test.dart     # covers LanguageScreen & ThemeScreen
 │   └── pubspec.yaml
 │
 ├── web/                             # React web app (separate from landing-page!)
@@ -410,20 +456,20 @@ Rhythma/
 
 - Flutter SDK 3.x
 - Python 3.10+
-- Node.js 18+ (only if you're working on `web/`)
+- Node.js 18+ (only if you're working on `web/` or `landing-page/`)
 - Git
 - A Firebase project (for backend user storage)
 - A Gemini API key ([get one here](https://ai.google.dev))
 - A Twilio account (optional — only needed for SMS)
 
-```
+```bash
 git clone https://github.com/ishita2740/Rhythma.git
 cd Rhythma
 ```
 
 ### Running Flutter
 
-```
+```bash
 cd rhythma_flutter
 
 # Platform folders are not committed — generate them first
@@ -440,7 +486,7 @@ flutter run
 
 ### Running Backend
 
-```
+```bash
 cd backend
 
 python -m venv venv
@@ -458,14 +504,14 @@ The API will be available at `http://127.0.0.1:8000`, with interactive docs at `
 
 To run backend tests:
 
-```
+```bash
 cd backend
 pytest
 ```
 
 ### Running the Web App
 
-```
+```bash
 cd web
 cp .env.example .env.local
 # VITE_API_BASE_URL defaults to http://localhost:8000/api/v1, adjust if needed
@@ -477,6 +523,14 @@ npm run dev
 This gets you a working registration/login flow and a placeholder home page — there's no cycle tracking, AI Assistant, or Insights page here yet (see [Platforms](#platforms)).
 
 > **Note:** Both the Flutter app and the web app now require a real account. Register through either front end's Register screen against a running backend before you'll see anything past the login screen.
+
+### Running the Landing Page
+
+```bash
+cd landing-page
+npm install
+npm run dev
+```
 
 ---
 
@@ -509,7 +563,7 @@ The backend's CORS config already whitelists the Vite dev server (`http://localh
 
 ### Firebase Setup
 
-The backend currently uses Firebase **only for user accounts** (via the Admin SDK). To set it up:
+The backend currently uses Firebase **only for user accounts and cycle data** (via the Admin SDK). To set it up:
 
 1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com).
 2. Generate a service account key: **Project Settings → Service Accounts → Generate new private key**.
@@ -520,36 +574,57 @@ The backend currently uses Firebase **only for user accounts** (via the Admin SD
 
 ---
 
+## Future Features
+
+These are explicitly **not built yet** — flagged here so contributors know what's scoped as future work rather than a current gap in an existing feature:
+
+- **First Period Guidance** — a simplified, age-appropriate onboarding and education flow for first-time users (12–17), distinct from the current adult-focused onboarding (`onboarding_screen.dart`). Tracked in issue #42.
+- **WhatsApp Bot** — a Gemini-powered WhatsApp assistant via Twilio/Meta Cloud API, so users on shared or low-end devices can track cycles and ask health questions without installing the app. No code for this exists anywhere in the repo yet.
+- **Website feature parity** — cycle tracking, AI Assistant, and Insights pages for `web/`, matching what the Flutter app already does. Auth and scaffolding exist today; the feature pages don't.
+- **Ayurvedic correlation content** — the educational content layer connecting lifestyle/cycle data to Ayurvedic wellness concepts. Tracked in issue #43; no content assets exist yet.
+- **Provider-facing view** — a dashboard for healthcare professionals to view (consenting) patients' longitudinal health data.
+- **India regional health map** — an anonymized, aggregated PCOD/PCOS risk heatmap for public-health and NGO use.
+
+---
+
 ## 🗺️ Roadmap
- 
+
 ### Phase 1 — Core Mobile App ✅
 - Flutter UI for all screens (Home, Cycle, Assistant, Insights)
 - Design system and component library
+
 ### Phase 2 — AI + Backend Integration 🔄
 - FastAPI backend with Gemini API integration
-- Real multilingual AI assistant (Hindi, Marathi, Tamil, English)
-- Firestore cloud sync and local Hive storage
+- Real multilingual AI assistant (Hindi, Marathi, Tamil, Telugu, English)
+- Firestore cloud sync (client-side) and local Hive storage
 - Twilio SMS weekly summaries
-- XGBoost + logistic regression model serving (CVI + MHS)
+- Trained XGBoost + logistic regression model artifacts for CVI + MHS (replacing current heuristics)
+
 ### Phase 3 — Web Application
-- React / Next.js web app with feature parity
+- React web app with feature parity (cycle tracking, AI Assistant, Insights)
 - Dashboard for longitudinal health insights
 - Provider-facing view for healthcare professionals
+
 ### Phase 4 — WhatsApp Bot
 - Gemini-powered WhatsApp assistant via Twilio / Meta API
 - Cycle tracking and health Q&A without app installation
 - Multilingual support for low-end device users
+
 ### Phase 5 — Scale + Impact
 - Verified healthcare professional connect
 - India regional health map (anonymized PCOD risk heatmap)
 - NGO and public health partnerships
 - Pilot studies in tier-2/3 cities
-  
+
 ---
 
 ## Contributing
- 
-Contributions are welcome! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before submitting a pull request.
+
+Contributions are very welcome — code, docs, translations, design, and bug reports all matter.
+
+Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** before opening an issue or pull request. It covers project setup, branch naming, commit conventions, coding style, and the PR workflow in detail.
+
+If you're looking for a place to start, the [Project Status](#project-status) tables above double as a task list: anything marked ❌ or 🟡 is fair game, and issues referenced in the "Evidence" column (e.g. #27, #30, #38–#43, #50, #73) are already tracked on the [Issues](https://github.com/ishita2740/Rhythma/issues) page.
 
 ---
 
@@ -566,15 +641,16 @@ This project is licensed under the MIT License. See [LICENSE](https://github.com
 - Backend framework by [FastAPI](https://fastapi.tiangolo.com)
 - Mobile framework by [Flutter](https://flutter.dev)
 - Read the origin story: [*Building Rhythma: An AI health companion for the women India's apps forgot*](https://medium.com/@rathiishita1005729/building-rhythma-an-ai-health-companion-for-the-women-indias-forgot-e249ac1cdc9a)
+- [Live Demo](https://rhythma-navy.vercel.app)
 
 ---
 
 ## Disclaimer
 
-Rhythma is intended for **educational and general wellness purposes only**. It is not a certified medical device and does not provide medical diagnoses, prescriptions, or treatment recommendations. The Cycle Variability Index (CVI) and Menstrual Health Score (MHS) are experimental, non-clinical metrics currently under development. Any future Ayurvedic content will be educational and non-prescriptive, not a substitute for medical advice. Always consult a qualified healthcare professional for medical advice.
+Rhythma is intended for **educational and preventive health awareness** purposes only. It is not a certified medical device and does not provide medical diagnoses, prescriptions, or treatment recommendations. The Cycle Variability Index (CVI) and Menstrual Health Score (MHS) are experimental, non-clinical metrics currently under development. Any future Ayurvedic content will be educational and non-prescriptive, not a substitute for medical advice. Always consult a qualified healthcare professional for medical advice.
 
 ---
 
-*Built with 💜 for the women India's apps forgot.*
+*Built with 💜 by [Ishita Rathi](https://github.com/ishita2740) for the women India's apps forgot.*
 
 #### *AI For Every Phase of Her Health.*
