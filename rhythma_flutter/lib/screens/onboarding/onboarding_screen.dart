@@ -11,7 +11,6 @@ import '../../providers/profile_provider.dart';
 /// On completion, writes all collected data to LocalStorageService and
 /// navigates to the main app shell.
 class OnboardingScreen extends StatefulWidget {
-  /// Called when the user taps "Get Started" on the final step.
   final VoidCallback onComplete;
 
   static const List<String> avatars = [
@@ -107,8 +106,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     {'code': 'mr', 'label': 'मराठी'},
   ];
 
-  // avatars list moved to public OnboardingScreen class
-
   // ── Navigation ────────────────────────────────────────────────────────────
 
   bool _validateCurrentPage() {
@@ -171,7 +168,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (!_validateCurrentPage()) return;
 
     if (_currentPage == 0) {
-      // Apply language change immediately
       await LocalStorageService.setPreferredLanguage(_selectedLanguage);
       if (!mounted) return;
       context.read<LocaleProvider>().setLocale(Locale(_selectedLanguage));
@@ -358,7 +354,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 1: Language & Trust ──────────────────────────────────────────────
+  // ── Step 1 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep1(AppLocalizations l) {
     return SingleChildScrollView(
@@ -444,7 +440,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 2: Basic Profile ──────────────────────────────────────────────────
+  // ── Step 2 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep2(AppLocalizations l) {
     return SingleChildScrollView(
@@ -454,7 +450,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep2Title, l.onboardingStep2Subtitle),
           const SizedBox(height: 28),
-          // Avatar picker
           Text(
             l.onboardingAvatarLabel,
             style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg),
@@ -546,7 +541,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 3: Menstrual Profile ─────────────────────────────────────────────
+  // ── Step 3 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep3(AppLocalizations l) {
     return SingleChildScrollView(
@@ -556,7 +551,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep3Title, l.onboardingStep3Subtitle),
           const SizedBox(height: 28),
-          // Last period date picker
           Text(l.onboardingLastPeriodLabel,
               style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
           const SizedBox(height: 8),
@@ -622,29 +616,26 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ),
           ),
           const SizedBox(height: 24),
-          // Cycle length slider
           _buildSliderField(
             label: l.onboardingCycleLengthLabel,
             value: _cycleLength.toDouble(),
             min: 21,
             max: 45,
             divisions: 24,
-            displayValue: '$_cycleLength ${_currentPage == 2 ? "days" : ""}',
+            displayValue: '$_cycleLength ${l.onboardingDays}',
             onChanged: (v) => setState(() => _cycleLength = v.round()),
           ),
           const SizedBox(height: 20),
-          // Period duration slider
           _buildSliderField(
             label: l.onboardingPeriodDurationLabel,
             value: _periodDuration.toDouble(),
             min: 2,
             max: 10,
             divisions: 8,
-            displayValue: '$_periodDuration',
+            displayValue: '$_periodDuration ${l.onboardingDays}',
             onChanged: (v) => setState(() => _periodDuration = v.round()),
           ),
           const SizedBox(height: 24),
-          // Regularity toggle
           Text(l.onboardingCycleRegularityLabel,
               style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
           const SizedBox(height: 10),
@@ -664,7 +655,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 4: Optional Info ──────────────────────────────────────────────────
+  // ── Step 4 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep4(AppLocalizations l) {
     return SingleChildScrollView(
@@ -698,7 +689,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 5: Permissions ────────────────────────────────────────────────────
+  // ── Step 5 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep5(AppLocalizations l) {
     return SingleChildScrollView(
@@ -708,7 +699,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep5Title, l.onboardingStep5Subtitle),
           const SizedBox(height: 36),
-          // Notification toggle
           _buildSwitchTile(
             icon: '📅',
             title: l.onboardingEnableNotifications,
@@ -717,7 +707,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             onChanged: (v) => setState(() => _notificationsEnabled = v),
           ),
           const SizedBox(height: 32),
-          // Data consent checkbox
           GestureDetector(
             onTap: () {
               setState(() {

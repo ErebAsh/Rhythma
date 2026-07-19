@@ -173,7 +173,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          "Couldn't load your insights: $_error",
+                          l10n.insightsLoadError(_error),
                           style: TextStyle(color: RhythmaColors.mutedFg, fontSize: 12),
                         ),
                       ),
@@ -191,7 +191,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Log a few more cycles on the Cycle tab to unlock your full health insights.',
+                          l10n.insightsNotEnoughData,
                           style: TextStyle(color: RhythmaColors.mutedFg, fontSize: 12),
                         ),
                       ),
@@ -322,7 +322,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
 
             const SizedBox(height: 14),
 
-            // Trend chart — real per-cycle-length history from /dashboard.
+            // Trend chart
             GlassCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,7 +377,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       child: Center(
                         child: Text(
-                          'Log at least two cycles to see your trend here.',
+                          l10n.insightsNotEnoughTrendData,
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 12, color: RhythmaColors.mutedFg),
                         ),
@@ -395,7 +395,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
 
             const SizedBox(height: 14),
 
-            // Symptom patterns — real frequency from /dashboard.
+            // Symptom patterns
             GlassCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,7 +411,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                   const SizedBox(height: 14),
                   if (_symptomFrequency.isEmpty)
                     Text(
-                      'No symptoms logged yet — log some on the Cycle tab to see patterns here.',
+                      l10n.insightsNoSymptomsYet,
                       style: TextStyle(fontSize: 12, color: RhythmaColors.mutedFg),
                     )
                   else ...[
@@ -431,9 +431,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
 
             const SizedBox(height: 14),
 
-            // Wellness recommendations — depends on real /dashboard data
-            // (low sleep / elevated recent stress) rather than always
-            // showing the same fixed three.
+            // Wellness recommendations
             SectionHeader(title: l10n.insightsWellnessLabel),
             ..._buildRecommendations(l10n).map((r) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
