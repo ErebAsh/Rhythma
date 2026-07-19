@@ -11,6 +11,7 @@ void main() {
     LocalStorageService.isTesting = true;
     LocalStorageService.mockCycleLogs = [];
   });
+
   Widget buildTestableWidget({required Widget child}) {
     return MultiProvider(
       providers: [
@@ -37,19 +38,14 @@ void main() {
       ),
     ));
 
-    // Wait for the PageView to layout
     await tester.pumpAndSettle();
 
-    // Verify it renders some text days (like '15')
-    expect(find.text('15'), findsWidgets);
-
-    // Tap day 15
-    await tester.tap(find.text('15').first);
+    // Tap day 1 of the displayed month – always safe (even if future, it's rejected silently).
+    await tester.tap(find.text('1').first);
     await tester.pump();
 
-    // The CycleProvider should now have selected day 15. We test this indirectly by
-    // seeing if it still renders properly and doesn't throw.
-    expect(find.text('15'), findsWidgets);
+    // Verify the calendar still renders.
+    expect(find.text('1'), findsWidgets);
   });
 
   testWidgets('CalendarGrid supports month swiping via PageController',
@@ -69,7 +65,7 @@ void main() {
         duration: const Duration(milliseconds: 100), curve: Curves.linear);
     await tester.pumpAndSettle();
 
-    // We expect it to still render days
-    expect(find.text('15'), findsWidgets);
+    // Ensure the calendar still renders.
+    expect(find.text('1'), findsWidgets);
   });
 }

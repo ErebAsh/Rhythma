@@ -309,6 +309,11 @@ class LocalStorageService {
   }
 
   static Map<String, dynamic>? getCycleLogForDate(DateTime date) {
+    if (isTesting) {
+      final key = _dateKey(date);
+      final match = mockCycleLogs.where((l) => l['start_date'] == key);
+      return match.isEmpty ? null : Map<String, dynamic>.from(match.first);
+    }
     final raw = _cycleBox.get(_scoped(_dateKey(date)));
     return raw != null ? Map<String, dynamic>.from(raw) : null;
   }
