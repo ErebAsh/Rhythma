@@ -136,6 +136,26 @@ class AppLocalizationsTe extends AppLocalizations {
   String get homeArticle => 'వ్యాసం';
 
   @override
+  String get homeFailedLoad => 'డ్యాష్‌బోర్డ్‌ను లోడ్ చేయడం విఫలమైంది';
+
+  @override
+  String get homeRetry => 'మళ్లీ ప్రయత్నించండి';
+
+  @override
+  String get homeComingSoon => 'త్వరలో';
+
+  @override
+  String homeUnderDevelopment(String topic) {
+    return '$topic ప్రస్తుతం అభివృద్ధిలో ఉంది.';
+  }
+
+  @override
+  String get homePrivacySecurity => 'గోప్యత & భద్రత';
+
+  @override
+  String get homeOk => 'సరే';
+
+  @override
   String get cycleTrackerTitle => 'సైకిల్ ట్రాకర్';
 
   @override
@@ -203,6 +223,36 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get logLabelSymptoms => 'లక్షణాలు';
+
+  @override
+  String get logToday => 'ఈ రోజు లాగ్ చేయండి';
+
+  @override
+  String get logTitle => 'మీ రోజును లాగ్ చేయండి';
+
+  @override
+  String get logFlowIntensity => 'ప్రవాహ తీవ్రత';
+
+  @override
+  String get logMood => 'మానసిక స్థితి';
+
+  @override
+  String get logSleepHours => 'నిద్ర గంటలు';
+
+  @override
+  String get logStressLevel => 'ఒత్తిడి స్థాయి';
+
+  @override
+  String get logSave => 'లాగ్‌ను భద్రపరుచు';
+
+  @override
+  String get logSympFatigue => 'అలసట';
+
+  @override
+  String get logSympNausea => 'వికారం';
+
+  @override
+  String get logSympBackPain => 'వెన్నునొప్పి';
 
   @override
   String get assistantTitle => 'రిథ్మా సహాయకుడు';
@@ -509,4 +559,86 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get onboardingWeightInvalid =>
       'దయచేసి చెల్లుబాటు అయ్యే బరువు నమోదు చేయండి (20–300 కిలో)';
+
+  @override
+  String get smsScreenTitle => 'ఎస్‌ఎంఎస్ సారాంశాలు';
+
+  @override
+  String get smsScreenSubtitle => 'యాప్ లేకుండా కూడా సమాచారం పొందండి';
+
+  @override
+  String get smsInfoCardTitle => 'వారపు ఆరోగ్య సారాంశం';
+
+  @override
+  String get smsInfoCardBody =>
+      'ప్రతి వారం, మీ చక్ర స్థితి, ఆరోగ్య స్కోరు మరియు ముఖ్యమైన నమూనాల సంక్షిప్త సారాంశాన్ని Rhythma నేరుగా ఎస్‌ఎంఎస్ ద్వారా మీ ఫోన్‌కు పంపుతుంది, డేటా లేదా యాప్ లేకుండా కూడా పనిచేస్తుంది.';
+
+  @override
+  String get smsConfigTitle => 'కాన్ఫిగరేషన్';
+
+  @override
+  String get smsPhoneLabel => 'ఫోన్ నంబర్';
+
+  @override
+  String get smsPhoneHint => '+91 98765 43210';
+
+  @override
+  String get smsEnableWeekly => 'వారపు ఎస్‌ఎంఎస్‌ను ప్రారంభించండి';
+
+  @override
+  String get smsSaveSettings => 'సెట్టింగ్‌లను సేవ్ చేయండి';
+
+  @override
+  String get smsSendSectionTitle => 'ఇప్పుడు సారాంశం పంపండి';
+
+  @override
+  String get smsSendRecipientPrefix => 'దిగువ సందేశం ఈ నంబర్‌కు పంపబడుతుంది:';
+
+  @override
+  String get smsSendNoPhone => 'ముందుగా పైన ఫోన్ నంబర్‌ను జోడించి సేవ్ చేయండి.';
+
+  @override
+  String get smsSendButton => 'ఇప్పుడు సారాంశం పంపండి';
+
+  @override
+  String get smsErrorEnterPhone => 'దయచేసి ఫోన్ నంబర్‌ను నమోదు చేయండి';
+
+  @override
+  String get smsErrorInvalidPhone =>
+      'అంతర్జాతీయ ఆకృతిలో సరైన ఫోన్ నంబర్‌ను నమోదు చేయండి, ఉదా. +919876543210';
+
+  @override
+  String get smsSuccessSaved =>
+      'ఎస్‌ఎంఎస్ సెట్టింగ్‌లు విజయవంతంగా సేవ్ చేయబడ్డాయి!';
+
+  @override
+  String get smsErrorAddPhoneFirst =>
+      'ముందుగా ఫోన్ నంబర్‌ను జోడించి సేవ్ చేయండి';
+
+  @override
+  String get smsSuccessSent => 'సారాంశం మీ ఫోన్‌కు పంపబడింది!';
+
+  @override
+  String get smsErrorRateLimit =>
+      'మీరు నిమిషానికి ఒక సారాంశాన్ని మాత్రమే పంపవచ్చు, దయచేసి కొంత సమయం తర్వాత మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get smsErrorSessionExpired =>
+      'మీ సెషన్ గడువు ముగిసింది. దయచేసి మళ్లీ లాగిన్ చేయండి.';
+
+  @override
+  String get smsErrorNetwork =>
+      'సర్వర్‌ను చేరుకోలేకపోయాము. మీ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get smsErrorGeneric =>
+      'ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get smsLoadError =>
+      'మీ ఎస్‌ఎంఎస్ సెట్టింగ్‌లను లోడ్ చేయలేకపోయాము. రిఫ్రెష్ చేయండి లేదా మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get smsSummaryMessage =>
+      '🌸 Rhythma ఆరోగ్య సారాంశం\nఇది Rhythma నుండి మీ ఆన్-డిమాండ్ సారాంశం.\nమీ తాజా చక్ర సమాచారం కోసం యాప్‌ను తెరవండి.\nసబ్‌స్క్రిప్షన్ రద్దు చేయడానికి STOP అని రిప్లై ఇవ్వండి.';
 }

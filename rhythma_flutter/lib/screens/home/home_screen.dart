@@ -11,14 +11,12 @@ import '../../services/api_client.dart';
 import '../../services/cycle_service.dart';
 import '../../services/local_storage_service.dart';
 import '../../utils/log_options.dart';
-import '../../utils/secure_storage.dart';
-import '../cycle/cycle_screen.dart';
+import '../cycle/components/log_entry_sheet.dart';
 import '../insights/insights_screen.dart';
 import '../settings/language_screen.dart';
-import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -70,32 +68,40 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: RhythmaColors.rose),
+            const Icon(Icons.error_outline,
+                size: 48, color: RhythmaColors.rose),
             const SizedBox(height: 16),
             Text(
-              'Failed to load dashboard',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              l10n.homeFailedLoad,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(_error, style: TextStyle(color: RhythmaColors.mutedFg)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _fetchDashboardData,
-              child: Text('Retry'),
+              child: Text(l10n.homeRetry),
             ),
           ],
         ),
       );
     }
 
-    final userName = _userData['name'] ?? 'User';
+    final localProfile = context.watch<ProfileProvider>().profile;
+    final localName = localProfile['name'] as String?;
+    final apiName = _userData['name'] as String?;
+    final userName = (localName != null && localName.isNotEmpty)
+        ? localName
+        : (apiName ?? 'User');
+
+    final avatarPath =
+        localProfile['avatar'] as String? ?? 'assets/avatars/avatar_1.png';
     final nextPeriodDays = _cycleData['nextPeriodDays'] ?? 14;
     final cycleDay = _cycleData['day'] ?? 14;
     final totalCycle = _cycleData['total'] ?? 28;
     final mhs = _insights['mhs'] ?? 82;
     final cvi = _insights['cvi'] ?? 'Low';
     final sleepHours = _insights['sleepHours'] ?? '7.2h';
-    final greeting = '${l10n.homeGreeting}, $userName';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
@@ -107,12 +113,18 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.fromLTRB(2, 8, 2, 20),
             child: Row(
               children: [
+                CircleAvatar(
+                  radius: 22,
+                  backgroundImage: AssetImage(avatarPath),
+                  backgroundColor: RhythmaColors.primary.withOpacity(0.15),
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        greeting,
+                        '${l10n.homeGreeting}, $userName',
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.w700,
@@ -142,7 +154,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(width: 8),
                 _HeaderIcon(
                   icon: Icons.shield_outlined,
-                  onTap: () => _showComingSoonDialog(context, 'Privacy & Security'),
+                  onTap: () =>
+                      _showComingSoonDialog(context, l10n.homePrivacySecurity),
                 ),
               ],
             ),
@@ -218,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     TextSpan(text: l10n.homeFertileWindow),
                                     TextSpan(
                                       text: l10n.homeHighEnergy,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: RhythmaColors.rose,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -239,11 +252,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        _StatCell(label: 'MHS', value: '$mhs', color: RhythmaColors.primary),
+                        _StatCell(
+                            label: 'MHS',
+                            value: '$mhs',
+                            color: RhythmaColors.primary),
                         _StatDivider(),
-                        _StatCell(label: 'CVI', value: '$cvi', color: RhythmaColors.teal),
+                        _StatCell(
+                            label: 'CVI',
+                            value: '$cvi',
+                            color: RhythmaColors.teal),
                         _StatDivider(),
-                        _StatCell(label: 'Sleep', value: '$sleepHours', color: RhythmaColors.coral),
+                        _StatCell(
+                            label: 'Sleep',
+                            value: '$sleepHours',
+                            color: RhythmaColors.coral),
                       ],
                     ),
                   ],
@@ -273,7 +295,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.auto_awesome_rounded, size: 14, color: Colors.white),
+                        const Icon(Icons.auto_awesome_rounded,
+                            size: 14, color: Colors.white),
                         const SizedBox(width: 6),
                         Text(
                           l10n.homeAiTitle,
@@ -289,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 8),
                     Text(
                       l10n.homeAiSubtitle,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -302,12 +325,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              // Navigate to Assistant Screen
                               Navigator.pushNamed(context, '/assistant');
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 10),
+                                  horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(20),
@@ -338,7 +360,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.white.withOpacity(0.25),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Icon(Icons.mic_rounded, size: 18, color: Colors.white),
+                          child: const Icon(Icons.mic_rounded,
+                              size: 18, color: Colors.white),
                         ),
                       ],
                     ),
@@ -355,10 +378,21 @@ class _HomeScreenState extends State<HomeScreen> {
             title: l10n.homeFeelingTitle,
             action: l10n.homeLogAll,
             onAction: () {
-              Navigator.push(
+              final currentDate = DateTime.now();
+              final dateKey = currentDate.toIso8601String().split('T')[0];
+              final logs = LocalStorageService.getCycleLogs();
+              final existingLog = logs.cast<Map<String, dynamic>?>().firstWhere(
+                    (log) => log?['start_date'] == dateKey,
+                    orElse: () => null,
+                  );
+
+              LogEntrySheet.show(
                 context,
-                MaterialPageRoute(builder: (_) => const ShellBackground(child: CycleScreen())),
-              );
+                currentDate,
+                existingLog: existingLog,
+              ).then((_) {
+                setState(() {});
+              });
             },
           ),
           Row(
@@ -424,52 +458,55 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const ShellBackground(child: InsightsScreen())),
+                MaterialPageRoute(
+                    builder: (_) =>
+                        const ShellBackground(child: InsightsScreen())),
               );
             },
             child: GlassCard(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.homeWeeklyInsightLabel,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: RhythmaColors.teal,
-                          letterSpacing: 1,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.homeWeeklyInsightLabel,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: RhythmaColors.teal,
+                            letterSpacing: 1,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        l10n.homeWeeklyInsightTitle,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: RhythmaColors.foreground,
-                          height: 1.35,
+                        const SizedBox(height: 6),
+                        Text(
+                          l10n.homeWeeklyInsightTitle,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: RhythmaColors.foreground,
+                            height: 1.35,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        l10n.homeWeeklyInsightDesc,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: RhythmaColors.mutedFg,
-                          height: 1.4,
+                        const SizedBox(height: 6),
+                        Text(
+                          l10n.homeWeeklyInsightDesc,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: RhythmaColors.mutedFg,
+                            height: 1.4,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Icon(Icons.chevron_right_rounded, color: RhythmaColors.mutedFg),
-              ],
-            ),
+                  const SizedBox(width: 8),
+                  Icon(Icons.chevron_right_rounded,
+                      color: RhythmaColors.mutedFg),
+                ],
+              ),
             ),
           ),
 
@@ -486,21 +523,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: l10n.homeLearnPcos,
                   color: RhythmaColors.rose,
                   label: l10n.homeArticle,
-                  onTap: () => _showComingSoonDialog(context, l10n.homeLearnPcos),
+                  onTap: () =>
+                      _showComingSoonDialog(context, l10n.homeLearnPcos),
                 ),
                 const SizedBox(width: 10),
                 _LearnCard(
                   title: l10n.homeLearnHormones,
                   color: RhythmaColors.primary,
                   label: l10n.homeArticle,
-                  onTap: () => _showComingSoonDialog(context, l10n.homeLearnHormones),
+                  onTap: () =>
+                      _showComingSoonDialog(context, l10n.homeLearnHormones),
                 ),
                 const SizedBox(width: 10),
                 _LearnCard(
                   title: l10n.homeLearnIron,
                   color: RhythmaColors.coral,
                   label: l10n.homeArticle,
-                  onTap: () => _showComingSoonDialog(context, l10n.homeLearnIron),
+                  onTap: () =>
+                      _showComingSoonDialog(context, l10n.homeLearnIron),
                 ),
               ],
             ),
@@ -509,16 +549,20 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
- // ─── Helpers ────────────────────────────────────────────────────────────
+
+  // ─── Helpers ────────────────────────────────────────────────────────────
 
   void _showComingSoonDialog(BuildContext context, String topic) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Coming Soon', textAlign: TextAlign.center, style: TextStyle(color: RhythmaColors.primary)),
+        title: Text(l10n.homeComingSoon,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: RhythmaColors.primary)),
         content: Text(
-          '$topic is currently under development.',
+          l10n.homeUnderDevelopment(topic),
           textAlign: TextAlign.center,
         ),
         actionsAlignment: MainAxisAlignment.center,
@@ -529,25 +573,19 @@ class _HomeScreenState extends State<HomeScreen> {
               foregroundColor: RhythmaColors.primaryFg,
             ),
             onPressed: () => Navigator.pop(ctx),
-            child: Text('OK'),
+            child: Text(l10n.homeOk),
           ),
         ],
       ),
     );
   }
 
-  /// Converts a LogOption's canonical string value into the type the
-  /// backend's CycleLog model expects for that field (numeric for
-  /// sleep_hours/stress_level, string otherwise).
   dynamic _coerce(String field, String value) {
     if (field == 'sleep_hours') return double.tryParse(value) ?? value;
     if (field == 'stress_level') return int.tryParse(value) ?? value;
     return value;
   }
 
-  /// Wraps a single quick-logged field into a partial CycleLog for
-  /// `today`. The backend only merges the fields it's given, so this
-  /// doesn't clobber anything else already saved for today.
   CycleLog _buildQuickLog(String field, dynamic value) {
     final now = DateTime.now();
     switch (field) {
@@ -615,7 +653,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: options.map((opt) {
                   return GestureDetector(
                     onTap: () async {
-                      // Local-first: this succeeds even offline.
                       await LocalStorageService.saveQuickLogField(
                           DateTime.now(), field, _coerce(field, opt.value));
                       if (ctx.mounted) Navigator.pop(ctx);
@@ -623,11 +660,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       final messenger = ScaffoldMessenger.of(context);
 
-                      // Sync to the backend so /dashboard's real scoring has
-                      // data to work with. A connectivity failure just shows
-                      // a "saved locally" message — Firestore's offline-first
-                      // sync is what retries this once back online, not a
-                      // second queue here.
                       try {
                         await CycleService().submitLog(
                           _buildQuickLog(field, _coerce(field, opt.value)),
@@ -646,7 +678,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 9),
                       decoration: BoxDecoration(
                         color: RhythmaColors.surfaceMuted,
                         borderRadius: BorderRadius.circular(20),
@@ -715,9 +748,7 @@ class _StatCell extends StatelessWidget {
           const SizedBox(height: 3),
           Text(value,
               style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: color)),
+                  fontSize: 15, fontWeight: FontWeight.w700, color: color)),
         ],
       ),
     );
@@ -740,7 +771,10 @@ class _LogButton extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _LogButton(
-      {required this.icon, required this.label, required this.color, this.onTap});
+      {required this.icon,
+      required this.label,
+      required this.color,
+      this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -778,7 +812,11 @@ class _LearnCard extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
 
-  const _LearnCard({required this.title, required this.color, required this.label, this.onTap});
+  const _LearnCard(
+      {required this.title,
+      required this.color,
+      required this.label,
+      this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -787,44 +825,47 @@ class _LearnCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-      width: 152,
-      decoration: BoxDecoration(
-        gradient: isDark
-            ? null
-            : LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [color, Color.lerp(color, RhythmaColors.primary, 0.5)!],
-              ),
-        color: isDark ? color.withOpacity(0.15) : null,
-        border: isDark ? Border.all(color: color.withOpacity(0.3)) : null,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                color: Colors.white.withOpacity(0.75),
-                letterSpacing: 1),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              height: 1.25,
+        width: 152,
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? null
+              : LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    color,
+                    Color.lerp(color, RhythmaColors.primary, 0.5)!
+                  ],
+                ),
+          color: isDark ? color.withOpacity(0.15) : null,
+          border: isDark ? Border.all(color: color.withOpacity(0.3)) : null,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white.withOpacity(0.75),
+                  letterSpacing: 1),
             ),
-          ),
-        ],
-      ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                height: 1.25,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

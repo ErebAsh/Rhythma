@@ -14,7 +14,7 @@ import '../../utils/log_options.dart';
 import 'components/calendar_grid.dart';
 
 class CycleScreen extends StatefulWidget {
-  const CycleScreen({Key? key}) : super(key: key);
+  const CycleScreen({super.key});
 
   @override
   State<CycleScreen> createState() => _CycleScreenState();
@@ -211,7 +211,9 @@ class _CycleScreenState extends State<CycleScreen> {
                 // Month nav
                 Row(
                   children: [
-                    _CircleBtn(icon: Icons.chevron_left_rounded, onTap: _goToPreviousMonth),
+                    _CircleBtn(
+                        icon: Icons.chevron_left_rounded,
+                        onTap: _goToPreviousMonth),
                     Expanded(
                       child: Center(
                         child: Text(
@@ -225,7 +227,8 @@ class _CycleScreenState extends State<CycleScreen> {
                       ),
                     ),
                     _CircleBtn(
-                        icon: Icons.chevron_right_rounded, onTap: _goToNextMonth),
+                        icon: Icons.chevron_right_rounded,
+                        onTap: _goToNextMonth),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -488,8 +491,7 @@ class _Legend extends StatelessWidget {
         Container(
             width: 8,
             height: 8,
-            decoration:
-                BoxDecoration(color: color, shape: BoxShape.circle)),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 5),
         Text(label,
             style: TextStyle(
@@ -544,8 +546,7 @@ class _ScreenHeader extends StatelessWidget {
           if (subtitle != null) ...[
             const SizedBox(height: 2),
             Text(subtitle!,
-                style: TextStyle(
-                    fontSize: 13, color: RhythmaColors.mutedFg)),
+                style: TextStyle(fontSize: 13, color: RhythmaColors.mutedFg)),
           ],
         ],
       ),

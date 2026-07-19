@@ -12,6 +12,20 @@ class CycleProvider extends ChangeNotifier {
   CycleProvider() {
     _selectedDate = DateTime(_today.year, _today.month, _today.day);
     _displayedMonth = DateTime(_today.year, _today.month);
+
+    // Add some mock logged days for visual testing
+    _loggedDays.add(DateTime(_today.year, _today.month, _today.day - 1)
+        .toIso8601String()
+        .split('T')
+        .first);
+    _loggedDays.add(DateTime(_today.year, _today.month, _today.day - 3)
+        .toIso8601String()
+        .split('T')
+        .first);
+    _loggedDays.add(DateTime(_today.year, _today.month, _today.day + 2)
+        .toIso8601String()
+        .split('T')
+        .first);
   }
 
   DateTime get selectedDate => _selectedDate;
@@ -28,7 +42,8 @@ class CycleProvider extends ChangeNotifier {
   }
 
   void setDisplayedMonth(DateTime month) {
-    if (_displayedMonth.year != month.year || _displayedMonth.month != month.month) {
+    if (_displayedMonth.year != month.year ||
+        _displayedMonth.month != month.month) {
       _displayedMonth = DateTime(month.year, month.month);
       notifyListeners();
     }
@@ -52,6 +67,10 @@ class CycleProvider extends ChangeNotifier {
   /// this — this provider intentionally doesn't hold log data itself, just
   /// the calendar's navigation/selection state.
   void refresh() => notifyListeners();
+
+  void refreshLogs() {
+    notifyListeners();
+  }
 
   // Phase logic
   String phase(DateTime date, AppLocalizations l10n) {

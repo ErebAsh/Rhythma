@@ -4,8 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 import 'package:rhythma/providers/cycle_provider.dart';
 import 'package:rhythma/screens/cycle/components/calendar_grid.dart';
+import 'package:rhythma/services/local_storage_service.dart';
 
 void main() {
+  setUp(() {
+    LocalStorageService.isTesting = true;
+    LocalStorageService.mockCycleLogs = [];
+  });
   Widget buildTestableWidget({required Widget child}) {
     return MultiProvider(
       providers: [
@@ -21,9 +26,10 @@ void main() {
     );
   }
 
-  testWidgets('CalendarGrid renders and handles date selection', (WidgetTester tester) async {
+  testWidgets('CalendarGrid renders and handles date selection',
+      (WidgetTester tester) async {
     final pageController = PageController(initialPage: 12000);
-    
+
     await tester.pumpWidget(buildTestableWidget(
       child: CalendarGrid(
         pageController: pageController,
@@ -41,14 +47,15 @@ void main() {
     await tester.tap(find.text('15').first);
     await tester.pump();
 
-    // The CycleProvider should now have selected day 15. We test this indirectly by 
+    // The CycleProvider should now have selected day 15. We test this indirectly by
     // seeing if it still renders properly and doesn't throw.
     expect(find.text('15'), findsWidgets);
   });
 
-  testWidgets('CalendarGrid supports month swiping via PageController', (WidgetTester tester) async {
+  testWidgets('CalendarGrid supports month swiping via PageController',
+      (WidgetTester tester) async {
     final pageController = PageController(initialPage: 12000);
-    
+
     await tester.pumpWidget(buildTestableWidget(
       child: CalendarGrid(
         pageController: pageController,
@@ -58,9 +65,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Swipe left (next month)
-    pageController.nextPage(duration: const Duration(milliseconds: 100), curve: Curves.linear);
+    pageController.nextPage(
+        duration: const Duration(milliseconds: 100), curve: Curves.linear);
     await tester.pumpAndSettle();
-    
+
     // We expect it to still render days
     expect(find.text('15'), findsWidgets);
   });

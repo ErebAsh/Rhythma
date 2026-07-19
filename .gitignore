@@ -67,6 +67,7 @@ GoogleService-Info.plist
 credentials.json
 secrets.json
 service-account*.json
+firebase-credentials.json
 
 # =========================
 # IDE / EDITORS
@@ -105,9 +106,3 @@ htmlcov/
 # =========================
 *.hive
 *.lock
-
-# Firebase credentials
-*.json
-*.key
-.env
-.env.local

@@ -136,6 +136,26 @@ class AppLocalizationsHi extends AppLocalizations {
   String get homeArticle => 'लेख';
 
   @override
+  String get homeFailedLoad => 'Failed to load dashboard';
+
+  @override
+  String get homeRetry => 'Retry';
+
+  @override
+  String get homeComingSoon => 'Coming Soon';
+
+  @override
+  String homeUnderDevelopment(String topic) {
+    return '$topic is currently under development.';
+  }
+
+  @override
+  String get homePrivacySecurity => 'Privacy & Security';
+
+  @override
+  String get homeOk => 'OK';
+
+  @override
   String get cycleTrackerTitle => 'चक्र ट्रैकर';
 
   @override
@@ -203,6 +223,36 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get logLabelSymptoms => 'लक्षण';
+
+  @override
+  String get logToday => 'Log Today';
+
+  @override
+  String get logTitle => 'Log your day';
+
+  @override
+  String get logFlowIntensity => 'Flow Intensity';
+
+  @override
+  String get logMood => 'Mood';
+
+  @override
+  String get logSleepHours => 'Sleep Hours';
+
+  @override
+  String get logStressLevel => 'Stress Level';
+
+  @override
+  String get logSave => 'Save Log';
+
+  @override
+  String get logSympFatigue => 'Fatigue';
+
+  @override
+  String get logSympNausea => 'Nausea';
+
+  @override
+  String get logSympBackPain => 'Back Pain';
 
   @override
   String get assistantTitle => 'रिद्मा सहायक';
@@ -506,4 +556,84 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get onboardingWeightInvalid =>
       'कृपया वैध वज़न दर्ज करें (20–300 किग्रा)';
+
+  @override
+  String get smsScreenTitle => 'एसएमएस सारांश';
+
+  @override
+  String get smsScreenSubtitle => 'ऐप के बिना भी जानकारी पाएं';
+
+  @override
+  String get smsInfoCardTitle => 'साप्ताहिक स्वास्थ्य सारांश';
+
+  @override
+  String get smsInfoCardBody =>
+      'हर सप्ताह, रिद्मा आपको आपके चक्र की स्थिति, स्वास्थ्य स्कोर और किसी भी महत्वपूर्ण पैटर्न का संक्षिप्त सारांश सीधे एसएमएस के ज़रिए आपके फ़ोन पर भेजेगी, बिना डेटा या ऐप के भी काम करता है।';
+
+  @override
+  String get smsConfigTitle => 'कॉन्फ़िगरेशन';
+
+  @override
+  String get smsPhoneLabel => 'फ़ोन नंबर';
+
+  @override
+  String get smsPhoneHint => '+91 98765 43210';
+
+  @override
+  String get smsEnableWeekly => 'साप्ताहिक एसएमएस सक्षम करें';
+
+  @override
+  String get smsSaveSettings => 'सेटिंग्स सहेजें';
+
+  @override
+  String get smsSendSectionTitle => 'अभी सारांश भेजें';
+
+  @override
+  String get smsSendRecipientPrefix =>
+      'नीचे दिया गया संदेश इस नंबर पर भेजा जाएगा:';
+
+  @override
+  String get smsSendNoPhone => 'पहले ऊपर फ़ोन नंबर जोड़ें और सहेजें।';
+
+  @override
+  String get smsSendButton => 'सारांश अभी भेजें';
+
+  @override
+  String get smsErrorEnterPhone => 'कृपया फ़ोन नंबर दर्ज करें';
+
+  @override
+  String get smsErrorInvalidPhone =>
+      'अंतरराष्ट्रीय प्रारूप में मान्य फ़ोन नंबर दर्ज करें, जैसे +919876543210';
+
+  @override
+  String get smsSuccessSaved => 'एसएमएस सेटिंग्स सफलतापूर्वक सहेजी गईं!';
+
+  @override
+  String get smsErrorAddPhoneFirst => 'पहले फ़ोन नंबर जोड़ें और सहेजें';
+
+  @override
+  String get smsSuccessSent => 'सारांश आपके फ़ोन पर भेज दिया गया!';
+
+  @override
+  String get smsErrorRateLimit =>
+      'आप प्रति मिनट केवल एक सारांश भेज सकते हैं, कृपया थोड़ी देर बाद पुनः प्रयास करें।';
+
+  @override
+  String get smsErrorSessionExpired =>
+      'आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।';
+
+  @override
+  String get smsErrorNetwork =>
+      'सर्वर तक नहीं पहुंच सके। अपना कनेक्शन जांचें और पुनः प्रयास करें।';
+
+  @override
+  String get smsErrorGeneric => 'कुछ गलत हो गया। कृपया पुनः प्रयास करें।';
+
+  @override
+  String get smsLoadError =>
+      'आपकी एसएमएस सेटिंग्स लोड नहीं हो सकीं। रीफ्रेश करें या पुनः प्रयास करें।';
+
+  @override
+  String get smsSummaryMessage =>
+      '🌸 रिद्मा स्वास्थ्य सारांश\nयह रिद्मा से आपका ऑन-डिमांड सारांश है।\nअपनी नवीनतम चक्र जानकारी के लिए ऐप खोलें।\nसदस्यता समाप्त करने के लिए STOP उत्तर दें।';
 }

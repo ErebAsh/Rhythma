@@ -1,0 +1,52 @@
+name: Flutter CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'rhythma_flutter/**'
+      - '.github/workflows/flutter.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'rhythma_flutter/**'
+      - '.github/workflows/flutter.yml'
+
+defaults:
+  run:
+    working-directory: rhythma_flutter
+
+jobs:
+  flutter-checks:
+    name: Analyze, format, and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('rhythma_flutter/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create mock .env for analyzer
+        run: cp .env.example .env
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Run tests
+        run: flutter test

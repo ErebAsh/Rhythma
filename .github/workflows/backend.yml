@@ -1,0 +1,51 @@
+name: Backend CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'requirements.txt'
+      - '.github/workflows/backend.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'requirements.txt'
+      - '.github/workflows/backend.yml'
+
+jobs:
+  backend-tests:
+    name: Run backend test suite
+    runs-on: ubuntu-latest
+
+    # Dummy values only — never real secrets. backend/tests/test_auth.py
+    # mocks firebase_admin and google.generativeai entirely via sys.modules
+    # before importing the app, and sets its own JWT_SECRET/GEMINI_API_KEY
+    # inline, so nothing here is strictly required by the current test
+    # suite. Set anyway as a safety net for any future test added without
+    # its own inline mocking — the app should be able to *start* with
+    # these, even though no real external call is ever made.
+    env:
+      JWT_SECRET: ci-dummy-secret-not-for-production
+      GEMINI_API_KEY: ci-dummy-key
+      DATABASE_URL: 'sqlite:///:memory:'
+      TWILIO_ACCOUNT_SID: ci-dummy-sid
+      TWILIO_AUTH_TOKEN: ci-dummy-token
+      TWILIO_PHONE_NUMBER: '+10000000000'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest backend/tests/ -v

@@ -1,0 +1,24 @@
+{
+  "auth": {
+    "loginTitle": "Log in to Rhythma",
+    "registerTitle": "Create your account",
+    "username": "Username",
+    "email": "Email",
+    "fullName": "Full name (optional)",
+    "password": "Password",
+    "loginButton": "Log in",
+    "loggingIn": "Logging in…",
+    "registerButton": "Register",
+    "registering": "Creating account…",
+    "loginError": "Invalid username or password.",
+    "registerError": "Could not create your account. Please try again.",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Register",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Log in"
+  },
+  "home": {
+    "welcome": "Welcome, {{name}}",
+    "logout": "Log out"
+  }
+}

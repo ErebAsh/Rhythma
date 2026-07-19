@@ -136,6 +136,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeArticle => 'ARTICLE';
 
   @override
+  String get homeFailedLoad => 'Failed to load dashboard';
+
+  @override
+  String get homeRetry => 'Retry';
+
+  @override
+  String get homeComingSoon => 'Coming Soon';
+
+  @override
+  String homeUnderDevelopment(String topic) {
+    return '$topic is currently under development.';
+  }
+
+  @override
+  String get homePrivacySecurity => 'Privacy & Security';
+
+  @override
+  String get homeOk => 'OK';
+
+  @override
   String get cycleTrackerTitle => 'Cycle Tracker';
 
   @override
@@ -203,6 +223,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logLabelSymptoms => 'Symptoms';
+
+  @override
+  String get logToday => 'Log Today';
+
+  @override
+  String get logTitle => 'Log your day';
+
+  @override
+  String get logFlowIntensity => 'Flow Intensity';
+
+  @override
+  String get logMood => 'Mood';
+
+  @override
+  String get logSleepHours => 'Sleep Hours';
+
+  @override
+  String get logStressLevel => 'Stress Level';
+
+  @override
+  String get logSave => 'Save Log';
+
+  @override
+  String get logSympFatigue => 'Fatigue';
+
+  @override
+  String get logSympNausea => 'Nausea';
+
+  @override
+  String get logSympBackPain => 'Back Pain';
 
   @override
   String get assistantTitle => 'Rhythma Assistant';
@@ -506,4 +556,83 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingWeightInvalid =>
       'Please enter a valid weight (20–300 kg)';
+
+  @override
+  String get smsScreenTitle => 'SMS Summaries';
+
+  @override
+  String get smsScreenSubtitle => 'Stay informed even without the app';
+
+  @override
+  String get smsInfoCardTitle => 'Weekly Health Summary';
+
+  @override
+  String get smsInfoCardBody =>
+      'Every week, Rhythma will send you a brief summary of your cycle status, health score, and any important patterns, directly to your phone via SMS. Works without data or the app.';
+
+  @override
+  String get smsConfigTitle => 'Configuration';
+
+  @override
+  String get smsPhoneLabel => 'Phone Number';
+
+  @override
+  String get smsPhoneHint => '+91 98765 43210';
+
+  @override
+  String get smsEnableWeekly => 'Enable weekly SMS';
+
+  @override
+  String get smsSaveSettings => 'Save Settings';
+
+  @override
+  String get smsSendSectionTitle => 'Send a Summary Now';
+
+  @override
+  String get smsSendRecipientPrefix => 'Sends the message below to:';
+
+  @override
+  String get smsSendNoPhone => 'Add and save a phone number above first.';
+
+  @override
+  String get smsSendButton => 'Send Summary Now';
+
+  @override
+  String get smsErrorEnterPhone => 'Please enter a phone number';
+
+  @override
+  String get smsErrorInvalidPhone =>
+      'Enter a valid phone number in international format, e.g. +919876543210';
+
+  @override
+  String get smsSuccessSaved => 'SMS settings saved successfully!';
+
+  @override
+  String get smsErrorAddPhoneFirst => 'Add and save a phone number first';
+
+  @override
+  String get smsSuccessSent => 'Summary sent to your phone!';
+
+  @override
+  String get smsErrorRateLimit =>
+      'You can send one summary per minute, please wait a bit and try again.';
+
+  @override
+  String get smsErrorSessionExpired =>
+      'Your session has expired. Please log in again.';
+
+  @override
+  String get smsErrorNetwork =>
+      'Couldn\'t reach the server. Check your connection and try again.';
+
+  @override
+  String get smsErrorGeneric => 'Something went wrong. Please try again.';
+
+  @override
+  String get smsLoadError =>
+      'Couldn\'t load your SMS settings. Pull to refresh or try again.';
+
+  @override
+  String get smsSummaryMessage =>
+      '🌸 Rhythma Health Summary\nThis is your on-demand summary from Rhythma.\nOpen the app for your latest cycle insights.\nReply STOP to unsubscribe.';
 }

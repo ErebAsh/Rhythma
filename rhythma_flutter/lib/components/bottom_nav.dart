@@ -10,10 +10,10 @@ class RhythmaBottomNav extends StatelessWidget {
   final ValueChanged<int> onTap;
 
   const RhythmaBottomNav({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   List<_NavTab> _getTabs(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -70,9 +70,7 @@ class RhythmaBottomNav extends StatelessWidget {
                           width: 40,
                           height: 36,
                           decoration: BoxDecoration(
-                            gradient: active
-                                ? RhythmaGradients.primary
-                                : null,
+                            gradient: active ? RhythmaGradients.primary : null,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: active
                                 ? [
@@ -88,9 +86,8 @@ class RhythmaBottomNav extends StatelessWidget {
                           child: Icon(
                             tab.icon,
                             size: 18,
-                            color: active
-                                ? Colors.white
-                                : RhythmaColors.mutedFg,
+                            color:
+                                active ? Colors.white : RhythmaColors.mutedFg,
                           ),
                         ),
                         const SizedBox(height: 2),

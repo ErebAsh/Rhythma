@@ -29,10 +29,11 @@ class ThemeScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text(l10n.themeToggle), // Reusing existing localized string for title
+          title: Text(
+              l10n.themeToggle), // Reusing existing localized string for title
           centerTitle: true,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_rounded),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -50,14 +51,15 @@ class ThemeScreen extends StatelessWidget {
                 ),
                 title: Text(l10n.darkMode),
                 value: themeProvider.isDarkMode,
-                activeColor: RhythmaColors.primary,
+                activeThumbColor: RhythmaColors.primary,
                 onChanged: (bool value) {
                   themeProvider.setDarkMode(value);
                 },
               ),
             ),
             const SizedBox(height: 24),
-            SectionHeader(title: 'Theme Color'), // Ideally localized later
+            const SectionHeader(
+                title: 'Theme Color'), // Ideally localized later
             GlassCard(
               padding: const EdgeInsets.all(20),
               child: Wrap(
@@ -66,7 +68,8 @@ class ThemeScreen extends StatelessWidget {
                 alignment: WrapAlignment.center,
                 children: predefinedColors.map((item) {
                   final color = item['color'] as Color;
-                  final isSelected = themeProvider.primaryColor.value == color.value;
+                  final isSelected =
+                      themeProvider.primaryColor.value == color.value;
 
                   return GestureDetector(
                     onTap: () {
@@ -79,7 +82,8 @@ class ThemeScreen extends StatelessWidget {
                         color: color,
                         shape: BoxShape.circle,
                         border: isSelected
-                            ? Border.all(color: RhythmaColors.foreground, width: 3)
+                            ? Border.all(
+                                color: RhythmaColors.foreground, width: 3)
                             : null,
                         boxShadow: [
                           BoxShadow(
@@ -90,7 +94,7 @@ class ThemeScreen extends StatelessWidget {
                         ],
                       ),
                       child: isSelected
-                          ? Icon(Icons.check, color: Colors.white)
+                          ? const Icon(Icons.check, color: Colors.white)
                           : null,
                     ),
                   );
