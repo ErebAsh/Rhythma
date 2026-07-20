@@ -28,10 +28,14 @@ class LanguageScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text(l10n.selectLanguage),
+          title: Text(
+            l10n.selectLanguage,
+            semanticsLabel: l10n.selectLanguage,
+          ),
           centerTitle: true,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -47,31 +51,40 @@ class LanguageScreen extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: GlassCard(
                 padding: EdgeInsets.zero,
-                child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  title: Text(
-                    langName,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: isSelected
-                          ? RhythmaColors.primary
-                          : RhythmaColors.foreground,
+                child: Semantics(
+                  button: true,
+                  selected: isSelected,
+                  label: '$langName, ${isSelected ? "selected" : "not selected"}',
+                  hint: 'Double tap to set app language to $langName',
+                  child: ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    title: Text(
+                      langName,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected
+                            ? RhythmaColors.primary
+                            : RhythmaColors.foreground,
+                      ),
                     ),
+                    trailing: isSelected
+                        ? Icon(
+                            Icons.check_circle_rounded,
+                            color: RhythmaColors.primary,
+                            semanticLabel: 'Selected',
+                          )
+                        : null,
+                    onTap: () {
+                      context.read<LocaleProvider>().setLocale(Locale(langCode));
+                      final profile = context.read<ProfileProvider>().profile;
+                      if (profile.isNotEmpty) {
+                        context.read<ProfileProvider>().mergeProfileWithSync({'language': langCode});
+                      }
+                    },
                   ),
-                  trailing: isSelected
-                      ? Icon(Icons.check_circle_rounded,
-                          color: RhythmaColors.primary)
-                      : null,
-                  onTap: () {
-                    context.read<LocaleProvider>().setLocale(Locale(langCode));
-                    final profile = context.read<ProfileProvider>().profile;
-                    if (profile.isNotEmpty) {
-                      context.read<ProfileProvider>().mergeProfileWithSync({'language': langCode});
-                    }
-                  },
                 ),
               ),
             );
