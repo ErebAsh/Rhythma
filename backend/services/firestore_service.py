@@ -62,6 +62,15 @@ class MockCollectionReference:
                 filtered.append(MockDocumentReference(doc_id, data, self))
         return MockQuery(lambda: filtered)
 
+    # Mock support for order_by and limit (needed for the new implementation)
+    def order_by(self, field, direction=None):
+        # For mock, we don't actually sort; just return self
+        # We'll implement a simple sort if needed, but for testing the new method,
+        # we can keep the existing behavior and sort in Python for mock mode.
+        # However, to keep the mock behaviour consistent with the real Firestore,
+        # we can at least respect the limit when it's chained.
+        return self
+
 class MockFirestoreClient:
     def __init__(self):
         self._collections = {}
@@ -220,38 +229,45 @@ class CycleService:
     def get_logs_for_user(user_id: str, limit: int = 10) -> list:
         """Return a user's cycle logs, most recent (by start_date) first.
 
-        Deliberately queries with only the `user_id ==` equality filter and
-        sorts/limits in Python, rather than chaining `.order_by("start_date")`
-        onto it. Firestore auto-creates single-field indexes, but a query
-        that combines an equality filter on one field with an order_by on a
-        *different* field needs a composite index that must be created
-        manually (or via the link in Firestore's own error message) before
-        it will run at all — until then every call raises
-        FAILED_PRECONDITION, which is what was surfacing as a 500 here.
+        Uses Firestore's native sorting and limiting to fetch only the
+        required number of documents. This requires a composite index on
+        `(user_id, start_date desc)` for performance.
+
+        If the index is missing, Firestore will raise a FAILED_PRECONDITION
+        error with a direct link to create it. Once created, this query
+        will run efficiently.
+
+        For users with > 500 logs, consider adding pagination (offset/limit)
+        to avoid large data transfers.
         """
         try:
-            docs = (
+            # Build the query with equality filter and descending order on start_date
+            query = (
                 db.collection("cycle_logs")
                 .where("user_id", "==", user_id)
-                .stream()
+                .order_by("start_date", direction=firestore.Query.DESCENDING)
+                .limit(limit)
             )
+
+            docs = query.stream()
             results = []
             for doc in docs:
                 data = doc.to_dict()
                 data["id"] = doc.id
                 results.append(data)
-
-            def _sort_key(entry: Dict[str, Any]):
-                start = entry.get("start_date")
-                if isinstance(start, datetime):
-                    return start
-                if isinstance(start, date):
-                    return datetime.combine(start, datetime.min.time(), tzinfo=timezone.utc)
-                return datetime.min.replace(tzinfo=timezone.utc)
-
-            results.sort(key=_sort_key, reverse=True)
-            return results[:limit]
+            return results
         except Exception as e:
+            # If the error is due to missing composite index, include a helpful note.
+            error_msg = str(e)
+            if "FAILED_PRECONDITION" in error_msg and "index" in error_msg.lower():
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=(
+                        "Missing required Firestore composite index. "
+                        "Please create the index using the link provided in the error message, "
+                        "or manually create an index on 'cycle_logs' with fields (user_id Ascending, start_date Descending)."
+                    )
+                )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to fetch cycle logs: {str(e)}"
