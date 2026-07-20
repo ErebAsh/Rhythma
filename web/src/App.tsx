@@ -4,7 +4,7 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { HomePage } from './pages/HomePage';
-
+import { ScrollToTopButton } from './components/ScrollToTopButton';
 export default function App() {
   return (
     <BrowserRouter>
@@ -21,8 +21,8 @@ export default function App() {
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+</Routes>
+        <ScrollToTopButton />
       </AuthProvider>
-    </BrowserRouter>
-  );
+    </BrowserRouter>  );
 }
