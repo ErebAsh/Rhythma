@@ -5,8 +5,9 @@ import json
 from datetime import date, datetime, timezone
 from typing import Optional, Dict, Any
 from fastapi import HTTPException, status
+from google.api_core.exceptions import FailedPrecondition  # for missing index detection
 
-# ─── Mock Firestore Client for Local Development (fallback) ────────────────
+# ─── Mock Firestore Client for Local Development ──────────────────────────
 class MockDocumentReference:
     def __init__(self, doc_id, data, collection):
         self.id = doc_id
@@ -26,14 +27,40 @@ class MockDocumentReference:
             self.collection.store[self.id] = self.data
 
 class MockQuery:
-    def __init__(self, stream_generator):
-        self.stream_generator = stream_generator
+    def __init__(self, documents):
+        # documents is a list of MockDocumentReference
+        self._documents = documents
+        self._order_by_field = None
+        self._order_by_direction = None
+        self._limit_count = None
 
     def limit(self, count):
+        self._limit_count = count
+        return self
+
+    def order_by(self, field, direction=None):
+        self._order_by_field = field
+        self._order_by_direction = direction or firestore.Query.ASCENDING
         return self
 
     def stream(self):
-        return self.stream_generator()
+        # Start with the filtered documents
+        docs = self._documents[:]
+
+        # Apply sorting if requested
+        if self._order_by_field:
+            reverse = (self._order_by_direction == firestore.Query.DESCENDING)
+            docs.sort(
+                key=lambda doc: doc.data.get(self._order_by_field),
+                reverse=reverse
+            )
+
+        # Apply limit if requested
+        if self._limit_count is not None:
+            docs = docs[:self._limit_count]
+
+        for doc in docs:
+            yield doc
 
 class MockCollectionReference:
     _next_id = 1
@@ -60,15 +87,13 @@ class MockCollectionReference:
         for doc_id, data in self.store.items():
             if data.get(field) == value:
                 filtered.append(MockDocumentReference(doc_id, data, self))
-        return MockQuery(lambda: filtered)
+        return MockQuery(filtered)
 
-    # Mock support for order_by and limit (needed for the new implementation)
+    # These are not called directly on collection; they are chained after where
     def order_by(self, field, direction=None):
-        # For mock, we don't actually sort; just return self
-        # We'll implement a simple sort if needed, but for testing the new method,
-        # we can keep the existing behavior and sort in Python for mock mode.
-        # However, to keep the mock behaviour consistent with the real Firestore,
-        # we can at least respect the limit when it's chained.
+        return self
+
+    def limit(self, count):
         return self
 
 class MockFirestoreClient:
@@ -233,22 +258,20 @@ class CycleService:
         required number of documents. This requires a composite index on
         `(user_id, start_date desc)` for performance.
 
-        If the index is missing, Firestore will raise a FAILED_PRECONDITION
-        error with a direct link to create it. Once created, this query
-        will run efficiently.
+        If the index is missing, Firestore raises a FailedPrecondition
+        exception with a direct link to create it. That error is preserved
+        in the response (status 503) so the admin can use the link directly.
 
         For users with > 500 logs, consider adding pagination (offset/limit)
         to avoid large data transfers.
         """
         try:
-            # Build the query with equality filter and descending order on start_date
             query = (
                 db.collection("cycle_logs")
                 .where("user_id", "==", user_id)
                 .order_by("start_date", direction=firestore.Query.DESCENDING)
                 .limit(limit)
             )
-
             docs = query.stream()
             results = []
             for doc in docs:
@@ -256,18 +279,15 @@ class CycleService:
                 data["id"] = doc.id
                 results.append(data)
             return results
+        except FailedPrecondition as e:
+            # Missing composite index – treat as a configuration issue
+            # and preserve the original error message (includes the link)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=str(e)
+            )
         except Exception as e:
-            # If the error is due to missing composite index, include a helpful note.
-            error_msg = str(e)
-            if "FAILED_PRECONDITION" in error_msg and "index" in error_msg.lower():
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=(
-                        "Missing required Firestore composite index. "
-                        "Please create the index using the link provided in the error message, "
-                        "or manually create an index on 'cycle_logs' with fields (user_id Ascending, start_date Descending)."
-                    )
-                )
+            # Other Firestore errors
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to fetch cycle logs: {str(e)}"
