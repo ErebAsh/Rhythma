@@ -35,8 +35,8 @@ class RhythmaColors {
   static bool isDark = false;
 
   // Glass card helper — used many places
-  static Color get glassCard => surface.withOpacity(0.75);
-  static Color get glassBorder => lavender.withOpacity(0.4);
+  static Color get glassCard => surface.withValues(alpha: 0.75);
+  static Color get glassBorder => lavender.withValues(alpha: 0.4);
 
   static void updateTheme(bool isDarkMode, Color selectedPrimary) {
     isDark = isDarkMode;
@@ -44,7 +44,7 @@ class RhythmaColors {
       // In dark mode, keep the background dark but use the selected primary color
       primary = selectedPrimary;
       primaryFg = const Color(0xFFFCFAFF);
-      lavender = selectedPrimary.withOpacity(0.3);
+      lavender = selectedPrimary.withValues(alpha: 0.3);
 
       background = const Color(0xFF121212);
       backgroundEnd = const Color(0xFF1E1E1E);
@@ -59,21 +59,33 @@ class RhythmaColors {
       primaryFg = selectedPrimary.computeLuminance() > 0.5
           ? const Color(0xFF2D1F47)
           : const Color(0xFFFCFAFF);
-      lavender = selectedPrimary.withOpacity(0.3);
+      lavender = selectedPrimary.withValues(alpha: 0.3);
 
       // Adapt the background to the chosen color
-      background = Color.alphaBlend(
-          selectedPrimary.withOpacity(0.04), const Color(0xFFFFFFFF));
-      backgroundEnd = Color.alphaBlend(
-          selectedPrimary.withOpacity(0.10), const Color(0xFFFFFFFF));
-      surface = const Color(0xFFFFFFFF);
-      surfaceMuted = Color.alphaBlend(
-          selectedPrimary.withOpacity(0.07), const Color(0xFFFFFFFF));
+background = Color.alphaBlend(
+  selectedPrimary.withValues(alpha: 0.04),
+  const Color(0xFFFFFFFF),
+);
 
-      foreground = const Color(0xFF2D1F47);
-      mutedFg = const Color(0xFF7A6E8A);
-      border = Color.alphaBlend(
-          selectedPrimary.withOpacity(0.15), const Color(0xFFFFFFFF));
+backgroundEnd = Color.alphaBlend(
+  selectedPrimary.withValues(alpha: 0.10),
+  const Color(0xFFFFFFFF),
+);
+
+surface = const Color(0xFFFFFFFF);
+
+surfaceMuted = Color.alphaBlend(
+  selectedPrimary.withValues(alpha: 0.07),
+  const Color(0xFFFFFFFF),
+);
+
+foreground = const Color(0xFF2D1F47);
+mutedFg = const Color(0xFF7A6E8A);
+
+border = Color.alphaBlend(
+  selectedPrimary.withValues(alpha: 0.15),
+  const Color(0xFFFFFFFF),
+);
     }
   }
 }
@@ -95,8 +107,8 @@ class RhythmaGradients {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          color.withOpacity(0.18),
-          color.withOpacity(0.08),
+          color.withValues(alpha: 0.18),
+          color.withValues(alpha: 0.08),
         ],
       );
 }

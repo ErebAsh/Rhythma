@@ -461,9 +461,11 @@ class _MiniCard extends StatelessWidget {
     required this.icon,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    return GlassCard(
+ @override
+Widget build(BuildContext context) {
+  return Semantics(
+    label: '$label, value $value, change $delta',
+    child: GlassCard(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,10 +477,12 @@ class _MiniCard extends StatelessWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.14),
+                  color: color.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: color, size: 17),
+                child: ExcludeSemantics(
+                  child: Icon(icon, color: color, size: 17),
+                ),
               ),
               Icon(
                 trendUp ? Icons.trending_up_rounded : Icons.trending_down_rounded,
@@ -490,7 +494,10 @@ class _MiniCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             label,
-            style: TextStyle(fontSize: 11, color: RhythmaColors.mutedFg),
+            style: TextStyle(
+              fontSize: 11,
+              color: RhythmaColors.mutedFg,
+            ),
           ),
           const SizedBox(height: 3),
           Text(
@@ -511,8 +518,9 @@ class _MiniCard extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _SymptomBar extends StatelessWidget {
@@ -525,6 +533,7 @@ class _SymptomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -537,13 +546,16 @@ class _SymptomBar extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: fraction,
-            minHeight: 8,
-            backgroundColor: RhythmaColors.surfaceMuted,
-            valueColor: AlwaysStoppedAnimation(color),
+        Semantics(
+          label: '$label ${(fraction * 100).round()} percent',
+          child:ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                  value: fraction,
+                  minHeight: 8,
+                  backgroundColor: RhythmaColors.surfaceMuted,
+                  valueColor: AlwaysStoppedAnimation(color),
+             ),
           ),
         ),
       ],

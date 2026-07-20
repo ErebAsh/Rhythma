@@ -8,6 +8,10 @@ import 'app_localizations.dart';
 class AppLocalizationsTa extends AppLocalizations {
   AppLocalizationsTa([String locale = 'ta']) : super(locale);
 
+   @override
+   String insightsScoreValue(int i) {
+   return '$i';}
+
   @override
   String get appTitle => 'ரித்மா (Rhythma)';
 

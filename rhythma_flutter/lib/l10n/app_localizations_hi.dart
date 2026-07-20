@@ -9,6 +9,10 @@ class AppLocalizationsHi extends AppLocalizations {
   AppLocalizationsHi([String locale = 'hi']) : super(locale);
 
   @override
+  String insightsScoreValue(int i) {
+  return '$i';
+  }
+  @override
   String get appTitle => 'Rhythma';
 
   @override

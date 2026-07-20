@@ -105,6 +105,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     {'code': 'te', 'label': 'తెలుగు'},
     {'code': 'mr', 'label': 'मराठी'},
   ];
+  
+  bool? get selected => null;
 
   // ── Navigation ────────────────────────────────────────────────────────────
 
@@ -298,7 +300,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 borderRadius: BorderRadius.circular(2),
                 color: active
                     ? RhythmaColors.primary
-                    : RhythmaColors.primary.withOpacity(0.2),
+                    : RhythmaColors.primary.withValues(alpha: 0.2),
               ),
             ),
           );
@@ -380,7 +382,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: selected
-                      ? RhythmaColors.primary.withOpacity(0.15)
+                      ? RhythmaColors.primary.withValues(alpha: 0.15)
                       : RhythmaColors.surface,
                   border: Border.all(
                     color:
@@ -415,7 +417,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: RhythmaColors.primary.withOpacity(0.08),
+              color: RhythmaColors.primary.withValues(alpha: 0.08),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -473,7 +475,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: selected
-                          ? RhythmaColors.primary.withOpacity(0.2)
+                          ? RhythmaColors.primary.withValues(alpha: 0.2)
                           : RhythmaColors.surface,
                       border: Border.all(
                         color: selected
@@ -592,9 +594,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 color: RhythmaColors.surface,
-                border:
-                    Border.all(color: RhythmaColors.primary.withOpacity(0.3)),
-              ),
+
+                border: Border.all(color: RhythmaColors.primary.withValues(alpha: 0.3)),
+             ),
               child: Row(
                 children: [
                   Icon(Icons.calendar_today_rounded,
@@ -820,7 +822,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         hintText: hint,
         errorText: error,
         labelStyle: TextStyle(color: RhythmaColors.mutedFg),
-        hintStyle: TextStyle(color: RhythmaColors.mutedFg.withOpacity(0.6)),
+        hintStyle: TextStyle(color: RhythmaColors.mutedFg.withValues(alpha: 0.6)),
         filled: true,
         fillColor: RhythmaColors.surface,
         border: OutlineInputBorder(
@@ -829,7 +831,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: RhythmaColors.primary.withOpacity(0.2)),
+          borderSide: BorderSide(color: RhythmaColors.primary.withValues(alpha: 0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -876,7 +878,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           max: max,
           divisions: divisions,
           activeColor: RhythmaColors.primary,
-          inactiveColor: RhythmaColors.primary.withOpacity(0.2),
+          inactiveColor: RhythmaColors.primary.withValues(alpha: 0.2),
           onChanged: onChanged,
         ),
       ],
@@ -891,9 +893,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: selected
-              ? RhythmaColors.primary.withOpacity(0.15)
-              : RhythmaColors.surface,
+            color: selected
+          ? RhythmaColors.primary.withValues(alpha: 0.15)
+             : RhythmaColors.surface,
           border: Border.all(
             color: selected ? RhythmaColors.primary : Colors.transparent,
             width: 2,
@@ -927,9 +929,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         borderRadius: BorderRadius.circular(16),
         color: RhythmaColors.surface,
         border: Border.all(
-          color: value
-              ? RhythmaColors.primary.withOpacity(0.4)
-              : Colors.transparent,
+        color: value
+          ? RhythmaColors.primary.withValues(alpha: 0.4)
+          : Colors.transparent,
         ),
       ),
       child: Row(

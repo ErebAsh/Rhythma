@@ -69,7 +69,7 @@ class _RingPainter extends CustomPainter {
     final trackPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
-      ..color = RhythmaColors.lavender.withOpacity(0.5)
+      ..color = RhythmaColors.lavender.withValues(alpha: 0.5)
       ..strokeCap = StrokeCap.round;
 
     canvas.drawCircle(center, radius, trackPaint);
@@ -143,7 +143,7 @@ class _ScorePainter extends CustomPainter {
     final track = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = sw
-      ..color = RhythmaColors.lavender.withOpacity(0.5);
+      ..color = RhythmaColors.lavender.withValues(alpha: 0.5);
     canvas.drawCircle(center, radius, track);
 
     final rect = Rect.fromCircle(center: center, radius: radius);
@@ -229,7 +229,7 @@ class _SparkPainter extends CustomPainter {
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [color.withOpacity(0.35), color.withOpacity(0.0)],
+          colors: [color.withValues(alpha: 0.35), color.withValues(alpha: 0.0)],
         ).createShader(Rect.fromLTWH(0, 0, size.width, size.height)),
     );
 

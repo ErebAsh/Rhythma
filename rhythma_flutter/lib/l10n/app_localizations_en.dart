@@ -9,6 +9,11 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String insightsScoreValue(int i) {
+  return '$i';
+  }
+
+  @override
   String get appTitle => 'Rhythma';
 
   @override

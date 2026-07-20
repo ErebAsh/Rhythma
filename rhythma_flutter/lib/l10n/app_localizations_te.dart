@@ -9,6 +9,11 @@ class AppLocalizationsTe extends AppLocalizations {
   AppLocalizationsTe([String locale = 'te']) : super(locale);
 
   @override
+  String insightsScoreValue(int i) {
+  return '$i';
+  }
+  
+  @override
   String get appTitle => 'రిథ్మా (Rhythma)';
 
   @override

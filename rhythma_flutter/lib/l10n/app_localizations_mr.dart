@@ -8,9 +8,14 @@ import 'app_localizations.dart';
 class AppLocalizationsMr extends AppLocalizations {
   AppLocalizationsMr([String locale = 'mr']) : super(locale);
 
+   @override
+   String insightsScoreValue(int i) {
+   return '$i';
+  }
+ 
   @override
   String get appTitle => 'रिद्मा';
-
+  
   @override
   String get settingsTitle => 'सेटिंग्ज';
 
