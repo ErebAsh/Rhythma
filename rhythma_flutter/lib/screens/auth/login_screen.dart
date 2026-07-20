@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:rhythma/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:rhythma/providers/profile_provider.dart';
+import 'package:rhythma/providers/locale_provider.dart';
 import 'package:rhythma/screens/auth/register_screen.dart';
 import 'package:rhythma/services/auth_service.dart';
 
@@ -24,12 +26,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    final l10n = AppLocalizations.of(context)!;
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
     if (username.isEmpty || password.isEmpty) {
-      _showMessage(l10n.loginFieldsRequired);
+      _showMessage('Please enter your username and password.');
       return;
     }
 
@@ -37,21 +38,20 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await AuthService().login(username, password);
       if (!mounted) return;
+
+      context.read<ProfileProvider>().reloadProfile();
+      final profile = context.read<ProfileProvider>().profile;
+      final lang = profile['language'] as String?;
+      if (lang != null) {
+        context.read<LocaleProvider>().setLocale(Locale(lang));
+      }
+
       Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     } catch (e) {
-      if (mounted) _showMessage(_friendlyErrorMessage(l10n, e));
+      if (mounted) _showMessage(e.toString());
     } finally {
       if (mounted) setState(() => _loading = false);
     }
-  }
-
-  String _friendlyErrorMessage(AppLocalizations l10n, Object error) {
-    final msg = error.toString();
-    if (msg.contains('SocketException') || msg.contains('TimeoutException')) {
-      return l10n.loginErrorNetwork;
-    }
-    if (msg.contains('401')) return l10n.loginErrorInvalidCredentials;
-    return l10n.loginErrorGeneric;
   }
 
   void _showMessage(String message) {
@@ -62,7 +62,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -72,20 +71,20 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.favorite_rounded,
-                  size: 56,
-                  color: Theme.of(context).primaryColor,
+                Image.asset(
+                  'assets/images/logo.png',
+                  height: 120,
+                  fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  l10n.loginWelcomeBack,
+                const Text(
+                  'Welcome back',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  l10n.loginSubtitle,
+                  'Log in to continue your private Rhythma journey.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Theme.of(context).hintColor),
                 ),
@@ -94,10 +93,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _usernameController,
                   enabled: !_loading,
                   textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    labelText: l10n.loginUsername,
-                    prefixIcon: const Icon(Icons.person_outline),
-                    border: const OutlineInputBorder(),
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                    prefixIcon: Icon(Icons.person_outline),
+                    border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -107,13 +106,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: _obscurePassword,
                   onSubmitted: (_) => _login(),
                   decoration: InputDecoration(
-                    labelText: l10n.loginPassword,
+                    labelText: 'Password',
                     prefixIcon: const Icon(Icons.lock_outline),
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
-                      tooltip: _obscurePassword ? l10n.loginShowPassword : l10n.loginHidePassword,
+                      tooltip:
+                          _obscurePassword ? 'Show password' : 'Hide password',
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                       onPressed: () {
                         setState(() => _obscurePassword = !_obscurePassword);
@@ -131,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.login_rounded),
-                  label: Text(_loading ? l10n.loginLoggingIn : l10n.loginButton),
+                  label: Text(_loading ? 'Logging in...' : 'Login'),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
                   ),
@@ -142,10 +144,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       : () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                            MaterialPageRoute(
+                                builder: (_) => const RegisterScreen()),
                           );
                         },
-                  child: Text(l10n.loginNoAccount),
+                  child: const Text("Don't have an account? Register"),
                 ),
               ],
             ),

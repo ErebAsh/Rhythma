@@ -8,9 +8,14 @@ import 'app_localizations.dart';
 class AppLocalizationsMr extends AppLocalizations {
   AppLocalizationsMr([String locale = 'mr']) : super(locale);
 
+   @override
+   String insightsScoreValue(int i) {
+   return '$i';
+  }
+ 
   @override
   String get appTitle => 'रिद्मा';
-
+  
   @override
   String get settingsTitle => 'सेटिंग्ज';
 
@@ -787,4 +792,109 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get onboardingWeightInvalid =>
       'कृपया वैध वजन प्रविष्ट करा (20–300 किग्रा)';
+
+  @override
+  String get onboardingPhoneInvalid => 'कृपया वैध फोन नंबर प्रविष्ट करा';
+
+  @override
+  String get onboardingTapToSelectDate => 'तारीख निवडण्यासाठी टॅप करा';
+
+  @override
+  String get onboardingDays => 'दिवस';
+
+  @override
+  String get smsScreenTitle => 'एसएमएस सारांश';
+
+  @override
+  String get smsScreenSubtitle => 'अ‍ॅपशिवायही माहिती मिळवा';
+
+  @override
+  String get smsInfoCardTitle => 'साप्ताहिक आरोग्य सारांश';
+
+  @override
+  String get smsInfoCardBody =>
+      'दर आठवड्याला, रिद्मा तुम्हाला तुमच्या चक्राची स्थिती, आरोग्य गुण आणि महत्त्वाच्या नमुन्यांचा थोडक्यात सारांश थेट एसएमएसद्वारे तुमच्या फोनवर पाठवेल, डेटा किंवा अ‍ॅपशिवायही चालते.';
+
+  @override
+  String get smsConfigTitle => 'कॉन्फिगरेशन';
+
+  @override
+  String get smsPhoneLabel => 'फोन नंबर';
+
+  @override
+  String get smsPhoneHint => '+91 98765 43210';
+
+  @override
+  String get smsEnableWeekly => 'साप्ताहिक एसएमएस सक्षम करा';
+
+  @override
+  String get smsSaveSettings => 'सेटिंग्ज जतन करा';
+
+  @override
+  String get smsSendSectionTitle => 'आत्ता सारांश पाठवा';
+
+  @override
+  String get smsSendRecipientPrefix => 'खालील संदेश या नंबरवर पाठवला जाईल:';
+
+  @override
+  String get smsSendNoPhone => 'आधी वर फोन नंबर जोडा आणि जतन करा.';
+
+  @override
+  String get smsSendButton => 'सारांश आत्ता पाठवा';
+
+  @override
+  String get smsErrorEnterPhone => 'कृपया फोन नंबर टाका';
+
+  @override
+  String get smsErrorInvalidPhone =>
+      'आंतरराष्ट्रीय स्वरूपात वैध फोन नंबर टाका, उदा. +919876543210';
+
+  @override
+  String get smsSuccessSaved => 'एसएमएस सेटिंग्ज यशस्वीरित्या जतन झाल्या!';
+
+  @override
+  String get smsErrorAddPhoneFirst => 'आधी फोन नंबर जोडा आणि जतन करा';
+
+  @override
+  String get smsSuccessSent => 'सारांश तुमच्या फोनवर पाठवला गेला!';
+
+  @override
+  String get smsErrorRateLimit =>
+      'तुम्ही दर मिनिटाला फक्त एक सारांश पाठवू शकता, कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.';
+
+  @override
+  String get smsErrorSessionExpired =>
+      'तुमचे सत्र संपले आहे. कृपया पुन्हा लॉग इन करा.';
+
+  @override
+  String get smsErrorNetwork =>
+      'सर्व्हरपर्यंत पोहोचू शकलो नाही. तुमचे कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.';
+
+  @override
+  String get smsErrorGeneric => 'काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.';
+
+  @override
+  String get smsLoadError =>
+      'तुमच्या एसएमएस सेटिंग्ज लोड होऊ शकल्या नाहीत. रिफ्रेश करा किंवा पुन्हा प्रयत्न करा.';
+
+  @override
+  String get smsSummaryMessage =>
+      '🌸 रिद्मा आरोग्य सारांश\nहा रिद्माकडून तुमचा ऑन-डिमांड सारांश आहे.\nतुमच्या नवीनतम चक्र माहितीसाठी अ‍ॅप उघडा.\nसदस्यता रद्द करण्यासाठी STOP उत्तर द्या.';
+
+  @override
+  String insightsLoadError(String error) {
+    return 'तुमची अंतर्दृष्टी लोड करता आली नाही: $error';
+  }
+
+  @override
+  String get insightsNotEnoughData =>
+      'तुमचे संपूर्ण आरोग्य अंतर्दृष्टी अनलॉक करण्यासाठी Cycle टॅबवर आणखी काही चक्र लॉग करा.';
+
+  @override
+  String get insightsNoSymptomsYet =>
+      'अद्याप कोणतीही लक्षणे लॉग केलेली नाहीत - Cycle टॅबवर काही लॉग करा.';
+
+  @override
+  String get insightsNotEnoughTrendData =>
+      'तुमचा ट्रेंड पाहण्यासाठी किमान दोन चक्र लॉग करा.';
 }

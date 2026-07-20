@@ -39,15 +39,15 @@ class RhythmaBottomNav extends StatelessWidget {
           child: Container(
             height: 68,
             decoration: BoxDecoration(
-              color: RhythmaColors.surface.withOpacity(0.78),
+              color: RhythmaColors.surface.withValues(alpha: 0.78),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: RhythmaColors.lavender.withOpacity(0.5),
+                color: RhythmaColors.lavender.withValues(alpha: 0.5),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: RhythmaColors.primary.withOpacity(0.1),
+                  color: RhythmaColors.primary.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, -4),
                 ),
@@ -70,15 +70,13 @@ class RhythmaBottomNav extends StatelessWidget {
                           width: 40,
                           height: 36,
                           decoration: BoxDecoration(
-                            gradient: active
-                                ? RhythmaGradients.primary
-                                : null,
+                            gradient: active ? RhythmaGradients.primary : null,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: active
                                 ? [
                                     BoxShadow(
                                       color: RhythmaColors.primary
-                                          .withOpacity(0.3),
+                                          .withValues(alpha: 0.3),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
                                     ),
@@ -88,9 +86,8 @@ class RhythmaBottomNav extends StatelessWidget {
                           child: Icon(
                             tab.icon,
                             size: 18,
-                            color: active
-                                ? Colors.white
-                                : RhythmaColors.mutedFg,
+                            color:
+                                active ? Colors.white : RhythmaColors.mutedFg,
                           ),
                         ),
                         const SizedBox(height: 2),

@@ -28,7 +28,7 @@ class ThemeProvider extends ChangeNotifier {
     if (colorVal != null) {
       _primaryColor = Color(colorVal);
     }
-    
+
     RhythmaColors.updateTheme(_isDarkMode, _primaryColor);
     notifyListeners();
   }
@@ -43,7 +43,7 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> setPrimaryColor(Color color) async {
     _primaryColor = color;
     RhythmaColors.updateTheme(_isDarkMode, _primaryColor);
-    await LocalStorageService.setPrimaryColor(color.value);
+    await LocalStorageService.setPrimaryColor(color.toARGB32());
     notifyListeners();
   }
 }

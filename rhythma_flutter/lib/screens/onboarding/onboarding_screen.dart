@@ -6,13 +6,11 @@ import '../../config/theme.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/local_storage_service.dart';
 import '../../providers/profile_provider.dart';
-import '../../utils/date_utils.dart';
 
 /// The 5-step offline-first onboarding flow.
 /// On completion, writes all collected data to LocalStorageService and
 /// navigates to the main app shell.
 class OnboardingScreen extends StatefulWidget {
-  /// Called when the user taps "Get Started" on the final step.
   final VoidCallback onComplete;
 
   static const List<String> avatars = [
@@ -63,6 +61,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   bool _notificationsEnabled = false;
   bool _dataConsent = false;
   String? _consentError;
+  String? _phoneError;
 
   late AnimationController _pageAnimController;
   late Animation<double> _pageFade;
@@ -106,8 +105,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     {'code': 'te', 'label': 'తెలుగు'},
     {'code': 'mr', 'label': 'मराठी'},
   ];
-
-  // avatars list moved to public OnboardingScreen class
+  
+  bool? get selected => null;
 
   // ── Navigation ────────────────────────────────────────────────────────────
 
@@ -119,6 +118,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       _heightError = null;
       _weightError = null;
       _consentError = null;
+      _phoneError = null;
     });
 
     if (_currentPage == 1) {
@@ -128,21 +128,32 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         valid = false;
       }
       final age = int.tryParse(_ageController.text);
-      if (_ageController.text.isNotEmpty && (age == null || age < 10 || age > 120)) {
+      if (_ageController.text.isNotEmpty &&
+          (age == null || age < 10 || age > 120)) {
         setState(() => _ageError = l.onboardingAgeInvalid);
         valid = false;
       }
       final h = double.tryParse(_heightController.text);
-      if (_heightController.text.isNotEmpty && (h == null || h < 50 || h > 250)) {
+      if (_heightController.text.isNotEmpty &&
+          (h == null || h < 50 || h > 250)) {
         setState(() => _heightError = l.onboardingHeightInvalid);
         valid = false;
       }
       final w = double.tryParse(_weightController.text);
-      if (_weightController.text.isNotEmpty && (w == null || w < 20 || w > 300)) {
+      if (_weightController.text.isNotEmpty &&
+          (w == null || w < 20 || w > 300)) {
         setState(() => _weightError = l.onboardingWeightInvalid);
         valid = false;
       }
       return valid;
+    }
+
+    if (_currentPage == 3) {
+      final digitsOnly = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      if (_phoneController.text.trim().isNotEmpty && (digitsOnly.length < 7 || digitsOnly.length > 15)) {
+        setState(() => _phoneError = l.onboardingPhoneInvalid);
+        return false;
+      }
     }
 
     if (_currentPage == 4) {
@@ -159,12 +170,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (!_validateCurrentPage()) return;
 
     if (_currentPage == 0) {
-      // Apply language change immediately
       await LocalStorageService.setPreferredLanguage(_selectedLanguage);
-      if (mounted) {
-        context.read<LocaleProvider>().setLocale(Locale(_selectedLanguage));
-      }
+      if (!mounted) return;
+      context.read<LocaleProvider>().setLocale(Locale(_selectedLanguage));
     }
+
+    if (!mounted) return;
 
     if (_currentPage < _totalPages - 1) {
       _pageAnimController.reset();
@@ -173,6 +184,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOutCubic,
       );
+      if (!mounted) return;
       setState(() => _currentPage++);
       _pageAnimController.forward();
     } else {
@@ -188,6 +200,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOutCubic,
       );
+      if (!mounted) return;
       setState(() => _currentPage--);
       _pageAnimController.forward();
     }
@@ -195,7 +208,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Future<void> _saveAndComplete() async {
     final profile = <String, dynamic>{
-      'name': _nameController.text.trim().isEmpty ? 'User' : _nameController.text.trim(),
+      'name': _nameController.text.trim().isEmpty
+          ? 'User'
+          : _nameController.text.trim(),
       'avatar': _selectedAvatar ?? 'assets/avatars/avatar_1.png',
       'language': _selectedLanguage,
     };
@@ -206,7 +221,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final w = double.tryParse(_weightController.text);
     if (w != null) profile['weight_kg'] = w;
     if (_lastPeriodDate != null) {
-      profile['last_period'] = RhythmaDateUtils.toDateKey(_lastPeriodDate!);
+      profile['last_period'] =
+          _lastPeriodDate!.toIso8601String().split('T').first;
     }
     profile['cycle_length'] = _cycleLength;
     profile['period_duration'] = _periodDuration;
@@ -219,7 +235,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (state.isNotEmpty) profile['state'] = state;
     profile['notifications_enabled'] = _notificationsEnabled;
 
+    // 1. Persist locally first — data is never lost even if backend is down.
     await context.read<ProfileProvider>().saveProfile(profile);
+
+    // 2. Sync to backend is optional for now. The app uses local storage as
+    // the source of truth. A background sync can be added later.
+    // (Previously this called ProfileService.patchProfile, which was removed.)
+
+    // 3. Mark onboarding done for this user account.
     await LocalStorageService.setOnboardingCompleted(true);
 
     widget.onComplete();
@@ -277,7 +300,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 borderRadius: BorderRadius.circular(2),
                 color: active
                     ? RhythmaColors.primary
-                    : RhythmaColors.primary.withOpacity(0.2),
+                    : RhythmaColors.primary.withValues(alpha: 0.2),
               ),
             ),
           );
@@ -300,7 +323,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   foregroundColor: RhythmaColors.primary,
                   side: BorderSide(color: RhythmaColors.primary),
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                 ),
                 child: Text(l.onboardingBack),
               ),
@@ -313,7 +337,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: RhythmaColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
                 elevation: 0,
               ),
               child: Text(
@@ -331,7 +356,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 1: Language & Trust ──────────────────────────────────────────────
+  // ── Step 1 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep1(AppLocalizations l) {
     return SingleChildScrollView(
@@ -352,16 +377,16 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: selected
-                      ? RhythmaColors.primary.withOpacity(0.15)
+                      ? RhythmaColors.primary.withValues(alpha: 0.15)
                       : RhythmaColors.surface,
                   border: Border.all(
-                    color: selected
-                        ? RhythmaColors.primary
-                        : Colors.transparent,
+                    color:
+                        selected ? RhythmaColors.primary : Colors.transparent,
                     width: 2,
                   ),
                 ),
@@ -371,13 +396,17 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       lang['label']!,
                       style: TextStyle(
                         fontSize: 17,
-                        fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-                        color: selected ? RhythmaColors.primary : RhythmaColors.foreground,
+                        fontWeight:
+                            selected ? FontWeight.bold : FontWeight.w500,
+                        color: selected
+                            ? RhythmaColors.primary
+                            : RhythmaColors.foreground,
                       ),
                     ),
                     const Spacer(),
                     if (selected)
-                      Icon(Icons.check_circle_rounded, color: RhythmaColors.primary),
+                      Icon(Icons.check_circle_rounded,
+                          color: RhythmaColors.primary),
                   ],
                 ),
               ),
@@ -388,7 +417,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: RhythmaColors.primary.withOpacity(0.08),
+              color: RhythmaColors.primary.withValues(alpha: 0.08),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -413,7 +442,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 2: Basic Profile ──────────────────────────────────────────────────
+  // ── Step 2 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep2(AppLocalizations l) {
     return SingleChildScrollView(
@@ -423,7 +452,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep2Title, l.onboardingStep2Subtitle),
           const SizedBox(height: 28),
-          // Avatar picker
           Text(
             l.onboardingAvatarLabel,
             style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg),
@@ -447,10 +475,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: selected
-                          ? RhythmaColors.primary.withOpacity(0.2)
+                          ? RhythmaColors.primary.withValues(alpha: 0.2)
                           : RhythmaColors.surface,
                       border: Border.all(
-                        color: selected ? RhythmaColors.primary : Colors.transparent,
+                        color: selected
+                            ? RhythmaColors.primary
+                            : Colors.transparent,
                         width: 2.5,
                       ),
                     ),
@@ -490,7 +520,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   controller: _heightController,
                   label: l.onboardingHeightLabel,
                   error: _heightError,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   textInputAction: TextInputAction.next,
                 ),
               ),
@@ -500,7 +531,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   controller: _weightController,
                   label: l.onboardingWeightLabel,
                   error: _weightError,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   textInputAction: TextInputAction.done,
                 ),
               ),
@@ -511,7 +543,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 3: Menstrual Profile ─────────────────────────────────────────────
+  // ── Step 3 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep3(AppLocalizations l) {
     return SingleChildScrollView(
@@ -521,7 +553,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep3Title, l.onboardingStep3Subtitle),
           const SizedBox(height: 28),
-          // Last period date picker
           Text(l.onboardingLastPeriodLabel,
               style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
           const SizedBox(height: 8),
@@ -529,11 +560,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             onTap: () async {
               final picked = await showDatePicker(
                 context: context,
-                initialDate: _lastPeriodDate ?? DateTime.now().subtract(const Duration(days: 14)),
+                initialDate: _lastPeriodDate ??
+                    DateTime.now().subtract(const Duration(days: 14)),
                 firstDate: DateTime.now().subtract(const Duration(days: 365)),
                 lastDate: DateTime.now(),
                 builder: (context, child) {
-                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
                   return Theme(
                     data: Theme.of(context).copyWith(
                       colorScheme: isDark
@@ -561,15 +594,17 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 color: RhythmaColors.surface,
-                border: Border.all(color: RhythmaColors.primary.withOpacity(0.3)),
-              ),
+
+                border: Border.all(color: RhythmaColors.primary.withValues(alpha: 0.3)),
+             ),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_today_rounded, color: RhythmaColors.primary, size: 20),
+                  Icon(Icons.calendar_today_rounded,
+                      color: RhythmaColors.primary, size: 20),
                   const SizedBox(width: 12),
                   Text(
                     _lastPeriodDate == null
-                        ? 'Tap to select date'
+                        ? l.onboardingTapToSelectDate
                         : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
                     style: TextStyle(
                       color: _lastPeriodDate == null
@@ -583,39 +618,38 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ),
           ),
           const SizedBox(height: 24),
-          // Cycle length slider
           _buildSliderField(
             label: l.onboardingCycleLengthLabel,
             value: _cycleLength.toDouble(),
             min: 21,
             max: 45,
             divisions: 24,
-            displayValue: '$_cycleLength ${_currentPage == 2 ? "days" : ""}',
+            displayValue: '$_cycleLength ${l.onboardingDays}',
             onChanged: (v) => setState(() => _cycleLength = v.round()),
           ),
           const SizedBox(height: 20),
-          // Period duration slider
           _buildSliderField(
             label: l.onboardingPeriodDurationLabel,
             value: _periodDuration.toDouble(),
             min: 2,
             max: 10,
             divisions: 8,
-            displayValue: '$_periodDuration',
+            displayValue: '$_periodDuration ${l.onboardingDays}',
             onChanged: (v) => setState(() => _periodDuration = v.round()),
           ),
           const SizedBox(height: 24),
-          // Regularity toggle
           Text(l.onboardingCycleRegularityLabel,
               style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
           const SizedBox(height: 10),
           Row(
             children: [
-              Expanded(child: _buildToggleChip(l.onboardingRegular, _isRegular,
-                  () => setState(() => _isRegular = true))),
+              Expanded(
+                  child: _buildToggleChip(l.onboardingRegular, _isRegular,
+                      () => setState(() => _isRegular = true))),
               const SizedBox(width: 12),
-              Expanded(child: _buildToggleChip(l.onboardingIrregular, !_isRegular,
-                  () => setState(() => _isRegular = false))),
+              Expanded(
+                  child: _buildToggleChip(l.onboardingIrregular, !_isRegular,
+                      () => setState(() => _isRegular = false))),
             ],
           ),
         ],
@@ -623,7 +657,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 4: Optional Info ──────────────────────────────────────────────────
+  // ── Step 4 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep4(AppLocalizations l) {
     return SingleChildScrollView(
@@ -636,6 +670,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           _buildTextField(
             controller: _phoneController,
             label: l.onboardingPhoneLabel,
+            error: _phoneError,
             keyboardType: TextInputType.phone,
             textInputAction: TextInputAction.next,
           ),
@@ -656,7 +691,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 5: Permissions ────────────────────────────────────────────────────
+  // ── Step 5 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep5(AppLocalizations l) {
     return SingleChildScrollView(
@@ -666,7 +701,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep5Title, l.onboardingStep5Subtitle),
           const SizedBox(height: 36),
-          // Notification toggle
           _buildSwitchTile(
             icon: '📅',
             title: l.onboardingEnableNotifications,
@@ -675,7 +709,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             onChanged: (v) => setState(() => _notificationsEnabled = v),
           ),
           const SizedBox(height: 32),
-          // Data consent checkbox
           GestureDetector(
             onTap: () {
               setState(() {
@@ -692,7 +725,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   height: 24,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
-                    color: _dataConsent ? RhythmaColors.primary : Colors.transparent,
+                    color: _dataConsent
+                        ? RhythmaColors.primary
+                        : Colors.transparent,
                     border: Border.all(
                       color: _consentError != null
                           ? Colors.redAccent
@@ -721,7 +756,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         const SizedBox(height: 4),
                         Text(
                           _consentError!,
-                          style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+                          style: const TextStyle(
+                              color: Colors.redAccent, fontSize: 12),
                         ),
                       ],
                     ],
@@ -786,7 +822,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         hintText: hint,
         errorText: error,
         labelStyle: TextStyle(color: RhythmaColors.mutedFg),
-        hintStyle: TextStyle(color: RhythmaColors.mutedFg.withOpacity(0.6)),
+        hintStyle: TextStyle(color: RhythmaColors.mutedFg.withValues(alpha: 0.6)),
         filled: true,
         fillColor: RhythmaColors.surface,
         border: OutlineInputBorder(
@@ -795,7 +831,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: RhythmaColors.primary.withOpacity(0.2)),
+          borderSide: BorderSide(color: RhythmaColors.primary.withValues(alpha: 0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -842,7 +878,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           max: max,
           divisions: divisions,
           activeColor: RhythmaColors.primary,
-          inactiveColor: RhythmaColors.primary.withOpacity(0.2),
+          inactiveColor: RhythmaColors.primary.withValues(alpha: 0.2),
           onChanged: onChanged,
         ),
       ],
@@ -857,7 +893,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: selected ? RhythmaColors.primary.withOpacity(0.15) : RhythmaColors.surface,
+            color: selected
+          ? RhythmaColors.primary.withValues(alpha: 0.15)
+             : RhythmaColors.surface,
           border: Border.all(
             color: selected ? RhythmaColors.primary : Colors.transparent,
             width: 2,
@@ -868,7 +906,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             label,
             style: TextStyle(
               fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-              color: selected ? RhythmaColors.primary : RhythmaColors.foreground,
+              color:
+                  selected ? RhythmaColors.primary : RhythmaColors.foreground,
               fontSize: 15,
             ),
           ),
@@ -890,7 +929,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         borderRadius: BorderRadius.circular(16),
         color: RhythmaColors.surface,
         border: Border.all(
-          color: value ? RhythmaColors.primary.withOpacity(0.4) : Colors.transparent,
+        color: value
+          ? RhythmaColors.primary.withValues(alpha: 0.4)
+          : Colors.transparent,
         ),
       ),
       child: Row(
@@ -931,4 +972,3 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 }
-

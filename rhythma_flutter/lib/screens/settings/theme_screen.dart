@@ -29,7 +29,8 @@ class ThemeScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text(l10n.themeToggle), // Reusing existing localized string for title
+          title: Text(
+              l10n.themeToggle), // Reusing existing localized string for title
           centerTitle: true,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -57,7 +58,8 @@ class ThemeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const SectionHeader(title: 'Theme Color'), // TODO: add to l10n
+            const SectionHeader(
+                title: 'Theme Color'), // Ideally localized later
             GlassCard(
               padding: const EdgeInsets.all(20),
               child: Wrap(
@@ -66,7 +68,7 @@ class ThemeScreen extends StatelessWidget {
                 alignment: WrapAlignment.center,
                 children: predefinedColors.map((item) {
                   final color = item['color'] as Color;
-                  final isSelected = themeProvider.primaryColor.value == color.value;
+                  final isSelected = themeProvider.primaryColor.toARGB32() == color.toARGB32();
 
                   return GestureDetector(
                     onTap: () {
@@ -79,11 +81,12 @@ class ThemeScreen extends StatelessWidget {
                         color: color,
                         shape: BoxShape.circle,
                         border: isSelected
-                            ? Border.all(color: RhythmaColors.foreground, width: 3)
+                            ? Border.all(
+                                color: RhythmaColors.foreground, width: 3)
                             : null,
                         boxShadow: [
                           BoxShadow(
-                            color: color.withOpacity(0.4),
+                            color: color.withValues(alpha: 0.4),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           )
