@@ -8,6 +8,9 @@ import 'package:rhythma/l10n/app_localizations.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/profile_provider.dart';
 import '../onboarding/onboarding_screen.dart';
+import '../../providers/locale_provider.dart';
+
+import '../../services/api_client.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,12 +19,15 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
-  String _userName = 'Aarya';
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
+  String _userName = 'User';
   int _userAge = 28;
   int _cycleLength = 28;
-  final int _mhsAverage = 85;
-  final int _cycleDay = 12;
+
+  int? _cycleDay;
+  int? _mhsAverage;
+
 
   List<Map<String, String>> _emergencyContacts = [];
 
@@ -38,6 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     super.initState();
     _loadProfile();
     _loadEmergencyContacts();
+    _fetchDashboardData();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -49,7 +56,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
       ),
     );
-    _headerSlide = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
+    _headerSlide =
+        Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
       CurvedAnimation(
         parent: _controller,
         curve: const Interval(0.0, 0.5, curve: Curves.easeOutCubic),
@@ -62,7 +70,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
       ),
     );
-    _statsSlide = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
+    _statsSlide =
+        Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
       CurvedAnimation(
         parent: _controller,
         curve: const Interval(0.2, 0.7, curve: Curves.easeOutCubic),
@@ -75,7 +84,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         curve: const Interval(0.4, 0.9, curve: Curves.easeOut),
       ),
     );
-    _menuSlide = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
+    _menuSlide =
+        Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
       CurvedAnimation(
         parent: _controller,
         curve: const Interval(0.4, 0.9, curve: Curves.easeOutCubic),
@@ -94,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   void _loadProfile() {
     final profile = LocalStorageService.getProfile();
     if (profile != null) {
-      _userName = profile['name'] as String? ?? 'Aarya';
+      _userName = profile['name'] as String? ?? 'User';
       _userAge = profile['age'] as int? ?? 28;
       _cycleLength = profile['cycle_length'] as int? ?? 28;
     }
@@ -102,6 +112,75 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   void _loadEmergencyContacts() {
     _emergencyContacts = LocalStorageService.getEmergencyContacts();
+  }
+
+  Future<void> _fetchDashboardData() async {
+    if (LocalStorageService.isTesting) {
+      setState(() {
+        _cycleDay = 12;
+        _mhsAverage = 85;
+      });
+      return;
+    }
+    try {
+      final dio = ApiClient.dio;
+      final response = await dio.get('/dashboard');
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final cycle = data['cycle'] ?? {};
+        final insights = data['insights'] ?? {};
+        setState(() {
+          _cycleDay = cycle['day'] as int?;
+          _mhsAverage = insights['mhs'] as int?;
+        });
+      }
+    } catch (_) {
+      // API offline or error — fall back to local computation
+    } finally {
+      _calculateCycleDayFallback();
+    }
+  }
+
+  void _calculateCycleDayFallback() {
+    if (_cycleDay != null) return;
+
+    final logs = LocalStorageService.getCycleLogs();
+    if (logs.isNotEmpty) {
+      final mostRecentLog = logs.first;
+      final startDateStr = mostRecentLog['start_date'] as String?;
+      if (startDateStr != null) {
+        final startDate = DateTime.tryParse(startDateStr);
+        if (startDate != null) {
+          final today = DateTime.now();
+          final todayMidnight = DateTime(today.year, today.month, today.day);
+          final startMidnight =
+              DateTime(startDate.year, startDate.month, startDate.day);
+          final diffDays = todayMidnight.difference(startMidnight).inDays;
+          setState(() {
+            _cycleDay = diffDays + 1;
+          });
+          return;
+        }
+      }
+    }
+
+    final profile = LocalStorageService.getProfile();
+    if (profile != null && profile['last_period'] != null) {
+      final lastPeriodStr = profile['last_period'] as String?;
+      if (lastPeriodStr != null) {
+        final lastPeriodDate = DateTime.tryParse(lastPeriodStr);
+        if (lastPeriodDate != null) {
+          final today = DateTime.now();
+          final todayMidnight = DateTime(today.year, today.month, today.day);
+          final startMidnight = DateTime(
+              lastPeriodDate.year, lastPeriodDate.month, lastPeriodDate.day);
+          final diffDays = todayMidnight.difference(startMidnight).inDays;
+          setState(() {
+            _cycleDay = diffDays + 1;
+          });
+        }
+      }
+    }
   }
 
   String _getCyclePhase(int day) {
@@ -113,14 +192,42 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   void _showEditProfileSheet() {
     final profile = context.read<ProfileProvider>().profile;
-    String selectedAvatar = profile['avatar'] as String? ?? 'assets/avatars/avatar_1.png';
-    if (!selectedAvatar.startsWith('assets/') || !selectedAvatar.endsWith('.png')) {
+    String selectedAvatar =
+        profile['avatar'] as String? ?? 'assets/avatars/avatar_1.png';
+    if (!selectedAvatar.startsWith('assets/') ||
+        !selectedAvatar.endsWith('.png')) {
       selectedAvatar = 'assets/avatars/avatar_1.png';
     }
 
-    final nameController = TextEditingController(text: _userName);
-    final ageController = TextEditingController(text: _userAge.toString());
-    final cycleController = TextEditingController(text: _cycleLength.toString());
+    final nameController =
+        TextEditingController(text: profile['name'] as String? ?? _userName);
+    final ageController = TextEditingController(
+        text: (profile['age'] as int? ?? _userAge).toString());
+    final cycleController = TextEditingController(
+        text: (profile['cycle_length'] as int? ?? _cycleLength).toString());
+    final heightController = TextEditingController(
+        text: profile['height_cm'] != null
+            ? (profile['height_cm'] as num).toStringAsFixed(1)
+            : '');
+    final weightController = TextEditingController(
+        text: profile['weight_kg'] != null
+            ? (profile['weight_kg'] as num).toStringAsFixed(1)
+            : '');
+    final periodDurationController = TextEditingController(
+        text: (profile['period_duration'] as int? ?? 5).toString());
+
+    String selectedLanguage =
+        profile['language'] as String? ?? LocalStorageService.preferredLanguage;
+    DateTime? lastPeriodDate = profile['last_period'] != null
+        ? DateTime.tryParse(profile['last_period'] as String)
+        : null;
+    final lastPeriodController = TextEditingController(
+        text: lastPeriodDate != null
+            ? '${lastPeriodDate.year}-${lastPeriodDate.month.toString().padLeft(2, '0')}-${lastPeriodDate.day.toString().padLeft(2, '0')}'
+            : '');
+    bool isRegular = profile['cycle_regular'] as bool? ?? true;
+    bool notificationsEnabled =
+        profile['notifications_enabled'] as bool? ?? false;
 
     String? nameError;
     String? ageError;
@@ -138,7 +245,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           child: Container(
             decoration: BoxDecoration(
               color: RhythmaColors.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -166,6 +274,31 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         button: true,
                         child: GestureDetector(
                           onTap: () => setSheetState(() => selectedAvatar = avatarPath),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SectionHeader(
+                      title: AppLocalizations.of(context)!.profileEditProfile),
+                  const SizedBox(height: 16),
+                  Text(
+                    AppLocalizations.of(context)!.onboardingAvatarLabel,
+                    style:
+                        TextStyle(fontSize: 14, color: RhythmaColors.mutedFg),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 64,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: OnboardingScreen.avatars.length,
+                      itemBuilder: (_, i) {
+                        final avatarPath = OnboardingScreen.avatars[i];
+                        final isSelected = selectedAvatar == avatarPath;
+                        return GestureDetector(
+                          onTap: () =>
+                              setSheetState(() => selectedAvatar = avatarPath),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             margin: const EdgeInsets.only(right: 12),
@@ -189,34 +322,154 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                               ),
                             ),
                           ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.profileName,
+                      errorText: nameError,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: ageController,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.profileAge,
+                            errorText: ageError,
+                          ),
+                          keyboardType: TextInputType.number,
                         ),
-                      );
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: heightController,
+                          decoration: const InputDecoration(
+                            labelText: 'Height (cm)',
+                            hintText: 'e.g. 162.0',
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: weightController,
+                          decoration: const InputDecoration(
+                            labelText: 'Weight (kg)',
+                            hintText: 'e.g. 58.5',
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: cycleController,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!
+                                .profileAvgCycleDays,
+                            errorText: cycleError,
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: periodDurationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Period Duration (days)',
+                      hintText: '1–15 days',
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    value: selectedLanguage,
+                    decoration: const InputDecoration(
+                      labelText: 'Preferred Language',
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'en', child: Text('English')),
+                      DropdownMenuItem(value: 'hi', child: Text('हिन्दी')),
+                      DropdownMenuItem(value: 'ta', child: Text('தமிழ்')),
+                      DropdownMenuItem(value: 'te', child: Text('తెలుగు')),
+                      DropdownMenuItem(value: 'mr', child: Text('மராठी')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        setSheetState(() => selectedLanguage = val);
+                      }
                     },
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.profileName,
-                    errorText: nameError,
+                  const SizedBox(height: 12),
+                  InkWell(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: lastPeriodDate ?? DateTime.now(),
+                        firstDate:
+                            DateTime.now().subtract(const Duration(days: 365)),
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) {
+                        setSheetState(() {
+                          lastPeriodDate = picked;
+                          lastPeriodController.text =
+                              '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+                        });
+                      }
+                    },
+                    child: IgnorePointer(
+                      child: TextField(
+                        controller: lastPeriodController,
+                        decoration: const InputDecoration(
+                          labelText: 'Last Period Start Date',
+                          suffixIcon: Icon(Icons.calendar_today),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: ageController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.profileAge,
-                    errorText: ageError,
+                  const SizedBox(height: 12),
+                  Material(
+                    color: Colors.transparent,
+                    child: SwitchListTile(
+                      title: const Text('Regular Cycle'),
+                      subtitle: const Text(
+                          'My menstrual cycle length is usually consistent'),
+                      activeColor: RhythmaColors.primary,
+                      contentPadding: EdgeInsets.zero,
+                      value: isRegular,
+                      onChanged: (val) => setSheetState(() => isRegular = val),
+                    ),
                   ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: cycleController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.profileAvgCycleDays,
-                    errorText: cycleError,
+                  Material(
+                    color: Colors.transparent,
+                    child: SwitchListTile(
+                      title: const Text('Enable Notifications'),
+                      subtitle: const Text(
+                          'Receive cycle logging and health reminders'),
+                      activeColor: RhythmaColors.primary,
+                      contentPadding: EdgeInsets.zero,
+                      value: notificationsEnabled,
+                      onChanged: (val) =>
+                          setSheetState(() => notificationsEnabled = val),
+                    ),
                   ),
                   keyboardType: TextInputType.number,
                 ),
@@ -250,29 +503,83 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       isValid = false;
                     }
 
-                    if (isValid) {
-                      setState(() {
-                        _userName = name;
-                        _userAge = ageVal!;
-                        _cycleLength = cycleVal!;
-                      });
-                      
-                      await context.read<ProfileProvider>().mergeProfile({
-                        'name': name,
-                        'age': ageVal!,
-                        'cycle_length': cycleVal!,
-                        'avatar': selectedAvatar,
-                      });
-
-                      if (context.mounted) {
-                        Navigator.pop(context);
+                      if (name.isEmpty) {
+                        setSheetState(() => nameError = 'Name cannot be empty');
+                        isValid = false;
                       }
-                    }
-                  },
-                  child: Text(AppLocalizations.of(context)!.profileSaveChanges),
-                ),
-                const SizedBox(height: 16),
-              ],
+
+                      if (ageVal == null || ageVal < 10 || ageVal > 120) {
+                        setSheetState(
+                            () => ageError = 'Age must be between 10 and 120');
+                        isValid = false;
+                      }
+
+                      if (cycleVal == null || cycleVal < 15 || cycleVal > 45) {
+                        setSheetState(() => cycleError =
+                            'Cycle length must be between 15 and 45 days');
+                        isValid = false;
+                      }
+
+                      if (isValid) {
+                        final updates = <String, dynamic>{
+                          'name': name,
+                          'age': ageVal!,
+                          'cycle_length': cycleVal!,
+                          'avatar': selectedAvatar,
+                          'language': selectedLanguage,
+                          'cycle_regular': isRegular,
+                          'notifications_enabled': notificationsEnabled,
+                          if (lastPeriodDate != null)
+                            'last_period': lastPeriodDate!
+                                .toIso8601String()
+                                .split('T')
+                                .first,
+                          if (heightVal != null && heightVal > 0)
+                            'height_cm': heightVal,
+                          if (weightVal != null && weightVal > 0)
+                            'weight_kg': weightVal,
+                          if (periodDurVal != null && periodDurVal > 0)
+                            'period_duration': periodDurVal,
+                        };
+
+                        setState(() {
+                          _userName = name;
+                          _userAge = ageVal;
+                          _cycleLength = cycleVal;
+                        });
+
+                        // Set language in provider immediately if changed
+                        if (selectedLanguage !=
+                            (profile['language'] as String?)) {
+                          context
+                              .read<LocaleProvider>()
+                              .setLocale(Locale(selectedLanguage));
+                        }
+
+                        // Use sync-aware merge — shows offline message if backend unreachable
+                        final offlineMsg = await context
+                            .read<ProfileProvider>()
+                            .mergeProfileWithSync(updates);
+
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                          if (offlineMsg != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(offlineMsg),
+                                duration: const Duration(seconds: 4),
+                              ),
+                            );
+                          }
+                        }
+                      }
+                    },
+                    child:
+                        Text(AppLocalizations.of(context)!.profileSaveChanges),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
         ),
@@ -284,7 +591,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     final contact = editIndex != null ? _emergencyContacts[editIndex] : null;
     final nameController = TextEditingController(text: contact?['name']);
     final phoneController = TextEditingController(text: contact?['phone']);
-    
+
     String? nameError;
     String? phoneError;
 
@@ -475,7 +782,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Widget _buildHeader() {
     final profile = context.read<ProfileProvider>().profile;
-    String avatarPath = profile['avatar'] as String? ?? 'assets/avatars/avatar_1.png';
+    String avatarPath =
+        profile['avatar'] as String? ?? 'assets/avatars/avatar_1.png';
     if (!avatarPath.startsWith('assets/') || !avatarPath.endsWith('.png')) {
       avatarPath = 'assets/avatars/avatar_1.png';
     }
@@ -504,7 +812,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         const SizedBox(height: 16),
         Text(
           _userName,
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 24),
+          style:
+              Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 24),
         ),
         const SizedBox(height: 4),
         Text(
@@ -530,7 +839,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               const Icon(Icons.water_drop, color: RhythmaColors.teal, size: 16),
               const SizedBox(width: 4),
               Text(
-                '${AppLocalizations.of(context)!.profileCycleDay} $_cycleDay • ${_getCyclePhase(_cycleDay)}',
+                _cycleDay != null
+                    ? '${AppLocalizations.of(context)!.profileCycleDay} $_cycleDay • ${_getCyclePhase(_cycleDay!)}'
+                    : '${AppLocalizations.of(context)!.profileCycleDay} — • —',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: RhythmaColors.teal,
                     ),
@@ -600,7 +911,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               child: _buildStatCard(
                 icon: Icons.calendar_month_rounded,
                 color: RhythmaColors.rose,
-                value: '$_cycleLength ${AppLocalizations.of(context)!.homeDaysLabel}',
+                value:
+                    '$_cycleLength ${AppLocalizations.of(context)!.homeDaysLabel}',
                 label: AppLocalizations.of(context)!.profileAvgCycleLength,
               ),
             ),
@@ -609,7 +921,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               child: _buildStatCard(
                 icon: Icons.psychology_rounded,
                 color: RhythmaColors.teal,
-                value: '$_mhsAverage',
+                value: _mhsAverage != null ? '$_mhsAverage' : '—',
                 label: AppLocalizations.of(context)!.profileAvgMentalHealth,
               ),
             ),
@@ -622,7 +934,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               child: _buildStatCard(
                 icon: Icons.insights_rounded,
                 color: RhythmaColors.coral,
-                value: '±1.2 ${AppLocalizations.of(context)!.homeDaysLabel}',
+                value: '—',
                 label: AppLocalizations.of(context)!.profileCycleVariability,
               ),
             ),
@@ -631,7 +943,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               child: _buildStatCard(
                 icon: Icons.history_toggle_off_rounded,
                 color: RhythmaColors.primary,
-                value: '27 ${AppLocalizations.of(context)!.homeDaysLabel}',
+                value: '—',
                 label: AppLocalizations.of(context)!.profileLastCycleLength,
               ),
             ),
@@ -682,7 +994,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     context.watch<ThemeProvider>();
     final profile = context.watch<ProfileProvider>().profile;
     if (profile.isNotEmpty) {
-      _userName = profile['name'] as String? ?? 'Aarya';
+      _userName = profile['name'] as String? ?? 'User';
       _userAge = profile['age'] as int? ?? 28;
       _cycleLength = profile['cycle_length'] as int? ?? 28;
     }
