@@ -160,28 +160,33 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     itemBuilder: (_, i) {
                       final avatarPath = OnboardingScreen.avatars[i];
                       final isSelected = selectedAvatar == avatarPath;
-                      return GestureDetector(
-                        onTap: () => setSheetState(() => selectedAvatar = avatarPath),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          margin: const EdgeInsets.only(right: 12),
-                          width: 54,
-                          height: 54,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: isSelected
-                                ? RhythmaColors.primary.withOpacity(0.2)
-                                : RhythmaColors.surface,
-                            border: Border.all(
-                              color: isSelected ? RhythmaColors.primary : Colors.transparent,
-                              width: 2.5,
+                      return Semantics(
+                        label: 'Avatar Option ${i + 1}',
+                        selected: isSelected,
+                        button: true,
+                        child: GestureDetector(
+                          onTap: () => setSheetState(() => selectedAvatar = avatarPath),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            margin: const EdgeInsets.only(right: 12),
+                            width: 54,
+                            height: 54,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelected
+                                  ? RhythmaColors.primary.withOpacity(0.2)
+                                  : RhythmaColors.surface,
+                              border: Border.all(
+                                color: isSelected ? RhythmaColors.primary : Colors.transparent,
+                                width: 2.5,
+                              ),
                             ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: CircleAvatar(
-                              backgroundImage: AssetImage(avatarPath),
-                              backgroundColor: Colors.transparent,
+                            child: Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: CircleAvatar(
+                                backgroundImage: AssetImage(avatarPath),
+                                backgroundColor: Colors.transparent,
+                              ),
                             ),
                           ),
                         ),
@@ -231,17 +236,17 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     bool isValid = true;
 
                     if (name.isEmpty) {
-                      setSheetState(() => nameError = 'Name cannot be empty');
+                      setSheetState(() => nameError = AppLocalizations.of(context)!.profileNameEmptyError ?? 'Name cannot be empty');
                       isValid = false;
                     }
 
                     if (ageVal == null || ageVal < 10 || ageVal > 120) {
-                      setSheetState(() => ageError = 'Age must be between 10 and 120');
+                      setSheetState(() => ageError = AppLocalizations.of(context)!.profileAgeInvalidError ?? 'Age must be between 10 and 120');
                       isValid = false;
                     }
 
                     if (cycleVal == null || cycleVal < 15 || cycleVal > 45) {
-                      setSheetState(() => cycleError = 'Cycle length must be between 15 and 45 days');
+                      setSheetState(() => cycleError = AppLocalizations.of(context)!.profileCycleInvalidError ?? 'Cycle length must be between 15 and 45 days');
                       isValid = false;
                     }
 
@@ -284,179 +289,189 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     String? phoneError;
 
     showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text(editIndex == null ? AppLocalizations.of(context)!.profileAddContact : AppLocalizations.of(context)!.profileEditContact),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.profileName,
-                  errorText: nameError,
-                ),
+  context: context,
+  builder: (context) => StatefulBuilder(
+    builder: (context, setDialogState) => Semantics(
+      label: editIndex == null
+          ? AppLocalizations.of(context)!.profileAddContact
+          : AppLocalizations.of(context)!.profileEditContact,
+      child: AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(editIndex == null
+            ? AppLocalizations.of(context)!.profileAddContact
+            : AppLocalizations.of(context)!.profileEditContact),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              textInputAction: TextInputAction.next,
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.profileName,
+                errorText: nameError,
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: phoneController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.profilePhone,
-                  errorText: phoneError,
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(AppLocalizations.of(context)!.cancel),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                setDialogState(() {
-                  nameError = null;
-                  phoneError = null;
-                });
-
-                final name = nameController.text.trim();
-                final phone = phoneController.text.trim();
-
-                bool isValid = true;
-                if (name.isEmpty) {
-                  setDialogState(() => nameError = 'Name is required');
-                  isValid = false;
-                }
-                if (phone.isEmpty || phone.length < 8 || !RegExp(r'^\+?[0-9\s\-]+$').hasMatch(phone)) {
-                  setDialogState(() => phoneError = 'Enter a valid phone number (min 8 digits)');
-                  isValid = false;
-                }
-
-                if (isValid) {
-                  setSheetState(() {
-                    if (editIndex == null) {
-                      _emergencyContacts.add({'name': name, 'phone': phone});
-                    } else {
-                      _emergencyContacts[editIndex] = {'name': name, 'phone': phone};
-                    }
-                  });
-                  await LocalStorageService.saveEmergencyContacts(_emergencyContacts);
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                  }
-                }
-              },
-              child: Text(AppLocalizations.of(context)!.profileSave),
+            const SizedBox(height: 12),
+            TextField(
+              controller: phoneController,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.profilePhone,
+                errorText: phoneError,
+              ),
+              keyboardType: TextInputType.phone,
             ),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              setDialogState(() {
+                nameError = null;
+                phoneError = null;
+              });
+
+              final name = nameController.text.trim();
+              final phone = phoneController.text.trim();
+
+              bool isValid = true;
+              if (name.isEmpty) {
+                setDialogState(() => nameError = AppLocalizations.of(context)!.profileNameEmptyError ?? 'Name is required');
+                isValid = false;
+              }
+              if (phone.isEmpty || phone.length < 8 || !RegExp(r'^\+?[0-9\s\-]+$').hasMatch(phone)) {
+                setDialogState(() => phoneError = AppLocalizations.of(context)!.profilePhoneInvalidError ?? 'Enter a valid phone number (min 8 digits)');
+                isValid = false;
+              }
+
+              if (isValid) {
+                setSheetState(() {
+                  if (editIndex == null) {
+                    _emergencyContacts.add({'name': name, 'phone': phone});
+                  } else {
+                    _emergencyContacts[editIndex] = {'name': name, 'phone': phone};
+                  }
+                });
+                await LocalStorageService.saveEmergencyContacts(_emergencyContacts);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              }
+            },
+            child: Text(AppLocalizations.of(context)!.profileSave),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  ),
+);
 
   void _showEmergencyContactsSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) {
-          final contacts = _emergencyContacts;
-          
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) => StatefulBuilder(
+      builder: (context, setSheetState) {
+        final contacts = _emergencyContacts;
+        
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: RhythmaColors.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: RhythmaColors.surface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SectionHeader(
-                    title: AppLocalizations.of(context)!.profileEmergencyContactsTitle,
-                    action: AppLocalizations.of(context)!.profileAddNew,
-                    onAction: () {
-                      _showAddEditContactDialog(null, setSheetState);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  if (contacts.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32),
-                      child: Text(
-                        AppLocalizations.of(context)!.profileNoContacts,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: RhythmaColors.mutedFg),
-                      ),
-                    )
-                  else
-                    Flexible(
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        itemCount: contacts.length,
-                        separatorBuilder: (context, index) => Divider(
-                          height: 1,
-                          color: RhythmaColors.border,
-                        ),
-                        itemBuilder: (context, index) {
-                          final contact = contacts[index];
-                          return ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const TintedIcon(
-                              icon: Icons.contact_phone_rounded,
-                              color: RhythmaColors.rose,
-                              size: 36,
-                            ),
-                            title: Text(
-                              contact['name'] ?? '',
-                              style: const TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                            subtitle: Text(
-                              contact['phone'] ?? '',
-                              style: TextStyle(color: RhythmaColors.mutedFg),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit_rounded, size: 20),
-                                  onPressed: () {
-                                    _showAddEditContactDialog(index, setSheetState);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline_rounded,
-                                      color: RhythmaColors.coral, size: 20),
-                                  onPressed: () async {
-                                    setSheetState(() {
-                                      _emergencyContacts.removeAt(index);
-                                    });
-                                    await LocalStorageService.saveEmergencyContacts(_emergencyContacts);
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SectionHeader(
+                  title: AppLocalizations.of(context)!.profileEmergencyContactsTitle,
+                  action: AppLocalizations.of(context)!.profileAddNew,
+                  onAction: () {
+                    _showAddEditContactDialog(null, setSheetState);
+                  },
+                ),
+                const SizedBox(height: 12),
+                if (contacts.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32),
+                    child: Text(
+                      AppLocalizations.of(context)!.profileNoContacts,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: RhythmaColors.mutedFg),
                     ),
-                  const SizedBox(height: 16),
-                ],
-              ),
+                  )
+                else
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: contacts.length,
+                      separatorBuilder: (context, index) => Divider(
+                        height: 1,
+                        color: RhythmaColors.border,
+                      ),
+                      itemBuilder: (context, index) {
+                        final contact = contacts[index];
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const TintedIcon(
+                            icon: Icons.contact_phone_rounded,
+                            color: RhythmaColors.rose,
+                            size: 36,
+                          ),
+                          title: Text(
+                            contact['name'] ?? '',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            contact['phone'] ?? '',
+                            style: TextStyle(color: RhythmaColors.mutedFg),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit_rounded, size: 20),
+                                tooltip: AppLocalizations.of(context)!.edit,
+                                onPressed: () {
+                                  _showAddEditContactDialog(index, setSheetState);
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline_rounded,
+                                    color: RhythmaColors.coral, size: 20),
+                                tooltip: AppLocalizations.of(context)!.delete,
+                                onPressed: () async {
+                                  setSheetState(() {
+                                    _emergencyContacts.removeAt(index);
+                                  });
+                                  await LocalStorageService.saveEmergencyContacts(_emergencyContacts);
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 16),
+              ],
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+  );
+}
 
   Widget _buildHeader() {
     final profile = context.read<ProfileProvider>().profile;
@@ -626,41 +641,23 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildActionMenu() {
-    return GlassCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          _buildActionTile(
-            icon: Icons.edit_rounded,
-            color: RhythmaColors.primary,
-            title: AppLocalizations.of(context)!.profileEditInfo,
-            onTap: _showEditProfileSheet,
-          ),
-          Divider(height: 1, color: RhythmaColors.border),
-          _buildActionTile(
-            icon: Icons.emergency_rounded,
-            color: RhythmaColors.rose,
-            title: AppLocalizations.of(context)!.profileEmergencyContact,
-            onTap: _showEmergencyContactsSheet,
-          ),
-          Divider(height: 1, color: RhythmaColors.border),
-          _buildActionTile(
-            icon: Icons.settings_rounded,
-            color: RhythmaColors.foreground,
-            title: AppLocalizations.of(context)!.profileAppSettings,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              ).then((_) {
-                setState(() {
-                  _loadProfile();
-                });
-              });
-            },
-          ),
-        ],
+  Widget _buildActionTile({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return Semantics(
+      button: true,
+      label: title,
+      child: ListTile(
+        leading: TintedIcon(icon: icon, color: color, size: 36),
+        title: Text(title, style: Theme.of(context).textTheme.bodyLarge),
+        trailing: ExcludeSemantics(
+          child: Icon(Icons.chevron_right_rounded, color: RhythmaColors.mutedFg),
+        ),
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       ),
     );
   }
@@ -699,13 +696,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               position: _headerSlide,
               child: Column(
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.profileTitle,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                        ),
-                    textAlign: TextAlign.center,
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      AppLocalizations.of(context)!.profileTitle,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                   const SizedBox(height: 32),
                   _buildHeader(),
@@ -721,7 +721,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SectionHeader(title: AppLocalizations.of(context)!.profileQuickStats),
+                  Semantics(
+                    header: true,
+                    child: SectionHeader(title: AppLocalizations.of(context)!.profileQuickStats),
+                  ),
                   _buildStatsCards(),
                 ],
               ),
@@ -735,7 +738,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SectionHeader(title: AppLocalizations.of(context)!.profileAccountSettings),
+                  Semantics(
+                    header: true,
+                    child: SectionHeader(title: AppLocalizations.of(context)!.profileAccountSettings),
+                  ),
                   _buildActionMenu(),
                 ],
               ),
@@ -745,4 +751,3 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       ),
     );
   }
-}
