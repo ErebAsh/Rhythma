@@ -4,11 +4,16 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { HomePage } from './pages/HomePage';
+import { CustomCursor } from './components/CustomCursor';
 import { ScrollToTopButton } from './components/ScrollToTopButton';
+
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <CustomCursor />
+        <ScrollToTopButton />
+
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -21,8 +26,8 @@ export default function App() {
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />
-</Routes>
-        <ScrollToTopButton />
+        </Routes>
       </AuthProvider>
-    </BrowserRouter>  );
+    </BrowserRouter>
+  );
 }

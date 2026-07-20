@@ -1,0 +1,56 @@
+.custom-cursor-active,
+.custom-cursor-active * {
+  cursor: none !important;
+}
+
+.custom-cursor-dot,
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0;
+  z-index: 9999;
+  transform: translate(-100px, -100px);
+}
+
+.custom-cursor-dot {
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  background: var(--accent);
+  transition: opacity 0.2s ease, transform 0.05s linear, width 0.15s ease, height 0.15s ease;
+}
+
+.custom-cursor-ring {
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border: 1.5px solid var(--accent);
+  transition: opacity 0.2s ease, transform 0.12s ease-out, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+}
+
+.custom-cursor-dot.is-visible,
+.custom-cursor-ring.is-visible {
+  opacity: 1;
+}
+
+.custom-cursor-ring.is-pointer {
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  background: rgba(170, 59, 255, 0.12);
+}
+
+.custom-cursor-dot.is-clicking {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+}
+
+.custom-cursor-ring.is-clicking {
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+}
