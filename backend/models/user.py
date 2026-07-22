@@ -4,18 +4,20 @@ from datetime import datetime
 import re
 
 class UserCreate(BaseModel):
-    username: str = Field(
-        ...,
+    phone: str = Field(..., description="Phone number with country code")
+    username: Optional[str] = Field(
+        None,
         min_length=6,
         max_length=30,
         description="Username (6-30 characters, alphanumeric and underscore only)"
     )
-    email: EmailStr
-    password: str = Field(..., min_length=8, description="Password (minimum 8 characters)")
+    email: Optional[EmailStr] = None
     full_name: Optional[str] = Field(None, max_length=100)
 
     @field_validator('username')
-    def validate_username(cls, v: str) -> str:
+    def validate_username(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
         if not re.match(r'^[a-zA-Z0-9_]+$', v):
             raise ValueError('Username can only contain letters, numbers, and underscores.')
         if len(v) < 6:
@@ -24,20 +26,14 @@ class UserCreate(BaseModel):
             raise ValueError('Username must not exceed 30 characters.')
         return v
 
-    @field_validator('password')
-    def validate_password(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters long.')
-        return v
-
 class UserLogin(BaseModel):
-    username: str
-    password: str
+    phone: str
 
 class UserResponse(BaseModel):
     id: str
-    username: str
-    email: str
+    phone: Optional[str] = None
+    username: Optional[str] = None
+    email: Optional[str] = None
     full_name: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
@@ -67,8 +63,9 @@ class UserProfileUpdate(BaseModel):
 class UserProfileResponse(BaseModel):
     """Full profile response — auth identity merged with health profile."""
     id: str
-    username: str
-    email: str
+    phone: Optional[str] = None
+    username: Optional[str] = None
+    email: Optional[str] = None
     full_name: Optional[str] = None
     age: Optional[int] = None
     height_cm: Optional[float] = None

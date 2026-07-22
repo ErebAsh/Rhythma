@@ -14,7 +14,7 @@ if not SECRET_KEY:
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/firebase-login")
 
 # --- Password Functions ---
 def get_password_hash(password: str) -> str:
@@ -55,4 +55,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     if user is None:
         raise credentials_exception
 
-    return {"id": user["id"], "username": user["username"], "email": user["email"]}
+    return {
+        "id": user["id"],
+        "phone": user.get("phone"),
+        "username": user.get("username"),
+        "email": user.get("email")
+    }
