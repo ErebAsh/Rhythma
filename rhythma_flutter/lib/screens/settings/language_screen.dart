@@ -47,6 +47,8 @@ class LanguageScreen extends StatelessWidget {
             String langCode = languages.values.elementAt(index);
             bool isSelected = currentLocaleCode == langCode;
 
+            final stateText = isSelected ? l10n.selected : l10n.notSelected;
+
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: GlassCard(
@@ -54,8 +56,8 @@ class LanguageScreen extends StatelessWidget {
                 child: Semantics(
                   button: true,
                   selected: isSelected,
-                  label: '$langName, ${isSelected ? "selected" : "not selected"}',
-                  hint: 'Double tap to set app language to $langName',
+                  label: '$langName, $stateText',
+                  hint: l10n.doubleTapToSetLanguage(langName),
                   child: ListTile(
                     contentPadding:
                         const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -74,7 +76,7 @@ class LanguageScreen extends StatelessWidget {
                         ? Icon(
                             Icons.check_circle_rounded,
                             color: RhythmaColors.primary,
-                            semanticLabel: 'Selected',
+                            semanticLabel: l10n.selected,
                           )
                         : null,
                     onTap: () {
