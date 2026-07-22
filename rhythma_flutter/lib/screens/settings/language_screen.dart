@@ -9,17 +9,21 @@ import '../../components/shared.dart';
 class LanguageScreen extends StatelessWidget {
   const LanguageScreen({super.key});
 
-  static const Map<String, String> languages = {
-    'English': 'en',
-    'हिन्दी (Hindi)': 'hi',
-    'தமிழ் (Tamil)': 'ta',
-    'తెలుగు (Telugu)': 'te',
-    'मराठी (Marathi)': 'mr'
-  };
+  /// Helper method to return localized language names mapped to language codes
+  Map<String, String> _getLocalizedLanguages(AppLocalizations l10n) {
+    return {
+      l10n.languageEnglish: 'en',
+      l10n.languageHindi: 'hi',
+      l10n.languageTamil: 'ta',
+      l10n.languageTelugu: 'te',
+      l10n.languageMarathi: 'mr',
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final languages = _getLocalizedLanguages(l10n);
     final currentLocaleCode =
         context.watch<LocaleProvider>().locale.languageCode;
 
