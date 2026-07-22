@@ -24,10 +24,10 @@ def is_rate_limited(
     key: str,
     limit: int = 5,
     window_seconds: int = 300,
-) -> bool:
+) -> int | None:
     """
-    Returns True if the key has exceeded the allowed number of attempts
-    within the rolling time window.
+    Returns the number of seconds remaining before the next request is
+    allowed if the key has exceeded the rate limit, or None otherwise.
     """
     now = datetime.now(timezone.utc)
     # Clean old entries
@@ -40,10 +40,13 @@ def is_rate_limited(
         attempts_store[key] = []
 
     if len(attempts_store[key]) >= limit:
-        return True
+        # Calculate how many seconds until the oldest entry expires
+        oldest = attempts_store[key][0]
+        remaining = int((oldest + timedelta(seconds=window_seconds) - now).total_seconds())
+        return max(remaining, 1)
 
     attempts_store[key].append(now)
-    return False
+    return None
 
 def get_client_ip(request: Request) -> str:
     """Extract the client's IP address from the request."""
@@ -58,10 +61,12 @@ def get_client_ip(request: Request) -> str:
 async def register(request: Request, user_data: UserCreate):
     # Rate limit by IP address (10 attempts per 5 minutes)
     client_ip = get_client_ip(request)
-    if is_rate_limited(register_attempts, client_ip, limit=10, window_seconds=300):
+    remaining = is_rate_limited(register_attempts, client_ip, limit=10, window_seconds=300)
+    if remaining is not None:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Too many registration attempts. Please wait 5 minutes."
+            detail="Too many registration attempts. Please wait 5 minutes.",
+            headers={"Retry-After": str(remaining)},
         )
 
     # ─── Check for an existing account ──────────────────────────────────
@@ -106,10 +111,12 @@ async def login_for_access_token(
 ):
     # Rate limit by username (5 attempts per 5 minutes)
     key = form_data.username or "unknown"
-    if is_rate_limited(login_attempts, key, limit=5, window_seconds=300):
+    remaining = is_rate_limited(login_attempts, key, limit=5, window_seconds=300)
+    if remaining is not None:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Too many login attempts. Please wait 5 minutes."
+            detail="Too many login attempts. Please wait 5 minutes.",
+            headers={"Retry-After": str(remaining)},
         )
 
     user = UserService.get_user_by_username(form_data.username)
