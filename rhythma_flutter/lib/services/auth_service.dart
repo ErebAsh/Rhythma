@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../models/user.dart';
 import '../utils/secure_storage.dart';
 import 'api_client.dart';
+import 'firestore_service.dart';
 import 'local_storage_service.dart';
 
 class AuthService {
@@ -49,6 +50,11 @@ class AuthService {
         if (uid != null) {
           await LocalStorageService.setCurrentUserId(uid);
           await _syncProfile(uid);
+          // Sync local data with Firestore and pull remote data
+          FirestoreService.pullCycleLogs(userId: uid);
+          FirestoreService.pullProfile(userId: uid);
+          FirestoreService.syncCycleLogs(userId: uid);
+          FirestoreService.syncProfile(userId: uid);
         }
       } catch (_) {
         // Non-fatal — login itself already succeeded. Scoping will simply
@@ -138,6 +144,11 @@ class AuthService {
       if (uid != null) {
         await LocalStorageService.setCurrentUserId(uid);
         await _syncProfile(uid);
+        // Sync local data with Firestore and pull remote data
+        FirestoreService.pullCycleLogs(userId: uid);
+        FirestoreService.pullProfile(userId: uid);
+        FirestoreService.syncCycleLogs(userId: uid);
+        FirestoreService.syncProfile(userId: uid);
       }
       return uid;
     } on DioException catch (e) {

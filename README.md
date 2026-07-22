@@ -249,9 +249,9 @@ Legend: ✅ **Done** (real, working, no mocks) · 🟡 **Partial / Needs Attenti
 | All core screens (Home, Cycle, Assistant, Insights, Profile, Settings, SMS, Onboarding, Auth) | ✅ Done | All present in `lib/screens/`, referenced from `main.dart`/navigation |
 | Auth service (register/login calling real backend) | ✅ Done | `auth_service.dart` makes real `dio` calls to `/auth/*` |
 | Local storage (Hive) | ✅ Done | `local_storage_service.dart`, 363 lines, the most substantial service file |
-| Firestore client sync (issue #27) | ❌ Not Implemented | `firestore_service.dart` has Firebase imports **commented out**; both `syncCycleLogs()` and `pullCycleLogs()` are no-op stubs that just log a debug string |
-| Connectivity detection (issue #30) | ❌ Not Implemented | `connectivity_plus` is a declared dependency but not imported/used anywhere in `lib/` |
-| Sync status indicator (issue #20) | ❌ Not Implemented | Depends on #27/#30, neither of which exist yet |
+| Firestore client sync (issue #27) | ✅ Done | `firestore_service.dart` implements real offline-first sync with Hive queue, connectivity monitoring, last-write-wins conflict resolution |
+| Connectivity detection (issue #30) | ✅ Done | `connectivity_plus` integrated in `FirestoreService.init()` — auto-triggers sync on connectivity restore |
+| Sync status indicator (issue #20) | ✅ Done | `SyncStatusProvider` exposes `overallStatus` (synced/syncing/pending/offline/error) + per-type status |
 | Local notifications | 🟡 Partial | Real `flutter_local_notifications` integration, initialized at app start, wired to manual "medicine alert" and "instant notification" toggles in Settings — **not** connected to period predictions or logging reminders |
 | Localization — English | ✅ Done | 177 keys (baseline) |
 | Localization — Telugu | ✅ Done | 177/177 keys — full parity with English |
@@ -481,6 +481,10 @@ cp env.example .env
 # Add GEMINI_API_KEY to .env to enable real AI responses
 # (without it, the assistant falls back to a canned demo response)
 
+# Add Firebase config files (see Firebase Setup below)
+# android/app/google-services.json
+# ios/Runner/GoogleService-Info.plist
+
 flutter run
 ```
 
@@ -571,6 +575,39 @@ The backend currently uses Firebase **only for user accounts and cycle data** (v
 4. Ensure Firestore is enabled in the project (Native mode).
 
 > **Note:** The Flutter app does not currently initialize Firebase or connect to Firestore on the client side — `firebase_core`, `cloud_firestore`, and `firebase_auth` are listed as dependencies for planned client-side sync but are not yet wired up. No `google-services.json` / `GoogleService-Info.plist` setup is required today.
+
+### Flutter Client Firebase Setup (Client-Side Firestore Sync)
+
+For client-side offline-first Firestore synchronization (Issue #27), additional setup is required:
+
+#### Android
+1. In Firebase Console, add an Android app with package name `com.example.rhythma`
+2. Download `google-services.json` and place it at:
+   ```
+   rhythma_flutter/android/app/google-services.json
+   ```
+3. The `android/app/build.gradle.kts` and `android/settings.gradle.kts` are already configured with the google-services plugin.
+
+#### iOS
+1. In Firebase Console, add an iOS app with bundle ID `com.example.rhythma`
+2. Download `GoogleService-Info.plist` and place it at:
+   ```
+   rhythma_flutter/ios/Runner/GoogleService-Info.plist
+   ```
+3. Add the file to your Xcode project if not already included.
+
+#### Initialize Firebase in App
+The Flutter app now initializes Firebase in `main.dart`:
+```dart
+await Firebase.initializeApp();
+await FirestoreService.init();
+```
+
+This enables:
+- Offline persistence via Firestore's local cache
+- Automatic sync when connectivity is restored
+- `SyncStatusProvider` for UI sync indicators (Issue #20)
+- Hive (local) remains the primary source of truth; Firestore syncs when online
 
 ---
 

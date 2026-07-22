@@ -192,5 +192,17 @@
   "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
   "insightsNotEnoughData": "तुमचे संपूर्ण आरोग्य अंतर्दृष्टी अनलॉक करण्यासाठी Cycle टॅबवर आणखी काही चक्र लॉग करा.",
   "insightsNoSymptomsYet": "अद्याप कोणतीही लक्षणे लॉग केलेली नाहीत - Cycle टॅबवर काही लॉग करा.",
-  "insightsNotEnoughTrendData": "तुमचा ट्रेंड पाहण्यासाठी किमान दोन चक्र लॉग करा."
+  "insightsNotEnoughTrendData": "तुमचा ट्रेंड पाहण्यासाठी किमान दोन चक्र लॉग करा.",
+  "homeMhs": "MHS",
+  "homeCvi": "CVI",
+  "homeSleep": "झोप",
+  "cycleToday": "आज",
+  "homeErrorNetwork": "कृपया तुमचे इंटरनेट कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.",
+  "homeErrorAuth": "तुमचे सत्र कालबाह्य झाले आहे. कृपया पुन्हा लॉग इन करा.",
+  "homeErrorServer": "आमच्या बाजूला काहीतरी चूक झाली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
+  "homeErrorGeneric": "डेटा लोड करण्यात असमर्थ. कृपया पुन्हा प्रयत्न करा.",
+  "homeQuickLogTitle": "{label} नोंदवा",
+  "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
+  "homeQuickLogSaved": "{label} नोंदवले गेले: {value}",
+  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } }
 }

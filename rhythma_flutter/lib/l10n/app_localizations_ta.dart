@@ -8,10 +8,6 @@ import 'app_localizations.dart';
 class AppLocalizationsTa extends AppLocalizations {
   AppLocalizationsTa([String locale = 'ta']) : super(locale);
 
-   @override
-   String insightsScoreValue(int i) {
-   return '$i';}
-
   @override
   String get appTitle => 'ரித்மா (Rhythma)';
 
@@ -145,17 +141,6 @@ class AppLocalizationsTa extends AppLocalizations {
   String get homeRetry => 'Retry';
 
   @override
-  String get homeComingSoon => 'Coming Soon';
-
-  @override
-  String homeUnderDevelopment(String topic) {
-    return '$topic is currently under development.';
-  }
-
-  @override
-  String get homePrivacySecurity => 'Privacy & Security';
-
-  @override
   String get homeMhs => 'MHS';
 
   @override
@@ -165,10 +150,50 @@ class AppLocalizationsTa extends AppLocalizations {
   String get homeSleep => 'தூக்கம்';
 
   @override
+  String get homeComingSoon => 'Coming Soon';
+
+  @override
+  String homeUnderDevelopment(String topic) {
+    return '$topic is currently under development.';
+  }
+
+  @override
+  String get homeErrorNetwork =>
+      'இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get homeErrorAuth =>
+      'உங்கள் அமர்வு காலாவதியாகிவிட்டது. மீண்டும் உள்நுழையவும்.';
+
+  @override
+  String get homeErrorServer =>
+      'எங்கள் பக்கம் ஏதோ தவறு நடந்தது. பின்னர் மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get homeErrorGeneric =>
+      'தரவை ஏற்ற முடியவில்லை. மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return '$label பதிவு செய்யுங்கள்';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label பதிவு செய்யப்பட்டது: $value';
+  }
+
+  @override
+  String get homePrivacySecurity => 'Privacy & Security';
+
+  @override
   String get homeOk => 'OK';
 
   @override
   String get cycleTrackerTitle => 'சுழற்சி டிராக்கர்';
+
+  @override
+  String get cycleToday => 'இன்று';
 
   @override
   String get cyclePhasePeriod => 'மாதவிடாய்';
@@ -265,231 +290,6 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get logSympBackPain => 'Back Pain';
-
-  @override
-  String get homeErrorNetwork =>
-      'இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
-
-  @override
-  String get homeErrorAuth =>
-      'உங்கள் அமர்வு காலாவதியாகிவிட்டது. மீண்டும் உள்நுழையவும்.';
-
-  @override
-  String get homeErrorServer =>
-      'எங்கள் பக்கம் ஏதோ தவறு நடந்தது. பின்னர் மீண்டும் முயற்சிக்கவும்.';
-
-  @override
-  String get homeErrorGeneric =>
-      'தரவை ஏற்ற முடியவில்லை. மீண்டும் முயற்சிக்கவும்.';
-
-  @override
-  String homeQuickLogTitle(String label) {
-    return '$label பதிவு செய்யுங்கள்';
-  }
-
-  @override
-  String homeQuickLogSaved(String label, String value) {
-    return '$label பதிவு செய்யப்பட்டது: $value';
-  }
-
-  @override
-  String get loginWelcomeBack => 'மீண்டும் வரவேற்கிறோம்';
-
-  @override
-  String get loginSubtitle =>
-      'உங்கள் தனிப்பட்ட ரித்மா பயணத்தைத் தொடர உள்நுழையவும்.';
-
-  @override
-  String get loginUsername => 'பயனர்பெயர்';
-
-  @override
-  String get loginPassword => 'கடவுச்சொல்';
-
-  @override
-  String get loginShowPassword => 'கடவுச்சொல்லைக் காட்டு';
-
-  @override
-  String get loginHidePassword => 'கடவுச்சொல்லை மறை';
-
-  @override
-  String get loginLoggingIn => 'உள்நுழைகிறது...';
-
-  @override
-  String get loginButton => 'உள்நுழை';
-
-  @override
-  String get loginNoAccount => 'கணக்கு இல்லையா? பதிவு செய்யுங்கள்';
-
-  @override
-  String get loginFieldsRequired =>
-      'உங்கள் பயனர்பெயர் மற்றும் கடவுச்சொல்லை உள்ளிடவும்.';
-
-  @override
-  String get loginErrorNetwork =>
-      'இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
-
-  @override
-  String get loginErrorInvalidCredentials =>
-      'தவறான பயனர்பெயர் அல்லது கடவுச்சொல்.';
-
-  @override
-  String get loginErrorGeneric =>
-      'உள்நுழைவு தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.';
-
-  @override
-  String get registerTitle => 'கணக்கை உருவாக்கு';
-
-  @override
-  String get registerSubtitle =>
-      'உங்கள் ரித்மா உதவியாளருக்கு பாதுகாப்பான அணுகலை அமைக்கவும்.';
-
-  @override
-  String get registerFullName => 'முழு பெயர் (விரும்பினால்)';
-
-  @override
-  String get registerEmail => 'மின்னஞ்சல்';
-
-  @override
-  String get registerUsernameHelper =>
-      '6-30 எழுத்துகள்: எழுத்துகள், எண்கள், அண்டர்ஸ்கோர்';
-
-  @override
-  String get registerAge => 'வயது';
-
-  @override
-  String get registerAgeHelper => '10 மற்றும் 120 க்கு இடையில்';
-
-  @override
-  String get registerCycleLength => 'சராசரி சுழற்சி நீளம் (நாட்கள்)';
-
-  @override
-  String get registerCycleHelper => '15 மற்றும் 45 நாட்களுக்கு இடையில்';
-
-  @override
-  String get registerPasswordHelper => 'குறைந்தது 8 எழுத்துகள்';
-
-  @override
-  String get registerCreating => 'கணக்கை உருவாக்குகிறது...';
-
-  @override
-  String get registerButton => 'பதிவு செய்';
-
-  @override
-  String get registerHaveAccount => 'ஏற்கனவே கணக்கு உள்ளதா? உள்நுழை';
-
-  @override
-  String get registerSuccess =>
-      'கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது! உள்நுழையவும்.';
-
-  @override
-  String get registerErrorNetwork =>
-      'இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
-
-  @override
-  String get registerErrorConflict =>
-      'இந்த பயனர்பெயர் அல்லது மின்னஞ்சலுடன் கணக்கு ஏற்கனவே உள்ளது.';
-
-  @override
-  String get registerErrorGeneric =>
-      'பதிவு தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.';
-
-  @override
-  String get registerEmailRequired => 'மின்னஞ்சல் அவசியம்';
-
-  @override
-  String get registerEmailInvalid => 'சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்';
-
-  @override
-  String get registerPasswordRequired => 'கடவுச்சொல் அவசியம்';
-
-  @override
-  String get registerPasswordTooShort =>
-      'கடவுச்சொல் குறைந்தது 8 எழுத்துகள் இருக்க வேண்டும்';
-
-  @override
-  String get registerUsernameRequired => 'பயனர்பெயர் அவசியம்';
-
-  @override
-  String get registerUsernameTooShort =>
-      'பயனர்பெயர் குறைந்தது 6 எழுத்துகள் இருக்க வேண்டும்';
-
-  @override
-  String get registerUsernameTooLong => 'பயனர்பெயர் 30 எழுத்துகளை மீறக்கூடாது';
-
-  @override
-  String get registerUsernameInvalid =>
-      'பயனர்பெயரில் எழுத்துகள், எண்கள் மற்றும் அண்டர்ஸ்கோர்கள் மட்டுமே இருக்கலாம்';
-
-  @override
-  String get registerAgeInvalid => 'சரியான வயதை உள்ளிடவும்';
-
-  @override
-  String get registerAgeRange =>
-      'வயது 10 மற்றும் 120 க்கு இடையில் இருக்க வேண்டும்';
-
-  @override
-  String get registerCycleInvalid => 'சரியான சராசரி சுழற்சி நீளத்தை உள்ளிடவும்';
-
-  @override
-  String get registerCycleRange =>
-      'சுழற்சி நீளம் 15 மற்றும் 45 நாட்களுக்கு இடையில் இருக்க வேண்டும்';
-
-  @override
-  String settingsConfirmTurnOn(String feature) {
-    return '$feature அம்சத்தை இயக்க விரும்புகிறீர்களா?';
-  }
-
-  @override
-  String settingsConfirmTurnOff(String feature) {
-    return '$feature அம்சத்தை அணைக்க விரும்புகிறீர்களா?';
-  }
-
-  @override
-  String get settingsConfirm => 'உறுதிப்படுத்து';
-
-  @override
-  String get settingsTestNotification => 'இப்போது அறிவிப்பை சோதி';
-
-  @override
-  String get settingsTestNotificationDesc => 'உடனடி எச்சரிக்கை அனுப்புகிறது';
-
-  @override
-  String get settingsTestNotificationTitle => 'ரித்மா சோதனை';
-
-  @override
-  String get settingsTestNotificationBody =>
-      'நேட்டிவ் அறிவிப்புகள் சரியாக வேலை செய்கின்றன!';
-
-  @override
-  String get settingsMedicineReminderTitle => 'மருந்து நினைவூட்டல்';
-
-  @override
-  String get settingsMedicineReminderBody =>
-      'உங்கள் இரும்புச் சத்து துணை எடுக்கும் நேரம்!';
-
-  @override
-  String get settingsThemeColor => 'தீம் நிறம்';
-
-  @override
-  String get profileNameRequired => 'பெயர் காலியாக இருக்கக்கூடாது';
-
-  @override
-  String get profileAgeInvalid =>
-      'வயது 10 மற்றும் 120 க்கு இடையில் இருக்க வேண்டும்';
-
-  @override
-  String get profileCycleInvalid =>
-      'சுழற்சி நீளம் 15 மற்றும் 45 நாட்களுக்கு இடையில் இருக்க வேண்டும்';
-
-  @override
-  String get profilePhoneInvalid =>
-      'சரியான தொலைபேசி எண்ணை உள்ளிடவும் (குறைந்தது 8 இலக்கங்கள்)';
-
-  @override
-  String get cycleToday => 'இன்று';
-
-  @override
-  String get assistantError => 'ஏதோ தவறு நடந்தது. மீண்டும் முயற்சிக்கவும்.';
 
   @override
   String get assistantTitle => 'ரித்மா உதவியாளர்';
@@ -803,112 +603,107 @@ class AppLocalizationsTa extends AppLocalizations {
       'தயவுசெய்து சரியான எடையை உள்ளிடவும் (20–300 கிகி)';
 
   @override
-  String get onboardingPhoneInvalid =>
-      'தயவுசெய்து சரியான தொலைபேசி எண்ணை உள்ளிடவும்';
+  String get onboardingPhoneInvalid => 'Please enter a valid phone number';
 
   @override
-  String get onboardingTapToSelectDate => 'தேதியைத் தேர்ந்தெடுக்க தட்டவும்';
+  String get onboardingTapToSelectDate => 'Tap to select date';
 
   @override
-  String get onboardingDays => 'நாட்கள்';
+  String get onboardingDays => 'days';
 
   @override
-  String get smsScreenTitle => 'எஸ்எம்எஸ் சுருக்கங்கள்';
+  String get smsScreenTitle => 'SMS Summaries';
 
   @override
-  String get smsScreenSubtitle => 'ஆப் இல்லாமலும் தகவல் பெறுங்கள்';
+  String get smsScreenSubtitle => 'Stay informed even without the app';
 
   @override
-  String get smsInfoCardTitle => 'வாராந்திர சுகாதார சுருக்கம்';
+  String get smsInfoCardTitle => 'Weekly Health Summary';
 
   @override
   String get smsInfoCardBody =>
-      'ஒவ்வொரு வாரமும், உங்கள் சுழற்சி நிலை, சுகாதார மதிப்பெண் மற்றும் முக்கியமான போக்குகளின் சுருக்கமான தகவலை Rhythma உங்கள் தொலைபேசிக்கு நேரடியாக எஸ்எம்எஸ் மூலம் அனுப்பும், டேட்டா அல்லது ஆப் இல்லாமலும் இயங்கும்.';
+      'Every week, Rhythma will send you a brief summary of your cycle status, health score, and any important patterns, directly to your phone via SMS. Works without data or the app.';
 
   @override
-  String get smsConfigTitle => 'கட்டமைப்பு';
+  String get smsConfigTitle => 'Configuration';
 
   @override
-  String get smsPhoneLabel => 'தொலைபேசி எண்';
+  String get smsPhoneLabel => 'Phone Number';
 
   @override
   String get smsPhoneHint => '+91 98765 43210';
 
   @override
-  String get smsEnableWeekly => 'வாராந்திர எஸ்எம்எஸ்-ஐ இயக்கவும்';
+  String get smsEnableWeekly => 'Enable weekly SMS';
 
   @override
-  String get smsSaveSettings => 'அமைப்புகளை சேமிக்கவும்';
+  String get smsSaveSettings => 'Save Settings';
 
   @override
-  String get smsSendSectionTitle => 'இப்போது சுருக்கத்தை அனுப்பவும்';
+  String get smsSendSectionTitle => 'Send a Summary Now';
 
   @override
-  String get smsSendRecipientPrefix =>
-      'கீழே உள்ள செய்தி இந்த எண்ணுக்கு அனுப்பப்படும்:';
+  String get smsSendRecipientPrefix => 'Sends the message below to:';
 
   @override
-  String get smsSendNoPhone =>
-      'முதலில் மேலே தொலைபேசி எண்ணைச் சேர்த்து சேமிக்கவும்.';
+  String get smsSendNoPhone => 'Add and save a phone number above first.';
 
   @override
-  String get smsSendButton => 'இப்போது சுருக்கத்தை அனுப்பவும்';
+  String get smsSendButton => 'Send Summary Now';
 
   @override
-  String get smsErrorEnterPhone => 'தொலைபேசி எண்ணை உள்ளிடவும்';
+  String get smsErrorEnterPhone => 'Please enter a phone number';
 
   @override
   String get smsErrorInvalidPhone =>
-      'சர்வதேச வடிவத்தில் சரியான தொலைபேசி எண்ணை உள்ளிடவும், எ.கா. +919876543210';
+      'Enter a valid phone number in international format, e.g. +919876543210';
 
   @override
-  String get smsSuccessSaved =>
-      'எஸ்எம்எஸ் அமைப்புகள் வெற்றிகரமாக சேமிக்கப்பட்டன!';
+  String get smsSuccessSaved => 'SMS settings saved successfully!';
 
   @override
-  String get smsErrorAddPhoneFirst =>
-      'முதலில் தொலைபேசி எண்ணைச் சேர்த்து சேமிக்கவும்';
+  String get smsErrorAddPhoneFirst => 'Add and save a phone number first';
 
   @override
-  String get smsSuccessSent => 'சுருக்கம் உங்கள் தொலைபேசிக்கு அனுப்பப்பட்டது!';
+  String get smsSuccessSent => 'Summary sent to your phone!';
 
   @override
   String get smsErrorRateLimit =>
-      'நீங்கள் நிமிடத்திற்கு ஒரு சுருக்கத்தை மட்டுமே அனுப்ப முடியும், சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்.';
+      'You can send one summary per minute, please wait a bit and try again.';
 
   @override
   String get smsErrorSessionExpired =>
-      'உங்கள் அமர்வு காலாவதியானது. மீண்டும் உள்நுழையவும்.';
+      'Your session has expired. Please log in again.';
 
   @override
   String get smsErrorNetwork =>
-      'சர்வரை அடைய முடியவில்லை. உங்கள் இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.';
+      'Couldn\'t reach the server. Check your connection and try again.';
 
   @override
-  String get smsErrorGeneric => 'ஏதோ தவறு நடந்தது. மீண்டும் முயற்சிக்கவும்.';
+  String get smsErrorGeneric => 'Something went wrong. Please try again.';
 
   @override
   String get smsLoadError =>
-      'உங்கள் எஸ்எம்எஸ் அமைப்புகளை ஏற்ற முடியவில்லை. புதுப்பிக்கவும் அல்லது மீண்டும் முயற்சிக்கவும்.';
+      'Couldn\'t load your SMS settings. Pull to refresh or try again.';
 
   @override
   String get smsSummaryMessage =>
-      '🌸 Rhythma சுகாதார சுருக்கம்\nஇது Rhythma-விலிருந்து உங்கள் உடனடி சுருக்கம்.\nஉங்கள் சமீபத்திய சுழற்சி தகவலுக்கு ஆப்பைத் திறக்கவும்.\nசந்தா நீக்க STOP என பதிலளிக்கவும்.';
+      '🌸 Rhythma Health Summary\nThis is your on-demand summary from Rhythma.\nOpen the app for your latest cycle insights.\nReply STOP to unsubscribe.';
 
   @override
   String insightsLoadError(String error) {
-    return 'உங்கள் நுண்ணறிவை ஏற்ற முடியவில்லை: $error';
+    return 'Couldn\'t load your insights: $error';
   }
 
   @override
   String get insightsNotEnoughData =>
-      'உங்கள் முழு சுகாதார நுண்ணறிவைத் திறக்க Cycle டேப்பில் இன்னும் சில சுழற்சிகளைப் பதிவு செய்யவும்.';
+      'Log a few more cycles on the Cycle tab to unlock your full health insights.';
 
   @override
   String get insightsNoSymptomsYet =>
-      'இன்னும் அறிகுறிகள் எதுவும் பதிவு செய்யப்படவில்லை - Cycle டேப்பில் சிலவற்றைப் பதிவு செய்யவும்.';
+      'No symptoms logged yet — log some on the Cycle tab to see patterns here.';
 
   @override
   String get insightsNotEnoughTrendData =>
-      'உங்கள் போக்கைக் காண குறைந்தது இரண்டு சுழற்சிகளைப் பதிவு செய்யவும்.';
+      'Log at least two cycles to see your trend here.';
 }

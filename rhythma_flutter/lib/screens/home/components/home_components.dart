@@ -7,7 +7,7 @@ import '../../../components/charts.dart';
 import '../../settings/language_screen.dart';
 import '../../insights/insights_screen.dart';
 import '../../../services/local_storage_service.dart';
-import '../cycle/components/log_entry_sheet.dart';
+import '../../cycle/components/log_entry_sheet.dart';
 
 extension on Widget {
   Widget opacity(double value) => Opacity(opacity: value, child: this);
@@ -500,7 +500,7 @@ class HomeLogGridWidget extends StatelessWidget {
           action: l10n.homeLogAll,
           onAction: () {
             final currentDate = DateTime.now();
-            final existingLog = LocalStorageService.getLogForDate(currentDate);
+            final existingLog = LocalStorageService.getCycleLogForDate(currentDate);
 
             LogEntrySheet.show(
               context,

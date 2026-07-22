@@ -25,7 +25,7 @@ class SMSSettings(BaseModel):
 # ─── Rate Limiter (in-memory) ──────────────────────────────────────────────
 sms_history = {}
 
-def is_rate_limited(user_id: str, limit: int = 1, window_seconds: int = 60) -> bool:
+def is_rate_limited(user_id: str, limit: int = 1, window_seconds: int = 60) -> int | None:
     now = datetime.now(timezone.utc)
     if user_id in sms_history:
         sms_history[user_id] = [t for t in sms_history[user_id] if now - t < timedelta(seconds=window_seconds)]
@@ -33,10 +33,12 @@ def is_rate_limited(user_id: str, limit: int = 1, window_seconds: int = 60) -> b
         sms_history[user_id] = []
 
     if len(sms_history[user_id]) >= limit:
-        return True
+        oldest = sms_history[user_id][0]
+        remaining = int((oldest + timedelta(seconds=window_seconds) - now).total_seconds())
+        return max(remaining, 1)
 
     sms_history[user_id].append(now)
-    return False
+    return None
 
 
 # ─── Router ──────────────────────────────────────────────────────────────────
@@ -86,10 +88,12 @@ async def send_sms_summary(
     user_id = current_user["id"]
 
     # Rate limit check
-    if is_rate_limited(user_id):
+    remaining = is_rate_limited(user_id)
+    if remaining is not None:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Rate limit exceeded. Please wait 60 seconds before sending another SMS."
+            detail="Rate limit exceeded. Please wait 60 seconds before sending another SMS.",
+            headers={"Retry-After": str(remaining)},
         )
 
     # ─── Twilio Integration ──────────────────────────────────────────────────

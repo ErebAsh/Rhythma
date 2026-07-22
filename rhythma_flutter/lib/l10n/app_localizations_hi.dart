@@ -9,10 +9,6 @@ class AppLocalizationsHi extends AppLocalizations {
   AppLocalizationsHi([String locale = 'hi']) : super(locale);
 
   @override
-  String insightsScoreValue(int i) {
-  return '$i';
-  }
-  @override
   String get appTitle => 'Rhythma';
 
   @override
@@ -146,17 +142,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get homeRetry => 'Retry';
 
   @override
-  String get homeComingSoon => 'Coming Soon';
-
-  @override
-  String homeUnderDevelopment(String topic) {
-    return '$topic is currently under development.';
-  }
-
-  @override
-  String get homePrivacySecurity => 'गोपनीयता और सुरक्षा';
-
-  @override
   String get homeMhs => 'MHS';
 
   @override
@@ -166,10 +151,50 @@ class AppLocalizationsHi extends AppLocalizations {
   String get homeSleep => 'नींद';
 
   @override
-  String get homeOk => 'ठीक है';
+  String get homeComingSoon => 'Coming Soon';
+
+  @override
+  String homeUnderDevelopment(String topic) {
+    return '$topic is currently under development.';
+  }
+
+  @override
+  String get homeErrorNetwork =>
+      'कृपया अपना इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।';
+
+  @override
+  String get homeErrorAuth =>
+      'आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।';
+
+  @override
+  String get homeErrorServer =>
+      'हमारी तरफ से कुछ गड़बड़ हुई है। कृपया बाद में फिर से प्रयास करें।';
+
+  @override
+  String get homeErrorGeneric =>
+      'डेटा लोड करने में असमर्थ। कृपया फिर से प्रयास करें।';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return '$label लॉग करें';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label लॉग किया गया: $value';
+  }
+
+  @override
+  String get homePrivacySecurity => 'Privacy & Security';
+
+  @override
+  String get homeOk => 'OK';
 
   @override
   String get cycleTrackerTitle => 'चक्र ट्रैकर';
+
+  @override
+  String get cycleToday => 'आज';
 
   @override
   String get cyclePhasePeriod => 'मासिक धर्म';
@@ -266,226 +291,6 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get logSympBackPain => 'Back Pain';
-
-  @override
-  String get homeErrorNetwork =>
-      'कृपया अपना इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।';
-
-  @override
-  String get homeErrorAuth =>
-      'आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।';
-
-  @override
-  String get homeErrorServer =>
-      'हमारी तरफ से कुछ गड़बड़ हुई है। कृपया बाद में फिर से प्रयास करें।';
-
-  @override
-  String get homeErrorGeneric =>
-      'डेटा लोड करने में असमर्थ। कृपया फिर से प्रयास करें।';
-
-  @override
-  String homeQuickLogTitle(String label) {
-    return '$label लॉग करें';
-  }
-
-  @override
-  String homeQuickLogSaved(String label, String value) {
-    return '$label लॉग किया गया: $value';
-  }
-
-  @override
-  String get loginWelcomeBack => 'वापसी पर स्वागत है';
-
-  @override
-  String get loginSubtitle =>
-      'अपनी निजी रिद्मा यात्रा जारी रखने के लिए लॉग इन करें।';
-
-  @override
-  String get loginUsername => 'उपयोगकर्ता नाम';
-
-  @override
-  String get loginPassword => 'पासवर्ड';
-
-  @override
-  String get loginShowPassword => 'पासवर्ड दिखाएं';
-
-  @override
-  String get loginHidePassword => 'पासवर्ड छुपाएं';
-
-  @override
-  String get loginLoggingIn => 'लॉग इन हो रहा है...';
-
-  @override
-  String get loginButton => 'लॉग इन';
-
-  @override
-  String get loginNoAccount => 'खाता नहीं है? रजिस्टर करें';
-
-  @override
-  String get loginFieldsRequired =>
-      'कृपया अपना उपयोगकर्ता नाम और पासवर्ड दर्ज करें।';
-
-  @override
-  String get loginErrorNetwork =>
-      'कृपया अपना इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।';
-
-  @override
-  String get loginErrorInvalidCredentials =>
-      'अमान्य उपयोगकर्ता नाम या पासवर्ड।';
-
-  @override
-  String get loginErrorGeneric => 'लॉग इन विफल रहा। कृपया फिर से प्रयास करें।';
-
-  @override
-  String get registerTitle => 'खाता बनाएं';
-
-  @override
-  String get registerSubtitle =>
-      'अपने रिद्मा सहायक तक सुरक्षित पहुंच स्थापित करें।';
-
-  @override
-  String get registerFullName => 'पूरा नाम (वैकल्पिक)';
-
-  @override
-  String get registerEmail => 'ईमेल';
-
-  @override
-  String get registerUsernameHelper => '6-30 अक्षर: अक्षर, संख्याएं, अंडरस्कोर';
-
-  @override
-  String get registerAge => 'उम्र';
-
-  @override
-  String get registerAgeHelper => '10 और 120 के बीच';
-
-  @override
-  String get registerCycleLength => 'औसत चक्र की लंबाई (दिन)';
-
-  @override
-  String get registerCycleHelper => '15 और 45 दिनों के बीच';
-
-  @override
-  String get registerPasswordHelper => 'न्यूनतम 8 अक्षर';
-
-  @override
-  String get registerCreating => 'खाता बना रहे हैं...';
-
-  @override
-  String get registerButton => 'रजिस्टर';
-
-  @override
-  String get registerHaveAccount => 'पहले से खाता है? लॉग इन';
-
-  @override
-  String get registerSuccess =>
-      'खाता सफलतापूर्वक बनाया गया! कृपया लॉग इन करें।';
-
-  @override
-  String get registerErrorNetwork =>
-      'कृपया अपना इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।';
-
-  @override
-  String get registerErrorConflict =>
-      'इस उपयोगकर्ता नाम या ईमेल से खाता पहले से मौजूद है।';
-
-  @override
-  String get registerErrorGeneric =>
-      'पंजीकरण विफल रहा। कृपया फिर से प्रयास करें।';
-
-  @override
-  String get registerEmailRequired => 'ईमेल आवश्यक है';
-
-  @override
-  String get registerEmailInvalid => 'कृपया एक वैध ईमेल पता दर्ज करें';
-
-  @override
-  String get registerPasswordRequired => 'पासवर्ड आवश्यक है';
-
-  @override
-  String get registerPasswordTooShort =>
-      'पासवर्ड कम से कम 8 अक्षरों का होना चाहिए';
-
-  @override
-  String get registerUsernameRequired => 'उपयोगकर्ता नाम आवश्यक है';
-
-  @override
-  String get registerUsernameTooShort =>
-      'उपयोगकर्ता नाम कम से कम 6 अक्षरों का होना चाहिए';
-
-  @override
-  String get registerUsernameTooLong =>
-      'उपयोगकर्ता नाम 30 अक्षरों से अधिक नहीं होना चाहिए';
-
-  @override
-  String get registerUsernameInvalid =>
-      'उपयोगकर्ता नाम में केवल अक्षर, संख्याएं और अंडरस्कोर हो सकते हैं';
-
-  @override
-  String get registerAgeInvalid => 'कृपया एक वैध आयु दर्ज करें';
-
-  @override
-  String get registerAgeRange => 'आयु 10 और 120 के बीच होनी चाहिए';
-
-  @override
-  String get registerCycleInvalid => 'कृपया एक वैध औसत चक्र लंबाई दर्ज करें';
-
-  @override
-  String get registerCycleRange =>
-      'चक्र की लंबाई 15 और 45 दिनों के बीच होनी चाहिए';
-
-  @override
-  String settingsConfirmTurnOn(String feature) {
-    return 'क्या आप वाकई $feature चालू करना चाहते हैं?';
-  }
-
-  @override
-  String settingsConfirmTurnOff(String feature) {
-    return 'क्या आप वाकई $feature बंद करना चाहते हैं?';
-  }
-
-  @override
-  String get settingsConfirm => 'पुष्टि करें';
-
-  @override
-  String get settingsTestNotification => 'अभी सूचना परीक्षण करें';
-
-  @override
-  String get settingsTestNotificationDesc => 'तत्काल अलर्ट भेजता है';
-
-  @override
-  String get settingsTestNotificationTitle => 'रिद्मा परीक्षण';
-
-  @override
-  String get settingsTestNotificationBody =>
-      'नेटिव सूचनाएं पूरी तरह से काम कर रही हैं!';
-
-  @override
-  String get settingsMedicineReminderTitle => 'दवा अनुस्मारक';
-
-  @override
-  String get settingsMedicineReminderBody => 'अपना आयरन सप्लीमेंट लेने का समय!';
-
-  @override
-  String get settingsThemeColor => 'थीम रंग';
-
-  @override
-  String get profileNameRequired => 'नाम खाली नहीं हो सकता';
-
-  @override
-  String get profileAgeInvalid => 'आयु 10 और 120 के बीच होनी चाहिए';
-
-  @override
-  String get profileCycleInvalid =>
-      'चक्र की लंबाई 15 और 45 दिनों के बीच होनी चाहिए';
-
-  @override
-  String get profilePhoneInvalid => 'एक वैध फोन नंबर दर्ज करें (न्यूनतम 8 अंक)';
-
-  @override
-  String get cycleToday => 'आज';
-
-  @override
-  String get assistantError => 'कुछ गलत हो गया। कृपया फिर से प्रयास करें।';
 
   @override
   String get assistantTitle => 'रिद्मा सहायक';
@@ -894,5 +699,5 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get insightsNotEnoughTrendData =>
-      'अपना ट्रेंड देखने के लिए कम से कम दो चक्र लॉग करें।';
+      'Log at least two cycles to see your trend here.';
 }
