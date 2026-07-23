@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 import '../../../services/local_storage_service.dart';
+import '../../../utils/date_utils.dart';
 
 class LogEntrySheet extends StatefulWidget {
   final DateTime date;
@@ -56,7 +57,7 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
   void _saveLog() {
     final log = {
       if (widget.existingLog != null) ...widget.existingLog!,
-      'start_date': widget.date.toIso8601String().split('T')[0],
+      'start_date': RhythmaDateUtils.toDateKey(widget.date),
       if (_flowIntensity != null) 'flow_intensity': _flowIntensity,
       if (_mood != null) 'mood': _mood,
       'sleep_hours': _sleepHours,

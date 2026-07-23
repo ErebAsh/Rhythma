@@ -31,17 +31,6 @@ class AssistantService {
     }
   }
 
-  Future<List<Map<String, String>>> getLanguages() async {
-    try {
-      final response = await _dio.get('/assistant/languages');
-      final List data = response.data;
-      return data.map((e) => Map<String, String>.from(e)).toList();
-    } on DioException catch (e) {
-      throw AssistantException(
-          _readErrorMessage(e, 'Failed to load languages.'));
-    }
-  }
-
   String _readErrorMessage(DioException error, String fallback) {
     if (error.response?.statusCode == 401) {
       return 'Your session expired. Please log in again.';

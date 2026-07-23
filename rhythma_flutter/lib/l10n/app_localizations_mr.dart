@@ -142,11 +142,46 @@ class AppLocalizationsMr extends AppLocalizations {
   String get homeRetry => 'Retry';
 
   @override
+  String get homeMhs => 'MHS';
+
+  @override
+  String get homeCvi => 'CVI';
+
+  @override
+  String get homeSleep => 'झोप';
+
+  @override
   String get homeComingSoon => 'Coming Soon';
 
   @override
   String homeUnderDevelopment(String topic) {
     return '$topic is currently under development.';
+  }
+
+  @override
+  String get homeErrorNetwork =>
+      'कृपया तुमचे इंटरनेट कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.';
+
+  @override
+  String get homeErrorAuth =>
+      'तुमचे सत्र कालबाह्य झाले आहे. कृपया पुन्हा लॉग इन करा.';
+
+  @override
+  String get homeErrorServer =>
+      'आमच्या बाजूला काहीतरी चूक झाली आहे. कृपया नंतर पुन्हा प्रयत्न करा.';
+
+  @override
+  String get homeErrorGeneric =>
+      'डेटा लोड करण्यात असमर्थ. कृपया पुन्हा प्रयत्न करा.';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return '$label नोंदवा';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label नोंदवले गेले: $value';
   }
 
   @override
@@ -157,6 +192,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get cycleTrackerTitle => 'चक्र ट्रॅकर';
+
+  @override
+  String get cycleToday => 'आज';
 
   @override
   String get cyclePhasePeriod => 'मासिक पाळी';

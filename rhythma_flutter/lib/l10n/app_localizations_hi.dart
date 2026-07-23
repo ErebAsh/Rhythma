@@ -142,11 +142,46 @@ class AppLocalizationsHi extends AppLocalizations {
   String get homeRetry => 'Retry';
 
   @override
+  String get homeMhs => 'MHS';
+
+  @override
+  String get homeCvi => 'CVI';
+
+  @override
+  String get homeSleep => 'नींद';
+
+  @override
   String get homeComingSoon => 'Coming Soon';
 
   @override
   String homeUnderDevelopment(String topic) {
     return '$topic is currently under development.';
+  }
+
+  @override
+  String get homeErrorNetwork =>
+      'कृपया अपना इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।';
+
+  @override
+  String get homeErrorAuth =>
+      'आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।';
+
+  @override
+  String get homeErrorServer =>
+      'हमारी तरफ से कुछ गड़बड़ हुई है। कृपया बाद में फिर से प्रयास करें।';
+
+  @override
+  String get homeErrorGeneric =>
+      'डेटा लोड करने में असमर्थ। कृपया फिर से प्रयास करें।';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return '$label लॉग करें';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label लॉग किया गया: $value';
   }
 
   @override
@@ -157,6 +192,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get cycleTrackerTitle => 'चक्र ट्रैकर';
+
+  @override
+  String get cycleToday => 'आज';
 
   @override
   String get cyclePhasePeriod => 'मासिक धर्म';
@@ -661,7 +699,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get insightsNotEnoughTrendData =>
-      'अपना ट्रेंड देखने के लिए कम से कम दो चक्र लॉग करें।';
+      'Log at least two cycles to see your trend here.';
 
   @override
   String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';

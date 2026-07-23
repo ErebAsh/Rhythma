@@ -142,11 +142,46 @@ class AppLocalizationsTe extends AppLocalizations {
   String get homeRetry => 'మళ్లీ ప్రయత్నించండి';
 
   @override
+  String get homeMhs => 'MHS';
+
+  @override
+  String get homeCvi => 'CVI';
+
+  @override
+  String get homeSleep => 'నిద్ర';
+
+  @override
   String get homeComingSoon => 'త్వరలో';
 
   @override
   String homeUnderDevelopment(String topic) {
     return '$topic ప్రస్తుతం అభివృద్ధిలో ఉంది.';
+  }
+
+  @override
+  String get homeErrorNetwork =>
+      'దయచేసి మీ ఇంటర్నెట్ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get homeErrorAuth =>
+      'మీ సెషన్ గడువు ముగిసింది. దయచేసి మళ్లీ లాగిన్ చేయండి.';
+
+  @override
+  String get homeErrorServer =>
+      'మా వైపు ఏదో తప్పు జరిగింది. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get homeErrorGeneric =>
+      'డేటాను లోడ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return '$label నమోదు చేయండి';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label నమోదు చేయబడింది: $value';
   }
 
   @override
@@ -157,6 +192,9 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get cycleTrackerTitle => 'సైకిల్ ట్రాకర్';
+
+  @override
+  String get cycleToday => 'ఈ రోజు';
 
   @override
   String get cyclePhasePeriod => 'రుతుక్రమం';
