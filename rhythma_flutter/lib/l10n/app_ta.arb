@@ -263,5 +263,16 @@
   "onboardingNameRequired": "தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்",
   "onboardingAgeInvalid": "தயவுசெய்து சரியான வயதை உள்ளிடவும் (10–120)",
   "onboardingHeightInvalid": "தயவுசெய்து சரியான உயரத்தை உள்ளிடவும் (50–250 செமீ)",
-  "onboardingWeightInvalid": "தயவுசெய்து சரியான எடையை உள்ளிடவும் (20–300 கிகி)"
+  "onboardingWeightInvalid": "தயவுசெய்து சரியான எடையை உள்ளிடவும் (20–300 கிகி)",
+  "onboardingApproximateLabel": "When was your last period?",
+  "onboardingApproximateLessWeek": "Less than a week ago",
+  "onboardingApproximate1to2Weeks": "1–2 weeks ago",
+  "onboardingApproximate3to4Weeks": "3–4 weeks ago",
+  "onboardingApproximateMoreMonth": "More than a month ago",
+  "onboardingPickExactDate": "Pick exact date instead",
+  "onboardingLastPeriodRequired": "Please select when your last period started",
+  "nudgeCompleteProfileTitle": "Want more accurate predictions?",
+  "nudgeCompleteProfileBody": "Add the exact start date of your last period to improve cycle predictions.",
+  "nudgeCompleteProfileAction": "Update",
+  "nudgeCompleteProfileDismiss": "Maybe later"
 }

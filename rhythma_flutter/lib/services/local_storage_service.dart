@@ -30,6 +30,7 @@ class LocalStorageService {
   static bool mockOnboardingCompleted = false;
   static List<Map<String, dynamic>> mockCycleLogs = [];
   static String? mockCurrentUserId;
+  static Map<String, bool> mockNudgeDismissed = {};
 
   /// Call once at app startup (after WidgetsFlutterBinding.ensureInitialized)
   static Future<void> init({String? testPath}) async {
@@ -360,6 +361,21 @@ class LocalStorageService {
   static Future<void> clearChatHistory() =>
       _settings.delete(_scoped(_Keys.chatHistory));
 
+  // ── Nudge Preferences ───────────────────────────────────────────────
+
+  static bool getNudgeDismissed(String key) {
+    if (isTesting) return mockNudgeDismissed[key] ?? false;
+    return _settings.get(_scoped('nudge_$key'), defaultValue: false) as bool;
+  }
+
+  static Future<void> setNudgeDismissed(String key, bool value) async {
+    if (isTesting) {
+      mockNudgeDismissed[key] = value;
+      return;
+    }
+    await _settings.put(_scoped('nudge_$key'), value);
+  }
+
   // ── Clear all data ─────────────────────────────────────────────────────
 
   static Future<void> clearAll() async {
@@ -367,6 +383,7 @@ class LocalStorageService {
       mockProfile = null;
       mockEmergencyContacts = [];
       mockOnboardingCompleted = false;
+      mockNudgeDismissed = {};
       return;
     }
     await _cycleBox.clear();

@@ -1248,6 +1248,72 @@ abstract class AppLocalizations {
   /// **'days'**
   String get onboardingDays;
 
+  /// No description provided for @onboardingApproximateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'When was your last period?'**
+  String get onboardingApproximateLabel;
+
+  /// No description provided for @onboardingApproximateLessWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than a week ago'**
+  String get onboardingApproximateLessWeek;
+
+  /// No description provided for @onboardingApproximate1to2Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'1–2 weeks ago'**
+  String get onboardingApproximate1to2Weeks;
+
+  /// No description provided for @onboardingApproximate3to4Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'3–4 weeks ago'**
+  String get onboardingApproximate3to4Weeks;
+
+  /// No description provided for @onboardingApproximateMoreMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'More than a month ago'**
+  String get onboardingApproximateMoreMonth;
+
+  /// No description provided for @onboardingPickExactDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick exact date instead'**
+  String get onboardingPickExactDate;
+
+  /// No description provided for @onboardingLastPeriodRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select when your last period started'**
+  String get onboardingLastPeriodRequired;
+
+  /// No description provided for @nudgeCompleteProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Want more accurate predictions?'**
+  String get nudgeCompleteProfileTitle;
+
+  /// No description provided for @nudgeCompleteProfileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the exact start date of your last period to improve cycle predictions.'**
+  String get nudgeCompleteProfileBody;
+
+  /// No description provided for @nudgeCompleteProfileAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get nudgeCompleteProfileAction;
+
+  /// No description provided for @nudgeCompleteProfileDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe later'**
+  String get nudgeCompleteProfileDismiss;
+
   /// No description provided for @smsScreenTitle.
   ///
   /// In en, this message translates to:

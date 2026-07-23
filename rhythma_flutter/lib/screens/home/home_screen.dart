@@ -13,6 +13,7 @@ import '../../services/local_storage_service.dart';
 import '../../utils/log_options.dart';
 import '../cycle/components/log_entry_sheet.dart';
 import '../insights/insights_screen.dart';
+import '../profile/profile_screen.dart';
 import '../settings/language_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -160,6 +161,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+
+          // ── Approximate date nudge ────────────────────────────
+          if (_shouldShowNudge(profile))
+            _buildNudgeBanner(context, l10n, profile),
 
           // ── Cycle ring + prediction ──────────────────────────
           GlassCard(
@@ -551,6 +556,96 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ─── Helpers ────────────────────────────────────────────────────────────
+
+  bool _shouldShowNudge(Map<String, dynamic> profile) {
+    if (profile['last_period_is_approximate'] != true) return false;
+    if (LocalStorageService.getNudgeDismissed('last_period_exact')) return false;
+    final completedAt = profile['onboarding_completed_at'] as String?;
+    if (completedAt == null) return false;
+    final date = DateTime.tryParse(completedAt);
+    if (date == null) return false;
+    return DateTime.now().difference(date).inDays >= 3;
+  }
+
+  Widget _buildNudgeBanner(
+      BuildContext context, AppLocalizations l10n, Map<String, dynamic> profile) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: RhythmaColors.primary.withValues(alpha: 0.08),
+          border: Border.all(
+              color: RhythmaColors.primary.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.lightbulb_rounded,
+                    color: RhythmaColors.primary, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.nudgeCompleteProfileTitle,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: RhythmaColors.foreground,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n.nudgeCompleteProfileBody,
+              style: TextStyle(
+                  fontSize: 13, color: RhythmaColors.mutedFg),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: RhythmaColors.primary,
+                    foregroundColor: RhythmaColors.primaryFg,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) =>
+                              const ProfileScreen()),
+                    );
+                  },
+                  child: Text(l10n.nudgeCompleteProfileAction,
+                      style: const TextStyle(fontSize: 13)),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: () async {
+                    await LocalStorageService.setNudgeDismissed(
+                        'last_period_exact', true);
+                    setState(() {});
+                  },
+                  child: Text(l10n.nudgeCompleteProfileDismiss,
+                      style: TextStyle(
+                          fontSize: 13, color: RhythmaColors.mutedFg)),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   void _showComingSoonDialog(BuildContext context, String topic) {
     final l10n = AppLocalizations.of(context)!;

@@ -612,6 +612,29 @@ class AppLocalizationsTa extends AppLocalizations {
   String get onboardingDays => 'days';
 
   @override
+  String get onboardingApproximateLabel => 'When was your last period?';
+  @override
+  String get onboardingApproximateLessWeek => 'Less than a week ago';
+  @override
+  String get onboardingApproximate1to2Weeks => '1–2 weeks ago';
+  @override
+  String get onboardingApproximate3to4Weeks => '3–4 weeks ago';
+  @override
+  String get onboardingApproximateMoreMonth => 'More than a month ago';
+  @override
+  String get onboardingPickExactDate => 'Pick exact date instead';
+  @override
+  String get onboardingLastPeriodRequired => 'Please select when your last period started';
+  @override
+  String get nudgeCompleteProfileTitle => 'Want more accurate predictions?';
+  @override
+  String get nudgeCompleteProfileBody => 'Add the exact start date of your last period to improve cycle predictions.';
+  @override
+  String get nudgeCompleteProfileAction => 'Update';
+  @override
+  String get nudgeCompleteProfileDismiss => 'Maybe later';
+
+  @override
   String get smsScreenTitle => 'SMS Summaries';
 
   @override
