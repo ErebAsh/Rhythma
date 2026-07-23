@@ -8,14 +8,9 @@ import 'app_localizations.dart';
 class AppLocalizationsMr extends AppLocalizations {
   AppLocalizationsMr([String locale = 'mr']) : super(locale);
 
-   @override
-   String insightsScoreValue(int i) {
-   return '$i';
-  }
- 
   @override
   String get appTitle => 'रिद्मा';
-  
+
   @override
   String get settingsTitle => 'सेटिंग्ज';
 
@@ -667,4 +662,24 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'तुमचा ट्रेंड पाहण्यासाठी किमान दोन चक्र लॉग करा.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'Message input';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'Type your question here';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'Send message';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'Sends your message to the assistant';
+
+  @override
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 }

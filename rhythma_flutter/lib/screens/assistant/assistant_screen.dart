@@ -242,7 +242,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
             ),
           ),
 
-          // Suggested chips (only before first user message)
+         // Suggested chips (only before first user message)
           if (_messages.length == 1)
             SizedBox(
               height: 38,
@@ -252,9 +252,11 @@ class _AssistantScreenState extends State<AssistantScreen> {
                 itemCount: _suggested.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (_, i) => Semantics(
-                  label: 'Suggested prompt: ${_suggested[i]}',
+                  label:
+                      '${AppLocalizations.of(context)!.assistantAccessibilitySuggestedPrompt}: ${_suggested[i]}',
                   button: true,
-                  child: GestureDetector(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
                     onTap: () => _send(_suggested[i]),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -303,8 +305,8 @@ class _AssistantScreenState extends State<AssistantScreen> {
                   children: [
                     Expanded(
                       child: Semantics(
-                        label: 'Message input',
-                        hint: 'Type your question here',
+                        label: AppLocalizations.of(context)!.assistantAccessibilityMessageInput,
+                        hint: AppLocalizations.of(context)!.assistantAccessibilityMessageInputHint,
                         textField: true,
                         child: TextField(
                           controller: _ctrl,
@@ -328,12 +330,12 @@ class _AssistantScreenState extends State<AssistantScreen> {
                     Padding(
                       padding: const EdgeInsets.only(right: 6),
                       child: Semantics(
-                        label: 'Send message',
-                        hint: 'Sends your message to the assistant',
+                        label: AppLocalizations.of(context)!.assistantAccessibilitySendMessage,
+                        hint: AppLocalizations.of(context)!.assistantAccessibilitySendMessageHint,
                         button: true,
-                        child: GestureDetector(
-                          onTap: _isLoading ? null : () => _send(_ctrl.text),
-                          child: Container(
+                        child: IconButton(
+                          onPressed: _isLoading ? null : () => _send(_ctrl.text),
+                          icon: Container(
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
@@ -530,7 +532,7 @@ class _TypingBubble extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Semantics(
-          label: 'Assistant is typing',
+          label: AppLocalizations.of(context)!.assistantAccessibilityTyping,
           liveRegion: true,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

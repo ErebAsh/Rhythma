@@ -9,10 +9,6 @@ class AppLocalizationsHi extends AppLocalizations {
   AppLocalizationsHi([String locale = 'hi']) : super(locale);
 
   @override
-  String insightsScoreValue(int i) {
-  return '$i';
-  }
-  @override
   String get appTitle => 'Rhythma';
 
   @override
@@ -666,4 +662,24 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'अपना ट्रेंड देखने के लिए कम से कम दो चक्र लॉग करें।';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'Message input';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'Type your question here';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'Send message';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'Sends your message to the assistant';
+
+  @override
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 }
