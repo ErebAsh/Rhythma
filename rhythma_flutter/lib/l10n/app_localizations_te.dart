@@ -708,22 +708,22 @@ class AppLocalizationsTe extends AppLocalizations {
       'మీ ట్రెండ్ చూడటానికి కనీసం రెండు చక్రాలను లాగ్ చేయండి.';
 
   @override
-  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
+  String get assistantAccessibilitySuggestedPrompt => 'సూచించిన సందేశం';
 
   @override
-  String get assistantAccessibilityMessageInput => 'Message input';
+  String get assistantAccessibilityMessageInput => 'సందేశాన్ని నమోదు చేయండి';
 
   @override
   String get assistantAccessibilityMessageInputHint =>
-      'Type your question here';
+      'మీ ప్రశ్నను ఇక్కడ నమోదు చేయండి';
 
   @override
-  String get assistantAccessibilitySendMessage => 'Send message';
+  String get assistantAccessibilitySendMessage => 'సందేశాన్ని పంపండి';
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-      'Sends your message to the assistant';
+      'మీ సందేశాన్ని సహాయకుడికి పంపండి';
 
   @override
-  String get assistantAccessibilityTyping => 'Assistant is typing';
+  String get assistantAccessibilityTyping => 'సహాయకుడు టైప్ చేస్తున్నాడు';
 }

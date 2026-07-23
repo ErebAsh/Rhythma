@@ -702,22 +702,22 @@ class AppLocalizationsMr extends AppLocalizations {
       'तुमचा ट्रेंड पाहण्यासाठी किमान दोन चक्र लॉग करा.';
 
   @override
-  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
+  String get assistantAccessibilitySuggestedPrompt => 'सुचवलेला संदेश';
 
   @override
-  String get assistantAccessibilityMessageInput => 'Message input';
+  String get assistantAccessibilityMessageInput => 'संदेश प्रविष्ट करा';
 
   @override
   String get assistantAccessibilityMessageInputHint =>
-      'Type your question here';
+      'तुमचा प्रश्न येथे प्रविष्ट करा';
 
   @override
-  String get assistantAccessibilitySendMessage => 'Send message';
+  String get assistantAccessibilitySendMessage => 'संदेश पाठवा';
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-      'Sends your message to the assistant';
+      'तुमचा संदेश सहाय्यकाला पाठवा';
 
   @override
-  String get assistantAccessibilityTyping => 'Assistant is typing';
+  String get assistantAccessibilityTyping => 'सहाय्यक टाइप करत आहे';
 }

@@ -708,22 +708,24 @@ class AppLocalizationsTa extends AppLocalizations {
       'Log at least two cycles to see your trend here.';
 
   @override
-  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
+  String get assistantAccessibilitySuggestedPrompt =>
+      'பரிந்துரைக்கப்பட்ட செய்தி';
 
   @override
-  String get assistantAccessibilityMessageInput => 'Message input';
+  String get assistantAccessibilityMessageInput => 'செய்தியை உள்ளிடவும்';
 
   @override
   String get assistantAccessibilityMessageInputHint =>
-      'Type your question here';
+      'உங்கள் கேள்வியை இங்கே உள்ளிடவும்';
 
   @override
-  String get assistantAccessibilitySendMessage => 'Send message';
+  String get assistantAccessibilitySendMessage => 'செய்தியை அனுப்பவும்';
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-      'Sends your message to the assistant';
+      'உங்கள் செய்தியை உதவியாளருக்கு அனுப்பவும்';
 
   @override
-  String get assistantAccessibilityTyping => 'Assistant is typing';
+  String get assistantAccessibilityTyping =>
+      'உதவியாளர் தட்டச்சு செய்து கொண்டிருக்கிறார்';
 }
