@@ -626,6 +626,87 @@ class AppLocalizationsTe extends AppLocalizations {
       'దయచేసి చెల్లుబాటు అయ్యే బరువు నమోదు చేయండి (20–300 కిలో)';
 
   @override
+  String get onboardingAgeRequired => 'దయచేసి మీ వయస్సు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
+
+  @override
+  String get onboardingHeightRequired => 'దయచేసి మీ ఎత్తు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
+
+  @override
+  String get onboardingWeightRequired => 'దయచేసి మీ బరువు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
+
+  @override
+  String get onboardingNotSure => 'ఖచ్చితంగా తెలియదు';
+
+  @override
+  String get onboardingApproximate => 'అంచనా';
+
+  @override
+  String get onboardingAgeHint => 'మీ వయస్సు నమోదు చేయండి';
+
+  @override
+  String get onboardingAgeUnit => 'సంవత్సరాలు';
+
+  @override
+  String get onboardingHeightHint => 'మీ ఎత్తు నమోదు చేయండి';
+
+  @override
+  String get onboardingHeightUnit => 'సెం.మీ';
+
+  @override
+  String get onboardingWeightHint => 'మీ బరువు నమోదు చేయండి';
+
+  @override
+  String get onboardingWeightUnit => 'కేజీలు';
+
+  @override
+  String get onboardingRangeUnder18 => '18 కంటే తక్కువ';
+
+  @override
+  String get onboardingRange18to25 => '18–25';
+
+  @override
+  String get onboardingRange26to35 => '26–35';
+
+  @override
+  String get onboardingRange36to50 => '36–50';
+
+  @override
+  String get onboardingRange51to65 => '51–65';
+
+  @override
+  String get onboardingRangeOver65 => '65 కంటే ఎక్కువ';
+
+  @override
+  String get onboardingRangeUnder150 => '150 సెం.మీ కంటే తక్కువ';
+
+  @override
+  String get onboardingRange150to160 => '150–160 సెం.మీ';
+
+  @override
+  String get onboardingRange161to170 => '161–170 సెం.మీ';
+
+  @override
+  String get onboardingRange171to180 => '171–180 సెం.మీ';
+
+  @override
+  String get onboardingRangeOver180 => '180 సెం.మీ కంటే ఎక్కువ';
+
+  @override
+  String get onboardingRangeUnder50kg => '50 కేజీల కంటే తక్కువ';
+
+  @override
+  String get onboardingRange50to65kg => '50–65 కేజీలు';
+
+  @override
+  String get onboardingRange66to80kg => '66–80 కేజీలు';
+
+  @override
+  String get onboardingRange81to100kg => '81–100 కేజీలు';
+
+  @override
+  String get onboardingRangeOver100kg => '100 కేజీల కంటే ఎక్కువ';
+
+  @override
   String get onboardingPhoneInvalid =>
       'దయచేసి చెల్లుబాటు అయ్యే ఫోన్ నంబర్‌ను నమోదు చేయండి';
 

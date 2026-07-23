@@ -622,6 +622,87 @@ class AppLocalizationsHi extends AppLocalizations {
       'कृपया वैध वज़न दर्ज करें (20–300 किग्रा)';
 
   @override
+  String get onboardingAgeRequired => 'कृपया अपनी आयु दर्ज करें या एक सीमा चुनें';
+
+  @override
+  String get onboardingHeightRequired => 'कृपया अपनी ऊँचाई दर्ज करें या एक सीमा चुनें';
+
+  @override
+  String get onboardingWeightRequired => 'कृपया अपना वज़न दर्ज करें या एक सीमा चुनें';
+
+  @override
+  String get onboardingNotSure => 'पक्का नहीं';
+
+  @override
+  String get onboardingApproximate => 'अनुमानित';
+
+  @override
+  String get onboardingAgeHint => 'अपनी आयु दर्ज करें';
+
+  @override
+  String get onboardingAgeUnit => 'वर्ष';
+
+  @override
+  String get onboardingHeightHint => 'अपनी ऊँचाई दर्ज करें';
+
+  @override
+  String get onboardingHeightUnit => 'सेमी';
+
+  @override
+  String get onboardingWeightHint => 'अपना वज़न दर्ज करें';
+
+  @override
+  String get onboardingWeightUnit => 'किलो';
+
+  @override
+  String get onboardingRangeUnder18 => '18 से कम';
+
+  @override
+  String get onboardingRange18to25 => '18–25';
+
+  @override
+  String get onboardingRange26to35 => '26–35';
+
+  @override
+  String get onboardingRange36to50 => '36–50';
+
+  @override
+  String get onboardingRange51to65 => '51–65';
+
+  @override
+  String get onboardingRangeOver65 => '65 से अधिक';
+
+  @override
+  String get onboardingRangeUnder150 => '150 सेमी से कम';
+
+  @override
+  String get onboardingRange150to160 => '150–160 सेमी';
+
+  @override
+  String get onboardingRange161to170 => '161–170 सेमी';
+
+  @override
+  String get onboardingRange171to180 => '171–180 सेमी';
+
+  @override
+  String get onboardingRangeOver180 => '180 सेमी से अधिक';
+
+  @override
+  String get onboardingRangeUnder50kg => '50 किलो से कम';
+
+  @override
+  String get onboardingRange50to65kg => '50–65 किलो';
+
+  @override
+  String get onboardingRange66to80kg => '66–80 किलो';
+
+  @override
+  String get onboardingRange81to100kg => '81–100 किलो';
+
+  @override
+  String get onboardingRangeOver100kg => '100 किलो से अधिक';
+
+  @override
   String get onboardingPhoneInvalid => 'कृपया एक मान्य फ़ोन नंबर दर्ज करें';
 
   @override
