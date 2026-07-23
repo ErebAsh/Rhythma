@@ -269,7 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       final avatarPath = OnboardingScreen.avatars[i];
                       final isSelected = selectedAvatar == avatarPath;
                       return Semantics(
-                        label: 'Avatar Option ${i + 1}',
+                        label: '${AppLocalizations.of(context)!.onboardingAvatarOption} ${i + 1}',
                         selected: isSelected,
                         button: true,
                         child: GestureDetector(
@@ -591,92 +591,121 @@ class _ProfileScreenState extends State<ProfileScreen>
     final contact = editIndex != null ? _emergencyContacts[editIndex] : null;
     final nameController = TextEditingController(text: contact?['name']);
     final phoneController = TextEditingController(text: contact?['phone']);
-
+    
     String? nameError;
     String? phoneError;
 
     showDialog(
-  context: context,
-  builder: (context) => StatefulBuilder(
-    builder: (context, setDialogState) => Semantics(
-      label: editIndex == null
-          ? AppLocalizations.of(context)!.profileAddContact
-          : AppLocalizations.of(context)!.profileEditContact,
-      child: AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(editIndex == null
-            ? AppLocalizations.of(context)!.profileAddContact
-            : AppLocalizations.of(context)!.profileEditContact),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              textInputAction: TextInputAction.next,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.profileName,
-                errorText: nameError,
-              ),
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => Semantics(
+          label: editIndex == null
+              ? AppLocalizations.of(context)!.profileAddContact
+              : AppLocalizations.of(context)!.profileEditContact,
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: phoneController,
-              textInputAction: TextInputAction.done,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.profilePhone,
-                errorText: phoneError,
-              ),
-              keyboardType: TextInputType.phone,
+            title: Text(
+              editIndex == null
+                  ? AppLocalizations.of(context)!.profileAddContact
+                  : AppLocalizations.of(context)!.profileEditContact,
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              setDialogState(() {
-                nameError = null;
-                phoneError = null;
-              });
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText:
+                        AppLocalizations.of(context)!.profileName,
+                    errorText: nameError,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.done,
+                  decoration: InputDecoration(
+                    labelText:
+                        AppLocalizations.of(context)!.profilePhone,
+                    errorText: phoneError,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  setDialogState(() {
+                    nameError = null;
+                    phoneError = null;
+                  });
 
-              final name = nameController.text.trim();
-              final phone = phoneController.text.trim();
+                  final name = nameController.text.trim();
+                  final phone = phoneController.text.trim();
 
-              bool isValid = true;
-              if (name.isEmpty) {
-                setDialogState(() => nameError = AppLocalizations.of(context)!.profileNameEmptyError ?? 'Name is required');
-                isValid = false;
-              }
-              if (phone.isEmpty || phone.length < 8 || !RegExp(r'^\+?[0-9\s\-]+$').hasMatch(phone)) {
-                setDialogState(() => phoneError = AppLocalizations.of(context)!.profilePhoneInvalidError ?? 'Enter a valid phone number (min 8 digits)');
-                isValid = false;
-              }
+                  bool isValid = true;
 
-              if (isValid) {
-                setSheetState(() {
-                  if (editIndex == null) {
-                    _emergencyContacts.add({'name': name, 'phone': phone});
-                  } else {
-                    _emergencyContacts[editIndex] = {'name': name, 'phone': phone};
+                  if (name.isEmpty) {
+                    setDialogState(() {
+                      nameError = AppLocalizations.of(context)!
+                          .profileNameEmptyError;
+                    });
+                    isValid = false;
                   }
-                });
-                await LocalStorageService.saveEmergencyContacts(_emergencyContacts);
-                if (context.mounted) {
-                  Navigator.pop(context);
-                }
-              }
-            },
-            child: Text(AppLocalizations.of(context)!.profileSave),
-          ),
-        ],
-      ),
-    ),
-  ),
-);
 
+                  if (phone.isEmpty ||
+                      phone.length < 8 ||
+                      !RegExp(r'^\+?[0-9\s\-]+$').hasMatch(phone)) {
+                    setDialogState(() {
+                      phoneError = AppLocalizations.of(context)!
+                          .profilePhoneInvalidError;
+                    });
+                    isValid = false;
+                  }
+
+                  if (!isValid) return;
+
+                  setSheetState(() {
+                    if (editIndex == null) {
+                      _emergencyContacts.add({
+                        'name': name,
+                        'phone': phone,
+                      });
+                    } else {
+                      _emergencyContacts[editIndex] = {
+                        'name': name,
+                        'phone': phone,
+                      };
+                    }
+                  });
+
+                  await LocalStorageService.saveEmergencyContacts(
+                    _emergencyContacts,
+                  );
+
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text(
+                  AppLocalizations.of(context)!.profileSave,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
   void _showEmergencyContactsSheet() {
   showModalBottomSheet(
     context: context,
@@ -953,6 +982,47 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  Widget _buildActionMenu() {
+  return GlassCard(
+    padding: EdgeInsets.zero,
+    child: Column(
+      children: [
+        _buildActionTile(
+          icon: Icons.edit_rounded,
+          color: RhythmaColors.primary,
+          title: AppLocalizations.of(context)!.profileEditInfo,
+          onTap: _showEditProfileSheet,
+        ),
+        Divider(height: 1, color: RhythmaColors.border),
+        _buildActionTile(
+          icon: Icons.emergency_rounded,
+          color: RhythmaColors.rose,
+          title: AppLocalizations.of(context)!.profileEmergencyContact,
+          onTap: _showEmergencyContactsSheet,
+        ),
+        Divider(height: 1, color: RhythmaColors.border),
+        _buildActionTile(
+          icon: Icons.settings_rounded,
+          color: RhythmaColors.foreground,
+          title: AppLocalizations.of(context)!.profileAppSettings,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SettingsScreen(),
+              ),
+            ).then((_) {
+              setState(() {
+                _loadProfile();
+              });
+            });
+          },
+        ),
+      ],
+    ),
+  );
+}
+
   Widget _buildActionTile({
     required IconData icon,
     required Color color,
@@ -971,21 +1041,6 @@ class _ProfileScreenState extends State<ProfileScreen>
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       ),
-    );
-  }
-
-  Widget _buildActionTile({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: TintedIcon(icon: icon, color: color, size: 36),
-      title: Text(title, style: Theme.of(context).textTheme.bodyLarge),
-      trailing: Icon(Icons.chevron_right_rounded, color: RhythmaColors.mutedFg),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
     );
   }
 
@@ -1063,3 +1118,4 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
     );
   }
+  }  

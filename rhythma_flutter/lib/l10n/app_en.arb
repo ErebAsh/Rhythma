@@ -125,6 +125,7 @@
   "profileAge": "Age",
   "profileAvgCycleDays": "Average Cycle Length (Days)",
   "profileSaveChanges": "Save Changes",
+  "profileNameEmptyError": "Please enter a valid name",
   "profileAddContact": "Add Contact",
   "profileEditContact": "Edit Contact",
   "profilePhone": "Phone",
@@ -132,6 +133,7 @@
   "profileEmergencyContactsTitle": "Emergency Contacts",
   "profileAddNew": "Add New",
   "profileNoContacts": "No emergency contacts set up yet.",
+  
   "navHome": "Home",
   "navCycle": "Cycle",
   "navAsk": "Ask",

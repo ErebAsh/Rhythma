@@ -391,6 +391,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get profileSaveChanges => 'மாற்றங்களை சேமி';
 
   @override
+  String get profileNameEmptyError => 'Please enter a valid name';
+
+  @override
   String get profileAddContact => 'தொடர்பைச் சேர்க்கவும்';
 
   @override
@@ -411,6 +414,24 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get profileNoContacts =>
       'அவசரத் தொடர்புகள் எதுவும் இன்னும் அமைக்கப்படவில்லை.';
+
+  @override
+  String get profileAgeInvalidError => 'Please enter a valid age';
+
+  @override
+  String get profileCycleInvalidError => 'Please enter a valid cycle length';
+
+  @override
+  String get profilePhoneInvalidError => 'Please enter a valid phone number';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get onboardingAvatarOption => 'Avatar Option';
 
   @override
   String get navHome => 'ஹோம்';

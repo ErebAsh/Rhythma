@@ -391,6 +391,9 @@ class AppLocalizationsTe extends AppLocalizations {
   String get profileSaveChanges => 'మార్పులను భద్రపరుచు';
 
   @override
+  String get profileNameEmptyError => 'Please enter a valid name';
+
+  @override
   String get profileAddContact => 'పరిచయాన్ని జోడించండి';
 
   @override
@@ -411,6 +414,24 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get profileNoContacts =>
       'ఇంకా ఎటువంటి అత్యవసర పరిచయాలు సెటప్ చేయబడలేదు.';
+
+  @override
+  String get profileAgeInvalidError => 'Please enter a valid age';
+
+  @override
+  String get profileCycleInvalidError => 'Please enter a valid cycle length';
+
+  @override
+  String get profilePhoneInvalidError => 'Please enter a valid phone number';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get onboardingAvatarOption => 'Avatar Option';
 
   @override
   String get navHome => 'హోమ్';

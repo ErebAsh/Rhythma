@@ -842,6 +842,12 @@ abstract class AppLocalizations {
   /// **'Save Changes'**
   String get profileSaveChanges;
 
+  /// No description provided for @profileNameEmptyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid name'**
+  String get profileNameEmptyError;
+
   /// No description provided for @profileAddContact.
   ///
   /// In en, this message translates to:
@@ -883,6 +889,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No emergency contacts set up yet.'**
   String get profileNoContacts;
+
+  /// No description provided for @profileAgeInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid age'**
+  String get profileAgeInvalidError;
+
+  /// No description provided for @profileCycleInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid cycle length'**
+  String get profileCycleInvalidError;
+
+  /// No description provided for @profilePhoneInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid phone number'**
+  String get profilePhoneInvalidError;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @onboardingAvatarOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar Option'**
+  String get onboardingAvatarOption;
 
   /// No description provided for @navHome.
   ///

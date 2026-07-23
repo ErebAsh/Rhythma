@@ -390,6 +390,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get profileSaveChanges => 'बदल जतन करा';
 
   @override
+  String get profileNameEmptyError => 'Please enter a valid name';
+
+  @override
   String get profileAddContact => 'संपर्क जोडा';
 
   @override
@@ -410,6 +413,24 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get profileNoContacts =>
       'अद्याप कोणताही आणीबाणी संपर्क सेट केलेला नाही.';
+
+  @override
+  String get profileAgeInvalidError => 'Please enter a valid age';
+
+  @override
+  String get profileCycleInvalidError => 'Please enter a valid cycle length';
+
+  @override
+  String get profilePhoneInvalidError => 'Please enter a valid phone number';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get onboardingAvatarOption => 'Avatar Option';
 
   @override
   String get navHome => 'होम';

@@ -390,6 +390,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileSaveChanges => 'Save Changes';
 
   @override
+  String get profileNameEmptyError => 'Please enter a valid name';
+
+  @override
   String get profileAddContact => 'Add Contact';
 
   @override
@@ -409,6 +412,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileNoContacts => 'No emergency contacts set up yet.';
+
+  @override
+  String get profileAgeInvalidError => 'Please enter a valid age';
+
+  @override
+  String get profileCycleInvalidError => 'Please enter a valid cycle length';
+
+  @override
+  String get profilePhoneInvalidError => 'Please enter a valid phone number';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get onboardingAvatarOption => 'Avatar Option';
 
   @override
   String get navHome => 'Home';
