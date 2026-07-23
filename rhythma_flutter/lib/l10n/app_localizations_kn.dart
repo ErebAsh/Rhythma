@@ -556,6 +556,9 @@ class AppLocalizationsKn extends AppLocalizations {
   String get onboardingPhoneLabel => 'ಫೋನ್ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'ನಗರ (ಐಚ್ಛಿಕ)';
 
   @override

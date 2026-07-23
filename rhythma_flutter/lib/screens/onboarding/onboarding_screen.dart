@@ -673,6 +673,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           _buildTextField(
             controller: _phoneController,
             label: l.onboardingPhoneLabel,
+            hint: l.onboardingPhoneHint,
             error: _phoneError,
             keyboardType: TextInputType.phone,
             textInputAction: TextInputAction.next,
