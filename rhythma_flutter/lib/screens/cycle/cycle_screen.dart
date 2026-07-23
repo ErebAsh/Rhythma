@@ -191,10 +191,10 @@ class _CycleScreenState extends State<CycleScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: TextButton.icon(
-                  onPressed: _jumpToToday,
-                  icon: const Icon(Icons.today_rounded, size: 16),
-                  label: const Text('Today'),
+                  child: TextButton.icon(
+                    onPressed: _jumpToToday,
+                    icon: const Icon(Icons.today_rounded, size: 16),
+                    label: Text(l10n.cycleToday),
                   style: TextButton.styleFrom(
                     foregroundColor: RhythmaColors.primary,
                   ),

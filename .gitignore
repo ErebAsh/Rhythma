@@ -65,9 +65,11 @@ dist/
 google-services.json
 GoogleService-Info.plist
 credentials.json
+firebase.json
 secrets.json
 service-account*.json
 firebase-credentials.json
+firebase-key.json
 
 # =========================
 # IDE / EDITORS

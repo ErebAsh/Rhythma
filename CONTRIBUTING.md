@@ -54,13 +54,20 @@ Note: `android/`, `ios/`, and the other platform folders are already committed t
 
 **Backend:**
 
-```
+```bash
 cd backend
 python -m venv venv && source venv/bin/activate
 pip install -r ../requirements.txt
 cp .env.example .env    # JWT_SECRET and Firebase credentials are required
 uvicorn main:app --reload
 ```
+**Note on Firestore Mock Mode:**
+
+If no Firebase credentials (FIREBASE_CREDENTIALS_JSON or service account key) are provided in backend/.env, firestore_service.py automatically falls back to an in-memory MockFirestoreClient.
+
+Data Persistence: In mock mode, all logged data is stored strictly in memory and will be lost every time the backend restarts.
+
+Persistent Setup: If your feature requires persistent local backend data across restarts, refer to the Firebase Setup Instructions in README.md to configure your local .env with actual Firebase credentials.
 
 **Web app:**
 
