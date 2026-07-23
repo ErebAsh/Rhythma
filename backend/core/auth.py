@@ -1,6 +1,6 @@
 import bcrypt
 from jose import JWTError, jwt
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status, Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 import os
 from datetime import datetime, timedelta, timezone
@@ -14,7 +14,12 @@ if not SECRET_KEY:
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
+COOKIE_NAME = "rhythma_access_token"
+# auto_eeor=False: don't reject immediately when there's no Authorization
+# header - a web client may still have a valid session cookie.
+outh2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token", auto_error=False)
+
 
 # --- Password Functions ---
 def get_password_hash(password: str) -> str:
@@ -37,12 +42,21 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     return encoded_jwt
 
 # --- Token Verification ---
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(
+    request: Request,
+    token: str | None = Depends(outh2_scheme),
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    # Mobile clients send authorization: Bearer <token>
+    # Web clients send it via the httpOnly cookie instead.
+    if not token:
+        token = request.cookies.get(COOKIE_NAME)
+    if not token:
+        raise credentials_exception
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
@@ -54,5 +68,4 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user = UserService.get_user_by_id(user_id)
     if user is None:
         raise credentials_exception
-
     return {"id": user["id"], "username": user["username"], "email": user["email"]}

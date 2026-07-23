@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, status, Depends, Request
+from fastapi import APIRouter, HTTPException, status, Depends, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import datetime, timedelta, timezone
 from core.auth import (
     create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
+    COOKIE_NAME,
     get_password_hash,
     verify_password,
     get_current_user,
@@ -11,8 +12,13 @@ from core.auth import (
 from models.user import UserCreate, UserResponse, UserProfileUpdate, UserProfileResponse
 from services.firestore_service import UserService
 from typing import Dict, List
+import os
 
 router = APIRouter(tags=["Authentication"])
+# Env-driven so dev (http://localhost) and prod (https, real domain) differ without code changes.
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"  # True if HTTPS-only, False if HTTP allowed (dev)
+COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax").lower()  # "lax" or "strict" or "none" | "none" if web + API end up on differrent registrable domains in prod
+COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", None)  # e.g. ".example.com" to share across subdomains, or None for default (current domain only)
 
 # ─── Rate Limiting ──────────────────────────────────────────────────────────
 # In-memory stores for rate limiting (resets on server restart)
@@ -54,6 +60,18 @@ def get_client_ip(request: Request) -> str:
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host or "unknown"
+
+def _set_auth_cookie(response: Response, token: str):
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=token,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
+        secure=COOKIE_SECURE,
+        samesite=COOKIE_SAMESITE,
+        domain=COOKIE_DOMAIN,
+        path="/",  # Cookie is valid for all paths
+    )
 
 # ─── Endpoints ──────────────────────────────────────────────────────────────
 
@@ -107,6 +125,7 @@ async def register(request: Request, user_data: UserCreate):
 @router.post("/token")
 async def login_for_access_token(
     request: Request,
+    response: Response,
     form_data: OAuth2PasswordRequestForm = Depends()
 ):
     # Rate limit by username (5 attempts per 5 minutes)
@@ -132,8 +151,17 @@ async def login_for_access_token(
     access_token = create_access_token(
         data={"sub": user["id"]}, expires_delta=access_token_expires
     )
+    _set_auth_cookie(response, access_token)
     return {"access_token": access_token, "token_type": "bearer"}
 
+@router.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie(
+        key=COOKIE_NAME,
+        path="/",
+        domain=COOKIE_DOMAIN,
+    )
+    return {"message": "Successfully logged out."}
 
 @router.get("/me")
 async def get_me(current_user: dict = Depends(get_current_user)):

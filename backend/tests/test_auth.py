@@ -37,6 +37,15 @@ sys.modules["firebase_admin.firestore"] = MagicMock()
 from main import app
 client = TestClient(app)
 
+from core.auth_router import login_attempts, register_attempts
+from api.sms import sms_history
+
+@pytest.fixture(autouse=True)
+def clear_state():
+    client.cookies.clear()
+    login_attempts.clear()
+    register_attempts.clear()
+    sms_history.clear()
 
 # ─── Fixture to mock UserService and verify_password ──────────────────────
 @pytest.fixture(autouse=True)
@@ -347,3 +356,40 @@ def test_patch_profile():
     assert data["avatar"] == "assets/avatars/avatar_2.png"
     assert data["username"] == "testuser"
     assert "password" not in data
+
+def test_login_sets_httponly_cookie():
+    response = client.post(
+        "/api/v1/auth/token",
+        data={"username": "testuser", "password": "testpass123"},
+    )
+
+    assert response.status_code == 200
+    assert "rhythma_access_token" in response.cookies
+
+    set_cookie_header = response.headers.get("set-cookie", "")
+    assert "HttpOnly" in set_cookie_header
+
+def test_cookie_only_auth_works():
+    # Login stores the HttpOnly cookie in the TestClient cookie jar.
+    client.post(
+        "/api/v1/auth/token",
+        data={"username": "testuser", "password": "testpass123"},
+    )
+
+    # No Authorization header is sent here.
+    response = client.get("/api/v1/auth/me")
+
+    assert response.status_code == 200
+    assert response.json()["username"] == "testuser"
+
+def test_logout_clears_cookie():
+    client.post(
+        "/api/v1/auth/token",
+        data={"username": "testuser", "password": "testpass123"},
+    )
+
+    logout = client.post("/api/v1/auth/logout")
+    assert logout.status_code == 200
+
+    response = client.get("/api/v1/auth/me")
+    assert response.status_code == 401
