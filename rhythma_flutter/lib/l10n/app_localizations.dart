@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_gu.dart';
 import 'app_localizations_hi.dart';
 import 'app_localizations_kn.dart';
 import 'app_localizations_ml.dart';
@@ -1429,6 +1430,7 @@ class _AppLocalizationsDelegate
   @override
   bool isSupported(Locale locale) => <String>[
         'en',
+        'gu',
         'hi',
         'kn',
         'ml',
@@ -1446,6 +1448,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'gu':
+      return AppLocalizationsGu();
     case 'hi':
       return AppLocalizationsHi();
     case 'kn':

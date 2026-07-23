@@ -11,10 +11,11 @@ class LanguageScreen extends StatelessWidget {
 
   static const Map<String, String> languages = {
     'English': 'en',
-    'हिन्दी (Hindi)': 'hi',
+    'હિન્દી (Hindi)': 'hi',
     'தமிழ் (Tamil)': 'ta',
     'తెలుగు (Telugu)': 'te',
-    'मराठी (Marathi)': 'mr'
+    'मराठी (Marathi)': 'mr',
+    'ગુજરાતી (Gujarati)': 'gu'
   };
 
   @override

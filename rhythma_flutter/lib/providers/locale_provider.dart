@@ -9,7 +9,7 @@ class LocaleProvider extends ChangeNotifier {
   Locale get locale => _locale;
 
   void setLocale(Locale locale) {
-    if (!['en', 'hi', 'ta', 'te', 'mr'].contains(locale.languageCode)) return;
+    if (!['en', 'hi', 'ta', 'te', 'mr', 'gu'].contains(locale.languageCode)) return;
     _locale = locale;
     LocalStorageService.setPreferredLanguage(locale.languageCode);
     notifyListeners();
