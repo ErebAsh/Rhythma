@@ -143,7 +143,7 @@ void main() {
         'cycle_length': 27,
         'period_duration': 4,
         'cycle_regular': true,
-        'phone': '9876543210',
+        'phone': '+919876543210',
         'city': 'Pune',
         'state': '411001',
         'notifications_enabled': true,

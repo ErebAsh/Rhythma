@@ -66,6 +66,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   late AnimationController _pageAnimController;
   late Animation<double> _pageFade;
 
+  // E.164 format: leading '+' followed by 1-15 digits.
+  static final _e164 = RegExp(r'^\+[1-9]\d{1,14}$');
+
   @override
   void initState() {
     super.initState();
@@ -149,8 +152,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     }
 
     if (_currentPage == 3) {
-      final digitsOnly = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
-      if (_phoneController.text.trim().isNotEmpty && (digitsOnly.length < 7 || digitsOnly.length > 15)) {
+      final phone = _phoneController.text.trim();
+      if (phone.isNotEmpty && !_e164.hasMatch(phone)) {
         setState(() => _phoneError = l.onboardingPhoneInvalid);
         return false;
       }
