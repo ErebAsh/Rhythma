@@ -26,6 +26,12 @@ class MockDocumentReference:
             self.data.update(update_data)
             self.collection.store[self.id] = self.data
 
+    def delete(self):
+        if self.id in self.collection.store:
+            del self.collection.store[self.id]
+        self.data = None
+        self.exists = False
+
 class MockQuery:
     def __init__(self, documents):
         # documents is a list of MockDocumentReference
@@ -350,4 +356,67 @@ class CycleService:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to save cycle log: {str(e)}"
+            )
+
+    @staticmethod
+    def update_log(user_id: str, log_id: str, fields: Dict[str, Any]) -> str:
+        """Update a specific cycle log by ID."""
+        try:
+            doc_ref = db.collection("cycle_logs").document(log_id)
+            doc = doc_ref.get()
+            
+            if not doc.exists:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Cycle log not found"
+                )
+                
+            if doc.to_dict().get("user_id") != user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not authorized to update this log"
+                )
+                
+            update_fields = dict(fields)
+            for key, value in list(update_fields.items()):
+                if isinstance(value, date) and not isinstance(value, datetime):
+                    update_fields[key] = datetime.combine(value, datetime.min.time(), tzinfo=timezone.utc)
+            
+            update_fields["updated_at"] = datetime.now(timezone.utc)
+            doc_ref.update(update_fields)
+            return log_id
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to update cycle log: {str(e)}"
+            )
+
+    @staticmethod
+    def delete_log(user_id: str, log_id: str) -> None:
+        """Delete a specific cycle log by ID."""
+        try:
+            doc_ref = db.collection("cycle_logs").document(log_id)
+            doc = doc_ref.get()
+            
+            if not doc.exists:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Cycle log not found"
+                )
+                
+            if doc.to_dict().get("user_id") != user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not authorized to delete this log"
+                )
+                
+            doc_ref.delete()
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to delete cycle log: {str(e)}"
             )
