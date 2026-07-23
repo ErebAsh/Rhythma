@@ -556,6 +556,9 @@ class AppLocalizationsTe extends AppLocalizations {
   String get onboardingPhoneLabel => 'ఫోన్ నంబర్ (ఐచ్ఛికం)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'నగరం (ఐచ్ఛికం)';
 
   @override

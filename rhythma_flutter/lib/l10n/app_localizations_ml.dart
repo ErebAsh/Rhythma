@@ -562,6 +562,9 @@ class AppLocalizationsMl extends AppLocalizations {
   String get onboardingPhoneLabel => 'ഫോൺ നമ്പർ (ഓപ്ഷണൽ)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'നഗരം (ഓപ്ഷണൽ)';
 
   @override

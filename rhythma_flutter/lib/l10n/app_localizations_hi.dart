@@ -555,6 +555,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get onboardingPhoneLabel => 'फ़ोन नंबर (वैकल्पिक)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'शहर (वैकल्पिक)';
 
   @override

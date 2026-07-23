@@ -560,6 +560,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get onboardingPhoneLabel => 'தொலைபேசி எண் (விரும்பினால்)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'நகரம் (விரும்பினால்)';
 
   @override

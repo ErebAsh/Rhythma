@@ -1158,6 +1158,12 @@ abstract class AppLocalizations {
   /// **'Phone Number (optional)'**
   String get onboardingPhoneLabel;
 
+  /// No description provided for @onboardingPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. +919876543210'**
+  String get onboardingPhoneHint;
+
   /// No description provided for @onboardingCityLabel.
   ///
   /// In en, this message translates to:

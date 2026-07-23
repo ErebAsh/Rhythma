@@ -553,6 +553,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPhoneLabel => 'Phone Number (optional)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'City (optional)';
 
   @override
@@ -594,7 +597,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please enter a valid weight (20–300 kg)';
 
   @override
-  String get onboardingPhoneInvalid => 'Please enter a valid phone number';
+  String get onboardingPhoneInvalid => 'Use international format, e.g. +919876543210';
 
   @override
   String get onboardingTapToSelectDate => 'Tap to select date';
