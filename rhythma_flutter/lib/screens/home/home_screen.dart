@@ -560,11 +560,23 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _shouldShowNudge(Map<String, dynamic> profile) {
     if (profile['last_period_is_approximate'] != true) return false;
     if (LocalStorageService.getNudgeDismissed('last_period_exact')) return false;
+
+    // Prefer onboarding_completed_at; fall back to last_period date for
+    // existing users who completed onboarding before this field was added.
     final completedAt = profile['onboarding_completed_at'] as String?;
-    if (completedAt == null) return false;
-    final date = DateTime.tryParse(completedAt);
-    if (date == null) return false;
-    return DateTime.now().difference(date).inDays >= 3;
+    if (completedAt != null) {
+      final date = DateTime.tryParse(completedAt);
+      if (date != null) return DateTime.now().difference(date).inDays >= 3;
+    }
+
+    final lastPeriod = profile['last_period'] as String?;
+    if (lastPeriod != null) {
+      final date = DateTime.tryParse(lastPeriod);
+      if (date != null) return DateTime.now().difference(date).inDays >= 3;
+    }
+
+    // If neither date is available, show the nudge so the user can update.
+    return true;
   }
 
   Widget _buildNudgeBanner(
