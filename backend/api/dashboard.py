@@ -45,13 +45,17 @@ def _build_model_features(logs_newest_first: List[Dict[str, Any]]) -> List[Dict[
             (log.get("flow_intensity") or "").lower(), 2
         )
 
+        stress = log.get("stress_level")
+        sleep = log.get("sleep_hours")
+
         features.append({
-            "cycle_length": cycle_length or _DEFAULT_CYCLE_LENGTH,
+            "cycle_length": cycle_length if cycle_length is not None else _DEFAULT_CYCLE_LENGTH,
             "flow_duration": flow_duration,
             "flow_intensity": flow_intensity,
             "symptom_count": len(log.get("symptoms") or []),
-            "stress_avg": log.get("stress_level") or 2.5,
-            "sleep_avg": log.get("sleep_hours") or 7.0,
+            "stress_avg": stress if stress is not None else 2.5,
+            "sleep_avg": sleep if sleep is not None else 7.0,
+
         })
     return features
 

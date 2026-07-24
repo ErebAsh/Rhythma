@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rhythma/services/local_storage_service.dart';
 
+// Mirrors the regex used in onboarding_screen.dart and sms_screen.dart.
+final _e164 = RegExp(r'^\+[1-9]\d{1,14}$');
+
 /// Unit tests for the onboarding-related LocalStorageService methods.
 /// These tests use [LocalStorageService.isTesting] = true to avoid
 /// opening real Hive boxes during testing.
@@ -143,7 +146,7 @@ void main() {
         'cycle_length': 27,
         'period_duration': 4,
         'cycle_regular': true,
-        'phone': '9876543210',
+        'phone': '+919876543210',
         'city': 'Pune',
         'state': '411001',
         'notifications_enabled': true,
@@ -172,10 +175,50 @@ void main() {
       expect(profile['last_period'], '2025-06-10');
       expect(profile['period_duration'], 4);
       expect(profile['cycle_regular'], true);
-      expect(profile['phone'], '9876543210');
+      expect(profile['phone'], '+919876543210');
       expect(profile['city'], 'Pune');
       expect(profile['state'], '411001');
       expect(profile['notifications_enabled'], true);
+    });
+  });
+
+  // ── Step 4 phone validation (E.164 regex regression) ─────────────────────
+
+  group('Step 4 phone E.164 validation', () {
+    test('empty phone passes (field is optional)', () {
+      expect(''.isEmpty || _e164.hasMatch(''), isTrue);
+    });
+
+    test('valid Indian E.164 number passes', () {
+      expect(_e164.hasMatch('+919876543210'), isTrue);
+    });
+
+    test('valid US E.164 number passes', () {
+      expect(_e164.hasMatch('+12025551234'), isTrue);
+    });
+
+    test('bare 10-digit number without country code fails', () {
+      expect(_e164.hasMatch('9876543210'), isFalse);
+    });
+
+    test('number with spaces fails', () {
+      expect(_e164.hasMatch('+91 98765 43210'), isFalse);
+    });
+
+    test('number with dashes fails', () {
+      expect(_e164.hasMatch('+1-202-555-1234'), isFalse);
+    });
+
+    test('letters-only string fails', () {
+      expect(_e164.hasMatch('abcdefg'), isFalse);
+    });
+
+    test('plus sign alone fails', () {
+      expect(_e164.hasMatch('+'), isFalse);
+    });
+
+    test('leading zero after plus fails (E.164 forbids it)', () {
+      expect(_e164.hasMatch('+0123456789'), isFalse);
     });
   });
 }

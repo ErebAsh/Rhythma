@@ -209,5 +209,17 @@
   "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
   "insightsNotEnoughData": "మీ పూర్తి ఆరోగ్య విశ్లేషణలను అన్లాక్ చేయడానికి Cycle ట్యాబ్‌లో మరికొన్ని చక్రాలను లాగ్ చేయండి.",
   "insightsNoSymptomsYet": "ఇంకా లక్షణాలు ఏవీ లాగ్ చేయబడలేదు — Cycle ట్యాబ్‌లో కొన్నింటిని లాగ్ చేయండి.",
-  "insightsNotEnoughTrendData": "మీ ట్రెండ్ చూడటానికి కనీసం రెండు చక్రాలను లాగ్ చేయండి."
+  "insightsNotEnoughTrendData": "మీ ట్రెండ్ చూడటానికి కనీసం రెండు చక్రాలను లాగ్ చేయండి.",
+  "homeMhs": "MHS",
+  "homeCvi": "CVI",
+  "homeSleep": "నిద్ర",
+  "cycleToday": "ఈ రోజు",
+  "homeErrorNetwork": "దయచేసి మీ ఇంటర్నెట్ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
+  "homeErrorAuth": "మీ సెషన్ గడువు ముగిసింది. దయచేసి మళ్లీ లాగిన్ చేయండి.",
+  "homeErrorServer": "మా వైపు ఏదో తప్పు జరిగింది. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.",
+  "homeErrorGeneric": "డేటాను లోడ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.",
+  "homeQuickLogTitle": "{label} నమోదు చేయండి",
+  "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
+  "homeQuickLogSaved": "{label} నమోదు చేయబడింది: {value}",
+  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } }
 }

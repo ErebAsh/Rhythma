@@ -65,3 +65,22 @@ User (WhatsApp) ──► Twilio / Meta Cloud API ──► FastAPI webhook
                                                       │
                                               Response back to user
 ```
+### Frontend Coexistence & Strategy (`web/` vs `rhythma_flutter/`)
+
+The repository currently contains two frontend implementations:
+
+* **`rhythma_flutter/` (Primary):** The primary cross-platform codebase targeting Android, iOS, and Web. **All new features and user-facing capabilities should be built here.**
+* **`web/` (Legacy Scaffold):** A minimal, React-based authentication scaffold (`web/src/pages/HomePage.tsx`) built early in the project to test backend API integration.
+
+> **Target Frontend Policy:**
+> `web/` is currently maintained solely as a simple auth scaffold and is planned to be superseded by the official **Flutter Web** build (tracked in [#68](https://github.com/ishita2740/Rhythma/issues/68) / [#142](https://github.com/ishita2740/Rhythma/issues/142)). **Do not add new application features or pages to `web/`.** All new feature development must be directed to `rhythma_flutter/`.
+## Known Dev-Only Shortcuts
+
+The following configuration choices and fallbacks are currently enabled to simplify local development, but are **not production-ready**.
+
+| Dev Shortcut | File / Location | Why it's for Dev Only | Production Requirement | Tracking Issue |
+| :--- | :--- | :--- | :--- | :--- |
+| **Mock Firestore Fallback** | `backend/services/firestore_service.py`, `rhythma_flutter/lib/services/firestore_service.dart` | Allows local development without requiring live Firebase credentials by falling back to mock or stubbed data. | Require an active Firebase configuration with strict database security rules enforced. | N/A |
+| **Cleartext Traffic Enabled** | `rhythma_flutter/android/app/src/main/AndroidManifest.xml` | Permits unencrypted HTTP communication for testing on local Android emulators/devices. | Enforce HTTPS exclusively (`android:usesCleartextTraffic="false"`) and configure a Network Security Config. | N/A |
+| **Default HTTP `API_BASE_URL`** | `rhythma_flutter/lib/config/app_config.dart`, `rhythma_flutter/.env.example`, `README.md` | Defaults to non-secure `http://` local server URLs for quick setup. | Enforce secure `https://` base URLs passed via environment variables/production build configurations. | N/A |
+| **30-minute JWT with No Refresh Flow** | `backend/auth.py` | Uses a fixed token expiration window without automated refresh token mechanisms. | Implement short-lived access tokens coupled with a secure HTTP-only refresh token renewal flow. | N/A |

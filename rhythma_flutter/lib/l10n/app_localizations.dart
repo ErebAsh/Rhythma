@@ -7,6 +7,8 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
 import 'app_localizations_hi.dart';
+import 'app_localizations_kn.dart';
+import 'app_localizations_ml.dart';
 import 'app_localizations_mr.dart';
 import 'app_localizations_ta.dart';
 import 'app_localizations_te.dart';
@@ -99,6 +101,8 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('hi'),
+    Locale('kn'),
+    Locale('ml'),
     Locale('mr'),
     Locale('ta'),
     Locale('te')
@@ -362,6 +366,24 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get homeRetry;
 
+  /// No description provided for @homeMhs.
+  ///
+  /// In en, this message translates to:
+  /// **'MHS'**
+  String get homeMhs;
+
+  /// No description provided for @homeCvi.
+  ///
+  /// In en, this message translates to:
+  /// **'CVI'**
+  String get homeCvi;
+
+  /// No description provided for @homeSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get homeSleep;
+
   /// No description provided for @homeComingSoon.
   ///
   /// In en, this message translates to:
@@ -373,6 +395,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{topic} is currently under development.'**
   String homeUnderDevelopment(String topic);
+
+  /// No description provided for @homeErrorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your internet connection and try again.'**
+  String get homeErrorNetwork;
+
+  /// No description provided for @homeErrorAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please log in again.'**
+  String get homeErrorAuth;
+
+  /// No description provided for @homeErrorServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong on our end. Please try again later.'**
+  String get homeErrorServer;
+
+  /// No description provided for @homeErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load data. Please try again.'**
+  String get homeErrorGeneric;
+
+  /// No description provided for @homeQuickLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log {label}'**
+  String homeQuickLogTitle(String label);
+
+  /// No description provided for @homeQuickLogSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} logged: {value}'**
+  String homeQuickLogSaved(String label, String value);
 
   /// No description provided for @homePrivacySecurity.
   ///
@@ -391,6 +449,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cycle Tracker'**
   String get cycleTrackerTitle;
+
+  /// No description provided for @cycleToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get cycleToday;
 
   /// No description provided for @cyclePhasePeriod.
   ///
@@ -1094,6 +1158,12 @@ abstract class AppLocalizations {
   /// **'Phone Number (optional)'**
   String get onboardingPhoneLabel;
 
+  /// No description provided for @onboardingPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. +919876543210'**
+  String get onboardingPhoneHint;
+
   /// No description provided for @onboardingCityLabel.
   ///
   /// In en, this message translates to:
@@ -1363,8 +1433,15 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'hi', 'mr', 'ta', 'te'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+        'en',
+        'hi',
+        'kn',
+        'ml',
+        'mr',
+        'ta',
+        'te'
+      ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1377,6 +1454,10 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'hi':
       return AppLocalizationsHi();
+    case 'kn':
+      return AppLocalizationsKn();
+    case 'ml':
+      return AppLocalizationsMl();
     case 'mr':
       return AppLocalizationsMr();
     case 'ta':

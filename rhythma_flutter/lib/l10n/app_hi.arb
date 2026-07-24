@@ -192,5 +192,17 @@
   "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
   "insightsNotEnoughData": "अपने पूर्ण स्वास्थ्य अंतर्दृष्टि को अनलॉक करने के लिए Cycle टैब पर कुछ और चक्र लॉग करें।",
   "insightsNoSymptomsYet": "अभी तक कोई लक्षण लॉग नहीं किया गया है - यहाँ पैटर्न देखने के लिए Cycle टैब पर कुछ लॉग करें।",
-  "insightsNotEnoughTrendData": "अपना ट्रेंड देखने के लिए कम से कम दो चक्र लॉग करें।"
+  "insightsNotEnoughTrendData": "Log at least two cycles to see your trend here.",
+  "homeMhs": "MHS",
+  "homeCvi": "CVI",
+  "homeSleep": "नींद",
+  "cycleToday": "आज",
+  "homeErrorNetwork": "कृपया अपना इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।",
+  "homeErrorAuth": "आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।",
+  "homeErrorServer": "हमारी तरफ से कुछ गड़बड़ हुई है। कृपया बाद में फिर से प्रयास करें।",
+  "homeErrorGeneric": "डेटा लोड करने में असमर्थ। कृपया फिर से प्रयास करें।",
+  "homeQuickLogTitle": "{label} लॉग करें",
+  "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
+  "homeQuickLogSaved": "{label} लॉग किया गया: {value}",
+  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } }
 }

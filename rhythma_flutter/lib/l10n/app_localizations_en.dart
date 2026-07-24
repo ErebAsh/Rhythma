@@ -9,11 +9,6 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String insightsScoreValue(int i) {
-  return '$i';
-  }
-
-  @override
   String get appTitle => 'Rhythma';
 
   @override
@@ -147,11 +142,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeRetry => 'Retry';
 
   @override
+  String get homeMhs => 'MHS';
+
+  @override
+  String get homeCvi => 'CVI';
+
+  @override
+  String get homeSleep => 'Sleep';
+
+  @override
   String get homeComingSoon => 'Coming Soon';
 
   @override
   String homeUnderDevelopment(String topic) {
     return '$topic is currently under development.';
+  }
+
+  @override
+  String get homeErrorNetwork =>
+      'Please check your internet connection and try again.';
+
+  @override
+  String get homeErrorAuth => 'Your session has expired. Please log in again.';
+
+  @override
+  String get homeErrorServer =>
+      'Something went wrong on our end. Please try again later.';
+
+  @override
+  String get homeErrorGeneric => 'Unable to load data. Please try again.';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return 'Log $label';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label logged: $value';
   }
 
   @override
@@ -162,6 +190,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cycleTrackerTitle => 'Cycle Tracker';
+
+  @override
+  String get cycleToday => 'Today';
 
   @override
   String get cyclePhasePeriod => 'Period';
@@ -522,6 +553,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPhoneLabel => 'Phone Number (optional)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'City (optional)';
 
   @override
@@ -563,7 +597,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please enter a valid weight (20–300 kg)';
 
   @override
-  String get onboardingPhoneInvalid => 'Please enter a valid phone number';
+  String get onboardingPhoneInvalid => 'Use international format, e.g. +919876543210';
 
   @override
   String get onboardingTapToSelectDate => 'Tap to select date';
