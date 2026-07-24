@@ -30,14 +30,19 @@ os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["GEMINI_API_KEY"] = "mock-key"
 
 # ─── Mock firebase_admin ──────────────────────────────────────────────────
-sys.modules["firebase_admin"] = MagicMock()
+sys.modules["firebase_admin"] = MagicMock(_apps={})
 sys.modules["firebase_admin.credentials"] = MagicMock()
 sys.modules["firebase_admin.firestore"] = MagicMock()
 
 # ─── Import main after mocks ──────────────────────────────────────────────
 from main import app
 from core.auth import get_current_user
-from services.firestore_service import db, CycleService
+import services.firestore_service as fs
+from services.firestore_service import MockFirestoreClient, CycleService
+
+# Force db to be the mock client for these tests
+fs.db = MockFirestoreClient()
+db = fs.db
 
 client = TestClient(app)
 
@@ -48,7 +53,11 @@ OTHER_USER_ID = "other-user-id"
 def override_get_current_user():
     return {"id": TEST_USER_ID, "username": "testuser"}
 
-app.dependency_overrides[get_current_user] = override_get_current_user
+@pytest.fixture(autouse=True)
+def override_dependencies():
+    app.dependency_overrides[get_current_user] = override_get_current_user
+    yield
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture(autouse=True)
