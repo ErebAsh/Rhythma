@@ -553,6 +553,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPhoneLabel => 'Phone Number (optional)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'City (optional)';
 
   @override
@@ -594,7 +597,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please enter a valid weight (20–300 kg)';
 
   @override
-  String get onboardingPhoneInvalid => 'Please enter a valid phone number';
+  String get onboardingPhoneInvalid => 'Use international format, e.g. +919876543210';
 
   @override
   String get onboardingTapToSelectDate => 'Tap to select date';
@@ -730,4 +733,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'Log at least two cycles to see your trend here.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'Message input';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'Type your question here';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'Send message';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'Sends your message to the assistant';
+
+  @override
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 }

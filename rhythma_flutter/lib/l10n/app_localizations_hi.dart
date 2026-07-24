@@ -555,6 +555,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get onboardingPhoneLabel => 'फ़ोन नंबर (वैकल्पिक)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'शहर (वैकल्पिक)';
 
   @override
@@ -723,4 +726,24 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'Log at least two cycles to see your trend here.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'सुझाया गया संदेश';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'संदेश दर्ज करें';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'यहाँ अपना प्रश्न दर्ज करें';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'संदेश भेजें';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'अपना संदेश सहायक को भेजें';
+
+  @override
+  String get assistantAccessibilityTyping => 'सहायक टाइप कर रहा है';
 }

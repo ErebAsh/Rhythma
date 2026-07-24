@@ -560,6 +560,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get onboardingPhoneLabel => 'தொலைபேசி எண் (விரும்பினால்)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'நகரம் (விரும்பினால்)';
 
   @override
@@ -729,4 +732,26 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'Log at least two cycles to see your trend here.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt =>
+      'பரிந்துரைக்கப்பட்ட செய்தி';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'செய்தியை உள்ளிடவும்';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'உங்கள் கேள்வியை இங்கே உள்ளிடவும்';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'செய்தியை அனுப்பவும்';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'உங்கள் செய்தியை உதவியாளருக்கு அனுப்பவும்';
+
+  @override
+  String get assistantAccessibilityTyping =>
+      'உதவியாளர் தட்டச்சு செய்து கொண்டிருக்கிறார்';
 }
