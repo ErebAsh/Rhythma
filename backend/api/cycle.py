@@ -18,7 +18,6 @@ class CycleLog(BaseModel):
     notes: Optional[str] = None
 
 class CycleLogUpdate(BaseModel):
-    start_date: Optional[date] = None
     end_date: Optional[date] = None
     flow_intensity: Optional[str] = None
     mood: Optional[str] = None
