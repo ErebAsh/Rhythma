@@ -185,6 +185,22 @@ class UserService:
             )
 
     @staticmethod
+    def get_user_by_phone(phone: str) -> Optional[Dict[str, Any]]:
+        """Fetch a user by phone number."""
+        try:
+            users = db.collection("users").where("phone", "==", phone).limit(1).stream()
+            for user in users:
+                data = user.to_dict()
+                data["id"] = user.id
+                return data
+            return None
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to fetch user: {str(e)}"
+            )
+
+    @staticmethod
     def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
         """Fetch a user by Firestore document ID."""
         try:

@@ -8,36 +8,13 @@ import 'local_storage_service.dart';
 class AuthService {
   final Dio _dio = ApiClient.dio;
 
-  Future<User> register(
-      String username, String email, String password, String? fullName) async {
+  Future<String> firebaseLogin(String idToken) async {
     try {
       final response = await _dio.post(
-        '/auth/register',
+        '/auth/firebase-login',
         data: {
-          'username': username,
-          'email': email,
-          'password': password,
-          'full_name': fullName,
+          'id_token': idToken,
         },
-      );
-      return User.fromJson(response.data);
-    } on DioException catch (e) {
-      throw AuthException(
-          _readErrorMessage(e, 'Registration failed. Please try again.'));
-    }
-  }
-
-  Future<String> login(String username, String password) async {
-    try {
-      final response = await _dio.post(
-        '/auth/token',
-        data: {
-          'username': username,
-          'password': password,
-        },
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-        ),
       );
       final token = response.data['access_token'] as String;
       await SecureStorage.saveToken(token);

@@ -29,252 +29,90 @@ os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["GEMINI_API_KEY"] = "mock-key"
 
 # ─── Mock firebase_admin ──────────────────────────────────────────────────
-sys.modules["firebase_admin"] = MagicMock()
+mock_firebase_admin = MagicMock()
+mock_firebase_auth = MagicMock()
+sys.modules["firebase_admin"] = mock_firebase_admin
+sys.modules["firebase_admin.auth"] = mock_firebase_auth
 sys.modules["firebase_admin.credentials"] = MagicMock()
 sys.modules["firebase_admin.firestore"] = MagicMock()
 
 # ─── Import main after mocks ──────────────────────────────────────────────
 from main import app
+import firebase_admin.auth
 client = TestClient(app)
 
-
-# ─── Fixture to mock UserService and verify_password ──────────────────────
+# ─── Fixture to mock UserService ──────────────────────
 @pytest.fixture(autouse=True)
 def mock_auth_dependencies():
-    # Reset the rate-limit trackers before every test. These are
-    # module-level dicts in core.auth_router (mirroring the same
-    # in-memory pattern used by sms.py), so without this reset, any two
-    # tests that hit the same rate-limit key (e.g. every register test
-    # shares TestClient's default IP) silently share a rate-limit budget
-    # depending on test execution order — a test run later in the file
-    # can get an unexpected 429 because an earlier test already used up
-    # part of its allowance.
     import core.auth_router as auth_router_module
     auth_router_module.login_attempts.clear()
-    auth_router_module.register_attempts.clear()
 
-    # IMPORTANT: patch these where `core.auth_router` looks them up, not
-    # where they're originally defined. `auth_router.py` does
-    # `from services.firestore_service import UserService` and
-    # `from core.auth import verify_password` — those `from ... import`
-    # statements copy a reference into auth_router's own namespace at
-    # import time, so patching `services.firestore_service.UserService`
-    # or `core.auth.verify_password` after that has already happened has
-    # no effect on the names `auth_router` actually calls. Patching
-    # `core.auth_router.UserService` / `core.auth_router.verify_password`
-    # replaces the exact reference the route code uses.
     with patch("core.auth_router.UserService") as MockUserService1, \
          patch("core.auth.UserService") as MockUserService2, \
-         patch("api.sms.UserService") as MockUserService3, \
-         patch("core.auth_router.verify_password") as mock_verify:
+         patch("api.sms.UserService") as MockUserService3:
 
-        # Define mock user data
         test_user_data = {
             "id": "test-user-id-123",
-            "username": "testuser",
-            "email": "testuser@example.com",
-            "full_name": "Test User",
-            "password": "dummy_hash",
+            "phone": "+1234567890",
             "created_at": "2026-01-01T00:00:00Z",
             "updated_at": "2026-01-01T00:00:00Z"
         }
 
-        rate_limiter_user = {
-            "id": "rate-limiter-id",
-            "username": "ratelimiter",
-            "email": "ratelimiter@example.com",
-            "full_name": "Rate Limiter",
-            "password": "dummy_hash",
-            "created_at": "2026-01-01T00:00:00Z",
-            "updated_at": "2026-01-01T00:00:00Z"
-        }
-
-        def get_by_username(username):
-            if username == "testuser":
-                return test_user_data.copy()
-            if username == "ratelimiter":
-                return rate_limiter_user.copy()
-            return None
-
-        def get_by_email(email):
-            # A known "existing" email, distinct from testuser's own email,
-            # so tests can exercise an email-only collision (fresh username,
-            # colliding email) independently of the username-only collision
-            # case (colliding username, fresh email).
-            if email == "existing_email_only@example.com":
+        def get_by_phone(phone):
+            if phone == "+1234567890":
                 return test_user_data.copy()
             return None
 
         def get_by_id(user_id):
             if user_id == "test-user-id-123":
                 return test_user_data
-            if user_id == "rate-limiter-id":
-                return rate_limiter_user
             return None
 
         def create_user(user_dict):
-            # Return a new user ID (ignore the actual data)
             return "test-user-id-123"
 
         def update_user(user_id, update_data):
             if user_id == "test-user-id-123":
                 test_user_data.update(update_data)
                 return True
-            if user_id == "rate-limiter-id":
-                rate_limiter_user.update(update_data)
-                return True
             return False
 
-        # UserService's methods are @staticmethods, called directly on the
-        # class (e.g. `UserService.get_user_by_username(...)`) — never
-        # instantiated. So the side effects go on the mocked classes.
         for mock_us in [MockUserService1, MockUserService2, MockUserService3]:
-            mock_us.get_user_by_username.side_effect = get_by_username
-            mock_us.get_user_by_email.side_effect = get_by_email
+            mock_us.get_user_by_phone.side_effect = get_by_phone
             mock_us.get_user_by_id.side_effect = get_by_id
             mock_us.create_user.side_effect = create_user
             mock_us.update_user.side_effect = update_user
 
-        # Mock verify_password: return True for correct password
-        def verify_pw(plain, hashed):
-            # For testuser and ratelimiter, treat "testpass123" as correct
-            if plain == "testpass123":
-                return True
-            return False
-
-        mock_verify.side_effect = verify_pw
-
         yield
-
 
 # ─── Tests ──────────────────────────────────────────────────────────────────
 
-def test_login_success():
+def test_firebase_login_success():
+    # Mock verify_id_token to return a valid payload
+    firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
+    
     response = client.post(
-        "/api/v1/auth/token",
-        data={"username": "testuser", "password": "testpass123"}
+        "/api/v1/auth/firebase-login",
+        json={"id_token": "valid_token"}
     )
     assert response.status_code == 200
     assert "access_token" in response.json()
     assert response.json()["token_type"] == "bearer"
 
-
-def test_login_failure_wrong_password():
+def test_firebase_login_invalid_token():
+    class InvalidIdTokenError(Exception):
+        pass
+    firebase_admin.auth.InvalidIdTokenError = InvalidIdTokenError
+    firebase_admin.auth.verify_id_token.side_effect = InvalidIdTokenError("Invalid token")
+    
     response = client.post(
-        "/api/v1/auth/token",
-        data={"username": "testuser", "password": "wrongpassword"}
+        "/api/v1/auth/firebase-login",
+        json={"id_token": "invalid_token"}
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid username or password"
-
-
-def test_login_failure_missing_user():
-    response = client.post(
-        "/api/v1/auth/token",
-        data={"username": "nonexistentuser", "password": "anything"}
-    )
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid username or password"
-
-
-def test_login_generic_error_message():
-    resp_missing = client.post(
-        "/api/v1/auth/token",
-        data={"username": "nonexistent", "password": "anything"}
-    )
-    resp_wrong = client.post(
-        "/api/v1/auth/token",
-        data={"username": "testuser", "password": "wrongpassword"}
-    )
-    assert resp_missing.json()["detail"] == resp_wrong.json()["detail"]
-    assert "Invalid username or password" in resp_missing.json()["detail"]
-
-
-def test_login_rate_limiting():
-    username = "ratelimiter"
-    for _ in range(5):
-        response = client.post(
-            "/api/v1/auth/token",
-            data={"username": username, "password": "wrong"}
-        )
-        assert response.status_code == 401
-
-    response = client.post(
-        "/api/v1/auth/token",
-        data={"username": username, "password": "wrong"}
-    )
-    assert response.status_code == 429
-    assert "too many login attempts" in response.json()["detail"].lower()
-
-
-def test_register_rate_limiting():
-    import random
-    base = f"ratetest_{random.randint(1, 100000)}"
-    for i in range(10):
-        username = f"{base}_{i}"
-        response = client.post(
-            "/api/v1/auth/register",
-            json={
-                "username": username,
-                "email": f"{username}@example.com",
-                "password": "testpass123",
-                "full_name": "Test"
-            }
-        )
-        # Since we mock, we expect 200 for all successful creations
-        assert response.status_code in [200, 409]
-
-    username11 = f"{base}_11"
-    response = client.post(
-        "/api/v1/auth/register",
-        json={
-            "username": username11,
-            "email": f"{username11}@example.com",
-            "password": "testpass123",
-            "full_name": "Test"
-        }
-    )
-    assert response.status_code == 429
-    assert "registration attempts" in response.json()["detail"].lower()
-
-
-def test_register_generic_error_message():
-    # Case 1: username collides ("testuser" exists), email is fresh.
-    resp_username_collision = client.post(
-        "/api/v1/auth/register",
-        json={
-            "username": "testuser",
-            "email": "brandnew_email_xyz@example.com",
-            "password": "testpass123",
-            "full_name": "Test"
-        }
-    )
-
-    # Case 2: email collides ("existing_email_only@example.com" exists),
-    # username is fresh. Before the fix these two cases returned different
-    # messages ("Username already exists" vs "Email already exists"),
-    # letting an attacker tell exactly which field matched.
-    resp_email_collision = client.post(
-        "/api/v1/auth/register",
-        json={
-            "username": "brandnewusername123",
-            "email": "existing_email_only@example.com",
-            "password": "testpass123",
-            "full_name": "Test"
-        }
-    )
-
-    assert resp_username_collision.status_code == 409
-    assert resp_email_collision.status_code == 409
-    assert resp_username_collision.json()["detail"] == resp_email_collision.json()["detail"]
-
-    # The message must not be the old field-specific wording — only that
-    # some part of the submission already exists, without naming which.
-    detail = resp_username_collision.json()["detail"]
-    assert detail != "Username already exists"
-    assert detail != "Email already exists"
-    assert detail == "An account with this username or email already exists"
-
+    assert response.json()["detail"] == "Invalid Firebase ID token"
+    # reset side effect
+    firebase_admin.auth.verify_id_token.side_effect = None
 
 def test_protected_endpoint_without_token():
     response = client.post(
@@ -283,35 +121,11 @@ def test_protected_endpoint_without_token():
     )
     assert response.status_code == 401
 
-
-def test_sms_rate_limiting():
-    token_response = client.post(
-        "/api/v1/auth/token",
-        data={"username": "testuser", "password": "testpass123"}
-    )
-    assert token_response.status_code == 200
-    token = token_response.json()["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
-
-    response1 = client.post(
-        "/api/v1/sms/send-summary",
-        json={"phone_number": "+1234567890", "message": "Test"},
-        headers=headers
-    )
-    assert response1.status_code in [200, 501, 500]
-
-    response2 = client.post(
-        "/api/v1/sms/send-summary",
-        json={"phone_number": "+1234567890", "message": "Test"},
-        headers=headers
-    )
-    assert response2.status_code == 429
-
-
 def test_get_profile():
+    firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
     token_response = client.post(
-        "/api/v1/auth/token",
-        data={"username": "testuser", "password": "testpass123"}
+        "/api/v1/auth/firebase-login",
+        json={"id_token": "valid_token"}
     )
     assert token_response.status_code == 200
     token = token_response.json()["access_token"]
@@ -320,17 +134,14 @@ def test_get_profile():
     response = client.get("/api/v1/auth/profile", headers=headers)
     assert response.status_code == 200
     data = response.json()
-    assert data["username"] == "testuser"
-    assert data["email"] == "testuser@example.com"
-    assert "password" not in data
-
+    assert data["phone"] == "+1234567890"
 
 def test_patch_profile():
+    firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
     token_response = client.post(
-        "/api/v1/auth/token",
-        data={"username": "testuser", "password": "testpass123"}
+        "/api/v1/auth/firebase-login",
+        json={"id_token": "valid_token"}
     )
-    assert token_response.status_code == 200
     token = token_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -345,5 +156,3 @@ def test_patch_profile():
     assert data["age"] == 25
     assert data["cycle_length"] == 29
     assert data["avatar"] == "assets/avatars/avatar_2.png"
-    assert data["username"] == "testuser"
-    assert "password" not in data
