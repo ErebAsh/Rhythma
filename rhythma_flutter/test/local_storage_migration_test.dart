@@ -16,9 +16,6 @@ void main() {
     // Create a temporary directory for Hive files to avoid touching real data
     tempDir = await Directory.systemTemp.createTemp('hive_test_dir');
     Hive.init(tempDir.path);
-    
-    // Ensure we are testing the real Hive integration, not the mock variables
-    LocalStorageService.isTesting = false; 
   });
 
   tearDown(() async {

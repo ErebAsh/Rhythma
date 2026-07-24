@@ -115,13 +115,6 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Future<void> _fetchDashboardData() async {
-    if (LocalStorageService.isTesting) {
-      setState(() {
-        _cycleDay = 12;
-        _mhsAverage = 85;
-      });
-      return;
-    }
     try {
       final dio = ApiClient.dio;
       final response = await dio.get('/dashboard');

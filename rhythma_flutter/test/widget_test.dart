@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
@@ -11,17 +14,32 @@ import 'package:rhythma/providers/theme_provider.dart';
 import 'package:rhythma/providers/profile_provider.dart';
 import 'package:rhythma/screens/cycle/components/log_entry_sheet.dart';
 import 'test_helpers/platform_channel_mocks.dart';
+import 'test_helpers/local_storage_fixture.dart';
 
 void main() {
-  setUp(() {
-    // Enable testing mode and reset mock database before each test
-    LocalStorageService.isTesting = true;
-    LocalStorageService.mockProfile = {
+  late Directory tempDir;
+
+  setUp(() async {
+    tempDir = await setUpLocalStorage();
+    await seedCurrentUserId('test-user');
+    await seedProfile('test-user', {
       'name': 'Aarya Test',
       'age': 30,
       'cycle_length': 28,
-    };
-    LocalStorageService.mockEmergencyContacts = [];
+    });
+    await seedEmergencyContacts('test-user', []);
+
+    // Seed a recent cycle log so the dashboard fallback can compute
+    // "Cycle Day 12 • Follicular Phase" without hitting the API.
+    final now = DateTime.now();
+    final lastPeriod = DateTime(now.year, now.month, now.day - 11);
+    await seedCycleLogs('test-user', [
+      {
+        'start_date':
+            '${lastPeriod.year}-${lastPeriod.month.toString().padLeft(2, '0')}-${lastPeriod.day.toString().padLeft(2, '0')}',
+        'flow_intensity': 'medium',
+      },
+    ]);
 
     // Mock FlutterSecureStorage channel method calls to prevent hanging in tests
     const channel =
@@ -30,6 +48,10 @@ void main() {
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
       return null; // Mock success
     });
+  });
+
+  tearDown(() async {
+    await tearDownLocalStorage(tempDir);
   });
 
   // Helper to pump the Profile Screen with a standard test viewport
@@ -133,8 +155,12 @@ void main() {
     await tester.enterText(ageField, '25');
     await tester.enterText(cycleField, '30');
 
-    // Tap Save Changes
-    await tester.tap(find.text('Save Changes'));
+    // Tap Save Changes — the save handler calls Dio which uses real I/O,
+    // so we must run inside tester.runAsync to let the HTTP complete.
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Save Changes'));
+      await Future.delayed(const Duration(seconds: 2));
+    });
     await tester.pumpAndSettle();
 
     // Verify sheet is closed and main profile details are updated
@@ -144,9 +170,9 @@ void main() {
     expect(find.text('30 days'), findsOneWidget);
 
     // Verify changes are written to local storage
-    expect(LocalStorageService.mockProfile?['name'], 'Aarya Updated');
-    expect(LocalStorageService.mockProfile?['age'], 25);
-    expect(LocalStorageService.mockProfile?['cycle_length'], 30);
+    expect(LocalStorageService.getProfile()?['name'], 'Aarya Updated');
+    expect(LocalStorageService.getProfile()?['age'], 25);
+    expect(LocalStorageService.getProfile()?['cycle_length'], 30);
   });
 
   testWidgets(
@@ -185,8 +211,15 @@ void main() {
     // Enter valid details
     await tester.enterText(contactNameField, 'Mom');
     await tester.enterText(contactPhoneField, '+919876543210');
-    await tester.tap(find.text('Save'));
+
+    // Tap Save — inside runAsync to ensure any async handlers complete
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Save'));
+      await Future.delayed(const Duration(seconds: 1));
+    });
     await tester.pumpAndSettle();
+    // Extra pump to ensure dialog's widget tree is fully removed
+    await tester.pump();
 
     // Verify dialog closes and contact is in list
     expect(find.text('No emergency contacts set up yet.'), findsNothing);
@@ -201,8 +234,14 @@ void main() {
     final editNameField =
         find.ancestor(of: find.text('Name'), matching: find.byType(TextField));
     await tester.enterText(editNameField, 'Mother');
-    await tester.tap(find.text('Save'));
+
+    // Tap Save inside runAsync so the dialog's Navigator.pop can complete
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Save'));
+      await Future.delayed(const Duration(seconds: 1));
+    });
     await tester.pumpAndSettle();
+    await tester.pump();
 
     // Verify list is updated
     expect(find.text('Mother'), findsOneWidget);
@@ -210,8 +249,12 @@ void main() {
 
     // ── Delete Contact ──
     // Tap Delete (trash outline icon)
-    await tester.tap(find.byIcon(Icons.delete_outline_rounded));
+    await tester.runAsync(() async {
+      await tester.tap(find.byIcon(Icons.delete_outline_rounded));
+      await Future.delayed(const Duration(seconds: 1));
+    });
     await tester.pumpAndSettle();
+    await tester.pump();
 
     // Verify contact is deleted and empty state placeholder is shown again
     expect(find.text('Mother'), findsNothing);
@@ -239,9 +282,13 @@ void main() {
     expect(find.text('Are you sure you want to log out of Rhythma?'),
         findsOneWidget);
 
-    // Tap Cancel
-    await tester.tap(find.text('Cancel'));
+    // Tap Cancel — inside runAsync so the dialog's Navigator.pop completes
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Cancel'));
+      await Future.delayed(const Duration(seconds: 1));
+    });
     await tester.pumpAndSettle();
+    await tester.pump();
 
     // Verify dialog closes and settings screen remains
     expect(find.text('Are you sure you want to log out of Rhythma?'),
@@ -257,8 +304,14 @@ void main() {
       of: find.byType(ElevatedButton),
       matching: find.text('Log Out'),
     );
-    await tester.tap(dialogLogoutButton);
+    // Confirm tap — inside runAsync so the dialog's Navigator.pop completes
+    // and the async AuthService.logout handler finishes.
+    await tester.runAsync(() async {
+      await tester.tap(dialogLogoutButton);
+      await Future.delayed(const Duration(seconds: 2));
+    });
     await tester.pumpAndSettle();
+    await tester.pump();
 
     // Logout intentionally clears only the auth session (JWT) — local
     // device data (profile, emergency contacts) is treated as a
@@ -266,9 +319,12 @@ void main() {
     // logout, so a user isn't greeted with a wiped-looking profile just
     // from signing out and back in. See settings_screen.dart and
     // LocalStorageService.clearAll()'s doc comment for the full rationale.
-    expect(LocalStorageService.mockProfile, isNotNull);
-    expect(LocalStorageService.mockProfile?['name'], 'Aarya Test');
-    expect(LocalStorageService.mockEmergencyContacts, isEmpty);
+    // Verify local data is preserved in the Hive box directly (scoped
+    // to the last user id even after currentUserId is cleared).
+    final box = Hive.box<Map>('user_profile');
+    expect(box.get('test-user::profile'), isNotNull);
+    expect(box.get('test-user::profile')?['name'], 'Aarya Test');
+    expect(LocalStorageService.currentUserId, isNull);
   });
 
   testWidgets('5. Log Entry Sheet create, edit, save flows',
@@ -342,8 +398,12 @@ void main() {
     await tester.tap(find.text('Nausea'));
     await tester.pumpAndSettle();
 
-    // Save
-    await tester.tap(find.text('Save Log'));
+    // Save — the handler calls saveCycleLog (Hive) then Navigator.pop.
+    // Use runAsync to ensure the dialog pop completes.
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Save Log'));
+      await Future.delayed(const Duration(seconds: 1));
+    });
     await tester.pumpAndSettle();
 
     // Sheet should be closed
