@@ -1,2 +1,2 @@
 @echo off
-flutter build apk --dart-define=API_BASE_URL=https://your-backend-url/api/v1
+flutter build apk --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1
