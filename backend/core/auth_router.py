@@ -7,12 +7,13 @@ from core.auth import (
 )
 from models.user import UserCreate, UserResponse, UserProfileUpdate, UserProfileResponse
 from services.firestore_service import UserService
-from typing import Dict, List
+from typing import Dict, List, Optional, Optional
 from pydantic import BaseModel
 import firebase_admin.auth
 
 class FirebaseLoginRequest(BaseModel):
     id_token: str
+    fcm_token: Optional[str] = None
 
 router = APIRouter(tags=["Authentication"])
 
@@ -26,7 +27,7 @@ def is_rate_limited(
     key: str,
     limit: int = 5,
     window_seconds: int = 300,
-) -> int | None:
+) -> Optional[int]:
     """
     Returns the number of seconds remaining before the next request is
     allowed if the key has exceeded the rate limit, or None otherwise.
