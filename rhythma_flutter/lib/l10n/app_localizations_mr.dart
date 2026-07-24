@@ -703,4 +703,24 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'तुमचा ट्रेंड पाहण्यासाठी किमान दोन चक्र लॉग करा.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'सुचवलेला संदेश';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'संदेश प्रविष्ट करा';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'तुमचा प्रश्न येथे प्रविष्ट करा';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'संदेश पाठवा';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'तुमचा संदेश सहाय्यकाला पाठवा';
+
+  @override
+  String get assistantAccessibilityTyping => 'सहाय्यक टाइप करत आहे';
 }

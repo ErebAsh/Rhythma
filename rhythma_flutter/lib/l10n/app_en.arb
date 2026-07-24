@@ -223,5 +223,12 @@
   "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
   "insightsNotEnoughData": "Log a few more cycles on the Cycle tab to unlock your full health insights.",
   "insightsNoSymptomsYet": "No symptoms logged yet — log some on the Cycle tab to see patterns here.",
-  "insightsNotEnoughTrendData": "Log at least two cycles to see your trend here."
+  "insightsNotEnoughTrendData": "Log at least two cycles to see your trend here.",
+
+  "assistantAccessibilitySuggestedPrompt": "Suggested prompt",
+  "assistantAccessibilityMessageInput": "Message input",
+  "assistantAccessibilityMessageInputHint": "Type your question here",
+  "assistantAccessibilitySendMessage": "Send message",
+  "assistantAccessibilitySendMessageHint": "Sends your message to the assistant",
+  "assistantAccessibilityTyping": "Assistant is typing"
 }

@@ -242,7 +242,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
             ),
           ),
 
-          // Suggested chips (only before first user message)
+         // Suggested chips (only before first user message)
           if (_messages.length == 1)
             SizedBox(
               height: 38,
@@ -251,19 +251,33 @@ class _AssistantScreenState extends State<AssistantScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: _suggested.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (_, i) => GestureDetector(
-                  onTap: () => _send(_suggested[i]),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: RhythmaColors.surfaceMuted,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: RhythmaColors.border),
-                    ),
-                    child: Text(_suggested[i],
+                itemBuilder: (_, i) => Semantics(
+                  label:
+                      '${AppLocalizations.of(context)!.assistantAccessibilitySuggestedPrompt}: ${_suggested[i]}',
+                  button: true,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () => _send(_suggested[i]),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: RhythmaColors.surfaceMuted,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: RhythmaColors.border,
+                        ),
+                      ),
+                      child: Text(
+                        _suggested[i],
                         style: TextStyle(
-                            fontSize: 12, color: RhythmaColors.foreground)),
+                          fontSize: 12,
+                          color: RhythmaColors.foreground,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -290,36 +304,53 @@ class _AssistantScreenState extends State<AssistantScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: TextField(
-                        controller: _ctrl,
-                        style: TextStyle(
-                            fontSize: 14, color: RhythmaColors.foreground),
-                        decoration: InputDecoration(
-                          hintText: l10n.assistantInputHint,
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 14),
+                      child: Semantics(
+                        label: AppLocalizations.of(context)!.assistantAccessibilityMessageInput,
+                        hint: AppLocalizations.of(context)!.assistantAccessibilityMessageInputHint,
+                        textField: true,
+                        child: TextField(
+                          controller: _ctrl,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: RhythmaColors.foreground,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: l10n.assistantInputHint,
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 14,
+                            ),
+                          ),
+                          onSubmitted: _send,
+                          textInputAction: TextInputAction.send,
                         ),
-                        onSubmitted: _send,
-                        textInputAction: TextInputAction.send,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 6),
-                      child: GestureDetector(
-                        onTap: _isLoading ? null : () => _send(_ctrl.text),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                          gradient: _isLoading ? null : RhythmaGradients.primary,
-                          color: _isLoading
-                            ? RhythmaColors.mutedFg.withValues(alpha: 0.25)
-                            : null,
-                            shape: BoxShape.circle,
+                      child: Semantics(
+                        label: AppLocalizations.of(context)!.assistantAccessibilitySendMessage,
+                        hint: AppLocalizations.of(context)!.assistantAccessibilitySendMessageHint,
+                        button: true,
+                        child: IconButton(
+                          onPressed: _isLoading ? null : () => _send(_ctrl.text),
+                          icon: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              gradient: _isLoading ? null : RhythmaGradients.primary,
+                              color: _isLoading
+                                  ? RhythmaColors.mutedFg.withValues(alpha: 0.25)
+                                  : null,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.send_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
                           ),
-                          child: const Icon(Icons.send_rounded,
-                              color: Colors.white, size: 18),
                         ),
                       ),
                     ),
@@ -500,25 +531,34 @@ class _TypingBubble extends StatelessWidget {
               const Icon(Icons.favorite_rounded, color: Colors.white, size: 14),
         ),
         const SizedBox(width: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: RhythmaColors.surface.withValues(alpha: 0.85),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(18),
-              topRight: Radius.circular(18),
-              bottomRight: Radius.circular(18),
-              bottomLeft: Radius.circular(4),
+        Semantics(
+          label: AppLocalizations.of(context)!.assistantAccessibilityTyping,
+          liveRegion: true,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: RhythmaColors.surface.withValues(alpha: 0.85),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(18),
+                topRight: Radius.circular(18),
+                bottomRight: Radius.circular(18),
+                bottomLeft: Radius.circular(4),
+              ),
+              border: Border.all(
+                color: RhythmaColors.lavender.withValues(alpha: 0.4),
+              ),
             ),
-            border: Border.all(color: RhythmaColors.lavender.withValues(alpha: 0.4)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _dot(0),
+                const SizedBox(width: 4),
+                _dot(150),
+                const SizedBox(width: 4),
+                _dot(300),
+              ],
+            ),
           ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            _dot(0),
-            const SizedBox(width: 4),
-            _dot(150),
-            const SizedBox(width: 4),
-            _dot(300),
-          ]),
         ),
       ]),
     );

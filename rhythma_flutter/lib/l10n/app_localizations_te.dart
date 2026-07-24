@@ -709,4 +709,24 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'మీ ట్రెండ్ చూడటానికి కనీసం రెండు చక్రాలను లాగ్ చేయండి.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'సూచించిన సందేశం';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'సందేశాన్ని నమోదు చేయండి';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'మీ ప్రశ్నను ఇక్కడ నమోదు చేయండి';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'సందేశాన్ని పంపండి';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'మీ సందేశాన్ని సహాయకుడికి పంపండి';
+
+  @override
+  String get assistantAccessibilityTyping => 'సహాయకుడు టైప్ చేస్తున్నాడు';
 }
