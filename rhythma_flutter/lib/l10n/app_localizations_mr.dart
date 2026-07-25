@@ -302,8 +302,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get assistantInputHint => 'तुमचा प्रश्न विचारा...';
 
   @override
-  String get assistantWelcome =>
-      'नमस्कार आर्या 🌸 मी रिद्मा आहे, तुमची वैयक्तिक आरोग्य सोबती. मला तुमच्या चक्राबद्दल, लक्षणांबद्दल काहीही विचारा — इंग्रजी, हिंदी, मराठी किंवा तमिळमध्ये.';
+  String assistantWelcome(String name) {
+    return 'नमस्कार $name 🌸 मी रिद्मा आहे, तुमची वैयक्तिक आरोग्य सोबती. मला तुमच्या चक्राबद्दल, लक्षणांबद्दल काहीही विचारा — इंग्रजी, हिंदी, मराठी किंवा तमिळमध्ये.';
+  }
 
   @override
   String get assistantSug1 => 'माझी पाळी अनियमित का आहे?';

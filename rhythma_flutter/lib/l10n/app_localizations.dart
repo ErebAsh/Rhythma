@@ -669,8 +669,8 @@ abstract class AppLocalizations {
   /// No description provided for @assistantWelcome.
   ///
   /// In en, this message translates to:
-  /// **'Hi Aarya 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.'**
-  String get assistantWelcome;
+  /// **'Hi {name} 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.'**
+  String assistantWelcome(String name);
 
   /// No description provided for @assistantSug1.
   ///

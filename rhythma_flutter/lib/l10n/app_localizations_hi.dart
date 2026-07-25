@@ -302,8 +302,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get assistantInputHint => 'अपना प्रश्न पूछें...';
 
   @override
-  String get assistantWelcome =>
-      'नमस्ते आर्या 🌸 मैं रिद्मा हूँ, आपकी निजी स्वास्थ्य सहयोगी। अपने मासिक धर्म चक्र, लक्षणों या स्वास्थ्य से जुड़ा कोई भी प्रश्न मुझसे अंग्रेज़ी, हिंदी, मराठी या तमिल में पूछ सकती हैं।';
+  String assistantWelcome(String name) {
+    return 'नमस्ते $name 🌸 मैं रिद्मा हूँ, आपकी निजी स्वास्थ्य सहयोगी। अपने मासिक धर्म चक्र, लक्षणों या स्वास्थ्य से जुड़ा कोई भी प्रश्न मुझसे अंग्रेज़ी, हिंदी, मराठी या तमिल में पूछ सकती हैं।';
+  }
 
   @override
   String get assistantSug1 => 'मेरे मासिक धर्म अनियमित क्यों हैं?';

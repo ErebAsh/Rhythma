@@ -300,9 +300,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assistantInputHint => 'Ask anything about your health...';
 
   @override
-  String get assistantWelcome =>
-      'Hi Aarya 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.';
-
+  String assistantWelcome(String name) {
+    return 'Hi $name 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.';
+  }
   @override
   String get assistantSug1 => 'Why are my periods irregular?';
 

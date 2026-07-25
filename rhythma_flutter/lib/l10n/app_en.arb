@@ -97,7 +97,8 @@
   "assistantTitle": "Rhythma Assistant",
   "assistantSubtitle": "Your private health companion",
   "assistantInputHint": "Ask anything about your health...",
-  "assistantWelcome": "Hi Aarya 🌸 I'm Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.",
+  "assistantWelcome": "Hi {name} 🌸 I'm Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.",
+  "@assistantWelcome": { "placeholders": { "name": { "type": "String" } } },
   "assistantSug1": "Why are my periods irregular?",
   "assistantSug2": "What causes severe cramps?",
   "assistantSug3": "Is a 35-day cycle normal?",
@@ -242,6 +243,8 @@
   "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
   "insightsNotEnoughData": "Log a few more cycles on the Cycle tab to unlock your full health insights.",
   "insightsNoSymptomsYet": "No symptoms logged yet — log some on the Cycle tab to see patterns here.",
+  "insightsNotEnoughTrendData": "Log at least two cycles to see your trend here."
+}
   "insightsNotEnoughTrendData": "Log at least two cycles to see your trend here.",
 
   "assistantAccessibilitySuggestedPrompt": "Suggested prompt",

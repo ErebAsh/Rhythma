@@ -21,24 +21,27 @@ class _AssistantScreenState extends State<AssistantScreen> {
   late List<_Msg> _messages;
   bool _initialized = false;
 
-  // The welcome strings are translated per-language but still contain the
-  // placeholder demo name "Aarya" (or its transliteration). Swap it for the
-  // signed-in user's actual profile name where we can.
-  static const Map<String, String> _placeholderNames = {
-    'en': 'Aarya',
-    'hi': 'आर्या',
-    'mr': 'आर्या',
-    'ta': 'ஆர்யா',
-    'te': 'ఆర్య',
-  };
+  /// Returns the signed-in user's display name, or a safe fallback if no
+  /// profile is set yet. Centralized here so every call site (welcome
+  /// message, suggested-prompt personalization, etc.) stays consistent.
+  String get _displayName {
+    final name =
+        (LocalStorageService.getProfile()?['name'] as String?)?.trim();
+    return (name != null && name.isNotEmpty) ? name : 'User';
+  }
 
-  String _personalizedWelcome(String rawWelcome) {
-    final placeholder =
-        _placeholderNames[LocalStorageService.preferredLanguage];
-    final name = (LocalStorageService.getProfile()?['name'] as String?)?.trim();
-    if (placeholder == null) return rawWelcome;
-    final displayName = (name != null && name.isNotEmpty) ? name : 'User';
-    return rawWelcome.replaceFirst(placeholder, displayName);
+  /// Builds the localized welcome string with the user's actual name
+  /// interpolated via Flutter's ICU placeholder mechanism (`{name}` in the
+  /// .arb files → `assistantWelcome(String name)` in the generated
+  /// AppLocalizations).
+  ///
+  /// This replaces the previous `_placeholderNames` map approach, which
+  /// silently failed if a locale's welcome string didn't contain the exact
+  /// demo name the map expected (issue #90). With ICU placeholders, the
+  /// name is always interpolated correctly in every locale — there is no
+  /// per-locale lookup table to keep in sync.
+  String _personalizedWelcome(AppLocalizations l10n) {
+    return l10n.assistantWelcome(_displayName);
   }
 
   @override
@@ -74,7 +77,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
         _messages = [
           _Msg(
               role: 'model',
-              content: _personalizedWelcome(l10n.assistantWelcome)),
+              content: _personalizedWelcome(l10n)),
         ];
       }
       _initialized = true;

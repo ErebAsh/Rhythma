@@ -301,8 +301,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get assistantInputHint => 'உங்கள் கேள்வியைக் கேட்கவும்...';
 
   @override
-  String get assistantWelcome =>
-      'வணக்கம் ஆர்யா 🌸 நான் ரித்மா, உங்கள் தனிப்பட்ட சுகாதார துணை. உங்கள் சுழற்சி, அறிகுறிகள் பற்றி என்னிடம் கேளுங்கள் — ஆங்கிலம், இந்தி, மராத்தி அல்லது தமிழில்.';
+  String assistantWelcome(String name) {
+    return 'வணக்கம் $name 🌸 நான் ரித்மா, உங்கள் தனிப்பட்ட சுகாதார துணை. உங்கள் சுழற்சி, அறிகுறிகள் பற்றி என்னிடம் கேளுங்கள் — ஆங்கிலம், இந்தி, மராத்தி அல்லது தமிழில்.';
+  }
 
   @override
   String get assistantSug1 => 'எனது மாதவிடாய் ஏன் ஒழுங்கற்றது?';
