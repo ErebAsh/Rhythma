@@ -448,22 +448,23 @@ class AppLocalizationsMr extends AppLocalizations {
       'अद्याप कोणताही आणीबाणी संपर्क सेट केलेला नाही.';
 
   @override
-  String get profileAgeInvalidError => 'Please enter a valid age';
+  String get profileAgeInvalidError => 'कृपया वैध वय प्रविष्ट करा';
 
   @override
-  String get profileCycleInvalidError => 'Please enter a valid cycle length';
+  String get profileCycleInvalidError =>
+      'कृपया वैध मासिक पाळी चक्र कालावधी प्रविष्ट करा';
 
   @override
-  String get profilePhoneInvalidError => 'Please enter a valid phone number';
+  String get profilePhoneInvalidError => 'कृपया वैध फोन क्रमांक प्रविष्ट करा';
 
   @override
-  String get edit => 'Edit';
+  String get edit => 'संपादित करा';
 
   @override
-  String get delete => 'Delete';
+  String get delete => 'हटवा';
 
   @override
-  String get onboardingAvatarOption => 'Avatar Option';
+  String get onboardingAvatarOption => 'अवतार पर्याय';
 
   @override
   String get navHome => 'होम';

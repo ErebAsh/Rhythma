@@ -449,22 +449,24 @@ class AppLocalizationsTe extends AppLocalizations {
       'ఇంకా ఎటువంటి అత్యవసర పరిచయాలు సెటప్ చేయబడలేదు.';
 
   @override
-  String get profileAgeInvalidError => 'Please enter a valid age';
+  String get profileAgeInvalidError => 'దయచేసి సరైన వయస్సును నమోదు చేయండి';
 
   @override
-  String get profileCycleInvalidError => 'Please enter a valid cycle length';
+  String get profileCycleInvalidError =>
+      'దయచేసి సరైన రుతుచక్ర వ్యవధిని నమోదు చేయండి';
 
   @override
-  String get profilePhoneInvalidError => 'Please enter a valid phone number';
+  String get profilePhoneInvalidError =>
+      'దయచేసి సరైన ఫోన్ నంబర్‌ను నమోదు చేయండి';
 
   @override
-  String get edit => 'Edit';
+  String get edit => 'సవరించు';
 
   @override
-  String get delete => 'Delete';
+  String get delete => 'తొలగించు';
 
   @override
-  String get onboardingAvatarOption => 'Avatar Option';
+  String get onboardingAvatarOption => 'అవతార్ ఎంపిక';
 
   @override
   String get navHome => 'హోమ్';

@@ -449,22 +449,23 @@ class AppLocalizationsHi extends AppLocalizations {
       'अभी तक कोई आपातकालीन संपर्क सेट नहीं किया गया है।';
 
   @override
-  String get profileAgeInvalidError => 'Please enter a valid age';
+  String get profileAgeInvalidError => 'कृपया मान्य आयु दर्ज करें';
 
   @override
-  String get profileCycleInvalidError => 'Please enter a valid cycle length';
+  String get profileCycleInvalidError =>
+      'कृपया मान्य मासिक चक्र अवधि दर्ज करें';
 
   @override
-  String get profilePhoneInvalidError => 'Please enter a valid phone number';
+  String get profilePhoneInvalidError => 'कृपया मान्य फ़ोन नंबर दर्ज करें';
 
   @override
-  String get edit => 'Edit';
+  String get edit => 'संपादित करें';
 
   @override
-  String get delete => 'Delete';
+  String get delete => 'हटाएँ';
 
   @override
-  String get onboardingAvatarOption => 'Avatar Option';
+  String get onboardingAvatarOption => 'अवतार विकल्प';
 
   @override
   String get navHome => 'होम';

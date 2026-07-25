@@ -450,25 +450,26 @@ class AppLocalizationsTa extends AppLocalizations {
       'அவசரத் தொடர்புகள் எதுவும் இன்னும் அமைக்கப்படவில்லை.';
 
   @override
-  String get profileAgeInvalidError => 'Please enter a valid age';
+  String get profileAgeInvalidError => 'சரியான வயதை உள்ளிடவும்';
 
   @override
-  String get profileCycleInvalidError => 'Please enter a valid cycle length';
+  String get profileCycleInvalidError =>
+      'சரியான மாதவிடாய் சுழற்சி காலத்தை உள்ளிடவும்';
 
   @override
-  String get profilePhoneInvalidError => 'Please enter a valid phone number';
+  String get profilePhoneInvalidError => 'சரியான தொலைபேசி எண்ணை உள்ளிடவும்';
 
   @override
-  String get edit => 'Edit';
+  String get edit => 'திருத்து';
 
   @override
-  String get delete => 'Delete';
+  String get delete => 'நீக்கு';
 
   @override
-  String get onboardingAvatarOption => 'Avatar Option';
+  String get onboardingAvatarOption => 'அவதார் விருப்பம்';
 
   @override
-  String get navHome => 'ஹோம்';
+  String get navHome => 'முகப்பு';
 
   @override
   String get navCycle => 'சுழற்சி';

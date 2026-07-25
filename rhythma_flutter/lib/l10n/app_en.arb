@@ -145,6 +145,12 @@
   "profileEmergencyContactsTitle": "Emergency Contacts",
   "profileAddNew": "Add New",
   "profileNoContacts": "No emergency contacts set up yet.",
+  "profileAgeInvalidError": "Please enter a valid age",
+  "profileCycleInvalidError": "Please enter a valid cycle length",
+  "profilePhoneInvalidError": "Please enter a valid phone number",
+  "edit": "Edit",
+  "delete": "Delete",
+  "onboardingAvatarOption": "Avatar Option",
   
   "navHome": "Home",
   "navCycle": "Cycle",

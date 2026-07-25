@@ -214,6 +214,12 @@
   "profileEmergencyContactsTitle": "அவசரத் தொடர்புகள்",
   "profileAddNew": "புதிதாகச் சேர்க்கவும்",
   "profileNoContacts": "அவசரத் தொடர்புகள் எதுவும் இன்னும் அமைக்கப்படவில்லை.",
+  "profileAgeInvalidError": "சரியான வயதை உள்ளிடவும்",
+  "profileCycleInvalidError": "சரியான மாதவிடாய் சுழற்சி காலத்தை உள்ளிடவும்",
+  "profilePhoneInvalidError": "சரியான தொலைபேசி எண்ணை உள்ளிடவும்",
+  "edit": "திருத்து",
+  "delete": "நீக்கு",
+  "onboardingAvatarOption": "அவதார் விருப்பம்",
   
   "navHome": "முகப்பு",
   "navCycle": "சுழற்சி",
