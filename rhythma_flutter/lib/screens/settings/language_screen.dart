@@ -9,21 +9,36 @@ import '../../components/shared.dart';
 class LanguageScreen extends StatelessWidget {
   const LanguageScreen({super.key});
 
-  /// Helper method to return localized language names mapped to language codes
-  Map<String, String> _getLocalizedLanguages(AppLocalizations l10n) {
-    return {
-      l10n.languageEnglish: 'en',
-      l10n.languageHindi: 'hi',
-      l10n.languageTamil: 'ta',
-      l10n.languageTelugu: 'te',
-      l10n.languageMarathi: 'mr',
-    };
+  // Hardcoded names ki jagah sirf language codes rakhein
+  static const List<String> supportedLanguageCodes = [
+    'en',
+    'hi',
+    'ta',
+    'te',
+    'mr',
+  ];
+
+  // l10n se localized language display name laane ke liye helper method
+  String _getLocalizedLanguageName(AppLocalizations l10n, String code) {
+    switch (code) {
+      case 'en':
+        return l10n.langEnglish; // Ya aapke l10n me jo getter defined ho (e.g., l10n.english)
+      case 'hi':
+        return l10n.langHindi;
+      case 'ta':
+        return l10n.langTamil;
+      case 'te':
+        return l10n.langTelugu;
+      case 'mr':
+        return l10n.langMarathi;
+      default:
+        return code;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final languages = _getLocalizedLanguages(l10n);
     final currentLocaleCode =
         context.watch<LocaleProvider>().locale.languageCode;
 
@@ -32,65 +47,50 @@ class LanguageScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text(
-            l10n.selectLanguage,
-            semanticsLabel: l10n.selectLanguage,
-          ),
+          title: Text(l10n.selectLanguage),
           centerTitle: true,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             onPressed: () => Navigator.pop(context),
           ),
         ),
         body: ListView.builder(
           padding: const EdgeInsets.all(20),
-          itemCount: languages.length,
+          itemCount: supportedLanguageCodes.length,
           itemBuilder: (context, index) {
-            String langName = languages.keys.elementAt(index);
-            String langCode = languages.values.elementAt(index);
+            String langCode = supportedLanguageCodes[index];
+            String langName = _getLocalizedLanguageName(l10n, langCode);
             bool isSelected = currentLocaleCode == langCode;
-
-            final stateText = isSelected ? l10n.selected : l10n.notSelected;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: GlassCard(
                 padding: EdgeInsets.zero,
-                child: Semantics(
-                  button: true,
-                  selected: isSelected,
-                  label: '$langName, $stateText',
-                  hint: l10n.doubleTapToSetLanguage(langName),
-                  child: ListTile(
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    title: Text(
-                      langName,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
-                        color: isSelected
-                            ? RhythmaColors.primary
-                            : RhythmaColors.foreground,
-                      ),
+                child: ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  title: Text(
+                    langName,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected
+                          ? RhythmaColors.primary
+                          : RhythmaColors.foreground,
                     ),
-                    trailing: isSelected
-                        ? Icon(
-                            Icons.check_circle_rounded,
-                            color: RhythmaColors.primary,
-                            semanticLabel: l10n.selected,
-                          )
-                        : null,
-                    onTap: () {
-                      context.read<LocaleProvider>().setLocale(Locale(langCode));
-                      final profile = context.read<ProfileProvider>().profile;
-                      if (profile.isNotEmpty) {
-                        context.read<ProfileProvider>().mergeProfileWithSync({'language': langCode});
-                      }
-                    },
                   ),
+                  trailing: isSelected
+                      ? Icon(Icons.check_circle_rounded,
+                          color: RhythmaColors.primary)
+                      : null,
+                  onTap: () {
+                    context.read<LocaleProvider>().setLocale(Locale(langCode));
+                    final profile = context.read<ProfileProvider>().profile;
+                    if (profile.isNotEmpty) {
+                      context.read<ProfileProvider>().mergeProfileWithSync({'language': langCode});
+                    }
+                  },
                 ),
               ),
             );
