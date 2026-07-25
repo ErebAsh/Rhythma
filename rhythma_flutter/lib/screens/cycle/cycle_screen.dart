@@ -10,6 +10,7 @@ import '../../providers/theme_provider.dart';
 import '../../providers/cycle_provider.dart';
 import '../../services/cycle_service.dart';
 import '../../services/local_storage_service.dart';
+import '../../utils/date_utils.dart';
 import '../../utils/log_options.dart';
 import 'components/calendar_grid.dart';
 
@@ -183,6 +184,41 @@ class _CycleScreenState extends State<CycleScreen> {
           : raw.toString();
     }
     return raw.toString();
+  }
+
+  Future<void> _deleteCycleLog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Entry'),
+        content: const Text(
+          'Are you sure you want to delete this day\'s log? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final cycleProvider = context.read<CycleProvider>();
+    final dateKey = RhythmaDateUtils.toDateKey(cycleProvider.selectedDate);
+    await LocalStorageService.deleteCycleLog(dateKey);
+
+    try {
+      await CycleService().deleteLog(dateKey);
+    } catch (_) {}
+
+    if (!mounted) return;
+    cycleProvider.refresh();
   }
 
   @override
@@ -386,6 +422,19 @@ class _CycleScreenState extends State<CycleScreen> {
                       style: TextStyle(fontWeight: FontWeight.w700)),
             ),
           ),
+          if (hasSelections) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton.icon(
+                onPressed: _deleteCycleLog,
+                icon: const Icon(Icons.delete_outline_rounded, size: 16),
+                label: const Text('Delete Log'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                ),
+              ),
+            ),
+          ],
           if (_savedSuccessfully) ...[
             const SizedBox(height: 10),
             Row(
