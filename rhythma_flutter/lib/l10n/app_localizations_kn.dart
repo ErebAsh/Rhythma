@@ -658,6 +658,61 @@ class AppLocalizationsKn extends AppLocalizations {
       'ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ ತೂಕವನ್ನು ನಮೂದಿಸಿ (20–300 kg)';
 
   @override
+  String get onboardingAgeRequired => 'Please enter your age or select a range';
+  @override
+  String get onboardingHeightRequired => 'Please enter your height or select a range';
+  @override
+  String get onboardingWeightRequired => 'Please enter your weight or select a range';
+  @override
+  String get onboardingNotSure => 'Not sure';
+  @override
+  String get onboardingApproximate => 'Approximate';
+  @override
+  String get onboardingAgeHint => 'Enter your age';
+  @override
+  String get onboardingAgeUnit => 'years';
+  @override
+  String get onboardingHeightHint => 'Enter your height';
+  @override
+  String get onboardingHeightUnit => 'cm';
+  @override
+  String get onboardingWeightHint => 'Enter your weight';
+  @override
+  String get onboardingWeightUnit => 'kg';
+  @override
+  String get onboardingRangeUnder18 => 'Under 18';
+  @override
+  String get onboardingRange18to25 => '18–25';
+  @override
+  String get onboardingRange26to35 => '26–35';
+  @override
+  String get onboardingRange36to50 => '36–50';
+  @override
+  String get onboardingRange51to65 => '51–65';
+  @override
+  String get onboardingRangeOver65 => 'Over 65';
+  @override
+  String get onboardingRangeUnder150 => 'Under 150 cm';
+  @override
+  String get onboardingRange150to160 => '150–160 cm';
+  @override
+  String get onboardingRange161to170 => '161–170 cm';
+  @override
+  String get onboardingRange171to180 => '171–180 cm';
+  @override
+  String get onboardingRangeOver180 => 'Over 180 cm';
+  @override
+  String get onboardingRangeUnder50kg => 'Under 50 kg';
+  @override
+  String get onboardingRange50to65kg => '50–65 kg';
+  @override
+  String get onboardingRange66to80kg => '66–80 kg';
+  @override
+  String get onboardingRange81to100kg => '81–100 kg';
+  @override
+  String get onboardingRangeOver100kg => 'Over 100 kg';
+
+  @override
   String get onboardingPhoneInvalid =>
       'ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ';
 

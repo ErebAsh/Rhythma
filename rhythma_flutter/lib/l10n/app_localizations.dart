@@ -1338,6 +1338,168 @@ abstract class AppLocalizations {
   /// **'Please enter a valid weight (20–300 kg)'**
   String get onboardingWeightInvalid;
 
+  /// No description provided for @onboardingAgeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your age or select a range'**
+  String get onboardingAgeRequired;
+
+  /// No description provided for @onboardingHeightRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your height or select a range'**
+  String get onboardingHeightRequired;
+
+  /// No description provided for @onboardingWeightRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your weight or select a range'**
+  String get onboardingWeightRequired;
+
+  /// No description provided for @onboardingNotSure.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sure'**
+  String get onboardingNotSure;
+
+  /// No description provided for @onboardingApproximate.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate'**
+  String get onboardingApproximate;
+
+  /// No description provided for @onboardingAgeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your age'**
+  String get onboardingAgeHint;
+
+  /// No description provided for @onboardingAgeUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get onboardingAgeUnit;
+
+  /// No description provided for @onboardingHeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your height'**
+  String get onboardingHeightHint;
+
+  /// No description provided for @onboardingHeightUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'cm'**
+  String get onboardingHeightUnit;
+
+  /// No description provided for @onboardingWeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your weight'**
+  String get onboardingWeightHint;
+
+  /// No description provided for @onboardingWeightUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get onboardingWeightUnit;
+
+  /// No description provided for @onboardingRangeUnder18.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 18'**
+  String get onboardingRangeUnder18;
+
+  /// No description provided for @onboardingRange18to25.
+  ///
+  /// In en, this message translates to:
+  /// **'18–25'**
+  String get onboardingRange18to25;
+
+  /// No description provided for @onboardingRange26to35.
+  ///
+  /// In en, this message translates to:
+  /// **'26–35'**
+  String get onboardingRange26to35;
+
+  /// No description provided for @onboardingRange36to50.
+  ///
+  /// In en, this message translates to:
+  /// **'36–50'**
+  String get onboardingRange36to50;
+
+  /// No description provided for @onboardingRange51to65.
+  ///
+  /// In en, this message translates to:
+  /// **'51–65'**
+  String get onboardingRange51to65;
+
+  /// No description provided for @onboardingRangeOver65.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 65'**
+  String get onboardingRangeOver65;
+
+  /// No description provided for @onboardingRangeUnder150.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 150 cm'**
+  String get onboardingRangeUnder150;
+
+  /// No description provided for @onboardingRange150to160.
+  ///
+  /// In en, this message translates to:
+  /// **'150–160 cm'**
+  String get onboardingRange150to160;
+
+  /// No description provided for @onboardingRange161to170.
+  ///
+  /// In en, this message translates to:
+  /// **'161–170 cm'**
+  String get onboardingRange161to170;
+
+  /// No description provided for @onboardingRange171to180.
+  ///
+  /// In en, this message translates to:
+  /// **'171–180 cm'**
+  String get onboardingRange171to180;
+
+  /// No description provided for @onboardingRangeOver180.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 180 cm'**
+  String get onboardingRangeOver180;
+
+  /// No description provided for @onboardingRangeUnder50kg.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 50 kg'**
+  String get onboardingRangeUnder50kg;
+
+  /// No description provided for @onboardingRange50to65kg.
+  ///
+  /// In en, this message translates to:
+  /// **'50–65 kg'**
+  String get onboardingRange50to65kg;
+
+  /// No description provided for @onboardingRange66to80kg.
+  ///
+  /// In en, this message translates to:
+  /// **'66–80 kg'**
+  String get onboardingRange66to80kg;
+
+  /// No description provided for @onboardingRange81to100kg.
+  ///
+  /// In en, this message translates to:
+  /// **'81–100 kg'**
+  String get onboardingRange81to100kg;
+
+  /// No description provided for @onboardingRangeOver100kg.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 100 kg'**
+  String get onboardingRangeOver100kg;
+
   /// No description provided for @onboardingPhoneInvalid.
   ///
   /// In en, this message translates to:
