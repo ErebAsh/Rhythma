@@ -105,7 +105,7 @@ abstract class AppLocalizations {
     Locale('ml'),
     Locale('mr'),
     Locale('ta'),
-    Locale('te')
+    Locale('te'),
   ];
 
   /// The title of the application
@@ -1158,6 +1158,12 @@ abstract class AppLocalizations {
   /// **'Phone Number (optional)'**
   String get onboardingPhoneLabel;
 
+  /// No description provided for @onboardingPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. +919876543210'**
+  String get onboardingPhoneHint;
+
   /// No description provided for @onboardingCityLabel.
   ///
   /// In en, this message translates to:
@@ -1247,6 +1253,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'days'**
   String get onboardingDays;
+
+  /// No description provided for @onboardingApproximateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'When was your last period?'**
+  String get onboardingApproximateLabel;
+
+  /// No description provided for @onboardingApproximateLessWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than a week ago'**
+  String get onboardingApproximateLessWeek;
+
+  /// No description provided for @onboardingApproximate1to2Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'1–2 weeks ago'**
+  String get onboardingApproximate1to2Weeks;
+
+  /// No description provided for @onboardingApproximate3to4Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'3–4 weeks ago'**
+  String get onboardingApproximate3to4Weeks;
+
+  /// No description provided for @onboardingApproximateMoreMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'More than a month ago'**
+  String get onboardingApproximateMoreMonth;
+
+  /// No description provided for @onboardingPickExactDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick exact date instead'**
+  String get onboardingPickExactDate;
+
+  /// No description provided for @onboardingLastPeriodRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select when your last period started'**
+  String get onboardingLastPeriodRequired;
+
+  /// No description provided for @nudgeCompleteProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Want more accurate predictions?'**
+  String get nudgeCompleteProfileTitle;
+
+  /// No description provided for @nudgeCompleteProfileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the exact start date of your last period to improve cycle predictions.'**
+  String get nudgeCompleteProfileBody;
+
+  /// No description provided for @nudgeCompleteProfileAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get nudgeCompleteProfileAction;
+
+  /// No description provided for @nudgeCompleteProfileDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe later'**
+  String get nudgeCompleteProfileDismiss;
 
   /// No description provided for @smsScreenTitle.
   ///
@@ -1415,6 +1487,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log at least two cycles to see your trend here.'**
   String get insightsNotEnoughTrendData;
+
+  /// No description provided for @assistantAccessibilitySuggestedPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested prompt'**
+  String get assistantAccessibilitySuggestedPrompt;
+
+  /// No description provided for @assistantAccessibilityMessageInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Message input'**
+  String get assistantAccessibilityMessageInput;
+
+  /// No description provided for @assistantAccessibilityMessageInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your question here'**
+  String get assistantAccessibilityMessageInputHint;
+
+  /// No description provided for @assistantAccessibilitySendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get assistantAccessibilitySendMessage;
+
+  /// No description provided for @assistantAccessibilitySendMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sends your message to the assistant'**
+  String get assistantAccessibilitySendMessageHint;
+
+  /// No description provided for @assistantAccessibilityTyping.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant is typing'**
+  String get assistantAccessibilityTyping;
 }
 
 class _AppLocalizationsDelegate
@@ -1461,8 +1569,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

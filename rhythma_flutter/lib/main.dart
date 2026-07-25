@@ -7,9 +7,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 import 'components/bottom_nav.dart';
+import 'components/debug_data_indicator.dart';
 import 'components/shared.dart';
 import 'config/theme.dart';
 
+import 'providers/data_mode_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/cycle_provider.dart';
@@ -19,7 +21,6 @@ import 'providers/dashboard_provider.dart';
 
 import 'screens/assistant/assistant_screen.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/auth/register_screen.dart';
 import 'screens/cycle/cycle_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/insights/insights_screen.dart';
@@ -60,6 +61,7 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => DataModeProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => CycleProvider()),
@@ -129,7 +131,6 @@ class _RhythmaAppState extends State<RhythmaApp> {
       ),
       routes: {
         '/login': (_) => const LoginScreen(),
-        '/register': (_) => const RegisterScreen(),
         '/home': (_) => const RhythmaRoot(),
         '/assistant': (_) => const ShellBackground(child: AssistantScreen()),
       },
@@ -212,20 +213,25 @@ class _RhythmaShellState extends State<RhythmaShell> {
       decoration: BoxDecoration(
         gradient: RhythmaGradients.bg,
       ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        extendBody: true,
-        body: SafeArea(
-          bottom: false,
-          child: IndexedStack(
-            index: _currentIndex,
-            children: _screens,
+      child: Stack(
+        children: [
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            extendBody: true,
+            body: SafeArea(
+              bottom: false,
+              child: IndexedStack(
+                index: _currentIndex,
+                children: _screens,
+              ),
+            ),
+            bottomNavigationBar: RhythmaBottomNav(
+              currentIndex: _currentIndex,
+              onTap: (i) => setState(() => _currentIndex = i),
+            ),
           ),
-        ),
-        bottomNavigationBar: RhythmaBottomNav(
-          currentIndex: _currentIndex,
-          onTap: (i) => setState(() => _currentIndex = i),
-        ),
+          const DebugDataIndicator(),
+        ],
       ),
     );
   }

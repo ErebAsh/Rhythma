@@ -4,6 +4,7 @@ from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 import os
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 from services.firestore_service import UserService
 
 # --- Configuration ---
@@ -14,7 +15,7 @@ if not SECRET_KEY:
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/firebase-login")
 
 # --- Password Functions ---
 def get_password_hash(password: str) -> str:
@@ -26,7 +27,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 # --- Token Functions ---
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -55,4 +57,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     if user is None:
         raise credentials_exception
 
-    return {"id": user["id"], "username": user["username"], "email": user["email"]}
+    return {
+        "id": user["id"],
+        "phone": user.get("phone"),
+        "username": user.get("username"),
+        "email": user.get("email")
+    }

@@ -557,6 +557,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get onboardingPhoneLabel => 'फोन नंबर (वैकल्पिक)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'शहर (वैकल्पिक)';
 
   @override
@@ -605,6 +608,29 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get onboardingDays => 'दिवस';
+
+  @override
+  String get onboardingApproximateLabel => 'When was your last period?';
+  @override
+  String get onboardingApproximateLessWeek => 'Less than a week ago';
+  @override
+  String get onboardingApproximate1to2Weeks => '1–2 weeks ago';
+  @override
+  String get onboardingApproximate3to4Weeks => '3–4 weeks ago';
+  @override
+  String get onboardingApproximateMoreMonth => 'More than a month ago';
+  @override
+  String get onboardingPickExactDate => 'Pick exact date instead';
+  @override
+  String get onboardingLastPeriodRequired => 'Please select when your last period started';
+  @override
+  String get nudgeCompleteProfileTitle => 'Want more accurate predictions?';
+  @override
+  String get nudgeCompleteProfileBody => 'Add the exact start date of your last period to improve cycle predictions.';
+  @override
+  String get nudgeCompleteProfileAction => 'Update';
+  @override
+  String get nudgeCompleteProfileDismiss => 'Maybe later';
 
   @override
   String get smsScreenTitle => 'एसएमएस सारांश';
@@ -701,4 +727,24 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'तुमचा ट्रेंड पाहण्यासाठी किमान दोन चक्र लॉग करा.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'सुचवलेला संदेश';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'संदेश प्रविष्ट करा';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'तुमचा प्रश्न येथे प्रविष्ट करा';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'संदेश पाठवा';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'तुमचा संदेश सहाय्यकाला पाठवा';
+
+  @override
+  String get assistantAccessibilityTyping => 'सहाय्यक टाइप करत आहे';
 }
