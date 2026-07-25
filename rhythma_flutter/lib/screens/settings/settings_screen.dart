@@ -4,6 +4,7 @@ import 'package:rhythma/l10n/app_localizations.dart';
 import '../../components/shared.dart';
 import '../../config/theme.dart';
 import '../../services/auth_service.dart';
+import '../../services/export_service.dart';
 import '../../services/notification_service.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -180,10 +181,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l10n = AppLocalizations.of(context)!;
     final currentLocaleCode =
         context.watch<LocaleProvider>().locale.languageCode;
-    String currentLanguageName = LanguageScreen.languages.entries
-        .firstWhere((entry) => entry.value == currentLocaleCode,
-            orElse: () => const MapEntry('English', 'en'))
-        .key;
+    String currentLanguageName = ({
+      'en': l10n.langEnglish,
+      'hi': l10n.langHindi,
+      'ta': l10n.langTamil,
+      'te': l10n.langTelugu,
+      'mr': l10n.langMarathi,
+    }[currentLocaleCode] ?? l10n.langEnglish);
 
     return Container(
       decoration: BoxDecoration(gradient: RhythmaGradients.bg),
@@ -467,6 +471,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     },
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Data Section
+            SectionHeader(title: l10n.settingsData),
+            GlassCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
+                leading: const TintedIcon(
+                  icon: Icons.download_rounded,
+                  color: RhythmaColors.teal,
+                  size: 36,
+                ),
+                title: Text(l10n.settingsExportData),
+                subtitle: Text(l10n.settingsExportDataDesc),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: RhythmaColors.mutedFg),
+                onTap: () async {
+                  try {
+                    await ExportService.exportAndShare();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.settingsExportSuccess)),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Export failed: $e'),
+                        ),
+                      );
+                    }
+                  }
+                },
               ),
             ),
             const SizedBox(height: 24),

@@ -105,7 +105,7 @@ abstract class AppLocalizations {
     Locale('ml'),
     Locale('mr'),
     Locale('ta'),
-    Locale('te'),
+    Locale('te')
   ];
 
   /// The title of the application
@@ -215,6 +215,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Language'**
   String get selectLanguage;
+
+  /// No description provided for @langEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get langEnglish;
+
+  /// No description provided for @langHindi.
+  ///
+  /// In en, this message translates to:
+  /// **'हिन्दी (Hindi)'**
+  String get langHindi;
+
+  /// No description provided for @langTamil.
+  ///
+  /// In en, this message translates to:
+  /// **'தமிழ் (Tamil)'**
+  String get langTamil;
+
+  /// No description provided for @langTelugu.
+  ///
+  /// In en, this message translates to:
+  /// **'తెలుగు (Telugu)'**
+  String get langTelugu;
+
+  /// No description provided for @langMarathi.
+  ///
+  /// In en, this message translates to:
+  /// **'मराठी (Marathi)'**
+  String get langMarathi;
 
   /// No description provided for @homeGreeting.
   ///
@@ -972,6 +1002,12 @@ abstract class AppLocalizations {
   /// **'Please enter a valid phone number'**
   String get profilePhoneInvalidError;
 
+  /// No description provided for @contactNameRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact name is required'**
+  String get contactNameRequiredError;
+
   /// No description provided for @edit.
   ///
   /// In en, this message translates to:
@@ -1043,6 +1079,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open email app. Please email us at support@rhythma.com'**
   String get settingsEmailError;
+
+  /// No description provided for @settingsData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsData;
+
+  /// No description provided for @settingsExportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export My Data'**
+  String get settingsExportData;
+
+  /// No description provided for @settingsExportDataDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Download your profile, contacts, and cycle logs as JSON'**
+  String get settingsExportDataDesc;
+
+  /// No description provided for @settingsExportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Data exported successfully'**
+  String get settingsExportSuccess;
 
   /// No description provided for @onboardingPrivacyNote.
   ///
@@ -1281,7 +1341,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingPhoneInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Please enter a valid phone number'**
+  /// **'Use international format, e.g. +919876543210'**
   String get onboardingPhoneInvalid;
 
   /// No description provided for @onboardingTapToSelectDate.
@@ -1611,9 +1671,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }
