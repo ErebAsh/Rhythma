@@ -60,8 +60,18 @@ void main() {
 
       expect(find.text('Select Language'), findsOneWidget);
 
-      for (final langName in LanguageScreen.languages.keys) {
-        expect(find.text(langName), findsOneWidget);
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(LanguageScreen)),
+      )!;
+      final expectedNames = <String, String>{
+        'en': l10n.langEnglish,
+        'hi': l10n.langHindi,
+        'ta': l10n.langTamil,
+        'te': l10n.langTelugu,
+        'mr': l10n.langMarathi,
+      };
+      for (final code in LanguageScreen.supportedLanguageCodes) {
+        expect(find.text(expectedNames[code]!), findsOneWidget);
       }
 
       expect(

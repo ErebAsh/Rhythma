@@ -132,6 +132,36 @@ abstract class AppLocalizations {
   /// **'Language Preferences'**
   String get languagePreferences;
 
+  /// No description provided for @langEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get langEnglish;
+
+  /// No description provided for @langHindi.
+  ///
+  /// In en, this message translates to:
+  /// **'हिन्दी (Hindi)'**
+  String get langHindi;
+
+  /// No description provided for @langTamil.
+  ///
+  /// In en, this message translates to:
+  /// **'தமிழ் (Tamil)'**
+  String get langTamil;
+
+  /// No description provided for @langTelugu.
+  ///
+  /// In en, this message translates to:
+  /// **'తెలుగు (Telugu)'**
+  String get langTelugu;
+
+  /// No description provided for @langMarathi.
+  ///
+  /// In en, this message translates to:
+  /// **'मराठी (Marathi)'**
+  String get langMarathi;
+
   /// No description provided for @darkMode.
   ///
   /// In en, this message translates to:
@@ -972,6 +1002,12 @@ abstract class AppLocalizations {
   /// **'Please enter a valid phone number'**
   String get profilePhoneInvalidError;
 
+  /// No description provided for @contactNameRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact name is required'**
+  String get contactNameRequiredError;
+
   /// No description provided for @edit.
   ///
   /// In en, this message translates to:
@@ -1565,6 +1601,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Assistant is typing'**
   String get assistantAccessibilityTyping;
+
+  /// No description provided for @settingsData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsData;
+
+  /// No description provided for @settingsExportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export My Data'**
+  String get settingsExportData;
+
+  /// No description provided for @settingsExportDataDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Download your profile, contacts, and cycle logs as JSON'**
+  String get settingsExportDataDesc;
+
+  /// No description provided for @settingsExportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Data exported successfully'**
+  String get settingsExportSuccess;
 }
 
 class _AppLocalizationsDelegate

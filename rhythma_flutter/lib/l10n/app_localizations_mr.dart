@@ -21,6 +21,21 @@ class AppLocalizationsMr extends AppLocalizations {
   String get languagePreferences => 'भाषा प्राधान्ये';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
   String get darkMode => 'डार्क मोड';
 
   @override
@@ -459,6 +474,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get profilePhoneInvalidError => 'कृपया वैध फोन क्रमांक प्रविष्ट करा';
 
   @override
+  String get contactNameRequiredError => 'Contact name is required';
+
+  @override
   String get edit => 'संपादित करा';
 
   @override
@@ -769,4 +787,17 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get assistantAccessibilityTyping => 'सहाय्यक टाइप करत आहे';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
 }

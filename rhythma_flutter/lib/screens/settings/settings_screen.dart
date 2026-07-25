@@ -180,10 +180,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l10n = AppLocalizations.of(context)!;
     final currentLocaleCode =
         context.watch<LocaleProvider>().locale.languageCode;
-    String currentLanguageName = LanguageScreen.languages.entries
-        .firstWhere((entry) => entry.value == currentLocaleCode,
-            orElse: () => const MapEntry('English', 'en'))
-        .key;
+    String currentLanguageName = ({
+      'en': l10n.langEnglish,
+      'hi': l10n.langHindi,
+      'ta': l10n.langTamil,
+      'te': l10n.langTelugu,
+      'mr': l10n.langMarathi,
+    }[currentLocaleCode] ?? l10n.langEnglish);
 
     return Container(
       decoration: BoxDecoration(gradient: RhythmaGradients.bg),

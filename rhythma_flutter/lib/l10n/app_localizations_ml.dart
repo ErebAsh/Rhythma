@@ -21,6 +21,21 @@ class AppLocalizationsMl extends AppLocalizations {
   String get languagePreferences => 'ഭാഷാ മുൻഗണനകൾ';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
   String get darkMode => 'ഡാർക്ക് മോഡ്';
 
   @override
@@ -303,8 +318,8 @@ class AppLocalizationsMl extends AppLocalizations {
       'നിങ്ങളുടെ ആരോഗ്യത്തെക്കുറിച്ച് എന്ത് വേണമെങ്കിലും ചോദിക്കൂ...';
 
   @override
-  String get assistantWelcome =>
-      'ഹായ് ആര്യ 🌸 ഞാൻ Rhythma, നിങ്ങളുടെ സ്വകാര്യ ആരോഗ്യ സഹായി. ആർത്തവചക്രം, ലക്ഷണങ്ങൾ, ആരോഗ്യം എന്നിവയെക്കുറിച്ച് എന്തും ചോദിക്കാം — ഇംഗ്ലീഷ്, ഹിന്ദി, മറാഠി, തമിഴ്, അല്ലെങ്കിൽ മലയാളത്തിൽ.';
+  String assistantWelcome(String name) =>
+      'ഹായ് $name 🌸 ഞാൻ Rhythma, നിങ്ങളുടെ സ്വകാര്യ ആരോഗ്യ സഹായി. ആർത്തവചക്രം, ലക്ഷണങ്ങൾ, ആരോഗ്യം എന്നിവയെക്കുറിച്ച് എന്തും ചോദിക്കാം — ഇംഗ്ലീഷ്, ഹിന്ദി, മറാഠി, തമിഴ്, അല്ലെങ്കിൽ മലയാളത്തിൽ.';
 
   @override
   String get assistantSug1 => 'എന്തുകൊണ്ടാണ് എന്റെ ആർത്തവം ക്രമരഹിതമാകുന്നത്?';
@@ -458,6 +473,9 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get profilePhoneInvalidError => 'ദയവായി സാധുവായ ഫോൺ നമ്പർ നൽകുക';
+
+  @override
+  String get contactNameRequiredError => 'Contact name is required';
 
   @override
   String get edit => 'തിരുത്തുക';
@@ -779,4 +797,17 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get assistantAccessibilityTyping => 'അസിസ്റ്റന്റ് ടൈപ്പ് ചെയ്യുന്നു';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
 }

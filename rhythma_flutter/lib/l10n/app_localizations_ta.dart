@@ -21,6 +21,21 @@ class AppLocalizationsTa extends AppLocalizations {
   String get languagePreferences => 'மொழி விருப்பங்கள்';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
   String get darkMode => 'டார்க் மோடு';
 
   @override
@@ -461,6 +476,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get profilePhoneInvalidError => 'சரியான தொலைபேசி எண்ணை உள்ளிடவும்';
 
   @override
+  String get contactNameRequiredError => 'Contact name is required';
+
+  @override
   String get edit => 'திருத்து';
 
   @override
@@ -777,4 +795,17 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get assistantAccessibilityTyping =>
       'உதவியாளர் தட்டச்சு செய்து கொண்டிருக்கிறார்';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
 }

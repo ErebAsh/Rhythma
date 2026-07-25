@@ -21,6 +21,21 @@ class AppLocalizationsKn extends AppLocalizations {
   String get languagePreferences => 'ಭಾಷಾ ಆದ್ಯತೆಗಳು';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
   String get darkMode => 'ಡಾರ್ಕ್ ಮೋಡ್';
 
   @override
@@ -300,8 +315,8 @@ class AppLocalizationsKn extends AppLocalizations {
   String get assistantInputHint => 'ನಿಮ್ಮ ಆರೋಗ್ಯದ ಬಗ್ಗೆ ಏನ್ನನ್ನಾದರೂ ಕೇಳಿ...';
 
   @override
-  String get assistantWelcome =>
-      'ಹಲೋ ಆರ್ಯ 🌸 ನಾನು Rhythma, ನಿಮ್ಮ ಖಾಸಗಿ ಆರೋಗ್ಯ ಸಹಚರ. ನಿಮ್ಮ ಋತುಚಕ್ರ, ಲಕ್ಷಣಗಳು ಅಥವಾ ಆರೋಗ್ಯದ ಬಗ್ಗೆ ಇಂಗ್ಲಿಷ್, ಹಿಂದಿ, ಮರಾಠಿ ಅಥವಾ ತಮಿಳಿನಲ್ಲಿ ಏನನ್ನಾದರೂ ಕೇಳಿ.';
+  String assistantWelcome(String name) =>
+      'ಹಲೋ $name 🌸 ನಾನು Rhythma, ನಿಮ್ಮ ಖಾಸಗಿ ಆರೋಗ್ಯ ಸಹಚರ. ನಿಮ್ಮ ಋತುಚಕ್ರ, ಲಕ್ಷಣಗಳು ಅಥವಾ ಆರೋಗ್ಯದ ಬಗ್ಗೆ ಇಂಗ್ಲಿಷ್, ಹಿಂದಿ, ಮರಾಠಿ ಅಥವಾ ತಮಿಳಿನಲ್ಲಿ ಏನನ್ನಾದರೂ ಕೇಳಿ.';
 
   @override
   String get assistantSug1 => 'ನನ್ನ ಮುಟ್ಟು ಅನಿಯಮಿತವಾಗಿರುವುದೇಕೆ?';
@@ -457,6 +472,9 @@ class AppLocalizationsKn extends AppLocalizations {
   @override
   String get profilePhoneInvalidError =>
       'ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ';
+
+  @override
+  String get contactNameRequiredError => 'Contact name is required';
 
   @override
   String get edit => 'ಸಂಪಾದಿಸಿ';
@@ -776,10 +794,17 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get assistantAccessibilityTyping => 'ಸಹಾಯಕ ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ';
-  
-      'ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಅಸಿಸ್ಟೆಂಟ್‌ಗೆ ಕಳುಹಿಸುತ್ತದೆ';
 
   @override
-  String get assistantAccessibilityTyping => 'ಅಸಿಸ್ಟೆಂಟ್ ಟೈಪ್ ಮಾಡುತ್ತಿದೆ';
+  String get settingsData => 'Data';
 
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
 }
