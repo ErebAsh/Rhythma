@@ -19,7 +19,10 @@ def auth_headers(mock_auth_dependencies):
 def test_get_sms_settings_success(auth_headers):
     response = client.get("/api/v1/sms/settings", headers=auth_headers)
     assert response.status_code == 200
-    assert response.json() == {"phoneNumber": "", "enabled": False}
+    assert response.json() == {
+        "phoneNumber": "+1234567890",
+        "enabled": False,
+    }
 
 def test_save_sms_settings_success(auth_headers):
     payload = {"phoneNumber": "+1234567890", "enabled": True}
