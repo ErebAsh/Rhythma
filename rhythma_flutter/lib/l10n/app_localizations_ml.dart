@@ -737,7 +737,9 @@ class AppLocalizationsMl extends AppLocalizations {
       'നിങ്ങളുടെ ട്രെൻഡ് കാണുന്നതിന് കുറഞ്ഞത് രണ്ട് ആർത്തവചക്രങ്ങളെങ്കിലും രേഖപ്പെടുത്തുക.';
 
   @override
-  String get assistantAccessibilitySuggestedPrompt => 'നിർദ്ദിഷ്ട പ്രോംപ്റ്റ്';
+
+
+  String get assistantAccessibilitySuggestedPrompt => 'നിർദ്ദേശിച്ച പ്രോംപ്റ്റ്';
 
   @override
   String get assistantAccessibilityMessageInput => 'സന്ദേശ ഇൻപുട്ട്';
@@ -751,7 +753,8 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-      'നിങ്ങളുടെ സന്ദേശം അസിസ്റ്റന്റിന് അയയ്ക്കുന്നു';
+
+      'നിങ്ങളുടെ സന്ദേശം അസിസ്റ്റന്റിലേക്ക് അയയ്ക്കുന്നു';
 
   @override
   String get assistantAccessibilityTyping => 'അസിസ്റ്റന്റ് ടൈപ്പ് ചെയ്യുന്നു';
