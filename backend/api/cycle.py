@@ -17,6 +17,15 @@ class CycleLog(BaseModel):
     stress_level: Optional[int] = None
     notes: Optional[str] = None
 
+class CycleLogUpdate(BaseModel):
+    end_date: Optional[date] = None
+    flow_intensity: Optional[str] = None
+    mood: Optional[str] = None
+    symptoms: Optional[List[str]] = None
+    sleep_hours: Optional[float] = None
+    stress_level: Optional[int] = None
+    notes: Optional[str] = None
+
 
 # ─── Router ──────────────────────────────────────────────────────────────────
 router = APIRouter(tags=["Cycle Tracking"])
@@ -60,3 +69,38 @@ async def get_cycle_history(
         )
     entries = CycleService.get_logs_for_user(user_id, limit=limit or 10)
     return {"message": f"History for user {user_id}", "entries": entries}
+
+@router.put("/{log_id}")
+async def update_cycle_log(
+    log_id: str,
+    log_update: CycleLogUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Updates an existing cycle log entry."""
+    user_id = current_user["id"]
+    fields = {k: v for k, v in log_update.model_dump().items() if v is not None}
+    if not fields:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields provided for update"
+        )
+        
+    CycleService.update_log(user_id, log_id, fields)
+    return {
+        "message": f"Cycle log {log_id} updated",
+        "id": log_id,
+        "updated_fields": fields
+    }
+
+@router.delete("/{log_id}")
+async def delete_cycle_log(
+    log_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Deletes an existing cycle log entry."""
+    user_id = current_user["id"]
+    CycleService.delete_log(user_id, log_id)
+    return {
+        "message": f"Cycle log {log_id} deleted",
+        "id": log_id
+    }
