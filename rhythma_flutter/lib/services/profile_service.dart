@@ -68,6 +68,7 @@ class ProfileService {
       'avatar',
       'language',
       'last_period',
+      'last_period_is_approximate',
       'cycle_length',
       'period_duration',
       'cycle_regular',

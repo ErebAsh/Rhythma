@@ -141,6 +141,7 @@ void main() {
         'height_cm': 162.0,
         'weight_kg': 56.0,
         'last_period': '2025-06-10',
+        'last_period_is_approximate': false,
         'cycle_length': 27,
         'period_duration': 4,
         'cycle_regular': true,
@@ -169,12 +170,48 @@ void main() {
       expect(profile['height_cm'], 162.0);
       expect(profile['weight_kg'], 56.0);
       expect(profile['last_period'], '2025-06-10');
+      expect(profile['last_period_is_approximate'], false);
       expect(profile['period_duration'], 4);
       expect(profile['cycle_regular'], true);
       expect(profile['phone'], '+919876543210');
       expect(profile['city'], 'Pune');
       expect(profile['state'], '411001');
       expect(profile['notifications_enabled'], true);
+    });
+
+    test('approximate onboarding date is stored correctly', () async {
+      final onboardingData = {
+        'name': 'Test',
+        'last_period': '2025-07-01',
+        'last_period_is_approximate': true,
+        'cycle_length': 28,
+        'period_duration': 5,
+        'cycle_regular': true,
+      };
+      await LocalStorageService.saveProfile(onboardingData);
+      final profile = LocalStorageService.getProfile()!;
+      expect(profile['last_period'], '2025-07-01');
+      expect(profile['last_period_is_approximate'], true);
+    });
+  });
+
+  group('nudge preferences', () {
+    test('getNudgeDismissed returns false by default', () {
+      expect(
+          LocalStorageService.getNudgeDismissed('last_period_exact'), isFalse);
+    });
+
+    test('setNudgeDismissed stores and retrieves correctly', () async {
+      await LocalStorageService.setNudgeDismissed('last_period_exact', true);
+      expect(
+          LocalStorageService.getNudgeDismissed('last_period_exact'), isTrue);
+    });
+
+    test('different nudge keys are independent', () async {
+      await LocalStorageService.setNudgeDismissed('nudge_a', true);
+      await LocalStorageService.setNudgeDismissed('nudge_b', false);
+      expect(LocalStorageService.getNudgeDismissed('nudge_a'), isTrue);
+      expect(LocalStorageService.getNudgeDismissed('nudge_b'), isFalse);
     });
   });
 

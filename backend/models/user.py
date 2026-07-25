@@ -52,6 +52,7 @@ class UserProfileUpdate(BaseModel):
     avatar: Optional[str] = None
     language: Optional[str] = None
     last_period: Optional[str] = None          # ISO 8601 date string e.g. "2024-06-01"
+    last_period_is_approximate: Optional[bool] = False
     cycle_length: Optional[int] = Field(None, ge=15, le=60)
     period_duration: Optional[int] = Field(None, ge=1, le=15)
     cycle_regular: Optional[bool] = None
@@ -73,6 +74,7 @@ class UserProfileResponse(BaseModel):
     avatar: Optional[str] = None
     language: Optional[str] = None
     last_period: Optional[str] = None
+    last_period_is_approximate: Optional[bool] = None
     cycle_length: Optional[int] = None
     period_duration: Optional[int] = None
     cycle_regular: Optional[bool] = None
