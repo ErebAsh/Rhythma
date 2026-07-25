@@ -21,21 +21,6 @@ class AppLocalizationsKn extends AppLocalizations {
   String get languagePreferences => 'ಭಾಷಾ ಆದ್ಯತೆಗಳು';
 
   @override
-  String get langEnglish => 'English';
-
-  @override
-  String get langHindi => 'हिन्दी (Hindi)';
-
-  @override
-  String get langTamil => 'தமிழ் (Tamil)';
-
-  @override
-  String get langTelugu => 'తెలుగు (Telugu)';
-
-  @override
-  String get langMarathi => 'मराठी (Marathi)';
-
-  @override
   String get darkMode => 'ಡಾರ್ಕ್ ಮೋಡ್';
 
   @override
@@ -77,6 +62,21 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get selectLanguage => 'ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ';
+
+  @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
 
   @override
   String get homeGreeting => 'ನಮಸ್ತೆ';
@@ -315,8 +315,9 @@ class AppLocalizationsKn extends AppLocalizations {
   String get assistantInputHint => 'ನಿಮ್ಮ ಆರೋಗ್ಯದ ಬಗ್ಗೆ ಏನ್ನನ್ನಾದರೂ ಕೇಳಿ...';
 
   @override
-  String assistantWelcome(String name) =>
-      'ಹಲೋ $name 🌸 ನಾನು Rhythma, ನಿಮ್ಮ ಖಾಸಗಿ ಆರೋಗ್ಯ ಸಹಚರ. ನಿಮ್ಮ ಋತುಚಕ್ರ, ಲಕ್ಷಣಗಳು ಅಥವಾ ಆರೋಗ್ಯದ ಬಗ್ಗೆ ಇಂಗ್ಲಿಷ್, ಹಿಂದಿ, ಮರಾಠಿ ಅಥವಾ ತಮಿಳಿನಲ್ಲಿ ಏನನ್ನಾದರೂ ಕೇಳಿ.';
+  String assistantWelcome(String name) {
+    return 'ಹಲೋ ಆರ್ಯ 🌸 ನಾನು Rhythma, ನಿಮ್ಮ ಖಾಸಗಿ ಆರೋಗ್ಯ ಸಹಚರ. ನಿಮ್ಮ ಋತುಚಕ್ರ, ಲಕ್ಷಣಗಳು ಅಥವಾ ಆರೋಗ್ಯದ ಬಗ್ಗೆ ಇಂಗ್ಲಿಷ್, ಹಿಂದಿ, ಮರಾಠಿ ಅಥವಾ ತಮಿಳಿನಲ್ಲಿ ಏನನ್ನಾದರೂ ಕೇಳಿ.';
+  }
 
   @override
   String get assistantSug1 => 'ನನ್ನ ಮುಟ್ಟು ಅನಿಯಮಿತವಾಗಿರುವುದೇಕೆ?';
@@ -514,6 +515,19 @@ class AppLocalizationsKn extends AppLocalizations {
       'ಇಮೇಲ್ ಆ್ಯಪ್ ತೆರೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು support@rhythma.com ಗೆ ಇಮೇಲ್ ಮಾಡಿ';
 
   @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
+
+  @override
   String get onboardingPrivacyNote =>
       'ನಿಮ್ಮ ಮಾಹಿತಿಯು ನಿಮ್ಮ ಸಾಧನದಲ್ಲೇ ಉಳಿಯುತ್ತದೆ. ನಿಮ್ಮ ಅನುಮತಿಯಿಲ್ಲದೆ ನಾವು ನಿಮ್ಮ ಡೇಟಾವನ್ನು ಎಂದಿಗೂ ಹಂಚಿಕೊಳ್ಳುವುದಿಲ್ಲ.';
 
@@ -655,26 +669,38 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get onboardingApproximateLabel => 'When was your last period?';
+
   @override
   String get onboardingApproximateLessWeek => 'Less than a week ago';
+
   @override
-  String get onboardingApproximate1to2Weeks => '1–2 weeks ago';
+  String get onboardingApproximate1to2Weeks => '1–2 ವಾರಗಳ ಹಿಂದೆ';
+
   @override
-  String get onboardingApproximate3to4Weeks => '3–4 weeks ago';
+  String get onboardingApproximate3to4Weeks => '3–4 ವಾರಗಳ ಹಿಂದೆ';
+
   @override
-  String get onboardingApproximateMoreMonth => 'More than a month ago';
+  String get onboardingApproximateMoreMonth => 'ಒಂದು ತಿಂಗಳಿಗಿಂತ ಹೆಚ್ಚು ಹಿಂದೆ';
+
   @override
-  String get onboardingPickExactDate => 'Pick exact date instead';
+  String get onboardingPickExactDate => 'ಬದಲಿಗೆ ನಿಖರವಾದ ದಿನಾಂಕ ಆಯ್ಕೆಮಾಡಿ';
+
   @override
-  String get onboardingLastPeriodRequired => 'Please select when your last period started';
+  String get onboardingLastPeriodRequired =>
+      'ನಿಮ್ಮ ಕೊನೆಯ ಋತುಮತಿ ಯಾವಾಗ ಪ್ರಾರಂಭವಾಯಿತು ಎಂಬುದನ್ನು ಆಯ್ಕೆಮಾಡಿ';
+
   @override
-  String get nudgeCompleteProfileTitle => 'Want more accurate predictions?';
+  String get nudgeCompleteProfileTitle => 'ಹೆಚ್ಚು ನಿಖರವಾದ ಮುನ್ಸೂಚನೆಗಳು ಬೇಕೇ?';
+
   @override
-  String get nudgeCompleteProfileBody => 'Add the exact start date of your last period to improve cycle predictions.';
+  String get nudgeCompleteProfileBody =>
+      'ಚಕ್ರ ಮುನ್ಸೂಚನೆಗಳನ್ನು ಸುಧಾರಿಸಲು ನಿಮ್ಮ ಕೊನೆಯ ಋತುಮತಿಯ ನಿಖರವಾದ ಪ್ರಾರಂಭ ದಿನಾಂಕವನ್ನು ಸೇರಿಸಿ.';
+
   @override
-  String get nudgeCompleteProfileAction => 'Update';
+  String get nudgeCompleteProfileAction => 'ನವೀಕರಿಸಿ';
+
   @override
-  String get nudgeCompleteProfileDismiss => 'Maybe later';
+  String get nudgeCompleteProfileDismiss => 'ನಂತರ';
 
   @override
   String get smsScreenTitle => 'SMS ಸಾರಾಂಶಗಳು';
@@ -775,36 +801,22 @@ class AppLocalizationsKn extends AppLocalizations {
       'ನಿಮ್ಮ ಟ್ರೆಂಡ್ ನೋಡಲು ಕನಿಷ್ಠ ಎರಡು ಋತುಚಕ್ರಗಳನ್ನು ದಾಖಲಿಸಿ.';
 
   @override
-  String get assistantAccessibilitySuggestedPrompt => 'ಸೂಚಿಸಲಾದ ಪ್ರಾಂಪ್ಟ್';
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
 
   @override
-  String get assistantAccessibilityMessageInput => 'ಸಂದೇಶ ಇನ್ಪುಟ್';
+  String get assistantAccessibilityMessageInput => 'Message input';
 
   @override
   String get assistantAccessibilityMessageInputHint =>
-      'ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಇಲ್ಲಿ ಟೈಪ್ ಮಾಡಿ';
+      'Type your question here';
 
   @override
-  String get assistantAccessibilitySendMessage => 'ಸಂದೇಶ ಕಳುಹಿಸಿ';
+  String get assistantAccessibilitySendMessage => 'Send message';
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-
-      'ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಸಹಾಯಕರಿಗೆ ಕಳುಹಿಸುತ್ತದೆ';
-
-  @override
-  String get assistantAccessibilityTyping => 'ಸಹಾಯಕ ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ';
+      'Sends your message to the assistant';
 
   @override
-  String get settingsData => 'Data';
-
-  @override
-  String get settingsExportData => 'Export My Data';
-
-  @override
-  String get settingsExportDataDesc =>
-      'Download your profile, contacts, and cycle logs as JSON';
-
-  @override
-  String get settingsExportSuccess => 'Data exported successfully';
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 }

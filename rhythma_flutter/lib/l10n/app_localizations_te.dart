@@ -21,21 +21,6 @@ class AppLocalizationsTe extends AppLocalizations {
   String get languagePreferences => 'భాషా ప్రాధాన్యతలు';
 
   @override
-  String get langEnglish => 'English';
-
-  @override
-  String get langHindi => 'हिन्दी (Hindi)';
-
-  @override
-  String get langTamil => 'தமிழ் (Tamil)';
-
-  @override
-  String get langTelugu => 'తెలుగు (Telugu)';
-
-  @override
-  String get langMarathi => 'मराठी (Marathi)';
-
-  @override
   String get darkMode => 'డార్క్ మోడ్';
 
   @override
@@ -77,6 +62,21 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get selectLanguage => 'భాషను ఎంచుకోండి';
+
+  @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
 
   @override
   String get homeGreeting => 'నమస్తే';
@@ -516,6 +516,19 @@ class AppLocalizationsTe extends AppLocalizations {
       'ఇమెయిల్ యాప్‌ను తెరవలేకపోయాము. దయచేసి మాకు support@rhythma.com లో ఇమెయిల్ చేయండి';
 
   @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
+
+  @override
   String get onboardingPrivacyNote =>
       'మీ సమాచారం మీ పరికరంలో మాత్రమే ఉంటుంది. మీ అనుమతి లేకుండా మేము ఎప్పుడూ మీ డేటాను పంచుకోము.';
 
@@ -655,26 +668,39 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get onboardingApproximateLabel => 'When was your last period?';
+
   @override
   String get onboardingApproximateLessWeek => 'Less than a week ago';
+
   @override
-  String get onboardingApproximate1to2Weeks => '1–2 weeks ago';
+  String get onboardingApproximate1to2Weeks => '1–2 వారాల క్రితం';
+
   @override
-  String get onboardingApproximate3to4Weeks => '3–4 weeks ago';
+  String get onboardingApproximate3to4Weeks => '3–4 వారాల క్రితం';
+
   @override
-  String get onboardingApproximateMoreMonth => 'More than a month ago';
+  String get onboardingApproximateMoreMonth => 'ఒక నెల కంటే ఎక్కువ క్రితం';
+
   @override
-  String get onboardingPickExactDate => 'Pick exact date instead';
+  String get onboardingPickExactDate =>
+      'దాని బదులుగా ఖచ్చితమైన తేదీని ఎంచుకోండి';
+
   @override
-  String get onboardingLastPeriodRequired => 'Please select when your last period started';
+  String get onboardingLastPeriodRequired =>
+      'మీ చివరి పీరియడ్ ఎప్పుడు ప్రారంభమైందో ఎంచుకోండి';
+
   @override
-  String get nudgeCompleteProfileTitle => 'Want more accurate predictions?';
+  String get nudgeCompleteProfileTitle => 'మరింత ఖచ్చితమైన అంచనాలు కావాలా?';
+
   @override
-  String get nudgeCompleteProfileBody => 'Add the exact start date of your last period to improve cycle predictions.';
+  String get nudgeCompleteProfileBody =>
+      'సైకిల్ అంచనాలను మెరుగుపరచడానికి మీ చివరి పీరియడ్ ఖచ్చితమైన ప్రారంభ తేదీని జోడించండి.';
+
   @override
-  String get nudgeCompleteProfileAction => 'Update';
+  String get nudgeCompleteProfileAction => 'అప్‌డేట్';
+
   @override
-  String get nudgeCompleteProfileDismiss => 'Maybe later';
+  String get nudgeCompleteProfileDismiss => 'తర్వాత';
 
   @override
   String get smsScreenTitle => 'ఎస్‌ఎంఎస్ సారాంశాలు';
@@ -776,35 +802,22 @@ class AppLocalizationsTe extends AppLocalizations {
       'మీ ట్రెండ్ చూడటానికి కనీసం రెండు చక్రాలను లాగ్ చేయండి.';
 
   @override
-  String get assistantAccessibilitySuggestedPrompt => 'సూచించిన సందేశం';
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
 
   @override
-  String get assistantAccessibilityMessageInput => 'సందేశాన్ని నమోదు చేయండి';
+  String get assistantAccessibilityMessageInput => 'Message input';
 
   @override
   String get assistantAccessibilityMessageInputHint =>
-      'మీ ప్రశ్నను ఇక్కడ నమోదు చేయండి';
+      'Type your question here';
 
   @override
-  String get assistantAccessibilitySendMessage => 'సందేశాన్ని పంపండి';
+  String get assistantAccessibilitySendMessage => 'Send message';
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-      'మీ సందేశాన్ని సహాయకుడికి పంపండి';
+      'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'సహాయకుడు టైప్ చేస్తున్నాడు';
-
-  @override
-  String get settingsData => 'Data';
-
-  @override
-  String get settingsExportData => 'Export My Data';
-
-  @override
-  String get settingsExportDataDesc =>
-      'Download your profile, contacts, and cycle logs as JSON';
-
-  @override
-  String get settingsExportSuccess => 'Data exported successfully';
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 }

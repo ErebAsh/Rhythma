@@ -21,21 +21,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languagePreferences => 'Language Preferences';
 
   @override
-  String get langEnglish => 'English';
-
-  @override
-  String get langHindi => 'हिन्दी (Hindi)';
-
-  @override
-  String get langTamil => 'தமிழ் (Tamil)';
-
-  @override
-  String get langTelugu => 'తెలుగు (Telugu)';
-
-  @override
-  String get langMarathi => 'मराठी (Marathi)';
-
-  @override
   String get darkMode => 'Dark Mode';
 
   @override
@@ -77,6 +62,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectLanguage => 'Select Language';
+
+  @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
 
   @override
   String get homeGreeting => 'Namaste';
@@ -318,6 +318,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String assistantWelcome(String name) {
     return 'Hi $name 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.';
   }
+
   @override
   String get assistantSug1 => 'Why are my periods irregular?';
 
@@ -509,6 +510,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not open email app. Please email us at support@rhythma.com';
 
   @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
+
+  @override
   String get onboardingPrivacyNote =>
       'Your information stays on your device. We never share your data without your permission.';
 
@@ -636,7 +650,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please enter a valid weight (20–300 kg)';
 
   @override
-  String get onboardingPhoneInvalid => 'Use international format, e.g. +919876543210';
+  String get onboardingPhoneInvalid =>
+      'Use international format, e.g. +919876543210';
 
   @override
   String get onboardingTapToSelectDate => 'Tap to select date';
@@ -663,13 +678,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPickExactDate => 'Pick exact date instead';
 
   @override
-  String get onboardingLastPeriodRequired => 'Please select when your last period started';
+  String get onboardingLastPeriodRequired =>
+      'Please select when your last period started';
 
   @override
   String get nudgeCompleteProfileTitle => 'Want more accurate predictions?';
 
   @override
-  String get nudgeCompleteProfileBody => 'Add the exact start date of your last period to improve cycle predictions.';
+  String get nudgeCompleteProfileBody =>
+      'Add the exact start date of your last period to improve cycle predictions.';
 
   @override
   String get nudgeCompleteProfileAction => 'Update';
@@ -792,17 +809,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assistantAccessibilityTyping => 'Assistant is typing';
-
-  @override
-  String get settingsData => 'Data';
-
-  @override
-  String get settingsExportData => 'Export My Data';
-
-  @override
-  String get settingsExportDataDesc =>
-      'Download your profile, contacts, and cycle logs as JSON';
-
-  @override
-  String get settingsExportSuccess => 'Data exported successfully';
 }
