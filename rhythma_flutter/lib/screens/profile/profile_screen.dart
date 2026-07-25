@@ -356,7 +356,7 @@ void _showAddEditContactDialog(
                   if (name.isEmpty) {
                     setDialogState(() {
                       nameError = AppLocalizations.of(context)!
-                          .profileNameEmptyError;
+                          .contactNameRequiredError;
                     });
                     isValid = false;
                   }
@@ -813,4 +813,4 @@ void _showAddEditContactDialog(
       ),
     );
   }
-}
+  }
