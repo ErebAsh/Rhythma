@@ -64,6 +64,9 @@ class AuthService {
             localProfile['weight_kg'] = profile['weight_kg'];
           if (profile['last_period'] != null)
             localProfile['last_period'] = profile['last_period'];
+          if (profile['last_period_is_approximate'] != null)
+            localProfile['last_period_is_approximate'] =
+                profile['last_period_is_approximate'];
           if (profile['cycle_length'] != null)
             localProfile['cycle_length'] = profile['cycle_length'];
           if (profile['period_duration'] != null)
