@@ -1,7 +1,7 @@
 import os
 import sys
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 from datetime import date
 
@@ -88,6 +88,79 @@ def other_user_log_id():
     )
 
 
+@pytest.fixture
+def mock_cycle_service():
+    """Patch CycleService at the router level for tests that don't need real DB state."""
+    with patch("api.cycle.CycleService") as MockCycleService:
+        yield MockCycleService
+
+
+# ─── POST /cycle/log ────────────────────────────────────────────────────────
+
+def test_log_cycle_success(mock_cycle_service):
+    mock_cycle_service.upsert_log.return_value = "log-123"
+    payload = {
+        "start_date": "2026-05-01",
+        "flow_intensity": "medium",
+        "symptoms": ["cramps"]
+    }
+    response = client.post("/api/v1/cycle/log", json=payload)
+    assert response.status_code == 200
+    assert response.json()["id"] == "log-123"
+    # assert the payload is included in the response
+    assert response.json()["data"]["flow_intensity"] == "medium"
+
+def test_log_cycle_missing_required_fields(mock_cycle_service):
+    payload = {
+        "flow_intensity": "medium"
+    }
+    response = client.post("/api/v1/cycle/log", json=payload)
+    assert response.status_code == 422
+    assert "start_date" in str(response.json()["detail"])
+
+def test_log_cycle_invalid_dates(mock_cycle_service):
+    payload = {
+        "start_date": "not-a-date"
+    }
+    response = client.post("/api/v1/cycle/log", json=payload)
+    assert response.status_code == 422
+    assert "start_date" in str(response.json()["detail"])
+
+def test_log_cycle_invalid_payload(mock_cycle_service):
+    payload = {
+        "start_date": "2026-05-01",
+        "sleep_hours": "not-a-number"
+    }
+    response = client.post("/api/v1/cycle/log", json=payload)
+    assert response.status_code == 422
+    assert "sleep_hours" in str(response.json()["detail"])
+
+
+# ─── GET /cycle/{user_id}/history ──────────────────────────────────────────
+
+def test_get_cycle_history_success(mock_cycle_service):
+    mock_cycle_service.get_logs_for_user.return_value = [
+        {"start_date": "2026-05-01", "flow_intensity": "medium"}
+    ]
+    response = client.get(f"/api/v1/cycle/{TEST_USER_ID}/history")
+    assert response.status_code == 200
+    assert len(response.json()["entries"]) == 1
+    mock_cycle_service.get_logs_for_user.assert_called_once_with(TEST_USER_ID, limit=10)
+
+def test_get_cycle_history_unauthorized(mock_cycle_service):
+    response = client.get(f"/api/v1/cycle/{OTHER_USER_ID}/history")
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Not authorized to view this user's data"
+
+def test_get_cycle_history_empty_history(mock_cycle_service):
+    mock_cycle_service.get_logs_for_user.return_value = []
+    response = client.get(f"/api/v1/cycle/{TEST_USER_ID}/history")
+    assert response.status_code == 200
+    assert len(response.json()["entries"]) == 0
+
+
+# ─── PUT /cycle/{log_id} ────────────────────────────────────────────────────
+
 def test_update_cycle_log_success(test_log_id):
     """Test successful update of an existing cycle log."""
     update_data = {
@@ -95,11 +168,11 @@ def test_update_cycle_log_success(test_log_id):
         "notes": "Updated note"
     }
     response = client.put(f"/api/v1/cycle/{test_log_id}", json=update_data)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["message"] == f"Cycle log {test_log_id} updated"
-    
+
     # Verify the database actually updated
     doc = db.collection("cycle_logs").document(test_log_id).get()
     doc_data = doc.to_dict()
@@ -113,7 +186,7 @@ def test_update_cycle_log_missing_log():
     """Test updating a log that doesn't exist returns 404."""
     update_data = {"flow_intensity": "heavy"}
     response = client.put("/api/v1/cycle/non-existent-id", json=update_data)
-    
+
     assert response.status_code == 404
     assert response.json()["detail"] == "Cycle log not found"
 
@@ -122,7 +195,7 @@ def test_update_cycle_log_unauthorized(other_user_log_id):
     """Test updating another user's log returns 403."""
     update_data = {"flow_intensity": "heavy"}
     response = client.put(f"/api/v1/cycle/{other_user_log_id}", json=update_data)
-    
+
     assert response.status_code == 403
     assert response.json()["detail"] == "Not authorized to update this log"
 
@@ -131,19 +204,21 @@ def test_update_cycle_log_empty_payload(test_log_id):
     """Test updating with empty payload returns 400."""
     # Sending all nulls via empty JSON object
     response = client.put(f"/api/v1/cycle/{test_log_id}", json={})
-    
+
     assert response.status_code == 400
     assert response.json()["detail"] == "No fields provided for update"
 
 
+# ─── DELETE /cycle/{log_id} ─────────────────────────────────────────────────
+
 def test_delete_cycle_log_success(test_log_id):
     """Test successful deletion of an existing cycle log."""
     response = client.delete(f"/api/v1/cycle/{test_log_id}")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["message"] == f"Cycle log {test_log_id} deleted"
-    
+
     # Verify the document is gone
     doc = db.collection("cycle_logs").document(test_log_id).get()
     assert not doc.exists
@@ -152,7 +227,7 @@ def test_delete_cycle_log_success(test_log_id):
 def test_delete_cycle_log_missing_log():
     """Test deleting a log that doesn't exist returns 404."""
     response = client.delete("/api/v1/cycle/non-existent-id")
-    
+
     assert response.status_code == 404
     assert response.json()["detail"] == "Cycle log not found"
 
@@ -160,6 +235,6 @@ def test_delete_cycle_log_missing_log():
 def test_delete_cycle_log_unauthorized(other_user_log_id):
     """Test deleting another user's log returns 403."""
     response = client.delete(f"/api/v1/cycle/{other_user_log_id}")
-    
+
     assert response.status_code == 403
     assert response.json()["detail"] == "Not authorized to delete this log"

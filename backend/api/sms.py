@@ -25,7 +25,7 @@ class SMSSettings(BaseModel):
 # ─── Rate Limiter (in-memory) ──────────────────────────────────────────────
 sms_history = {}
 
-def is_rate_limited(user_id: str, limit: int = 1, window_seconds: int = 60) -> int | None:
+def is_rate_limited(user_id: str, limit: int = 1, window_seconds: int = 60) -> Optional[int]:
     now = datetime.now(timezone.utc)
     if user_id in sms_history:
         sms_history[user_id] = [t for t in sms_history[user_id] if now - t < timedelta(seconds=window_seconds)]
