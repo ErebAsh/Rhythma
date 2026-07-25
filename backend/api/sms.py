@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from core.auth import get_current_user
 from services.firestore_service import UserService
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Dict, List
 from datetime import datetime, timedelta, timezone
 import os
 import re

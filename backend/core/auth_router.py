@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Request
 from datetime import datetime, timedelta, timezone
+from typing import Optional, Dict, List
 from core.auth import (
     create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -7,12 +8,13 @@ from core.auth import (
 )
 from models.user import UserCreate, UserResponse, UserProfileUpdate, UserProfileResponse
 from services.firestore_service import UserService
-from typing import Dict, List, Optional
+
 from pydantic import BaseModel
 import firebase_admin.auth
 
 class FirebaseLoginRequest(BaseModel):
     id_token: str
+    fcm_token: Optional[str] = None
 
 router = APIRouter(tags=["Authentication"])
 
