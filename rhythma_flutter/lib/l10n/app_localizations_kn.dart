@@ -423,6 +423,9 @@ class AppLocalizationsKn extends AppLocalizations {
   String get profileSaveChanges => 'ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ';
 
   @override
+  String get profileNameEmptyError => 'ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ ಹೆಸರನ್ನು ನಮೂದಿಸಿ';
+
+  @override
   String get profileAddContact => 'ಸಂಪರ್ಕ ಸಂಖ್ಯೆ ಸೇರಿಸಿ';
 
   @override
@@ -443,6 +446,26 @@ class AppLocalizationsKn extends AppLocalizations {
   @override
   String get profileNoContacts =>
       'ಇನ್ನೂ ಯಾವುದೇ ತುರ್ತು ಸಂಪರ್ಕಗಳನ್ನು ಹೊಂದಿಸಿಲ್ಲ.';
+
+  @override
+  String get profileAgeInvalidError => 'ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ ವಯಸ್ಸನ್ನು ನಮೂದಿಸಿ';
+
+  @override
+  String get profileCycleInvalidError =>
+      'ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ ಋತುಚಕ್ರದ ಅವಧಿಯನ್ನು ನಮೂದಿಸಿ';
+
+  @override
+  String get profilePhoneInvalidError =>
+      'ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ';
+
+  @override
+  String get edit => 'ಸಂಪಾದಿಸಿ';
+
+  @override
+  String get delete => 'ಅಳಿಸಿ';
+
+  @override
+  String get onboardingAvatarOption => 'ಅವತಾರ ಆಯ್ಕೆ';
 
   @override
   String get navHome => 'ಹೋಮ್';
