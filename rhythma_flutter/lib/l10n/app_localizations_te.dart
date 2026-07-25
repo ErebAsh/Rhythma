@@ -424,6 +424,9 @@ class AppLocalizationsTe extends AppLocalizations {
   String get profileSaveChanges => 'మార్పులను భద్రపరుచు';
 
   @override
+  String get profileNameEmptyError => 'Please enter a valid name';
+
+  @override
   String get profileAddContact => 'పరిచయాన్ని జోడించండి';
 
   @override
@@ -444,6 +447,26 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get profileNoContacts =>
       'ఇంకా ఎటువంటి అత్యవసర పరిచయాలు సెటప్ చేయబడలేదు.';
+
+  @override
+  String get profileAgeInvalidError => 'దయచేసి సరైన వయస్సును నమోదు చేయండి';
+
+  @override
+  String get profileCycleInvalidError =>
+      'దయచేసి సరైన రుతుచక్ర వ్యవధిని నమోదు చేయండి';
+
+  @override
+  String get profilePhoneInvalidError =>
+      'దయచేసి సరైన ఫోన్ నంబర్‌ను నమోదు చేయండి';
+
+  @override
+  String get edit => 'సవరించు';
+
+  @override
+  String get delete => 'తొలగించు';
+
+  @override
+  String get onboardingAvatarOption => 'అవతార్ ఎంపిక';
 
   @override
   String get navHome => 'హోమ్';

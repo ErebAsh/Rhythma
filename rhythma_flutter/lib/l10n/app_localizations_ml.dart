@@ -426,6 +426,9 @@ class AppLocalizationsMl extends AppLocalizations {
   String get profileSaveChanges => 'മാറ്റങ്ങൾ സേവ് ചെയ്യുക';
 
   @override
+  String get profileNameEmptyError => 'ദയവായി സാധുവായ പേര് നൽകുക';
+
+  @override
   String get profileAddContact => 'കോൺടാക്റ്റ് ചേർക്കുക';
 
   @override
@@ -446,6 +449,24 @@ class AppLocalizationsMl extends AppLocalizations {
   @override
   String get profileNoContacts =>
       'അടിയന്തിര കോൺടാക്റ്റുകളൊന്നും ഇതുവരെ ചേർത്തിട്ടില്ല.';
+
+  @override
+  String get profileAgeInvalidError => 'ദയവായി സാധുവായ പ്രായം നൽകുക';
+
+  @override
+  String get profileCycleInvalidError => 'ദയവായി സാധുവായ സൈക്കിൾ ദൈർഘ്യം നൽകുക';
+
+  @override
+  String get profilePhoneInvalidError => 'ദയവായി സാധുവായ ഫോൺ നമ്പർ നൽകുക';
+
+  @override
+  String get edit => 'തിരുത്തുക';
+
+  @override
+  String get delete => 'ഇല്ലാതാക്കുക';
+
+  @override
+  String get onboardingAvatarOption => 'അവതാർ ഓപ്ഷൻ';
 
   @override
   String get navHome => 'ഹോം';
