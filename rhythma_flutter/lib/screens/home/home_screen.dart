@@ -163,8 +163,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // ── Approximate date nudge ────────────────────────────
-          if (_shouldShowNudge(profile))
-            _buildNudgeBanner(context, l10n, profile),
+          if (_shouldShowNudge(localProfile))
+            _buildNudgeBanner(context, l10n, localProfile),
 
           // ── Cycle ring + prediction ──────────────────────────
           GlassCard(

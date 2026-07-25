@@ -732,4 +732,24 @@ class AppLocalizationsKn extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'ನಿಮ್ಮ ಟ್ರೆಂಡ್ ನೋಡಲು ಕನಿಷ್ಠ ಎರಡು ಋತುಚಕ್ರಗಳನ್ನು ದಾಖಲಿಸಿ.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'ಸೂಚಿಸಲಾದ ಪ್ರಾಂಪ್ಟ್';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'ಸಂದೇಶ ಇನ್ಪುಟ್';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಇಲ್ಲಿ ಟೈಪ್ ಮಾಡಿ';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'ಸಂದೇಶ ಕಳುಹಿಸಿ';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಅಸಿಸ್ಟೆಂಟ್‌ಗೆ ಕಳುಹಿಸುತ್ತದೆ';
+
+  @override
+  String get assistantAccessibilityTyping => 'ಅಸಿಸ್ಟೆಂಟ್ ಟೈಪ್ ಮಾಡುತ್ತಿದೆ';
 }
