@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 import '../../../services/local_storage_service.dart';
 import '../../../utils/date_utils.dart';
+import '../../../utils/log_options.dart';
 
 class LogEntrySheet extends StatefulWidget {
   final DateTime date;
@@ -108,14 +109,12 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
                         style: theme.textTheme.titleMedium),
                     const SizedBox(height: 8),
                     SegmentedButton<String>(
-                      segments: [
-                        ButtonSegment(
-                            value: 'Light', label: Text(l10n.logLight)),
-                        ButtonSegment(
-                            value: 'Medium', label: Text(l10n.logMedium)),
-                        ButtonSegment(
-                            value: 'Heavy', label: Text(l10n.logHeavy)),
-                      ],
+                      segments: LogOptions.flow(l10n)
+                          .where((o) => o.value != 'none')
+                          .map((option) => ButtonSegment(
+                              value: option.value,
+                              label: Text(option.label)))
+                          .toList(),
                       selected: _flowIntensity != null
                           ? {_flowIntensity!}
                           : <String>{},
