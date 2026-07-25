@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Request
 from datetime import datetime, timedelta, timezone
+from typing import Optional, Dict, List
 from core.auth import (
     create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
