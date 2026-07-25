@@ -286,5 +286,6 @@
   "assistantAccessibilityMessageInputHint": "Type your question here",
   "assistantAccessibilitySendMessage": "Send message",
   "assistantAccessibilitySendMessageHint": "Sends your message to the assistant",
-  "assistantAccessibilityTyping": "Assistant is typing"
+  "assistantAccessibilityTyping": "Assistant is typing",
+  "languageSelectionError": "Unable to save language. Please try again."
 }

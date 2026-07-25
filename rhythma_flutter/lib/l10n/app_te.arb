@@ -266,5 +266,6 @@
   "homeQuickLogTitle": "{label} నమోదు చేయండి",
   "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
   "homeQuickLogSaved": "{label} నమోదు చేయబడింది: {value}",
-  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } }
+  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } },
+  "languageSelectionError": "భాషను సేవ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి."
 }

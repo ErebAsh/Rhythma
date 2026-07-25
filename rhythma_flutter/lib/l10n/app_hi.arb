@@ -249,5 +249,6 @@
   "homeQuickLogTitle": "{label} लॉग करें",
   "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
   "homeQuickLogSaved": "{label} लॉग किया गया: {value}",
-  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } }
+  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } },
+  "languageSelectionError": "भाषा सहेजने में असमर्थ। कृपया पुनः प्रयास करें।"
 }

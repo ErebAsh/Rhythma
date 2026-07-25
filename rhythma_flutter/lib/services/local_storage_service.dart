@@ -12,6 +12,7 @@ class _Keys {
   static const emergencyContacts = 'emergency_contacts';
   static const onboardingCompleted = 'onboarding_completed';
   static const language = 'language';
+  static const languageSelectionCompleted = 'language_selection_completed';
   static const cloudSync = 'cloud_sync';
   static const smsEnabled = 'sms_enabled';
   static const themeMode = 'theme_mode';
@@ -174,6 +175,15 @@ class LocalStorageService {
 
   static Future<void> setPreferredLanguage(String code) async {
     await _settings.put(_Keys.language, code);
+  }
+
+  static bool get languageSelectionCompleted {
+    return _settings.get(_Keys.languageSelectionCompleted, defaultValue: false)
+        as bool;
+  }
+
+  static Future<void> setLanguageSelectionCompleted(bool value) async {
+    await _settings.put(_Keys.languageSelectionCompleted, value);
   }
 
   static bool get cloudSyncEnabled {

@@ -900,5 +900,9 @@ class AppLocalizationsTe extends AppLocalizations {
       'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'Assistant is typing';
+  String get assistantAccessibilityTyping => 'సహాయకుడు టైప్ చేస్తున్నాడు';
+
+  @override
+  String get languageSelectionError =>
+      'భాషను సేవ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.';
 }
