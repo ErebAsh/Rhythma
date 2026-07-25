@@ -159,6 +159,11 @@ class LocalStorageService {
     return getCycleLogs().take(n).toList();
   }
 
+  /// Removes a cycle log entry identified by its date key (YYYY-MM-DD).
+  static Future<void> deleteCycleLog(String dateKey) async {
+    await _cycleBox.delete(_scoped(dateKey));
+  }
+
   // ── User Settings ──────────────────────────────────────────────────────
 
   static Box<dynamic> get _settings => Hive.box<dynamic>(_Keys.settingsBox);
