@@ -4,6 +4,7 @@ import 'package:rhythma/l10n/app_localizations.dart';
 import '../../components/shared.dart';
 import '../../config/theme.dart';
 import '../../services/auth_service.dart';
+import '../../services/export_service.dart';
 import '../../services/notification_service.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -470,6 +471,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     },
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Data Section
+            SectionHeader(title: l10n.settingsData),
+            GlassCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
+                leading: const TintedIcon(
+                  icon: Icons.download_rounded,
+                  color: RhythmaColors.teal,
+                  size: 36,
+                ),
+                title: Text(l10n.settingsExportData),
+                subtitle: Text(l10n.settingsExportDataDesc),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: RhythmaColors.mutedFg),
+                onTap: () async {
+                  try {
+                    await ExportService.exportAndShare();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.settingsExportSuccess)),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Export failed: $e'),
+                        ),
+                      );
+                    }
+                  }
+                },
               ),
             ),
             const SizedBox(height: 24),
