@@ -748,8 +748,15 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get assistantAccessibilitySendMessageHint =>
+
       'ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಸಹಾಯಕರಿಗೆ ಕಳುಹಿಸುತ್ತದೆ';
 
   @override
   String get assistantAccessibilityTyping => 'ಸಹಾಯಕ ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ';
+  
+      'ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಅಸಿಸ್ಟೆಂಟ್‌ಗೆ ಕಳುಹಿಸುತ್ತದೆ';
+
+  @override
+  String get assistantAccessibilityTyping => 'ಅಸಿಸ್ಟೆಂಟ್ ಟೈಪ್ ಮಾಡುತ್ತಿದೆ';
+
 }
