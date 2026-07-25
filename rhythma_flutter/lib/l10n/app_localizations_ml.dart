@@ -735,4 +735,24 @@ class AppLocalizationsMl extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'നിങ്ങളുടെ ട്രെൻഡ് കാണുന്നതിന് കുറഞ്ഞത് രണ്ട് ആർത്തവചക്രങ്ങളെങ്കിലും രേഖപ്പെടുത്തുക.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'നിർദ്ദേശിച്ച പ്രോംപ്റ്റ്';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'സന്ദേശ ഇൻപുട്ട്';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'നിങ്ങളുടെ ചോദ്യം ഇവിടെ ടൈപ്പ് ചെയ്യുക';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'സന്ദേശം അയയ്ക്കുക';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'നിങ്ങളുടെ സന്ദേശം അസിസ്റ്റന്റിലേക്ക് അയയ്ക്കുന്നു';
+
+  @override
+  String get assistantAccessibilityTyping => 'അസിസ്റ്റന്റ് ടൈപ്പ് ചെയ്യുന്നു';
 }

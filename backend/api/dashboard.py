@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends
 from core.auth import get_current_user
-from services.firestore_service import CycleService
+from services.firestore_service import CycleService, UserService
 from models.cvi_model import predict_cvi, risk_level
 from models.mhs_model import predict_mhs
 
@@ -90,7 +90,8 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
             next_period_days = max(avg_cycle_length - cycle_day, 0)
 
     features = _build_model_features(logs)
-    mhs = predict_mhs(features)
+    profile = UserService.get_user_by_id(user_id)
+    mhs = predict_mhs(features, profile=profile)
     cvi = predict_cvi(features)
 
     avg_sleep = None
