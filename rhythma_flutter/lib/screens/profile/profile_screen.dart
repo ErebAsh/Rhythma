@@ -380,7 +380,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       DropdownMenuItem(value: 'hi', child: Text('हिन्दी')),
                       DropdownMenuItem(value: 'ta', child: Text('தமிழ்')),
                       DropdownMenuItem(value: 'te', child: Text('తెలుగు')),
-                      DropdownMenuItem(value: 'mr', child: Text('மராठी')),
+                      DropdownMenuItem(value: 'mr', child: Text('मराठी')),
                     ],
                     onChanged: (val) {
                       if (val != null) {
