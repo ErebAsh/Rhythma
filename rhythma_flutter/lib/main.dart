@@ -114,6 +114,8 @@ class _RhythmaAppState extends State<RhythmaApp> {
         Locale('ta'),
         Locale('te'),
         Locale('mr'),
+        Locale('kn'),
+        Locale('ml'),
       ],
       home: FutureBuilder<String?>(
         // Confirms the stored token is still genuinely valid (not merely
