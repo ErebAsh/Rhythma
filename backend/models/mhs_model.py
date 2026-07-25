@@ -7,11 +7,14 @@ Composite of:
   - Sleep quality              — 20% weight
   - Stress levels              — 20% weight
   - Symptom severity           — 15% weight
-  - Lifestyle (exercise/diet)  — 15% weight
+  - Lifestyle (exercise/diet)  — 15% weight (placeholder; see issue #112)
 
-The full model is a Logistic Regression ensemble trained on
-anonymized synthetic data. This module provides the scoring logic
-and a placeholder for the trained .joblib artifact.
+The score is a weighted average of five component scores,
+computed directly from cycle logs and profile data.
+
+Planned: Replace this hand-written weighted average with a
+Logistic Regression ensemble trained on anonymized synthetic
+data. See issue #112 for wiring lifestyle to real profile data.
 """
 
 from typing import Optional

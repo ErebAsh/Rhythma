@@ -48,6 +48,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   // Step 3 – Menstrual Profile
   DateTime? _lastPeriodDate;
+  bool _isLastPeriodApproximate = false;
+  bool _showExactDatePicker = true;
+  String? _lastPeriodError;
+  int _selectedApproximateIndex = -1;
   int _cycleLength = 28;
   int _periodDuration = 5;
   bool _isRegular = true;
@@ -65,6 +69,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   late AnimationController _pageAnimController;
   late Animation<double> _pageFade;
+
+  // E.164 format: leading '+' followed by 1-15 digits.
+  static final _e164 = RegExp(r'^\+[1-9]\d{1,14}$');
 
   @override
   void initState() {
@@ -119,6 +126,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       _weightError = null;
       _consentError = null;
       _phoneError = null;
+      _lastPeriodError = null;
     });
 
     if (_currentPage == 1) {
@@ -148,9 +156,17 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       return valid;
     }
 
+    if (_currentPage == 2) {
+      if (_lastPeriodDate == null) {
+        setState(() => _lastPeriodError = l.onboardingLastPeriodRequired);
+        return false;
+      }
+      return true;
+    }
+
     if (_currentPage == 3) {
-      final digitsOnly = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
-      if (_phoneController.text.trim().isNotEmpty && (digitsOnly.length < 7 || digitsOnly.length > 15)) {
+      final phone = _phoneController.text.trim();
+      if (phone.isNotEmpty && !_e164.hasMatch(phone)) {
         setState(() => _phoneError = l.onboardingPhoneInvalid);
         return false;
       }
@@ -223,7 +239,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (_lastPeriodDate != null) {
       profile['last_period'] =
           _lastPeriodDate!.toIso8601String().split('T').first;
+      profile['last_period_is_approximate'] = _isLastPeriodApproximate;
     }
+    profile['onboarding_completed_at'] =
+        DateTime.now().toIso8601String().split('T').first;
     profile['cycle_length'] = _cycleLength;
     profile['period_duration'] = _periodDuration;
     profile['cycle_regular'] = _isRegular;
@@ -553,70 +572,115 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep3Title, l.onboardingStep3Subtitle),
           const SizedBox(height: 28),
-          Text(l.onboardingLastPeriodLabel,
+          Text(l.onboardingApproximateLabel,
               style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildApproximateChip(l.onboardingApproximateLessWeek, 3, 0),
+              _buildApproximateChip(l.onboardingApproximate1to2Weeks, 10, 1),
+              _buildApproximateChip(l.onboardingApproximate3to4Weeks, 24, 2),
+              _buildApproximateChip(l.onboardingApproximateMoreMonth, 45, 3),
+            ],
+          ),
+          const SizedBox(height: 12),
           GestureDetector(
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _lastPeriodDate ??
-                    DateTime.now().subtract(const Duration(days: 14)),
-                firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                lastDate: DateTime.now(),
-                builder: (context, child) {
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: isDark
-                          ? ColorScheme.dark(
-                              primary: RhythmaColors.primary,
-                              onPrimary: RhythmaColors.primaryFg,
-                              surface: RhythmaColors.surface,
-                              onSurface: RhythmaColors.foreground,
-                            )
-                          : ColorScheme.light(
-                              primary: RhythmaColors.primary,
-                              onPrimary: RhythmaColors.primaryFg,
-                              surface: RhythmaColors.surface,
-                              onSurface: RhythmaColors.foreground,
-                            ),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (picked != null) setState(() => _lastPeriodDate = picked);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: RhythmaColors.surface,
-
-                border: Border.all(color: RhythmaColors.primary.withValues(alpha: 0.3)),
-             ),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today_rounded,
-                      color: RhythmaColors.primary, size: 20),
-                  const SizedBox(width: 12),
-                  Text(
-                    _lastPeriodDate == null
-                        ? l.onboardingTapToSelectDate
-                        : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
-                    style: TextStyle(
-                      color: _lastPeriodDate == null
-                          ? RhythmaColors.mutedFg
-                          : RhythmaColors.foreground,
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
+            onTap: () => setState(() {
+              _showExactDatePicker = !_showExactDatePicker;
+              if (_showExactDatePicker) {
+                _isLastPeriodApproximate = false;
+                _selectedApproximateIndex = -1;
+              }
+            }),
+            child: Text(
+              _showExactDatePicker
+                  ? l.onboardingApproximateLabel
+                  : l.onboardingPickExactDate,
+              style: TextStyle(
+                color: RhythmaColors.primary,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
+          if (_showExactDatePicker) ...[
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _lastPeriodDate ??
+                      DateTime.now().subtract(const Duration(days: 14)),
+                  firstDate:
+                      DateTime.now().subtract(const Duration(days: 365)),
+                  lastDate: DateTime.now(),
+                  builder: (context, child) {
+                    final isDark =
+                        Theme.of(context).brightness == Brightness.dark;
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: isDark
+                            ? ColorScheme.dark(
+                                primary: RhythmaColors.primary,
+                                onPrimary: RhythmaColors.primaryFg,
+                                surface: RhythmaColors.surface,
+                                onSurface: RhythmaColors.foreground,
+                              )
+                            : ColorScheme.light(
+                                primary: RhythmaColors.primary,
+                                onPrimary: RhythmaColors.primaryFg,
+                                surface: RhythmaColors.surface,
+                                onSurface: RhythmaColors.foreground,
+                              ),
+                      ),
+                      child: child!,
+                    );
+                  },
+                );
+                if (picked != null) {
+                  setState(() {
+                    _lastPeriodDate = picked;
+                    _isLastPeriodApproximate = false;
+                  });
+                }
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: RhythmaColors.surface,
+                  border: Border.all(
+                      color: RhythmaColors.primary.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today_rounded,
+                        color: RhythmaColors.primary, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      _lastPeriodDate == null || _isLastPeriodApproximate
+                          ? l.onboardingTapToSelectDate
+                          : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
+                      style: TextStyle(
+                        color: _lastPeriodDate == null || _isLastPeriodApproximate
+                            ? RhythmaColors.mutedFg
+                            : RhythmaColors.foreground,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          if (_lastPeriodError != null) ...[
+            const SizedBox(height: 6),
+            Text(_lastPeriodError!,
+                style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
+          ],
           const SizedBox(height: 24),
           _buildSliderField(
             label: l.onboardingCycleLengthLabel,
@@ -670,6 +734,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           _buildTextField(
             controller: _phoneController,
             label: l.onboardingPhoneLabel,
+            hint: l.onboardingPhoneHint,
             error: _phoneError,
             keyboardType: TextInputType.phone,
             textInputAction: TextInputAction.next,
@@ -910,6 +975,44 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   selected ? RhythmaColors.primary : RhythmaColors.foreground,
               fontSize: 15,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApproximateChip(String label, int daysAgo, int index) {
+    final selected =
+        _isLastPeriodApproximate && _selectedApproximateIndex == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _lastPeriodDate = DateTime.now().subtract(Duration(days: daysAgo));
+          _isLastPeriodApproximate = true;
+          _selectedApproximateIndex = index;
+          _showExactDatePicker = false;
+          _lastPeriodError = null;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: selected
+              ? RhythmaColors.primary.withValues(alpha: 0.15)
+              : RhythmaColors.surface,
+          border: Border.all(
+            color: selected ? RhythmaColors.primary : RhythmaColors.border,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            color: selected ? RhythmaColors.primary : RhythmaColors.foreground,
           ),
         ),
       ),

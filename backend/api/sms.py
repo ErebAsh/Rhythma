@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from core.auth import get_current_user
 from services.firestore_service import UserService
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Dict, List
 from datetime import datetime, timedelta, timezone
 import os
 import re
@@ -25,7 +25,7 @@ class SMSSettings(BaseModel):
 # ─── Rate Limiter (in-memory) ──────────────────────────────────────────────
 sms_history = {}
 
-def is_rate_limited(user_id: str, limit: int = 1, window_seconds: int = 60) -> int | None:
+def is_rate_limited(user_id: str, limit: int = 1, window_seconds: int = 60) -> Optional[int]:
     now = datetime.now(timezone.utc)
     if user_id in sms_history:
         sms_history[user_id] = [t for t in sms_history[user_id] if now - t < timedelta(seconds=window_seconds)]

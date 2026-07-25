@@ -82,6 +82,42 @@ Note that the web app is an early scaffold — you'll get a working login/regist
 
 Full setup details, environment variables, and Firebase configuration live in the [README](https://github.com/ishita2740/Rhythma/blob/main/README.md#installation) — not duplicating that here; keeping this file focused on the *contribution process*.
 
+## Environment Configuration
+
+The Flutter app supports configuring the backend URL through
+`--dart-define`.
+
+### Development
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1
+```
+
+### Custom Backend
+
+```bash
+flutter run --dart-define=API_BASE_URL=https://your-backend-url/api/v1
+```
+
+### Release Build
+
+```bash
+flutter build apk --dart-define=API_BASE_URL=https://your-backend-url/api/v1
+```
+
+### Helper Scripts
+
+Instead of manually typing the build commands, use:
+
+```bash
+scripts/run_dev.bat
+scripts/run_staging.bat
+scripts/run_prod.bat
+
+scripts/build_dev.bat
+scripts/build_staging.bat
+scripts/build_prod.bat
+```
 ---
 
 ## Feature Areas Open for Contribution

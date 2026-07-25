@@ -4,4 +4,7 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Allow cleartext HTTP when running against a local backend during
+         development. Release builds (no override) do NOT permit this. -->
+    <application android:usesCleartextTraffic="true" />
 </manifest>

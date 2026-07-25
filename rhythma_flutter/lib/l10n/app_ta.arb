@@ -269,5 +269,16 @@
   "onboardingNameRequired": "தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்",
   "onboardingAgeInvalid": "தயவுசெய்து சரியான வயதை உள்ளிடவும் (10–120)",
   "onboardingHeightInvalid": "தயவுசெய்து சரியான உயரத்தை உள்ளிடவும் (50–250 செமீ)",
-  "onboardingWeightInvalid": "தயவுசெய்து சரியான எடையை உள்ளிடவும் (20–300 கிகி)"
+  "onboardingWeightInvalid": "தயவுசெய்து சரியான எடையை உள்ளிடவும் (20–300 கிகி)",
+  "onboardingApproximateLabel": "When was your last period?",
+  "onboardingApproximateLessWeek": "Less than a week ago",
+  "onboardingApproximate1to2Weeks": "1–2 வாரங்களுக்கு முன்",
+  "onboardingApproximate3to4Weeks": "3–4 வாரங்களுக்கு முன்",
+  "onboardingApproximateMoreMonth": "ஒரு மாதத்திற்கும் மேலாக",
+  "onboardingPickExactDate": "அதற்கு பதிலாக சரியான தேதியைத் தேர்ந்தெடுக்கவும்",
+  "onboardingLastPeriodRequired": "உங்கள் கடந்த மாதவிடாய் எப்போது தொடங்கியது என்பதைத் தேர்ந்தெடுக்கவும்",
+  "nudgeCompleteProfileTitle": "மிகவும் துல்லியமான கணிப்புகள் வேண்டுமா?",
+  "nudgeCompleteProfileBody": "சுழற்சி கணிப்புகளை மேம்படுத்த உங்கள் கடந்த மாதவிடாய் தொடக்க தேதியைச் சேர்க்கவும்.",
+  "nudgeCompleteProfileAction": "புதுப்பி",
+  "nudgeCompleteProfileDismiss": "பிறகு",
 }
