@@ -372,7 +372,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     profile['notifications_enabled'] = _notificationsEnabled;
 
     // 1. Persist locally first — data is never lost even if backend is down.
-    await context.read<ProfileProvider>().saveProfile(profile);
+    await context.read<ProfileProvider>().mergeProfileWithSync(profile);
 
     // 2. Sync to backend is optional for now. The app uses local storage as
     // the source of truth. A background sync can be added later.

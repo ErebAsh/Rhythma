@@ -64,6 +64,21 @@ class AppLocalizationsMl extends AppLocalizations {
   String get selectLanguage => 'ഭാഷ തിരഞ്ഞെടുക്കുക';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
   String get homeGreeting => 'നമസ്കാരം';
 
   @override
@@ -303,8 +318,9 @@ class AppLocalizationsMl extends AppLocalizations {
       'നിങ്ങളുടെ ആരോഗ്യത്തെക്കുറിച്ച് എന്ത് വേണമെങ്കിലും ചോദിക്കൂ...';
 
   @override
-  String get assistantWelcome =>
-      'ഹായ് ആര്യ 🌸 ഞാൻ Rhythma, നിങ്ങളുടെ സ്വകാര്യ ആരോഗ്യ സഹായി. ആർത്തവചക്രം, ലക്ഷണങ്ങൾ, ആരോഗ്യം എന്നിവയെക്കുറിച്ച് എന്തും ചോദിക്കാം — ഇംഗ്ലീഷ്, ഹിന്ദി, മറാഠി, തമിഴ്, അല്ലെങ്കിൽ മലയാളത്തിൽ.';
+  String assistantWelcome(String name) {
+    return 'ഹായ് ആര്യ 🌸 ഞാൻ Rhythma, നിങ്ങളുടെ സ്വകാര്യ ആരോഗ്യ സഹായി. ആർത്തവചക്രം, ലക്ഷണങ്ങൾ, ആരോഗ്യം എന്നിവയെക്കുറിച്ച് എന്തും ചോദിക്കാം — ഇംഗ്ലീഷ്, ഹിന്ദി, മറാഠി, തമിഴ്, അല്ലെങ്കിൽ മലയാളത്തിൽ.';
+  }
 
   @override
   String get assistantSug1 => 'എന്തുകൊണ്ടാണ് എന്റെ ആർത്തവം ക്രമരഹിതമാകുന്നത്?';
@@ -460,6 +476,9 @@ class AppLocalizationsMl extends AppLocalizations {
   String get profilePhoneInvalidError => 'ദയവായി സാധുവായ ഫോൺ നമ്പർ നൽകുക';
 
   @override
+  String get contactNameRequiredError => 'Contact name is required';
+
+  @override
   String get edit => 'തിരുത്തുക';
 
   @override
@@ -496,6 +515,19 @@ class AppLocalizationsMl extends AppLocalizations {
   @override
   String get settingsEmailError =>
       'ഇമെയിൽ ആപ്പ് തുറക്കാൻ കഴിഞ്ഞില്ല. ദയവായി support@rhythma.com എന്ന വിലാസത്തിൽ ഇമെയിൽ ചെയ്യുക';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
 
   @override
   String get onboardingPrivacyNote =>
@@ -692,26 +724,39 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get onboardingApproximateLabel => 'When was your last period?';
+
   @override
   String get onboardingApproximateLessWeek => 'Less than a week ago';
+
   @override
-  String get onboardingApproximate1to2Weeks => '1–2 weeks ago';
+  String get onboardingApproximate1to2Weeks => '1–2 ആഴ്ചകൾക്ക് മുമ്പ്';
+
   @override
-  String get onboardingApproximate3to4Weeks => '3–4 weeks ago';
+  String get onboardingApproximate3to4Weeks => '3–4 ആഴ്ചകൾക്ക് മുമ്പ്';
+
   @override
-  String get onboardingApproximateMoreMonth => 'More than a month ago';
+  String get onboardingApproximateMoreMonth => 'ഒരു മാസത്തിലധികം മുമ്പ്';
+
   @override
-  String get onboardingPickExactDate => 'Pick exact date instead';
+  String get onboardingPickExactDate =>
+      'അതിനു പകരം കൃത്യമായ തീയതി തിരഞ്ഞെടുക്കുക';
+
   @override
-  String get onboardingLastPeriodRequired => 'Please select when your last period started';
+  String get onboardingLastPeriodRequired =>
+      'നിങ്ങളുടെ അവസാന പിരീഡ് എപ്പോൾ ആരംഭിച്ചു എന്ന് തിരഞ്ഞെടുക്കുക';
+
   @override
-  String get nudgeCompleteProfileTitle => 'Want more accurate predictions?';
+  String get nudgeCompleteProfileTitle => 'കൂടുതൽ കൃത്യമായ പ്രവചനങ്ങൾ വേണോ?';
+
   @override
-  String get nudgeCompleteProfileBody => 'Add the exact start date of your last period to improve cycle predictions.';
+  String get nudgeCompleteProfileBody =>
+      'സൈക്കിൾ പ്രവചനങ്ങൾ മെച്ചപ്പെടുത്താൻ നിങ്ങളുടെ അവസാന പിരീഡിന്റെ കൃത്യമായ ആരംഭ തീയതി ചേർക്കുക.';
+
   @override
-  String get nudgeCompleteProfileAction => 'Update';
+  String get nudgeCompleteProfileAction => 'അപ്‌ഡേറ്റ്';
+
   @override
-  String get nudgeCompleteProfileDismiss => 'Maybe later';
+  String get nudgeCompleteProfileDismiss => 'പിന്നീട്';
 
   @override
   String get smsScreenTitle => 'SMS വിവരങ്ങൾ';
@@ -813,25 +858,22 @@ class AppLocalizationsMl extends AppLocalizations {
       'നിങ്ങളുടെ ട്രെൻഡ് കാണുന്നതിന് കുറഞ്ഞത് രണ്ട് ആർത്തവചക്രങ്ങളെങ്കിലും രേഖപ്പെടുത്തുക.';
 
   @override
-
-
-  String get assistantAccessibilitySuggestedPrompt => 'നിർദ്ദേശിച്ച പ്രോംപ്റ്റ്';
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
 
   @override
-  String get assistantAccessibilityMessageInput => 'സന്ദേശ ഇൻപുട്ട്';
+  String get assistantAccessibilityMessageInput => 'Message input';
 
   @override
   String get assistantAccessibilityMessageInputHint =>
-      'നിങ്ങളുടെ ചോദ്യം ഇവിടെ ടൈപ്പ് ചെയ്യുക';
+      'Type your question here';
 
   @override
-  String get assistantAccessibilitySendMessage => 'സന്ദേശം അയയ്ക്കുക';
+  String get assistantAccessibilitySendMessage => 'Send message';
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-
-      'നിങ്ങളുടെ സന്ദേശം അസിസ്റ്റന്റിലേക്ക് അയയ്ക്കുന്നു';
+      'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'അസിസ്റ്റന്റ് ടൈപ്പ് ചെയ്യുന്നു';
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 }

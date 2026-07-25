@@ -64,6 +64,21 @@ class AppLocalizationsMr extends AppLocalizations {
   String get selectLanguage => 'भाषा निवडा';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
   String get homeGreeting => 'नमस्कार';
 
   @override
@@ -303,7 +318,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String assistantWelcome(String name) {
-    return 'नमस्कार $name 🌸 मी रिद्मा आहे, तुमची वैयक्तिक आरोग्य सोबती. मला तुमच्या चक्राबद्दल, लक्षणांबद्दल काहीही विचारा — इंग्रजी, हिंदी, मराठी किंवा तमिळमध्ये.';
+    return 'नमस्कार आर्या 🌸 मी रिद्मा आहे, तुमची वैयक्तिक आरोग्य सोबती. मला तुमच्या चक्राबद्दल, लक्षणांबद्दल काहीही विचारा — इंग्रजी, हिंदी, मराठी किंवा तमिळमध्ये.';
   }
 
   @override
@@ -459,6 +474,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get profilePhoneInvalidError => 'कृपया वैध फोन क्रमांक प्रविष्ट करा';
 
   @override
+  String get contactNameRequiredError => 'Contact name is required';
+
+  @override
   String get edit => 'संपादित करा';
 
   @override
@@ -494,6 +512,19 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get settingsEmailError =>
       'ईमेल ॲप उघडू शकलो नाही. कृपया आम्हाला support@rhythma.com वर ईमेल करा';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
 
   @override
   String get onboardingPrivacyNote =>
@@ -688,26 +719,38 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get onboardingApproximateLabel => 'When was your last period?';
+
   @override
   String get onboardingApproximateLessWeek => 'Less than a week ago';
+
   @override
-  String get onboardingApproximate1to2Weeks => '1–2 weeks ago';
+  String get onboardingApproximate1to2Weeks => '1–2 आठड्यांपूर्वी';
+
   @override
-  String get onboardingApproximate3to4Weeks => '3–4 weeks ago';
+  String get onboardingApproximate3to4Weeks => '3–4 आठड्यांपूर्वी';
+
   @override
-  String get onboardingApproximateMoreMonth => 'More than a month ago';
+  String get onboardingApproximateMoreMonth => 'एका महिन्यापेक्षा जास्त पूर्वी';
+
   @override
-  String get onboardingPickExactDate => 'Pick exact date instead';
+  String get onboardingPickExactDate => 'त्याऐवजी अचूक तारीख निवडा';
+
   @override
-  String get onboardingLastPeriodRequired => 'Please select when your last period started';
+  String get onboardingLastPeriodRequired =>
+      'कृपया आपल्या शेवटच्या मासिक पळीची सुरुवात कधी झाली ते निवडा';
+
   @override
-  String get nudgeCompleteProfileTitle => 'Want more accurate predictions?';
+  String get nudgeCompleteProfileTitle => 'अधिक अचूक अंदाज हवे आहेत?';
+
   @override
-  String get nudgeCompleteProfileBody => 'Add the exact start date of your last period to improve cycle predictions.';
+  String get nudgeCompleteProfileBody =>
+      'चक्र अंदाज सुधारण्यासाठी आपल्या शेवटच्या मासिक पळीची अचूक सुरुवातीची तारीख जोडा.';
+
   @override
-  String get nudgeCompleteProfileAction => 'Update';
+  String get nudgeCompleteProfileAction => 'अद्ययावत करा';
+
   @override
-  String get nudgeCompleteProfileDismiss => 'Maybe later';
+  String get nudgeCompleteProfileDismiss => 'नंतर';
 
   @override
   String get smsScreenTitle => 'एसएमएस सारांश';
@@ -806,22 +849,22 @@ class AppLocalizationsMr extends AppLocalizations {
       'तुमचा ट्रेंड पाहण्यासाठी किमान दोन चक्र लॉग करा.';
 
   @override
-  String get assistantAccessibilitySuggestedPrompt => 'सुचवलेला संदेश';
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
 
   @override
-  String get assistantAccessibilityMessageInput => 'संदेश प्रविष्ट करा';
+  String get assistantAccessibilityMessageInput => 'Message input';
 
   @override
   String get assistantAccessibilityMessageInputHint =>
-      'तुमचा प्रश्न येथे प्रविष्ट करा';
+      'Type your question here';
 
   @override
-  String get assistantAccessibilitySendMessage => 'संदेश पाठवा';
+  String get assistantAccessibilitySendMessage => 'Send message';
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-      'तुमचा संदेश सहाय्यकाला पाठवा';
+      'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'सहाय्यक टाइप करत आहे';
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 }

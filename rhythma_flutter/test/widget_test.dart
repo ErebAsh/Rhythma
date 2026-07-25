@@ -144,10 +144,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // Assert validation error messages are displayed
-    expect(find.text('Name cannot be empty'), findsOneWidget);
-    expect(find.text('Age must be between 10 and 120'), findsOneWidget);
-    expect(find.text('Cycle length must be between 15 and 45 days'),
-        findsOneWidget);
+    expect(find.text('Please enter a valid name'), findsOneWidget);
+    expect(find.text('Please enter a valid age'), findsOneWidget);
+    expect(find.text('Please enter a valid cycle length'), findsOneWidget);
 
     // ── Test Success Flow ──
     // Enter valid details
@@ -204,9 +203,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify error checks
-    expect(find.text('Name is required'), findsOneWidget);
-    expect(
-        find.text('Enter a valid phone number (min 8 digits)'), findsOneWidget);
+    expect(find.text('Contact name is required'), findsOneWidget);
+    expect(find.text('Please enter a valid phone number'), findsOneWidget);
 
     // Enter valid details
     await tester.enterText(contactNameField, 'Mom');
