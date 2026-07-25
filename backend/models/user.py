@@ -58,6 +58,15 @@ class UserProfileUpdate(BaseModel):
     cycle_regular: Optional[bool] = None
     notifications_enabled: Optional[bool] = None
     phone: Optional[str] = None
+
+    @field_validator("phone")
+    def validate_phone(cls, value: Optional[str]) -> Optional[str]:
+        if value and not re.fullmatch(r"^\+[1-9]\d{1,14}$", value):
+            raise ValueError(
+                "Phone number must be in E.164 format, e.g. +919876543210."
+            )
+        return value
+        
     city: Optional[str] = None
     state: Optional[str] = None
 

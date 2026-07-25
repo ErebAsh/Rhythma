@@ -50,8 +50,10 @@ async def get_sms_settings(current_user: dict = Depends(get_current_user)):
     user = UserService.get_user_by_id(current_user["id"])
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    phone = user.get("phone") or user.get("sms_phone_number") or ""
+
     return {
-        "phoneNumber": user.get("sms_phone_number", "") or "",
+        "phoneNumber": phone,
         "enabled": bool(user.get("sms_enabled", False)),
     }
 
@@ -75,7 +77,11 @@ async def save_sms_settings(
 
     UserService.update_user(
         current_user["id"],
-        {"sms_phone_number": phone or "", "sms_enabled": settings.enabled},
+        {
+            "phone": phone or "",
+            "sms_phone_number": phone or "",
+            "sms_enabled": settings.enabled,
+        },
     )
     return {"phoneNumber": phone or "", "enabled": settings.enabled}
 
