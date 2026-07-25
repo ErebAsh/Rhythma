@@ -373,7 +373,7 @@ class _CycleScreenState extends State<CycleScreen> {
             icon: Icons.bolt_rounded,
             label: l10n.logLabelEnergy,
             options: LogOptions.stress(l10n),
-            color: RhythmaColors.primary,
+            color: RhythmaColors.teal,
             selectedValue: selectedLog['stress_level']?.toString(),
             onSelect: (opt) => _onLogSelect(selectedDate, 'stress_level', opt),
           ),
