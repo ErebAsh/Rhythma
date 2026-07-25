@@ -290,6 +290,16 @@ class LocalStorageService {
   static Future<void> clearChatHistory() =>
       _settings.delete(_scoped(_Keys.chatHistory));
 
+  // ── Nudge Preferences ───────────────────────────────────────────────
+
+  static bool getNudgeDismissed(String key) {
+    return _settings.get(_scoped('nudge_$key'), defaultValue: false) as bool;
+  }
+
+  static Future<void> setNudgeDismissed(String key, bool value) async {
+    await _settings.put(_scoped('nudge_$key'), value);
+  }
+
   // ── Clear all data ─────────────────────────────────────────────────────
 
   static Future<void> clearAll() async {

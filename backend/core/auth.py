@@ -4,6 +4,7 @@ from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 import os
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 from services.firestore_service import UserService
 
 # --- Configuration ---
@@ -26,7 +27,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 # --- Token Functions ---
-from typing import Optional
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()

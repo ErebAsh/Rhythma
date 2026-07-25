@@ -219,6 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ? '${lastPeriodDate.year}-${lastPeriodDate.month.toString().padLeft(2, '0')}-${lastPeriodDate.day.toString().padLeft(2, '0')}'
             : '');
     bool isRegular = profile['cycle_regular'] as bool? ?? true;
+    bool isApproximate = profile['last_period_is_approximate'] as bool? ?? false;
     bool notificationsEnabled =
         profile['notifications_enabled'] as bool? ?? false;
 
@@ -415,7 +416,22 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 4),
+                  Material(
+                    color: Colors.transparent,
+                    child: SwitchListTile(
+                      title: const Text('Date is approximate'),
+                      subtitle: const Text(
+                          'I selected a rough estimate, not an exact date'),
+                      activeColor: RhythmaColors.primary,
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      value: isApproximate,
+                      onChanged: (val) =>
+                          setSheetState(() => isApproximate = val),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Material(
                     color: Colors.transparent,
                     child: SwitchListTile(
@@ -491,6 +507,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 .toIso8601String()
                                 .split('T')
                                 .first,
+                          'last_period_is_approximate': isApproximate,
                           if (heightVal != null && heightVal > 0)
                             'height_cm': heightVal,
                           if (weightVal != null && weightVal > 0)

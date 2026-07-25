@@ -7,7 +7,7 @@ from core.auth import (
 )
 from models.user import UserCreate, UserResponse, UserProfileUpdate, UserProfileResponse
 from services.firestore_service import UserService
-from typing import Dict, List, Optional, Optional
+
 from pydantic import BaseModel
 import firebase_admin.auth
 
