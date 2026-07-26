@@ -16,6 +16,8 @@ import '../insights/insights_screen.dart';
 import '../profile/profile_screen.dart';
 import '../settings/language_screen.dart';
 
+import 'package:url_launcher/url_launcher_string.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -143,6 +145,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
+                _HeaderIcon(
+                  icon: Icons.sos_rounded,
+                  color: RhythmaColors.coral,
+                  onTap: () {
+                    final contacts = LocalStorageService.getEmergencyContacts();
+                    if (contacts.isNotEmpty) {
+                      final phone = contacts.first['phone']?.replaceAll(RegExp(r'[^\d+]'), '');
+                      if (phone != null && phone.isNotEmpty) {
+                        launchUrlString('tel:$phone');
+                        return;
+                      }
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.profileNoContacts)),
+                    );
+                  },
+                ),
+                const SizedBox(width: 8),
                 _HeaderIcon(
                   icon: Icons.language_rounded,
                   onTap: () {
@@ -814,7 +834,9 @@ class _HomeScreenState extends State<HomeScreen> {
 class _HeaderIcon extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onTap;
-  const _HeaderIcon({required this.icon, this.onTap});
+  final Color? color;
+
+  const _HeaderIcon({required this.icon, this.onTap, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -825,7 +847,7 @@ class _HeaderIcon extends StatelessWidget {
       child: SizedBox(
         width: 38,
         height: 38,
-        child: Icon(icon, size: 18, color: RhythmaColors.foreground),
+        child: Icon(icon, size: 18, color: color ?? RhythmaColors.foreground),
       ),
     );
   }

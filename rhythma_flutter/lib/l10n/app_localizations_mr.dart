@@ -654,62 +654,91 @@ class AppLocalizationsMr extends AppLocalizations {
       'कृपया वैध वजन प्रविष्ट करा (20–300 किग्रा)';
 
   @override
-  String get onboardingAgeRequired => 'कृपया तुमचे वय प्रविष्ट करा किंवा एक श्रेणी निवडा';
-  @override
-  String get onboardingHeightRequired => 'कृपया तुमची उंची प्रविष्ट करा किंवा एक श्रेणी निवडा';
-  @override
-  String get onboardingWeightRequired => 'कृपया तुमचे वजन प्रविष्ट करा किंवा एक श्रेणी निवडा';
-  @override
-  String get onboardingNotSure => 'पक्का नाही';
-  @override
-  String get onboardingApproximate => 'अंदाजे';
-  @override
-  String get onboardingAgeHint => 'तुमचे वय प्रविष्ट करा';
-  @override
-  String get onboardingAgeUnit => 'वर्षे';
-  @override
-  String get onboardingHeightHint => 'तुमची उंची प्रविष्ट करा';
-  @override
-  String get onboardingHeightUnit => 'सेमी';
-  @override
-  String get onboardingWeightHint => 'तुमचे वजन प्रविष्ट करा';
-  @override
-  String get onboardingWeightUnit => 'किलो';
-  @override
-  String get onboardingRangeUnder18 => '18 पेक्षा कमी';
-  @override
-  String get onboardingRange18to25 => '18–25';
-  @override
-  String get onboardingRange26to35 => '26–35';
-  @override
-  String get onboardingRange36to50 => '36–50';
-  @override
-  String get onboardingRange51to65 => '51–65';
-  @override
-  String get onboardingRangeOver65 => '65 पेक्षा जास्त';
-  @override
-  String get onboardingRangeUnder150 => '150 सेमी पेक्षा कमी';
-  @override
-  String get onboardingRange150to160 => '150–160 सेमी';
-  @override
-  String get onboardingRange161to170 => '161–170 सेमी';
-  @override
-  String get onboardingRange171to180 => '171–180 सेमी';
-  @override
-  String get onboardingRangeOver180 => '180 सेमी पेक्षा जास्त';
-  @override
-  String get onboardingRangeUnder50kg => '50 किलो पेक्षा कमी';
-  @override
-  String get onboardingRange50to65kg => '50–65 किलो';
-  @override
-  String get onboardingRange66to80kg => '66–80 किलो';
-  @override
-  String get onboardingRange81to100kg => '81–100 किलो';
-  @override
-  String get onboardingRangeOver100kg => '100 किलो पेक्षा जास्त';
+  String get onboardingPhoneInvalid => 'कृपया वैध फोन नंबर प्रविष्ट करा';
 
   @override
-  String get onboardingPhoneInvalid => 'कृपया वैध फोन नंबर प्रविष्ट करा';
+  String get onboardingAgeRequired =>
+      'कृपया तुमचे वय प्रविष्ट करा किंवा एक श्रेणी निवडा';
+
+  @override
+  String get onboardingHeightRequired =>
+      'कृपया तुमची उंची प्रविष्ट करा किंवा एक श्रेणी निवडा';
+
+  @override
+  String get onboardingWeightRequired =>
+      'कृपया तुमचे वजन प्रविष्ट करा किंवा एक श्रेणी निवडा';
+
+  @override
+  String get onboardingNotSure => 'पक्का नाही';
+
+  @override
+  String get onboardingApproximate => 'अंदाजे';
+
+  @override
+  String get onboardingAgeHint => 'तुमचे वय प्रविष्ट करा';
+
+  @override
+  String get onboardingAgeUnit => 'वर्षे';
+
+  @override
+  String get onboardingHeightHint => 'तुमची उंची प्रविष्ट करा';
+
+  @override
+  String get onboardingHeightUnit => 'सेमी';
+
+  @override
+  String get onboardingWeightHint => 'तुमचे वजन प्रविष्ट करा';
+
+  @override
+  String get onboardingWeightUnit => 'किलो';
+
+  @override
+  String get onboardingRangeUnder18 => '18 पेक्षा कमी';
+
+  @override
+  String get onboardingRange18to25 => '18–25';
+
+  @override
+  String get onboardingRange26to35 => '26–35';
+
+  @override
+  String get onboardingRange36to50 => '36–50';
+
+  @override
+  String get onboardingRange51to65 => '51–65';
+
+  @override
+  String get onboardingRangeOver65 => '65 पेक्षा जास्त';
+
+  @override
+  String get onboardingRangeUnder150 => '150 सेमी पेक्षा कमी';
+
+  @override
+  String get onboardingRange150to160 => '150–160 सेमी';
+
+  @override
+  String get onboardingRange161to170 => '161–170 सेमी';
+
+  @override
+  String get onboardingRange171to180 => '171–180 सेमी';
+
+  @override
+  String get onboardingRangeOver180 => '180 सेमी पेक्षा जास्त';
+
+  @override
+  String get onboardingRangeUnder50kg => '50 किलो पेक्षा कमी';
+
+  @override
+  String get onboardingRange50to65kg => '50–65 किलो';
+
+  @override
+  String get onboardingRange66to80kg => '66–80 किलो';
+
+  @override
+  String get onboardingRange81to100kg => '81–100 किलो';
+
+  @override
+  String get onboardingRangeOver100kg => '100 किलो पेक्षा जास्त';
 
   @override
   String get onboardingTapToSelectDate => 'तारीख निवडण्यासाठी टॅप करा';
@@ -866,7 +895,7 @@ class AppLocalizationsMr extends AppLocalizations {
       'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'सहाय्यक टाइप करत आहे';
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 
   @override
   String get languageSelectionError =>

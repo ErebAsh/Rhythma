@@ -1338,6 +1338,12 @@ abstract class AppLocalizations {
   /// **'Please enter a valid weight (20–300 kg)'**
   String get onboardingWeightInvalid;
 
+  /// No description provided for @onboardingPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use international format, e.g. +919876543210'**
+  String get onboardingPhoneInvalid;
+
   /// No description provided for @onboardingAgeRequired.
   ///
   /// In en, this message translates to:
@@ -1499,12 +1505,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Over 100 kg'**
   String get onboardingRangeOver100kg;
-
-  /// No description provided for @onboardingPhoneInvalid.
-  ///
-  /// In en, this message translates to:
-  /// **'Use international format, e.g. +919876543210'**
-  String get onboardingPhoneInvalid;
 
   /// No description provided for @onboardingTapToSelectDate.
   ///
