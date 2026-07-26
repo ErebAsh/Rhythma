@@ -870,8 +870,12 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-      'Sends your message to the assistant';
+      'ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಸಹಾಯಕರಿಗೆ ಕಳುಹಿಸುತ್ತದೆ';
 
   @override
-  String get assistantAccessibilityTyping => 'Assistant is typing';
+  String get assistantAccessibilityTyping => 'ಸಹಾಯಕ ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ';
+
+  @override
+  String get languageSelectionError =>
+      'ಭಾಷೆಯನ್ನು ಉಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.';
 }

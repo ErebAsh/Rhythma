@@ -892,5 +892,9 @@ class AppLocalizationsHi extends AppLocalizations {
       'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'Assistant is typing';
+  String get assistantAccessibilityTyping => 'सहायक टाइप कर रहा है';
+
+  @override
+  String get languageSelectionError =>
+      'भाषा सहेजने में असमर्थ। कृपया पुनः प्रयास करें।';
 }

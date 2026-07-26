@@ -890,4 +890,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assistantAccessibilityTyping => 'Assistant is typing';
+
+  @override
+  String get languageSelectionError =>
+      'Unable to save language. Please try again.';
 }

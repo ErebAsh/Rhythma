@@ -866,5 +866,9 @@ class AppLocalizationsMr extends AppLocalizations {
       'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'Assistant is typing';
+  String get assistantAccessibilityTyping => 'सहाय्यक टाइप करत आहे';
+
+  @override
+  String get languageSelectionError =>
+      'भाषा जतन करण्यात असमर्थ. कृपया पुन्हा प्रयत्न करा.';
 }

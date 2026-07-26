@@ -1787,6 +1787,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Assistant is typing'**
   String get assistantAccessibilityTyping;
+
+  /// No description provided for @languageSelectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save language. Please try again.'**
+  String get languageSelectionError;
 }
 
 class _AppLocalizationsDelegate

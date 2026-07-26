@@ -876,5 +876,10 @@ class AppLocalizationsTa extends AppLocalizations {
       'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'Assistant is typing';
+  String get assistantAccessibilityTyping =>
+      'உதவியாளர் தட்டச்சு செய்து கொண்டிருக்கிறார்';
+
+  @override
+  String get languageSelectionError =>
+      'மொழியைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.';
 }

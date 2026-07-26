@@ -248,5 +248,6 @@
   "homeQuickLogTitle": "{label} नोंदवा",
   "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
   "homeQuickLogSaved": "{label} नोंदवले गेले: {value}",
-  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } }
+  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } },
+  "languageSelectionError": "भाषा जतन करण्यात असमर्थ. कृपया पुन्हा प्रयत्न करा."
 }

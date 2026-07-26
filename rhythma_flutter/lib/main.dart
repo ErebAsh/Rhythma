@@ -20,6 +20,7 @@ import 'providers/sync_status_provider.dart';
 import 'providers/dashboard_provider.dart';
 
 import 'screens/assistant/assistant_screen.dart';
+import 'screens/auth/language_selection_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/cycle/cycle_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -42,6 +43,14 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await LocalStorageService.init();
+
+  // Migration: existing users who completed onboarding already chose a language.
+  // Mark language selection as completed so they are not shown the picker again.
+  if (LocalStorageService.onboardingCompleted &&
+      !LocalStorageService.languageSelectionCompleted) {
+    await LocalStorageService.setLanguageSelectionCompleted(true);
+  }
+
   await NotificationService.instance.init();
   await FirestoreService.init();
 
@@ -126,9 +135,13 @@ class _RhythmaAppState extends State<RhythmaApp> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const SplashScreen();
           }
-          return snapshot.data != null
-              ? const RhythmaRoot()
-              : const LoginScreen();
+          if (snapshot.data != null) {
+            return const RhythmaRoot();
+          }
+          if (!LocalStorageService.languageSelectionCompleted) {
+            return const LanguageSelectionScreen();
+          }
+          return const LoginScreen();
         },
       ),
       routes: {

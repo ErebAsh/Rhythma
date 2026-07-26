@@ -858,7 +858,7 @@ class AppLocalizationsMl extends AppLocalizations {
       'നിങ്ങളുടെ ട്രെൻഡ് കാണുന്നതിന് കുറഞ്ഞത് രണ്ട് ആർത്തവചക്രങ്ങളെങ്കിലും രേഖപ്പെടുത്തുക.';
 
   @override
-  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
+  String get assistantAccessibilitySuggestedPrompt => 'നിർദ്ദേശിച്ച പ്രോംപ്റ്റ്';
 
   @override
   String get assistantAccessibilityMessageInput => 'Message input';
@@ -872,8 +872,12 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-      'Sends your message to the assistant';
+      'നിങ്ങളുടെ സന്ദേശം അസിസ്റ്റന്റിലേക്ക് അയയ്ക്കുന്നു';
 
   @override
-  String get assistantAccessibilityTyping => 'Assistant is typing';
+  String get assistantAccessibilityTyping => 'അസിസ്റ്റന്റ് ടൈപ്പ് ചെയ്യുന്നു';
+
+  @override
+  String get languageSelectionError =>
+      'ഭാഷ സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല. ദയവായി വീണ്ടും ശ്രമിക്കുക.';
 }
