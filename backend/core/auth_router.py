@@ -6,15 +6,17 @@ from core.auth import (
     create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
     COOKIE_NAME,
-    get_password_hash,
-    verify_password,
     get_current_user,
 )
 from models.user import UserCreate, UserResponse, UserProfileUpdate, UserProfileResponse
 from services.firestore_service import UserService
 import os
+import logging
 from pydantic import BaseModel
 import firebase_admin.auth
+from starlette.concurrency import run_in_threadpool
+
+logger = logging.getLogger(__name__)
 
 class FirebaseLoginRequest(BaseModel):
     id_token: str
@@ -23,6 +25,8 @@ class FirebaseLoginRequest(BaseModel):
 router = APIRouter(tags=["Authentication"])
 # Env-driven so dev (http://localhost) and prod (https, real domain) differ without code changes.
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"  # True if HTTPS-only, False if HTTP allowed (dev)
+# CSRF Mitigation: The SameSite attribute (lax or strict) prevents the browser from sending 
+# this cookie along with cross-site requests, which provides robust protection against CSRF attacks.
 COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax").lower()  # "lax" or "strict" or "none" | "none" if web + API end up on differrent registrable domains in prod
 COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", None)  # e.g. ".example.com" to share across subdomains, or None for default (current domain only)
 
@@ -82,7 +86,7 @@ def _set_auth_cookie(response: Response, token: str):
 # ─── Endpoints ──────────────────────────────────────────────────────────────
 
 @router.post("/firebase-login")
-async def firebase_login(request: Request, data: FirebaseLoginRequest):
+async def firebase_login(request: Request, response: Response, data: FirebaseLoginRequest):
     # Rate limit by IP address (10 attempts per 5 minutes)
     client_ip = get_client_ip(request)
     remaining = is_rate_limited(login_attempts, client_ip, limit=10, window_seconds=300)
@@ -95,18 +99,33 @@ async def firebase_login(request: Request, data: FirebaseLoginRequest):
 
     try:
         # Verify the Firebase ID token
-        decoded_token = firebase_admin.auth.verify_id_token(data.id_token)
-        phone_number = decoded_token.get('phone_number')
+        decoded_token = await run_in_threadpool(firebase_admin.auth.verify_id_token, data.id_token)
+    except firebase_admin.auth.InvalidIdTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Firebase ID token"
+        )
+    except Exception as e:
+        logger.error(f"Error verifying Firebase ID token: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
+
+    phone_number = decoded_token.get('phone_number')
+    
+    if not phone_number:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No phone number found in Firebase token"
+        )
         
-        if not phone_number:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No phone number found in Firebase token"
-            )
-            
+    try:
         # Find or create user
+        is_new_user = False
         user = UserService.get_user_by_phone(phone_number)
         if not user:
+            is_new_user = True
             # Create user
             user_data = {
                 "phone": phone_number,
@@ -119,91 +138,23 @@ async def firebase_login(request: Request, data: FirebaseLoginRequest):
         access_token = create_access_token(
             data={"sub": user["id"]}, expires_delta=access_token_expires
         )
-        return {"access_token": access_token, "token_type": "bearer", "is_new_user": not user.get("updated_at")}
         
-    except firebase_admin.auth.InvalidIdTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Firebase ID token"
-        )
+        _set_auth_cookie(response, access_token)
+        
+        # Web clients rely on the HttpOnly cookie for security and do not need the token in the body.
+        # Flutter/Mobile clients still need the token in the response body.
+        if request.headers.get("X-Client-Platform") == "web":
+            return {"token_type": "bearer", "is_new_user": is_new_user}
+            
+        return {"access_token": access_token, "token_type": "bearer", "is_new_user": is_new_user}
+        
     except Exception as e:
+        logger.error(f"Error during firebase login for phone {phone_number}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail="Internal server error"
         )
 
-
-@router.post("/register", response_model=UserResponse)
-async def register(request: Request, user_data: UserCreate):
-    # Rate limit by IP address (10 attempts per 5 minutes)
-    client_ip = get_client_ip(request)
-    remaining = is_rate_limited(register_attempts, client_ip, limit=10, window_seconds=300)
-    if remaining is not None:
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Too many registration attempts. Please wait 5 minutes.",
-            headers={"Retry-After": str(remaining)},
-        )
-
-    # ─── Check for an existing account ──────────────────────────────────
-    existing_username = UserService.get_user_by_username(user_data.username)
-    existing_email = UserService.get_user_by_email(user_data.email)
-    if existing_username or existing_email:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="An account with this username or email already exists"
-        )
-
-    # ─── Hash password and create user ─────────────────────────────────
-    hashed_password = get_password_hash(user_data.password)
-    user_dict = user_data.model_dump()
-    user_dict["password"] = hashed_password
-
-    user_id = UserService.create_user(user_dict)
-    created_user = UserService.get_user_by_id(user_id)
-
-    return UserResponse(
-        id=created_user["id"],
-        username=created_user["username"],
-        email=created_user["email"],
-        full_name=created_user.get("full_name"),
-        created_at=created_user["created_at"],
-        updated_at=created_user.get("updated_at")
-    )
-
-
-@router.post("/token")
-async def login_for_access_token(
-    request: Request,
-    response: Response,
-    form_data: OAuth2PasswordRequestForm = Depends()
-):
-    # Rate limit by username (5 attempts per 5 minutes)
-    key = form_data.username or "unknown"
-    remaining = is_rate_limited(login_attempts, key, limit=5, window_seconds=300)
-    if remaining is not None:
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Too many login attempts. Please wait 5 minutes.",
-            headers={"Retry-After": str(remaining)},
-        )
-    
-    user = UserService.get_user_by_username(form_data.username)
-    if not user or not verify_password(form_data.password, user.get("password", "")):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user["id"]}, expires_delta=access_token_expires
-    )
-    _set_auth_cookie(response, access_token)
-    if request.headers.get("X-Client-Platform") == "web":
-        return {"token_type": "bearer"}
-    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/logout")
 async def logout(response: Response):

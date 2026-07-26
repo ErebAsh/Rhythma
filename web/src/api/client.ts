@@ -12,6 +12,7 @@ export function setUnauthorizedHandler(handler: () => void) {
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   withCredentials: true, // send cookies with requests to the backend
+  headers: { 'X-Client-Platform': 'web' }, // for the backend to know which client is making requests 
 });
 
 // A 401 anywhere means the token is invalid or expired: clear it and
