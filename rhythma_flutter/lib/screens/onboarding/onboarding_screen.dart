@@ -6,6 +6,7 @@ import '../../config/theme.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/local_storage_service.dart';
 import '../../providers/profile_provider.dart';
+import '../../components/approximate_field.dart';
 
 /// The 5-step offline-first onboarding flow.
 /// On completion, writes all collected data to LocalStorageService and
@@ -46,8 +47,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   String? _heightError;
   String? _weightError;
 
+  // Step 2 – "Not sure" toggle state
+  bool _ageIsEstimated = false;
+  String? _ageSelectedRange;
+  bool _heightIsEstimated = false;
+  String? _heightSelectedRange;
+  bool _weightIsEstimated = false;
+  String? _weightSelectedRange;
+
   // Step 3 – Menstrual Profile
   DateTime? _lastPeriodDate;
+  bool _isLastPeriodApproximate = false;
+  bool _showExactDatePicker = true;
+  String? _lastPeriodError;
+  int _selectedApproximateIndex = -1;
   int _cycleLength = 28;
   int _periodDuration = 5;
   bool _isRegular = true;
@@ -65,6 +78,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   late AnimationController _pageAnimController;
   late Animation<double> _pageFade;
+
+  // E.164 format: leading '+' followed by 1-15 digits.
+  static final _e164 = RegExp(r'^\+[1-9]\d{1,14}$');
 
   @override
   void initState() {
@@ -105,8 +121,60 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     {'code': 'te', 'label': 'తెలుగు'},
     {'code': 'mr', 'label': 'मराठी'},
   ];
-  
-  bool? get selected => null;
+
+  // ── Approximate range definitions ────────────────────────────────────
+  //
+  // Midpoint mapping (documented for analytics / backend consumers):
+  //
+  // | Metric | Range key    | Label (en) | Midpoint |
+  // |--------|-------------|------------|----------|
+  // | Age    | under_18    | Under 18   | 14       |
+  // | Age    | 18_25       | 18–25      | 21       |
+  // | Age    | 26_35       | 26–35      | 30       |
+  // | Age    | 36_50       | 36–50      | 43       |
+  // | Age    | 51_65       | 51–65      | 58       |
+  // | Age    | over_65     | Over 65    | 72       |
+  // | Height | under_150   | <150 cm    | 140      |
+  // | Height | 150_160     | 150–160    | 155      |
+  // | Height | 161_170     | 161–170    | 165      |
+  // | Height | 171_180     | 171–180    | 175      |
+  // | Height | over_180    | >180 cm    | 190      |
+  // | Weight | under_50    | <50 kg     | 42       |
+  // | Weight | 50_65       | 50–65      | 57       |
+  // | Weight | 66_80       | 66–80      | 73       |
+  // | Weight | 81_100      | 81–100     | 90       |
+  // | Weight | over_100    | >100 kg    | 115      |
+
+  List<ApproxRange> _buildAgeRanges(AppLocalizations l) => [
+        ApproxRange(key: 'under_18', label: l.onboardingRangeUnder18, midpoint: 14),
+        ApproxRange(key: '18_25', label: l.onboardingRange18to25, midpoint: 21),
+        ApproxRange(key: '26_35', label: l.onboardingRange26to35, midpoint: 30),
+        ApproxRange(key: '36_50', label: l.onboardingRange36to50, midpoint: 43),
+        ApproxRange(key: '51_65', label: l.onboardingRange51to65, midpoint: 58),
+        ApproxRange(key: 'over_65', label: l.onboardingRangeOver65, midpoint: 72),
+      ];
+
+  List<ApproxRange> _buildHeightRanges(AppLocalizations l) => [
+        ApproxRange(key: 'under_150', label: l.onboardingRangeUnder150, midpoint: 140),
+        ApproxRange(key: '150_160', label: l.onboardingRange150to160, midpoint: 155),
+        ApproxRange(key: '161_170', label: l.onboardingRange161to170, midpoint: 165),
+        ApproxRange(key: '171_180', label: l.onboardingRange171to180, midpoint: 175),
+        ApproxRange(key: 'over_180', label: l.onboardingRangeOver180, midpoint: 190),
+      ];
+
+  List<ApproxRange> _buildWeightRanges(AppLocalizations l) => [
+        ApproxRange(key: 'under_50', label: l.onboardingRangeUnder50kg, midpoint: 42),
+        ApproxRange(key: '50_65', label: l.onboardingRange50to65kg, midpoint: 57),
+        ApproxRange(key: '66_80', label: l.onboardingRange66to80kg, midpoint: 73),
+        ApproxRange(key: '81_100', label: l.onboardingRange81to100kg, midpoint: 90),
+        ApproxRange(key: 'over_100', label: l.onboardingRangeOver100kg, midpoint: 115),
+      ];
+
+  double? _getMidpoint(List<ApproxRange> ranges, String? key) {
+    if (key == null) return null;
+    final match = ranges.where((r) => r.key == key);
+    return match.isNotEmpty ? match.first.midpoint : null;
+  }
 
   // ── Navigation ────────────────────────────────────────────────────────────
 
@@ -119,6 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       _weightError = null;
       _consentError = null;
       _phoneError = null;
+      _lastPeriodError = null;
     });
 
     if (_currentPage == 1) {
@@ -127,30 +196,78 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         setState(() => _nameError = l.onboardingNameRequired);
         valid = false;
       }
-      final age = int.tryParse(_ageController.text);
-      if (_ageController.text.isNotEmpty &&
-          (age == null || age < 10 || age > 120)) {
-        setState(() => _ageError = l.onboardingAgeInvalid);
-        valid = false;
+
+      // Age – required
+      if (_ageIsEstimated) {
+        if (_ageSelectedRange == null) {
+          setState(() => _ageError = l.onboardingAgeRequired);
+          valid = false;
+        }
+      } else {
+        if (_ageController.text.trim().isEmpty) {
+          setState(() => _ageError = l.onboardingAgeRequired);
+          valid = false;
+        } else {
+          final age = int.tryParse(_ageController.text);
+          if (age == null || age < 1 || age > 120) {
+            setState(() => _ageError = l.onboardingAgeInvalid);
+            valid = false;
+          }
+        }
       }
-      final h = double.tryParse(_heightController.text);
-      if (_heightController.text.isNotEmpty &&
-          (h == null || h < 50 || h > 250)) {
-        setState(() => _heightError = l.onboardingHeightInvalid);
-        valid = false;
+
+      // Height – required
+      if (_heightIsEstimated) {
+        if (_heightSelectedRange == null) {
+          setState(() => _heightError = l.onboardingHeightRequired);
+          valid = false;
+        }
+      } else {
+        if (_heightController.text.trim().isEmpty) {
+          setState(() => _heightError = l.onboardingHeightRequired);
+          valid = false;
+        } else {
+          final h = double.tryParse(_heightController.text);
+          if (h == null || h < 50 || h > 250) {
+            setState(() => _heightError = l.onboardingHeightInvalid);
+            valid = false;
+          }
+        }
       }
-      final w = double.tryParse(_weightController.text);
-      if (_weightController.text.isNotEmpty &&
-          (w == null || w < 20 || w > 300)) {
-        setState(() => _weightError = l.onboardingWeightInvalid);
-        valid = false;
+
+      // Weight – required
+      if (_weightIsEstimated) {
+        if (_weightSelectedRange == null) {
+          setState(() => _weightError = l.onboardingWeightRequired);
+          valid = false;
+        }
+      } else {
+        if (_weightController.text.trim().isEmpty) {
+          setState(() => _weightError = l.onboardingWeightRequired);
+          valid = false;
+        } else {
+          final w = double.tryParse(_weightController.text);
+          if (w == null || w < 20 || w > 300) {
+            setState(() => _weightError = l.onboardingWeightInvalid);
+            valid = false;
+          }
+        }
       }
+
       return valid;
     }
 
+    if (_currentPage == 2) {
+      if (_lastPeriodDate == null) {
+        setState(() => _lastPeriodError = l.onboardingLastPeriodRequired);
+        return false;
+      }
+      return true;
+    }
+
     if (_currentPage == 3) {
-      final digitsOnly = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
-      if (_phoneController.text.trim().isNotEmpty && (digitsOnly.length < 7 || digitsOnly.length > 15)) {
+      final phone = _phoneController.text.trim();
+      if (phone.isNotEmpty && !_e164.hasMatch(phone)) {
         setState(() => _phoneError = l.onboardingPhoneInvalid);
         return false;
       }
@@ -207,6 +324,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   Future<void> _saveAndComplete() async {
+    final l = AppLocalizations.of(context)!;
     final profile = <String, dynamic>{
       'name': _nameController.text.trim().isEmpty
           ? 'User'
@@ -216,14 +334,32 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     };
     final age = int.tryParse(_ageController.text);
     if (age != null) profile['age'] = age;
+    profile['age_is_estimated'] = _ageIsEstimated;
+    if (_ageIsEstimated) {
+      final midpoint = _getMidpoint(_buildAgeRanges(l), _ageSelectedRange);
+      if (midpoint != null) profile['age'] = midpoint;
+    }
     final h = double.tryParse(_heightController.text);
     if (h != null) profile['height_cm'] = h;
+    profile['height_is_estimated'] = _heightIsEstimated;
+    if (_heightIsEstimated) {
+      final midpoint = _getMidpoint(_buildHeightRanges(l), _heightSelectedRange);
+      if (midpoint != null) profile['height_cm'] = midpoint;
+    }
     final w = double.tryParse(_weightController.text);
     if (w != null) profile['weight_kg'] = w;
+    profile['weight_is_estimated'] = _weightIsEstimated;
+    if (_weightIsEstimated) {
+      final midpoint = _getMidpoint(_buildWeightRanges(l), _weightSelectedRange);
+      if (midpoint != null) profile['weight_kg'] = midpoint;
+    }
     if (_lastPeriodDate != null) {
       profile['last_period'] =
           _lastPeriodDate!.toIso8601String().split('T').first;
+      profile['last_period_is_approximate'] = _isLastPeriodApproximate;
     }
+    profile['onboarding_completed_at'] =
+        DateTime.now().toIso8601String().split('T').first;
     profile['cycle_length'] = _cycleLength;
     profile['period_duration'] = _periodDuration;
     profile['cycle_regular'] = _isRegular;
@@ -236,7 +372,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     profile['notifications_enabled'] = _notificationsEnabled;
 
     // 1. Persist locally first — data is never lost even if backend is down.
-    await context.read<ProfileProvider>().saveProfile(profile);
+    await context.read<ProfileProvider>().mergeProfileWithSync(profile);
 
     // 2. Sync to backend is optional for now. The app uses local storage as
     // the source of truth. A background sync can be added later.
@@ -505,39 +641,136 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: 14),
-          _buildTextField(
-            controller: _ageController,
+          ApproximateField(
             label: l.onboardingAgeLabel,
+            hint: l.onboardingAgeHint,
+            unit: l.onboardingAgeUnit,
+            ranges: _buildAgeRanges(l),
+            controller: _ageController,
+            isEstimated: _ageIsEstimated,
+            onEstimatedChanged: (v) => setState(() {
+              _ageIsEstimated = v;
+              _ageError = null;
+            }),
+            selectedRange: _ageSelectedRange,
+            onRangeChanged: (v) => setState(() {
+              _ageSelectedRange = v;
+              _ageError = null;
+            }),
             error: _ageError,
-            keyboardType: TextInputType.number,
-            textInputAction: TextInputAction.next,
+            minValue: 1,
+            maxValue: 120,
+            toggleLabel: l.onboardingNotSure,
+            approximateLabel: l.onboardingApproximate,
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  controller: _heightController,
-                  label: l.onboardingHeightLabel,
-                  error: _heightError,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  textInputAction: TextInputAction.next,
+          // Height & Weight: side-by-side in exact mode; vertical when
+          // either enters approximate mode to avoid overflow on small screens.
+          if (_heightIsEstimated || _weightIsEstimated) ...[
+            ApproximateField(
+              label: l.onboardingHeightLabel,
+              hint: l.onboardingHeightHint,
+              unit: l.onboardingHeightUnit,
+              ranges: _buildHeightRanges(l),
+              controller: _heightController,
+              isEstimated: _heightIsEstimated,
+              onEstimatedChanged: (v) => setState(() {
+                _heightIsEstimated = v;
+                _heightError = null;
+              }),
+              selectedRange: _heightSelectedRange,
+              onRangeChanged: (v) => setState(() {
+                _heightSelectedRange = v;
+                _heightError = null;
+              }),
+              error: _heightError,
+              isDecimal: true,
+              minValue: 50,
+              maxValue: 250,
+              toggleLabel: l.onboardingNotSure,
+              approximateLabel: l.onboardingApproximate,
+            ),
+            const SizedBox(height: 14),
+            ApproximateField(
+              label: l.onboardingWeightLabel,
+              hint: l.onboardingWeightHint,
+              unit: l.onboardingWeightUnit,
+              ranges: _buildWeightRanges(l),
+              controller: _weightController,
+              isEstimated: _weightIsEstimated,
+              onEstimatedChanged: (v) => setState(() {
+                _weightIsEstimated = v;
+                _weightError = null;
+              }),
+              selectedRange: _weightSelectedRange,
+              onRangeChanged: (v) => setState(() {
+                _weightSelectedRange = v;
+                _weightError = null;
+              }),
+              error: _weightError,
+              isDecimal: true,
+              minValue: 20,
+              maxValue: 300,
+              toggleLabel: l.onboardingNotSure,
+              approximateLabel: l.onboardingApproximate,
+            ),
+          ] else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: ApproximateField(
+                    label: l.onboardingHeightLabel,
+                    hint: l.onboardingHeightHint,
+                    unit: l.onboardingHeightUnit,
+                    ranges: _buildHeightRanges(l),
+                    controller: _heightController,
+                    isEstimated: _heightIsEstimated,
+                    onEstimatedChanged: (v) => setState(() {
+                      _heightIsEstimated = v;
+                      _heightError = null;
+                    }),
+                    selectedRange: _heightSelectedRange,
+                    onRangeChanged: (v) => setState(() {
+                      _heightSelectedRange = v;
+                      _heightError = null;
+                    }),
+                    error: _heightError,
+                    isDecimal: true,
+                    minValue: 50,
+                    maxValue: 250,
+                    toggleLabel: l.onboardingNotSure,
+                    approximateLabel: l.onboardingApproximate,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: _buildTextField(
-                  controller: _weightController,
-                  label: l.onboardingWeightLabel,
-                  error: _weightError,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  textInputAction: TextInputAction.done,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: ApproximateField(
+                    label: l.onboardingWeightLabel,
+                    hint: l.onboardingWeightHint,
+                    unit: l.onboardingWeightUnit,
+                    ranges: _buildWeightRanges(l),
+                    controller: _weightController,
+                    isEstimated: _weightIsEstimated,
+                    onEstimatedChanged: (v) => setState(() {
+                      _weightIsEstimated = v;
+                      _weightError = null;
+                    }),
+                    selectedRange: _weightSelectedRange,
+                    onRangeChanged: (v) => setState(() {
+                      _weightSelectedRange = v;
+                      _weightError = null;
+                    }),
+                    error: _weightError,
+                    isDecimal: true,
+                    minValue: 20,
+                    maxValue: 300,
+                    toggleLabel: l.onboardingNotSure,
+                    approximateLabel: l.onboardingApproximate,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -553,70 +786,115 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep3Title, l.onboardingStep3Subtitle),
           const SizedBox(height: 28),
-          Text(l.onboardingLastPeriodLabel,
+          Text(l.onboardingApproximateLabel,
               style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildApproximateChip(l.onboardingApproximateLessWeek, 3, 0),
+              _buildApproximateChip(l.onboardingApproximate1to2Weeks, 10, 1),
+              _buildApproximateChip(l.onboardingApproximate3to4Weeks, 24, 2),
+              _buildApproximateChip(l.onboardingApproximateMoreMonth, 45, 3),
+            ],
+          ),
+          const SizedBox(height: 12),
           GestureDetector(
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _lastPeriodDate ??
-                    DateTime.now().subtract(const Duration(days: 14)),
-                firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                lastDate: DateTime.now(),
-                builder: (context, child) {
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: isDark
-                          ? ColorScheme.dark(
-                              primary: RhythmaColors.primary,
-                              onPrimary: RhythmaColors.primaryFg,
-                              surface: RhythmaColors.surface,
-                              onSurface: RhythmaColors.foreground,
-                            )
-                          : ColorScheme.light(
-                              primary: RhythmaColors.primary,
-                              onPrimary: RhythmaColors.primaryFg,
-                              surface: RhythmaColors.surface,
-                              onSurface: RhythmaColors.foreground,
-                            ),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (picked != null) setState(() => _lastPeriodDate = picked);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: RhythmaColors.surface,
-
-                border: Border.all(color: RhythmaColors.primary.withValues(alpha: 0.3)),
-             ),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today_rounded,
-                      color: RhythmaColors.primary, size: 20),
-                  const SizedBox(width: 12),
-                  Text(
-                    _lastPeriodDate == null
-                        ? l.onboardingTapToSelectDate
-                        : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
-                    style: TextStyle(
-                      color: _lastPeriodDate == null
-                          ? RhythmaColors.mutedFg
-                          : RhythmaColors.foreground,
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
+            onTap: () => setState(() {
+              _showExactDatePicker = !_showExactDatePicker;
+              if (_showExactDatePicker) {
+                _isLastPeriodApproximate = false;
+                _selectedApproximateIndex = -1;
+              }
+            }),
+            child: Text(
+              _showExactDatePicker
+                  ? l.onboardingApproximateLabel
+                  : l.onboardingPickExactDate,
+              style: TextStyle(
+                color: RhythmaColors.primary,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
+          if (_showExactDatePicker) ...[
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _lastPeriodDate ??
+                      DateTime.now().subtract(const Duration(days: 14)),
+                  firstDate:
+                      DateTime.now().subtract(const Duration(days: 365)),
+                  lastDate: DateTime.now(),
+                  builder: (context, child) {
+                    final isDark =
+                        Theme.of(context).brightness == Brightness.dark;
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: isDark
+                            ? ColorScheme.dark(
+                                primary: RhythmaColors.primary,
+                                onPrimary: RhythmaColors.primaryFg,
+                                surface: RhythmaColors.surface,
+                                onSurface: RhythmaColors.foreground,
+                              )
+                            : ColorScheme.light(
+                                primary: RhythmaColors.primary,
+                                onPrimary: RhythmaColors.primaryFg,
+                                surface: RhythmaColors.surface,
+                                onSurface: RhythmaColors.foreground,
+                              ),
+                      ),
+                      child: child!,
+                    );
+                  },
+                );
+                if (picked != null) {
+                  setState(() {
+                    _lastPeriodDate = picked;
+                    _isLastPeriodApproximate = false;
+                  });
+                }
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: RhythmaColors.surface,
+                  border: Border.all(
+                      color: RhythmaColors.primary.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today_rounded,
+                        color: RhythmaColors.primary, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      _lastPeriodDate == null || _isLastPeriodApproximate
+                          ? l.onboardingTapToSelectDate
+                          : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
+                      style: TextStyle(
+                        color: _lastPeriodDate == null || _isLastPeriodApproximate
+                            ? RhythmaColors.mutedFg
+                            : RhythmaColors.foreground,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          if (_lastPeriodError != null) ...[
+            const SizedBox(height: 6),
+            Text(_lastPeriodError!,
+                style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
+          ],
           const SizedBox(height: 24),
           _buildSliderField(
             label: l.onboardingCycleLengthLabel,
@@ -670,6 +948,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           _buildTextField(
             controller: _phoneController,
             label: l.onboardingPhoneLabel,
+            hint: l.onboardingPhoneHint,
             error: _phoneError,
             keyboardType: TextInputType.phone,
             textInputAction: TextInputAction.next,
@@ -910,6 +1189,44 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   selected ? RhythmaColors.primary : RhythmaColors.foreground,
               fontSize: 15,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApproximateChip(String label, int daysAgo, int index) {
+    final selected =
+        _isLastPeriodApproximate && _selectedApproximateIndex == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _lastPeriodDate = DateTime.now().subtract(Duration(days: daysAgo));
+          _isLastPeriodApproximate = true;
+          _selectedApproximateIndex = index;
+          _showExactDatePicker = false;
+          _lastPeriodError = null;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: selected
+              ? RhythmaColors.primary.withValues(alpha: 0.15)
+              : RhythmaColors.surface,
+          border: Border.all(
+            color: selected ? RhythmaColors.primary : RhythmaColors.border,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            color: selected ? RhythmaColors.primary : RhythmaColors.foreground,
           ),
         ),
       ),

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:rhythma/services/firestore_service.dart';
-import 'package:rhythma/services/local_storage_service.dart';
 
 void main() {
   late Directory tempDir;
@@ -12,8 +11,6 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     tempDir = await Directory.systemTemp.createTemp('firestore_test_dir');
     Hive.init(tempDir.path);
-    LocalStorageService.isTesting = true;
-    LocalStorageService.mockCycleLogs = [];
   });
 
   tearDown(() async {

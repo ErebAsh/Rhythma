@@ -106,20 +106,21 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   List<Widget> _buildRecommendations(AppLocalizations l10n) {
-    final recs = <Widget>[_Rec(l10n.insightsRec1, RhythmaColors.rose)];
+    final dataRecs = <Widget>[_Rec(l10n.insightsRec1, RhythmaColors.rose)];
 
     final sleepNum = double.tryParse((_sleepHours ?? '').replaceAll('h', ''));
     if (sleepNum != null && sleepNum < 7) {
-      recs.add(_Rec(l10n.insightsRec2, RhythmaColors.primary));
+      dataRecs.add(_Rec(l10n.insightsRec2, RhythmaColors.primary));
     }
     if ((_recentStressLevel ?? 0) >= 4) {
-      recs.add(_Rec(l10n.insightsRec3, RhythmaColors.teal));
+      dataRecs.add(_Rec(l10n.insightsRec3, RhythmaColors.teal));
     }
-    if (recs.length == 1) {
-      recs.add(_Rec(l10n.insightsRec2, RhythmaColors.primary));
-      recs.add(_Rec(l10n.insightsRec3, RhythmaColors.teal));
-    }
-    return recs;
+    if (dataRecs.length > 1) return dataRecs;
+    return [
+      _Rec(l10n.insightsRec1, RhythmaColors.rose),
+      _Rec(l10n.insightsRec2, RhythmaColors.primary),
+      _Rec(l10n.insightsRec3, RhythmaColors.teal),
+    ];
   }
 
   @override

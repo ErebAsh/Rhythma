@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import datetime, timedelta, timezone
+from typing import Optional, Dict, List
 from core.auth import (
     create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -11,12 +12,17 @@ from core.auth import (
 )
 from models.user import UserCreate, UserResponse, UserProfileUpdate, UserProfileResponse
 from services.firestore_service import UserService
-from typing import Dict, List
 import os
+from pydantic import BaseModel
+import firebase_admin.auth
+
+class FirebaseLoginRequest(BaseModel):
+    id_token: str
+    fcm_token: Optional[str] = None
 
 router = APIRouter(tags=["Authentication"])
 # Env-driven so dev (http://localhost) and prod (https, real domain) differ without code changes.
-COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"  # True if HTTPS-only, False if HTTP allowed (dev)
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"  # True if HTTPS-only, False if HTTP allowed (dev)
 COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax").lower()  # "lax" or "strict" or "none" | "none" if web + API end up on differrent registrable domains in prod
 COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", None)  # e.g. ".example.com" to share across subdomains, or None for default (current domain only)
 
@@ -30,7 +36,7 @@ def is_rate_limited(
     key: str,
     limit: int = 5,
     window_seconds: int = 300,
-) -> int | None:
+) -> Optional[int]:
     """
     Returns the number of seconds remaining before the next request is
     allowed if the key has exceeded the rate limit, or None otherwise.
@@ -75,6 +81,58 @@ def _set_auth_cookie(response: Response, token: str):
 
 # ─── Endpoints ──────────────────────────────────────────────────────────────
 
+@router.post("/firebase-login")
+async def firebase_login(request: Request, data: FirebaseLoginRequest):
+    # Rate limit by IP address (10 attempts per 5 minutes)
+    client_ip = get_client_ip(request)
+    remaining = is_rate_limited(login_attempts, client_ip, limit=10, window_seconds=300)
+    if remaining is not None:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many login attempts. Please wait 5 minutes.",
+            headers={"Retry-After": str(remaining)},
+        )
+
+    try:
+        # Verify the Firebase ID token
+        decoded_token = firebase_admin.auth.verify_id_token(data.id_token)
+        phone_number = decoded_token.get('phone_number')
+        
+        if not phone_number:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No phone number found in Firebase token"
+            )
+            
+        # Find or create user
+        user = UserService.get_user_by_phone(phone_number)
+        if not user:
+            # Create user
+            user_data = {
+                "phone": phone_number,
+            }
+            user_id = UserService.create_user(user_data)
+            user = UserService.get_user_by_id(user_id)
+            
+        # Issue internal JWT
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user["id"]}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, "token_type": "bearer", "is_new_user": not user.get("updated_at")}
+        
+    except firebase_admin.auth.InvalidIdTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Firebase ID token"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
 @router.post("/register", response_model=UserResponse)
 async def register(request: Request, user_data: UserCreate):
     # Rate limit by IP address (10 attempts per 5 minutes)
@@ -88,14 +146,6 @@ async def register(request: Request, user_data: UserCreate):
         )
 
     # ─── Check for an existing account ──────────────────────────────────
-    # Check both username and email regardless of whether the first check
-    # already found a match, and return one identical message either way.
-    # Returning distinct "Username already exists" vs "Email already
-    # exists" responses (or short-circuiting on the first match) lets an
-    # attacker enumerate which specific accounts exist on the system by
-    # trying registrations — this keeps the *existence* check useful for
-    # legitimate re-registration attempts without revealing which field
-    # matched.
     existing_username = UserService.get_user_by_username(user_data.username)
     existing_email = UserService.get_user_by_email(user_data.email)
     if existing_username or existing_email:
@@ -137,14 +187,13 @@ async def login_for_access_token(
             detail="Too many login attempts. Please wait 5 minutes.",
             headers={"Retry-After": str(remaining)},
         )
-
+    
     user = UserService.get_user_by_username(form_data.username)
-
-    # Generic error message: same for missing user or wrong password
-    if not user or not verify_password(form_data.password, user["password"]):
+    if not user or not verify_password(form_data.password, user.get("password", "")):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -152,6 +201,8 @@ async def login_for_access_token(
         data={"sub": user["id"]}, expires_delta=access_token_expires
     )
     _set_auth_cookie(response, access_token)
+    if request.headers.get("X-Client-Platform") == "web":
+        return {"token_type": "bearer"}
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/logout")
