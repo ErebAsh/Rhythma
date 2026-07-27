@@ -1338,6 +1338,12 @@ abstract class AppLocalizations {
   /// **'Please enter a valid weight (20–300 kg)'**
   String get onboardingWeightInvalid;
 
+  /// No description provided for @onboardingPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use international format, e.g. +919876543210'**
+  String get onboardingPhoneInvalid;
+
   /// No description provided for @onboardingAgeRequired.
   ///
   /// In en, this message translates to:
@@ -1499,12 +1505,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Over 100 kg'**
   String get onboardingRangeOver100kg;
-
-  /// No description provided for @onboardingPhoneInvalid.
-  ///
-  /// In en, this message translates to:
-  /// **'Use international format, e.g. +919876543210'**
-  String get onboardingPhoneInvalid;
 
   /// No description provided for @onboardingTapToSelectDate.
   ///
@@ -1793,6 +1793,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to save language. Please try again.'**
   String get languageSelectionError;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountConfirmationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account?'**
+  String get deleteAccountConfirmationTitle;
+
+  /// No description provided for @deleteAccountConfirmationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'This action is permanent and cannot be undone. All your data will be wiped.'**
+  String get deleteAccountConfirmationDesc;
+
+  /// No description provided for @accountDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted successfully.'**
+  String get accountDeletedSuccess;
 }
 
 class _AppLocalizationsDelegate

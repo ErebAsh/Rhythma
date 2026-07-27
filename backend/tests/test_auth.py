@@ -27,6 +27,7 @@ sys.modules["google.generativeai"] = MockGemini()
 os.environ["JWT_SECRET"] = "test-secret"
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["GEMINI_API_KEY"] = "mock-key"
+os.environ["COOKIE_SECURE"] = "false"
 
 # ─── Mock firebase_admin ──────────────────────────────────────────────────
 mock_firebase_admin = MagicMock()
@@ -40,6 +41,16 @@ sys.modules["firebase_admin.firestore"] = MagicMock()
 from main import app
 import firebase_admin.auth
 client = TestClient(app)
+
+from core.auth_router import login_attempts, register_attempts
+from api.sms import sms_history
+
+@pytest.fixture(autouse=True)
+def clear_state():
+    client.cookies.clear()
+    login_attempts.clear()
+    register_attempts.clear()
+    sms_history.clear()
 
 # ─── Fixture to mock UserService ──────────────────────
 @pytest.fixture(autouse=True)
@@ -156,3 +167,62 @@ def test_patch_profile():
     assert data["age"] == 25
     assert data["cycle_length"] == 29
     assert data["avatar"] == "assets/avatars/avatar_2.png"
+    assert data.get("username") in ["testuser", None]
+    assert "password" not in data
+
+def test_login_sets_httponly_cookie():
+    firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
+    response = client.post(
+        "/api/v1/auth/firebase-login",
+        json={"id_token": "valid_token"}
+    )
+
+    assert response.status_code == 200
+    assert "rhythma_access_token" in response.cookies
+
+    set_cookie_header = response.headers.get("set-cookie", "")
+    assert "HttpOnly" in set_cookie_header
+
+def test_cookie_only_auth_works():
+    firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
+    # Login stores the HttpOnly cookie in the TestClient cookie jar.
+    client.post(
+        "/api/v1/auth/firebase-login",
+        json={"id_token": "valid_token"}
+    )
+
+    # No Authorization header is sent here.
+    response = client.get("/api/v1/auth/me")
+    assert response.status_code == 200
+
+def test_logout_clears_cookie():
+    firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
+    client.post(
+        "/api/v1/auth/firebase-login",
+        json={"id_token": "valid_token"}
+    )
+
+    logout = client.post("/api/v1/auth/logout")
+    assert logout.status_code == 200
+
+    response = client.get("/api/v1/auth/me")
+    assert response.status_code == 401
+
+def test_web_client_does_not_receive_token_in_body():
+    firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
+    response = client.post(
+        "/api/v1/auth/firebase-login",
+        json={"id_token": "valid_token"},
+        headers={"X-Client-Platform": "web"},
+    )
+    assert response.status_code == 200
+    assert "access_token" not in response.json()
+
+def test_mobile_client_still_receives_token_in_body():
+    firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
+    response = client.post(
+        "/api/v1/auth/firebase-login",
+        json={"id_token": "valid_token"},
+    )
+    assert response.status_code == 200
+    assert "access_token" in response.json()

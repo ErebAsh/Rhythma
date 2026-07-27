@@ -1,7 +1,9 @@
 {
   "@@locale": "en",
   "appTitle": "Rhythma",
-  "@appTitle": { "description": "The title of the application" },
+  "@appTitle": {
+    "description": "The title of the application"
+  },
   "settingsTitle": "Settings",
   "appPreferences": "App Preferences",
   "languagePreferences": "Language Preferences",
@@ -54,15 +56,36 @@
   "homeSleep": "Sleep",
   "homeComingSoon": "Coming Soon",
   "homeUnderDevelopment": "{topic} is currently under development.",
-  "@homeUnderDevelopment": { "placeholders": { "topic": { "type": "String" } } },
+  "@homeUnderDevelopment": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
   "homeErrorNetwork": "Please check your internet connection and try again.",
   "homeErrorAuth": "Your session has expired. Please log in again.",
   "homeErrorServer": "Something went wrong on our end. Please try again later.",
   "homeErrorGeneric": "Unable to load data. Please try again.",
   "homeQuickLogTitle": "Log {label}",
-  "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "homeQuickLogSaved": "{label} logged: {value}",
-  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } },
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "homePrivacySecurity": "Privacy & Security",
   "homeOk": "OK",
   "cycleTrackerTitle": "Cycle Tracker",
@@ -103,7 +126,13 @@
   "assistantSubtitle": "Your private health companion",
   "assistantInputHint": "Ask anything about your health...",
   "assistantWelcome": "Hi {name} 🌸 I'm Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.",
-  "@assistantWelcome": { "placeholders": { "name": { "type": "String" } } },
+  "@assistantWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assistantSug1": "Why are my periods irregular?",
   "assistantSug2": "What causes severe cramps?",
   "assistantSug3": "Is a 35-day cycle normal?",
@@ -158,7 +187,6 @@
   "edit": "Edit",
   "delete": "Delete",
   "onboardingAvatarOption": "Avatar Option",
-  
   "navHome": "Home",
   "navCycle": "Cycle",
   "navAsk": "Ask",
@@ -277,7 +305,13 @@
   "smsLoadError": "Couldn't load your SMS settings. Pull to refresh or try again.",
   "smsSummaryMessage": "🌸 Rhythma Health Summary\nThis is your on-demand summary from Rhythma.\nOpen the app for your latest cycle insights.\nReply STOP to unsubscribe.",
   "insightsLoadError": "Couldn't load your insights: {error}",
-  "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
+  "@insightsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "insightsNotEnoughData": "Log a few more cycles on the Cycle tab to unlock your full health insights.",
   "insightsNoSymptomsYet": "No symptoms logged yet — log some on the Cycle tab to see patterns here.",
   "insightsNotEnoughTrendData": "Log at least two cycles to see your trend here.",
@@ -287,5 +321,9 @@
   "assistantAccessibilitySendMessage": "Send message",
   "assistantAccessibilitySendMessageHint": "Sends your message to the assistant",
   "assistantAccessibilityTyping": "Assistant is typing",
-  "languageSelectionError": "Unable to save language. Please try again."
+  "languageSelectionError": "Unable to save language. Please try again.",
+  "deleteAccount": "Delete Account",
+  "deleteAccountConfirmationTitle": "Delete Account?",
+  "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
+  "accountDeletedSuccess": "Account deleted successfully."
 }

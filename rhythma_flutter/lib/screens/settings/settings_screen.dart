@@ -144,6 +144,112 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _showDeleteAccountDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Material(
+            color: Colors.transparent,
+            child: GlassCard(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const TintedIcon(
+                    icon: Icons.delete_forever_rounded,
+                    color: Colors.redAccent,
+                    size: 48,
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    l10n.deleteAccount,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.redAccent,
+                        ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    l10n.deleteAccountConfirmationDesc,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: RhythmaColors.mutedFg,
+                        ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: RhythmaColors.border),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(
+                            l10n.cancel,
+                            style: TextStyle(color: RhythmaColors.mutedFg),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context); // Close dialog
+
+                            try {
+                              await AuthService().deleteAccount();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.accountDeletedSuccess),
+                                  ),
+                                );
+                                Navigator.of(context, rootNavigator: true)
+                                    .pushNamedAndRemoveUntil(
+                                        '/login', (route) => false);
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to delete account: $e'),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: Text(l10n.deleteAccount),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<bool> _showConfirmationDialog(
       String title, String content, bool newValue) async {
     final result = await showDialog<bool>(
@@ -566,6 +672,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 trailing: Icon(Icons.chevron_right_rounded,
                     color: RhythmaColors.mutedFg),
                 onTap: () => _showLogoutDialog(context),
+              ),
+            ),
+            const SizedBox(height: 16),
+            GlassCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
+                leading: const TintedIcon(
+                  icon: Icons.delete_forever_rounded,
+                  color: Colors.redAccent,
+                  size: 36,
+                ),
+                title: Text(
+                  l10n.deleteAccount,
+                  style: const TextStyle(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: RhythmaColors.mutedFg),
+                onTap: () => _showDeleteAccountDialog(context),
               ),
             ),
             const SizedBox(height: 20),

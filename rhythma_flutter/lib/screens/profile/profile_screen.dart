@@ -5,6 +5,7 @@ import '../../config/theme.dart';
 import '../../services/local_storage_service.dart';
 import '../settings/settings_screen.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/profile_provider.dart';
 import '../onboarding/onboarding_screen.dart';
@@ -475,6 +476,26 @@ void _showAddEditContactDialog(
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              IconButton(
+                                icon: const Icon(Icons.phone_rounded, size: 20),
+                                tooltip: 'Call',
+                                onPressed: () {
+                                  final phone = contact['phone']?.replaceAll(RegExp(r'[^\d+]'), '');
+                                  if (phone != null && phone.isNotEmpty) {
+                                    launchUrlString('tel:$phone');
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.message_rounded, size: 20),
+                                tooltip: 'SMS',
+                                onPressed: () {
+                                  final phone = contact['phone']?.replaceAll(RegExp(r'[^\d+]'), '');
+                                  if (phone != null && phone.isNotEmpty) {
+                                    launchUrlString('sms:$phone');
+                                  }
+                                },
+                              ),
                               IconButton(
                                 icon: const Icon(Icons.edit_rounded, size: 20),
                                 tooltip: AppLocalizations.of(context)!.edit,
