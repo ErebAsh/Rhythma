@@ -30,7 +30,21 @@ os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["GEMINI_API_KEY"] = "mock-key"
 
 # ─── Mock firebase_admin ──────────────────────────────────────────────────
-sys.modules["firebase_admin"] = MagicMock(_apps={})
+# Reuse existing mock if already set up (e.g., by test_auth.py) to avoid
+# module contamination that breaks cross-test mock consistency.
+existing_firebase_admin = sys.modules.get("firebase_admin")
+if isinstance(existing_firebase_admin, MagicMock) and hasattr(existing_firebase_admin, "auth"):
+    mock_firebase_admin = existing_firebase_admin
+else:
+    mock_firebase_admin = MagicMock(_apps={})
+    sys.modules["firebase_admin"] = mock_firebase_admin
+
+mock_firebase_auth = getattr(mock_firebase_admin, "auth", None)
+if not isinstance(mock_firebase_auth, MagicMock):
+    mock_firebase_auth = MagicMock()
+    mock_firebase_admin.auth = mock_firebase_auth
+    sys.modules["firebase_admin.auth"] = mock_firebase_auth
+
 sys.modules["firebase_admin.credentials"] = MagicMock()
 sys.modules["firebase_admin.firestore"] = MagicMock()
 

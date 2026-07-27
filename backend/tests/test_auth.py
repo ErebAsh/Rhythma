@@ -32,6 +32,7 @@ os.environ["COOKIE_SECURE"] = "false"
 # ─── Mock firebase_admin ──────────────────────────────────────────────────
 mock_firebase_admin = MagicMock()
 mock_firebase_auth = MagicMock()
+mock_firebase_admin.auth = mock_firebase_auth
 sys.modules["firebase_admin"] = mock_firebase_admin
 sys.modules["firebase_admin.auth"] = mock_firebase_auth
 sys.modules["firebase_admin.credentials"] = MagicMock()
@@ -44,6 +45,7 @@ client = TestClient(app)
 
 from core.auth_router import login_attempts, register_attempts
 from api.sms import sms_history
+from api.assistant import _assistant_rate_history
 
 @pytest.fixture(autouse=True)
 def clear_state():
@@ -51,6 +53,7 @@ def clear_state():
     login_attempts.clear()
     register_attempts.clear()
     sms_history.clear()
+    _assistant_rate_history.clear()
 
 # ─── Fixture to mock UserService ──────────────────────
 @pytest.fixture(autouse=True)
@@ -111,19 +114,22 @@ def test_firebase_login_success():
     assert response.json()["token_type"] == "bearer"
 
 def test_firebase_login_invalid_token():
-    class InvalidIdTokenError(Exception):
-        pass
-    firebase_admin.auth.InvalidIdTokenError = InvalidIdTokenError
-    firebase_admin.auth.verify_id_token.side_effect = InvalidIdTokenError("Invalid token")
-    
-    response = client.post(
-        "/api/v1/auth/firebase-login",
-        json={"id_token": "invalid_token"}
-    )
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid Firebase ID token"
-    # reset side effect
-    firebase_admin.auth.verify_id_token.side_effect = None
+    # Patch the verify_id_token in the auth_router module (where the endpoint uses it)
+    with patch("core.auth_router.firebase_admin.auth.verify_id_token") as mock_verify:
+        class InvalidIdTokenError(Exception):
+            pass
+        # Attach the exception class to the mocked module so the endpoint's except clause catches it
+        import core.auth_router
+        core.auth_router.firebase_admin.auth.InvalidIdTokenError = InvalidIdTokenError
+
+        mock_verify.side_effect = InvalidIdTokenError("Invalid token")
+
+        response = client.post(
+            "/api/v1/auth/firebase-login",
+            json={"id_token": "invalid_token"}
+        )
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Invalid Firebase ID token"
 
 def test_protected_endpoint_without_token():
     response = client.post(
