@@ -3,7 +3,7 @@ from datetime import date
 from unittest.mock import patch
 from tests.test_auth import client, mock_auth_dependencies
 import firebase_admin.auth
-from api.dashboard import _build_model_features
+from services.scoring_service import build_model_features
 
 @pytest.fixture
 def auth_headers(mock_auth_dependencies):
@@ -17,18 +17,21 @@ def auth_headers(mock_auth_dependencies):
 
 @pytest.fixture
 def mock_cycle_service():
-    with patch("api.dashboard.CycleService") as MockCycleService:
+    # CycleService now lives behind services.scoring_service (the shared
+    # source of truth for /dashboard and /insights/{user_id}/scores),
+    # not api.dashboard directly — see services/scoring_service.py.
+    with patch("services.scoring_service.CycleService") as MockCycleService:
         yield MockCycleService
 
 @pytest.fixture
 def mock_cvi():
-    with patch("api.dashboard.predict_cvi") as mock:
+    with patch("services.scoring_service.predict_cvi") as mock:
         mock.return_value = 0.5
         yield mock
 
 @pytest.fixture
 def mock_mhs():
-    with patch("api.dashboard.predict_mhs") as mock:
+    with patch("services.scoring_service.predict_mhs") as mock:
         mock.return_value = 8.0
         yield mock
 
@@ -37,7 +40,7 @@ def test_build_model_features_month_boundaries():
         {"start_date": date(2026, 3, 1), "end_date": date(2026, 3, 5), "flow_intensity": "heavy"},
         {"start_date": date(2026, 1, 31), "end_date": date(2026, 2, 4), "flow_intensity": "medium"},
     ]
-    features = _build_model_features(logs)
+    features = build_model_features(logs)
     assert len(features) == 2
     assert features[0]["cycle_length"] == 29
     assert features[0]["flow_duration"] == 5
@@ -49,7 +52,7 @@ def test_build_model_features_year_transitions():
         {"start_date": date(2026, 1, 5), "end_date": date(2026, 1, 9)},
         {"start_date": date(2025, 12, 10), "end_date": date(2025, 12, 14)},
     ]
-    features = _build_model_features(logs)
+    features = build_model_features(logs)
     assert features[0]["cycle_length"] == 26
     
 def test_build_model_features_leap_year():
@@ -57,14 +60,14 @@ def test_build_model_features_leap_year():
         {"start_date": date(2024, 3, 1), "end_date": date(2024, 3, 5)},
         {"start_date": date(2024, 2, 1), "end_date": date(2024, 2, 5)},
     ]
-    features = _build_model_features(logs)
+    features = build_model_features(logs)
     assert features[0]["cycle_length"] == 29
     
 def test_build_model_features_single_cycle():
     logs = [
         {"start_date": date(2026, 5, 1), "end_date": date(2026, 5, 5)},
     ]
-    features = _build_model_features(logs)
+    features = build_model_features(logs)
     assert features[0]["cycle_length"] == 28
 
 def test_build_model_features_long_history():
@@ -75,20 +78,20 @@ def test_build_model_features_long_history():
         {"start_date": date(2026, 2, 1)},
         {"start_date": date(2026, 1, 1)},
     ]
-    features = _build_model_features(logs)
+    features = build_model_features(logs)
     assert len(features) == 5
     assert features[0]["cycle_length"] == 30
     assert features[1]["cycle_length"] == 31
     
 def test_build_model_features_empty_history():
-    assert _build_model_features([]) == []
+    assert build_model_features([]) == []
     
 def test_build_model_features_invalid_date_input():
     logs = [
         {"start_date": "not-a-date", "end_date": None},
         {"start_date": None}
     ]
-    features = _build_model_features(logs)
+    features = build_model_features(logs)
     assert len(features) == 2
     assert features[0]["cycle_length"] == 28
     assert features[0]["flow_duration"] == 5
