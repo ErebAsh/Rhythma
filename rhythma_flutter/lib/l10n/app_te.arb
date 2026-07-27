@@ -45,7 +45,13 @@
   "homeRetry": "మళ్లీ ప్రయత్నించండి",
   "homeComingSoon": "త్వరలో",
   "homeUnderDevelopment": "{topic} ప్రస్తుతం అభివృద్ధిలో ఉంది.",
-  "@homeUnderDevelopment": { "placeholders": { "topic": { "type": "String" } } },
+  "@homeUnderDevelopment": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
   "homePrivacySecurity": "గోప్యత & భద్రత",
   "homeOk": "సరే",
   "cycleTrackerTitle": "సైకిల్ ట్రాకర్",
@@ -85,7 +91,13 @@
   "assistantSubtitle": "మీ వ్యక్తిగత ఆరోగ్య సహచరుడు",
   "assistantInputHint": "మీ ప్రశ్న అడగండి...",
   "assistantWelcome": "నమస్తే {name} 🌸 నేను రిథ్మా, మీ వ్యక్తిగత ఆరోగ్య సహచరుడిని. మీ రుతుక్రమం, లక్షణాలు గురించి నన్ను ఏదైనా అడగండి — ఇంగ్లీష్, హిందీ, మరాఠీ లేదా తమిళంలో.",
-  "@assistantWelcome": { "placeholders": { "name": { "type": "String" } } },
+  "@assistantWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assistantSug1": "నా రుతుక్రమం ఎందుకు క్రమం తప్పింది?",
   "assistantSug2": "తీవ్రమైన నొప్పికి కారణం ఏమిటి?",
   "assistantSug3": "35 రోజుల చక్రం సాధారణమేనా?",
@@ -251,7 +263,13 @@
   "smsLoadError": "మీ ఎస్‌ఎంఎస్ సెట్టింగ్‌లను లోడ్ చేయలేకపోయాము. రిఫ్రెష్ చేయండి లేదా మళ్లీ ప్రయత్నించండి.",
   "smsSummaryMessage": "🌸 Rhythma ఆరోగ్య సారాంశం\nఇది Rhythma నుండి మీ ఆన్-డిమాండ్ సారాంశం.\nమీ తాజా చక్ర సమాచారం కోసం యాప్‌ను తెరవండి.\nసబ్‌స్క్రిప్షన్ రద్దు చేయడానికి STOP అని రిప్లై ఇవ్వండి.",
   "insightsLoadError": "మీ విశ్లేషణలను లోడ్ చేయలేకపోయాము: {error}",
-  "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
+  "@insightsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "insightsNotEnoughData": "మీ పూర్తి ఆరోగ్య విశ్లేషణలను అన్లాక్ చేయడానికి Cycle ట్యాబ్‌లో మరికొన్ని చక్రాలను లాగ్ చేయండి.",
   "insightsNoSymptomsYet": "ఇంకా లక్షణాలు ఏవీ లాగ్ చేయబడలేదు — Cycle ట్యాబ్‌లో కొన్నింటిని లాగ్ చేయండి.",
   "insightsNotEnoughTrendData": "మీ ట్రెండ్ చూడటానికి కనీసం రెండు చక్రాలను లాగ్ చేయండి.",
@@ -264,8 +282,27 @@
   "homeErrorServer": "మా వైపు ఏదో తప్పు జరిగింది. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.",
   "homeErrorGeneric": "డేటాను లోడ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.",
   "homeQuickLogTitle": "{label} నమోదు చేయండి",
-  "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "homeQuickLogSaved": "{label} నమోదు చేయబడింది: {value}",
-  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } },
-  "languageSelectionError": "భాషను సేవ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి."
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "languageSelectionError": "భాషను సేవ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.",
+  "deleteAccount": "Delete Account",
+  "deleteAccountConfirmationTitle": "Delete Account?",
+  "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
+  "accountDeletedSuccess": "Account deleted successfully."
 }

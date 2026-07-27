@@ -68,7 +68,13 @@
   "assistantSubtitle": "आपकी स्वास्थ्य सहयोगी • सुरक्षित और निजी",
   "assistantInputHint": "अपना प्रश्न पूछें...",
   "assistantWelcome": "नमस्ते {name} 🌸 मैं रिद्मा हूँ, आपकी निजी स्वास्थ्य सहयोगी। अपने मासिक धर्म चक्र, लक्षणों या स्वास्थ्य से जुड़ा कोई भी प्रश्न मुझसे अंग्रेज़ी, हिंदी, मराठी या तमिल में पूछ सकती हैं।",
-  "@assistantWelcome": { "placeholders": { "name": { "type": "String" } } },
+  "@assistantWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assistantSug1": "मेरे मासिक धर्म अनियमित क्यों हैं?",
   "assistantSug2": "गंभीर ऐंठन का क्या कारण है?",
   "assistantSug3": "क्या 35 दिन का चक्र सामान्य है?",
@@ -234,7 +240,13 @@
   "smsLoadError": "आपकी एसएमएस सेटिंग्स लोड नहीं हो सकीं। रीफ्रेश करें या पुनः प्रयास करें।",
   "smsSummaryMessage": "🌸 रिद्मा स्वास्थ्य सारांश\nयह रिद्मा से आपका ऑन-डिमांड सारांश है।\nअपनी नवीनतम चक्र जानकारी के लिए ऐप खोलें।\nसदस्यता समाप्त करने के लिए STOP उत्तर दें।",
   "insightsLoadError": "आपकी जानकारी लोड नहीं हो सकी: {error}",
-  "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
+  "@insightsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "insightsNotEnoughData": "अपने पूर्ण स्वास्थ्य अंतर्दृष्टि को अनलॉक करने के लिए Cycle टैब पर कुछ और चक्र लॉग करें।",
   "insightsNoSymptomsYet": "अभी तक कोई लक्षण लॉग नहीं किया गया है - यहाँ पैटर्न देखने के लिए Cycle टैब पर कुछ लॉग करें।",
   "insightsNotEnoughTrendData": "Log at least two cycles to see your trend here.",
@@ -247,8 +259,27 @@
   "homeErrorServer": "हमारी तरफ से कुछ गड़बड़ हुई है। कृपया बाद में फिर से प्रयास करें।",
   "homeErrorGeneric": "डेटा लोड करने में असमर्थ। कृपया फिर से प्रयास करें।",
   "homeQuickLogTitle": "{label} लॉग करें",
-  "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "homeQuickLogSaved": "{label} लॉग किया गया: {value}",
-  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } },
-  "languageSelectionError": "भाषा सहेजने में असमर्थ। कृपया पुनः प्रयास करें।"
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "languageSelectionError": "भाषा सहेजने में असमर्थ। कृपया पुनः प्रयास करें।",
+  "deleteAccount": "Delete Account",
+  "deleteAccountConfirmationTitle": "Delete Account?",
+  "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
+  "accountDeletedSuccess": "Account deleted successfully."
 }

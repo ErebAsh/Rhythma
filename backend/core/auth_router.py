@@ -172,3 +172,13 @@ async def update_profile(
         )
     user.pop("password", None)
     return user
+
+
+@router.delete("/me")
+async def delete_me(current_user: dict = Depends(get_current_user)):
+    """Deletes the authenticated user's account permanently.
+    
+    This deletes their cycle logs, their user document, and their Firebase Auth user.
+    """
+    UserService.delete_user(current_user["id"])
+    return {"status": "success", "detail": "Account deleted successfully"}
