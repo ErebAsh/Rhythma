@@ -1,20 +1,46 @@
 import logging
 import os
 import time
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 import google.generativeai as genai
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
 from core.auth import get_current_user
 
 logger = logging.getLogger(__name__)
 
-# Simple in-memory session store for chat history
+# ─── In-memory session store for chat history ─────────────────────────────
 # Format: { user_id: {"history": [ChatMessage, ...], "timestamp": float} }
 _session_store = {}
 SESSION_TTL = 1800  # 30 minutes in seconds
+
+# ─── Rate Limiter (in-memory, resets on restart) ──────────────────────────
+_assistant_rate_history = {}
+
+ASSISTANT_RATE_LIMIT = int(os.getenv("ASSISTANT_RATE_LIMIT", "10"))
+ASSISTANT_RATE_WINDOW = int(os.getenv("ASSISTANT_RATE_WINDOW", "60"))
+
+
+def is_rate_limited(user_id: str) -> Optional[int]:
+    now = datetime.now(timezone.utc)
+    if user_id in _assistant_rate_history:
+        _assistant_rate_history[user_id] = [
+            t for t in _assistant_rate_history[user_id]
+            if now - t < timedelta(seconds=ASSISTANT_RATE_WINDOW)
+        ]
+    else:
+        _assistant_rate_history[user_id] = []
+
+    if len(_assistant_rate_history[user_id]) >= ASSISTANT_RATE_LIMIT:
+        oldest = _assistant_rate_history[user_id][0]
+        remaining = int((oldest + timedelta(seconds=ASSISTANT_RATE_WINDOW) - now).total_seconds())
+        return max(remaining, 1)
+
+    _assistant_rate_history[user_id].append(now)
+    return None
 
 
 class ChatMessage(BaseModel):
@@ -69,6 +95,16 @@ async def chat(
         raise HTTPException(status_code=500, detail="AI service not configured.")
 
     user_id = current_user.get("id")
+
+    # Rate limit check
+    remaining = is_rate_limited(user_id)
+    if remaining is not None:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Rate limit exceeded. Please wait {remaining} seconds before sending another message.",
+            headers={"Retry-After": str(remaining)},
+        )
+
     now = time.time()
     
     # Clean up expired sessions lazily
