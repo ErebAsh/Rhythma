@@ -131,5 +131,6 @@ def test_dashboard_api_empty_data(auth_headers, mock_cycle_service, mock_cvi, mo
     assert data["hasEnoughDataForInsights"] is False
 
 def test_dashboard_validation_failures():
+    client.cookies.clear()
     response = client.get("/api/v1/dashboard")
     assert response.status_code == 401
