@@ -475,3 +475,69 @@ class CycleService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to delete cycle log: {str(e)}"
             )
+
+
+# ─── Maximum number of messages kept per conversation ────────────────────
+MAX_CONVERSATION_MESSAGES = 50
+
+
+class AssistantConversationService:
+    """Persists assistant chat messages per user in Firestore.
+
+    Each user has a single document in the ``conversations`` collection,
+    keyed by ``user_id``, with a capped ``messages`` array.  When the
+    array reaches ``MAX_CONVERSATION_MESSAGES`` (50) the oldest messages
+    are trimmed so new ones always fit — effectively a rolling window of
+    the most recent exchanges.
+
+    This guarantees the document never grows large enough to hit
+    Firestore's 1 MiB per-document limit (each message is ~200 bytes,
+    so 50 messages is ~10 KiB) and keeps retrieval of the most recent N
+    messages a single document read.
+    """
+
+    COLLECTION = "conversations"
+
+    @staticmethod
+    def get_or_create(user_id: str) -> dict:
+        now = datetime.now(timezone.utc)
+        doc_ref = db.collection(AssistantConversationService.COLLECTION).document(user_id)
+        doc = doc_ref.get()
+        if doc.exists:
+            return doc.to_dict()
+        conversation = {
+            "user_id": user_id,
+            "messages": [],
+            "created_at": now,
+            "updated_at": now,
+        }
+        doc_ref.set(conversation)
+        return conversation
+
+    @staticmethod
+    def get_recent_messages(user_id: str, limit: int = 10) -> list:
+        conversation = AssistantConversationService.get_or_create(user_id)
+        return conversation.get("messages", [])[-limit:]
+
+    @staticmethod
+    def add_messages(user_id: str, new_messages: list) -> None:
+        now = datetime.now(timezone.utc)
+        doc_ref = db.collection(AssistantConversationService.COLLECTION).document(user_id)
+        doc = doc_ref.get()
+        if not doc.exists:
+            conversation = {
+                "user_id": user_id,
+                "messages": [],
+                "created_at": now,
+                "updated_at": now,
+            }
+            doc_ref.set(conversation)
+            doc = doc_ref.get()
+        current = doc.to_dict().get("messages", [])
+        current.extend(new_messages)
+        if len(current) > MAX_CONVERSATION_MESSAGES:
+            current = current[-MAX_CONVERSATION_MESSAGES:]
+        doc_ref.update({
+            "messages": current,
+            "updated_at": now,
+        })
