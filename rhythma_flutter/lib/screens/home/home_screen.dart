@@ -839,18 +839,22 @@ class _HeaderIcon extends StatelessWidget {
   const _HeaderIcon({required this.icon, this.onTap, this.color});
 
   @override
-  Widget build(BuildContext context) {
-    return GlassCard(
-      padding: EdgeInsets.zero,
-      borderRadius: 20,
-      onTap: onTap,
-      child: SizedBox(
-        width: 38,
-        height: 38,
-        child: Icon(icon, size: 18, color: color ?? RhythmaColors.foreground),
+Widget build(BuildContext context) {
+  return GlassCard(
+    padding: EdgeInsets.zero,
+    borderRadius: 20,
+    onTap: onTap,
+    child: SizedBox(
+      width: 48,
+      height: 48,
+      child: Icon(
+        icon,
+        size: 18,
+        color: RhythmaColors.foreground,
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _StatCell extends StatelessWidget {
