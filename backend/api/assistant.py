@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from typing import List, Optional
 
 import google.generativeai as genai
@@ -9,6 +10,11 @@ from pydantic import BaseModel
 from core.auth import get_current_user
 
 logger = logging.getLogger(__name__)
+
+# Simple in-memory session store for chat history
+# Format: { user_id: {"history": [ChatMessage, ...], "timestamp": float} }
+_session_store = {}
+SESSION_TTL = 1800  # 30 minutes in seconds
 
 
 class ChatMessage(BaseModel):
@@ -62,14 +68,29 @@ async def chat(
     if not GEMINI_API_KEY:
         raise HTTPException(status_code=500, detail="AI service not configured.")
 
+    user_id = current_user.get("id")
+    now = time.time()
+    
+    # Clean up expired sessions lazily
+    expired_keys = [uid for uid, data in _session_store.items() if now - data["timestamp"] > SESSION_TTL]
+    for uid in expired_keys:
+        del _session_store[uid]
+
+    session = _session_store.get(user_id)
+    history = session["history"] if session else []
+    
+    # If session is empty but client provided history, use it as fallback
+    if not history and request.history:
+        history = request.history[-10:]
+
     prompt_parts = [
         f"System: {SYSTEM_PROMPT}",
         f"Language: Respond in {request.language}.",
         "\n--- Conversation History ---",
     ]
 
-    if request.history:
-        for msg in request.history[-10:]:
+    if history:
+        for msg in history[-10:]:
             if msg.role == "user":
                 prompt_parts.append(f"User: {msg.content}")
             elif msg.role == "model":
@@ -89,6 +110,14 @@ async def chat(
         model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content("\n".join(prompt_parts))
         reply = response.text.strip() if response.text else "I'm sorry, I couldn't process that."
+        
+        # Update session history
+        history.append(ChatMessage(role="user", content=request.message))
+        history.append(ChatMessage(role="model", content=reply))
+        _session_store[user_id] = {
+            "history": history[-10:],
+            "timestamp": now
+        }
 
         return AssistantResponse(
             response=reply,
