@@ -46,6 +46,7 @@ client = TestClient(app)
 from core.auth_router import login_attempts, register_attempts
 from api.sms import sms_history
 from api.assistant import _assistant_rate_history
+from core.auth import refresh_token_store, reset_token_store, verification_token_store
 
 @pytest.fixture(autouse=True)
 def clear_state():
@@ -54,6 +55,9 @@ def clear_state():
     register_attempts.clear()
     sms_history.clear()
     _assistant_rate_history.clear()
+    refresh_token_store.clear()
+    reset_token_store.clear()
+    verification_token_store.clear()
 
 # ─── Fixture to mock UserService ──────────────────────
 @pytest.fixture(autouse=True)
@@ -65,15 +69,26 @@ def mock_auth_dependencies():
          patch("core.auth.UserService") as MockUserService2, \
          patch("api.sms.UserService") as MockUserService3:
 
+        from core.auth import get_password_hash
+        _pw_hash = get_password_hash("SecurePass123")
+
         test_user_data = {
             "id": "test-user-id-123",
             "phone": "+1234567890",
+            "email": "test@example.com",
+            "email_verified": False,
+            "password": _pw_hash,
             "created_at": "2026-01-01T00:00:00Z",
             "updated_at": "2026-01-01T00:00:00Z"
         }
 
         def get_by_phone(phone):
             if phone == "+1234567890":
+                return test_user_data.copy()
+            return None
+
+        def get_by_email(email):
+            if email == "test@example.com":
                 return test_user_data.copy()
             return None
 
@@ -93,6 +108,7 @@ def mock_auth_dependencies():
 
         for mock_us in [MockUserService1, MockUserService2, MockUserService3]:
             mock_us.get_user_by_phone.side_effect = get_by_phone
+            mock_us.get_user_by_email.side_effect = get_by_email
             mock_us.get_user_by_id.side_effect = get_by_id
             mock_us.create_user.side_effect = create_user
             mock_us.update_user.side_effect = update_user
@@ -232,3 +248,194 @@ def test_mobile_client_still_receives_token_in_body():
     )
     assert response.status_code == 200
     assert "access_token" in response.json()
+
+
+# ─── Registration ─────────────────────────────────────────────────────────
+
+def test_register_success():
+    response = client.post("/api/v1/auth/register", json={
+        "email": "newuser@example.com",
+        "password": "SecurePass123",
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["email"] == "newuser@example.com"
+    assert data["email_verified"] is False
+    assert "id" in data
+
+def test_register_duplicate_email():
+    response = client.post("/api/v1/auth/register", json={
+        "email": "test@example.com",
+        "password": "SecurePass123",
+    })
+    assert response.status_code == 409
+    assert "already exists" in response.json()["detail"].lower()
+
+def test_register_invalid_email():
+    response = client.post("/api/v1/auth/register", json={
+        "email": "not-an-email",
+        "password": "SecurePass123",
+    })
+    assert response.status_code == 422
+
+
+# ─── Email/Password Login ─────────────────────────────────────────────────
+
+def test_login_success():
+    response = client.post("/api/v1/auth/login", json={
+        "email": "test@example.com",
+        "password": "SecurePass123",
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert "access_token" in data
+    assert "refresh_token" in data
+    assert data["token_type"] == "bearer"
+
+def test_login_wrong_password():
+    # The UserService mock returns the test user for test@example.com,
+    # but the password stored in the mock data is empty/None, so the
+    # verify_password call will fail against any real password.
+    response = client.post("/api/v1/auth/login", json={
+        "email": "test@example.com",
+        "password": "WrongPassword",
+    })
+    assert response.status_code == 401
+    assert "invalid" in response.json()["detail"].lower()
+
+def test_login_nonexistent_user():
+    response = client.post("/api/v1/auth/login", json={
+        "email": "nonexistent@example.com",
+        "password": "SomePass123",
+    })
+    assert response.status_code == 401
+    assert "invalid" in response.json()["detail"].lower()
+
+
+# ─── Refresh Token ────────────────────────────────────────────────────────
+
+def test_refresh_token_success():
+    login_resp = client.post("/api/v1/auth/login", json={
+        "email": "test@example.com",
+        "password": "SecurePass123",
+    })
+    refresh_token = login_resp.json()["refresh_token"]
+
+    response = client.post("/api/v1/auth/refresh", json={
+        "refresh_token": refresh_token
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert "access_token" in data
+    assert "refresh_token" in data
+    assert data["refresh_token"] != refresh_token
+
+def test_refresh_token_invalid():
+    response = client.post("/api/v1/auth/refresh", json={
+        "refresh_token": "invalid-token-value"
+    })
+    assert response.status_code == 401
+
+def test_refresh_token_rotation():
+    login_resp = client.post("/api/v1/auth/login", json={
+        "email": "test@example.com",
+        "password": "SecurePass123",
+    })
+    refresh_token = login_resp.json()["refresh_token"]
+
+    # First refresh — succeeds
+    resp1 = client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
+    assert resp1.status_code == 200
+
+    # Second refresh with the same (now revoked) token — fails
+    resp2 = client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
+    assert resp2.status_code == 401
+
+
+# ─── Forgot / Reset Password ─────────────────────────────────────────────
+
+def test_forgot_password_success():
+    response = client.post("/api/v1/auth/forgot-password", json={
+        "email": "test@example.com"
+    })
+    assert response.status_code == 200
+    assert "message" in response.json()
+
+def test_forgot_password_nonexistent():
+    response = client.post("/api/v1/auth/forgot-password", json={
+        "email": "nonexistent@example.com"
+    })
+    assert response.status_code == 200
+    assert "message" in response.json()
+
+def test_reset_password_success():
+    from core.auth import generate_reset_token
+    reset_token = generate_reset_token("test@example.com")
+
+    response = client.post("/api/v1/auth/reset-password", json={
+        "email": "test@example.com",
+        "token": reset_token,
+        "new_password": "NewSecurePass456",
+    })
+    assert response.status_code == 200
+    assert "reset" in response.json()["message"].lower()
+
+def test_reset_password_invalid_token():
+    response = client.post("/api/v1/auth/reset-password", json={
+        "email": "test@example.com",
+        "token": "invalid-token",
+        "new_password": "NewSecurePass456",
+    })
+    assert response.status_code == 400
+    assert "invalid" in response.json()["detail"].lower()
+
+
+# ─── Email Verification ───────────────────────────────────────────────────
+
+def test_verify_email_success():
+    from core.auth import generate_verification_token
+    verify_token = generate_verification_token("test@example.com")
+
+    response = client.post("/api/v1/auth/verify-email", json={
+        "email": "test@example.com",
+        "token": verify_token,
+    })
+    assert response.status_code == 200
+    assert "verified" in response.json()["message"].lower()
+
+def test_verify_email_invalid_token():
+    response = client.post("/api/v1/auth/verify-email", json={
+        "email": "test@example.com",
+        "token": "invalid-token",
+    })
+    assert response.status_code == 400
+    assert "invalid" in response.json()["detail"].lower()
+
+def test_resend_verification():
+    response = client.post("/api/v1/auth/resend-verification", json={
+        "email": "test@example.com"
+    })
+    assert response.status_code == 200
+    assert "message" in response.json()
+
+
+# ─── Logout All ───────────────────────────────────────────────────────────
+
+def test_logout_all_revokes_refresh_tokens():
+    login_resp = client.post("/api/v1/auth/login", json={
+        "email": "test@example.com",
+        "password": "SecurePass123",
+    })
+    assert login_resp.status_code == 200
+    refresh_token = login_resp.json()["refresh_token"]
+
+    access_token = login_resp.json()["access_token"]
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    logout_resp = client.post("/api/v1/auth/logout-all", headers=headers)
+    assert logout_resp.status_code == 200
+
+    refresh_resp = client.post("/api/v1/auth/refresh", json={
+        "refresh_token": refresh_token
+    })
+    assert refresh_resp.status_code == 401
