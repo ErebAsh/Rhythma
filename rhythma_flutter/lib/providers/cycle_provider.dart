@@ -58,9 +58,21 @@ class CycleProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int _getCycleDay(DateTime date) {
+    final lastPeriod = LocalStorageService.getProfile()?['last_period'];
+
+    if (lastPeriod == null) {
+      return date.day;
+    }
+
+    final startDate = DateTime.parse(lastPeriod);
+
+    return date.difference(startDate).inDays + 1;
+  }
+
   // Phase logic
   String phase(DateTime date, AppLocalizations l10n) {
-    final day = date.day;
+    final day = _getCycleDay(date);
     if (day <= 5) return l10n.cyclePhasePeriod;
     if (day <= 13) return l10n.cyclePhaseFollicular;
     if (day <= 16) return l10n.cyclePhaseOvulation;
@@ -68,7 +80,7 @@ class CycleProvider extends ChangeNotifier {
   }
 
   Color phaseColor(DateTime date) {
-    final day = date.day;
+    final day = _getCycleDay(date);
     if (day <= 5) return RhythmaColors.rose;
     if (day <= 13) return RhythmaColors.primary;
     if (day <= 16) return RhythmaColors.teal;
