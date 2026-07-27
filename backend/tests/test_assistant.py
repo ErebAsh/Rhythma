@@ -33,6 +33,11 @@ sys.modules["firebase_admin.firestore"] = MagicMock()
 
 from main import app
 from core.auth import get_current_user
+import services.firestore_service as fs
+from services.firestore_service import MockFirestoreClient
+
+# Force db to be the mock client for these tests
+fs.db = MockFirestoreClient()
 
 client = TestClient(app)
 
@@ -47,13 +52,12 @@ def override_dependencies():
     yield
     app.dependency_overrides.clear()
 
-from api.assistant import _session_store
 
 @pytest.fixture(autouse=True)
-def clear_session():
-    _session_store.clear()
+def setup_db():
+    fs.db._collections = {}
     yield
-    _session_store.clear()
+    fs.db._collections = {}
 
 
 def test_chat_success():
@@ -117,3 +121,19 @@ def test_chat_with_history():
     response = client.post("/api/v1/assistant/chat", json=payload)
     assert response.status_code == 200
     assert "response" in response.json()
+
+
+def test_chat_persists_conversation():
+    payload = {"message": "What is a normal cycle length?"}
+    response = client.post("/api/v1/assistant/chat", json=payload)
+    assert response.status_code == 200
+
+    doc = fs.db.collection("conversations").document(TEST_USER_ID).get()
+    assert doc.exists
+    data = doc.to_dict()
+    assert "messages" in data
+    assert len(data["messages"]) == 2
+    assert data["messages"][0]["role"] == "user"
+    assert data["messages"][0]["content"] == "What is a normal cycle length?"
+    assert data["messages"][1]["role"] == "model"
+    assert data["messages"][1]["content"] == "Mock Gemini response"

@@ -26,6 +26,11 @@ class MockDocumentReference:
             self.data.update(update_data)
             self.collection.store[self.id] = self.data
 
+    def set(self, set_data):
+        self.collection.store[self.id] = set_data
+        self.data = set_data
+        self.exists = True
+
     def delete(self):
         if self.id in self.collection.store:
             del self.collection.store[self.id]
