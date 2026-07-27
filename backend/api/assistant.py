@@ -1,6 +1,5 @@
 import logging
 import os
-import time
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
@@ -9,13 +8,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
 from core.auth import get_current_user
+from services.firestore_service import AssistantConversationService
 
 logger = logging.getLogger(__name__)
-
-# ─── In-memory session store for chat history ─────────────────────────────
-# Format: { user_id: {"history": [ChatMessage, ...], "timestamp": float} }
-_session_store = {}
-SESSION_TTL = 1800  # 30 minutes in seconds
 
 # ─── Rate Limiter (in-memory, resets on restart) ──────────────────────────
 _assistant_rate_history = {}
@@ -105,17 +100,10 @@ async def chat(
             headers={"Retry-After": str(remaining)},
         )
 
-    now = time.time()
-    
-    # Clean up expired sessions lazily
-    expired_keys = [uid for uid, data in _session_store.items() if now - data["timestamp"] > SESSION_TTL]
-    for uid in expired_keys:
-        del _session_store[uid]
+    # Load persisted history from Firestore, falling back to client-provided history
+    persisted = AssistantConversationService.get_recent_messages(user_id, limit=10)
+    history = [ChatMessage(**m) if isinstance(m, dict) else m for m in persisted]
 
-    session = _session_store.get(user_id)
-    history = session["history"] if session else []
-    
-    # If session is empty but client provided history, use it as fallback
     if not history and request.history:
         history = request.history[-10:]
 
@@ -147,13 +135,11 @@ async def chat(
         response = model.generate_content("\n".join(prompt_parts))
         reply = response.text.strip() if response.text else "I'm sorry, I couldn't process that."
         
-        # Update session history
-        history.append(ChatMessage(role="user", content=request.message))
-        history.append(ChatMessage(role="model", content=reply))
-        _session_store[user_id] = {
-            "history": history[-10:],
-            "timestamp": now
-        }
+        # Persist exchange to Firestore
+        AssistantConversationService.add_messages(user_id, [
+            {"role": "user", "content": request.message},
+            {"role": "model", "content": reply},
+        ])
 
         return AssistantResponse(
             response=reply,
