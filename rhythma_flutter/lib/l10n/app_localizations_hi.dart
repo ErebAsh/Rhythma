@@ -653,13 +653,19 @@ class AppLocalizationsHi extends AppLocalizations {
       'कृपया वैध वज़न दर्ज करें (20–300 किग्रा)';
 
   @override
-  String get onboardingAgeRequired => 'कृपया अपनी आयु दर्ज करें या एक सीमा चुनें';
+  String get onboardingPhoneInvalid => 'कृपया एक मान्य फ़ोन नंबर दर्ज करें';
 
   @override
-  String get onboardingHeightRequired => 'कृपया अपनी ऊँचाई दर्ज करें या एक सीमा चुनें';
+  String get onboardingAgeRequired =>
+      'कृपया अपनी आयु दर्ज करें या एक सीमा चुनें';
 
   @override
-  String get onboardingWeightRequired => 'कृपया अपना वज़न दर्ज करें या एक सीमा चुनें';
+  String get onboardingHeightRequired =>
+      'कृपया अपनी ऊँचाई दर्ज करें या एक सीमा चुनें';
+
+  @override
+  String get onboardingWeightRequired =>
+      'कृपया अपना वज़न दर्ज करें या एक सीमा चुनें';
 
   @override
   String get onboardingNotSure => 'पक्का नहीं';
@@ -732,9 +738,6 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get onboardingRangeOver100kg => '100 किलो से अधिक';
-
-  @override
-  String get onboardingPhoneInvalid => 'कृपया एक मान्य फ़ोन नंबर दर्ज करें';
 
   @override
   String get onboardingTapToSelectDate => 'तारीख चुनने के लिए टैप करें';
@@ -892,7 +895,7 @@ class AppLocalizationsHi extends AppLocalizations {
       'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'सहायक टाइप कर रहा है';
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 
   @override
   String get languageSelectionError =>

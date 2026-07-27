@@ -657,10 +657,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingAgeRequired => 'Please enter your age or select a range';
 
   @override
-  String get onboardingHeightRequired => 'Please enter your height or select a range';
+  String get onboardingHeightRequired =>
+      'Please enter your height or select a range';
 
   @override
-  String get onboardingWeightRequired => 'Please enter your weight or select a range';
+  String get onboardingWeightRequired =>
+      'Please enter your weight or select a range';
 
   @override
   String get onboardingNotSure => 'Not sure';
