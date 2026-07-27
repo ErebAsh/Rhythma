@@ -97,6 +97,16 @@ class AuthService {
     await LocalStorageService.setCurrentUserId(null);
   }
 
+  Future<void> deleteAccount() async {
+    try {
+      await _dio.delete('/auth/me');
+    } catch (_) {
+      // Best effort deletion on the server, but we must delete locally regardless
+    }
+    await SecureStorage.deleteToken();
+    await LocalStorageService.deleteCurrentUserData();
+  }
+
   Future<bool> isLoggedIn() async {
     return await SecureStorage.hasToken();
   }

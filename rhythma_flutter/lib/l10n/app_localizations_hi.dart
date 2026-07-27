@@ -900,4 +900,17 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get languageSelectionError =>
       'भाषा सहेजने में असमर्थ। कृपया पुनः प्रयास करें।';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountConfirmationDesc =>
+      'This action is permanent and cannot be undone. All your data will be wiped.';
+
+  @override
+  String get accountDeletedSuccess => 'Account deleted successfully.';
 }

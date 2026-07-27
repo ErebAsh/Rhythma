@@ -896,4 +896,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get languageSelectionError =>
       'Unable to save language. Please try again.';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountConfirmationDesc =>
+      'This action is permanent and cannot be undone. All your data will be wiped.';
+
+  @override
+  String get accountDeletedSuccess => 'Account deleted successfully.';
 }

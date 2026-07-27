@@ -236,6 +236,45 @@ class UserService:
                 detail=f"Failed to update user: {str(e)}"
             )
 
+    @staticmethod
+    def delete_user(user_id: str) -> None:
+        """Delete a user document and their cycle logs, and from Firebase Auth."""
+        try:
+            user = UserService.get_user_by_id(user_id)
+            if not user:
+                return
+
+            phone = user.get("phone")
+
+            # Delete all cycle logs
+            cycle_logs = db.collection("cycle_logs").where("user_id", "==", user_id).stream()
+            for log in cycle_logs:
+                # In MockFirestoreClient, delete is available on MockDocumentReference
+                # In real Firestore, it's doc.reference.delete()
+                # But here cycle_logs returns doc snapshots. For safety:
+                try:
+                    log.reference.delete()
+                except AttributeError:
+                    log.delete()
+
+            # Delete from Firebase Auth
+            if phone:
+                try:
+                    import firebase_admin.auth
+                    fb_user = firebase_admin.auth.get_user_by_phone_number(phone)
+                    firebase_admin.auth.delete_user(fb_user.uid)
+                except Exception as e:
+                    # Ignore if the user is not found in Firebase Auth
+                    pass
+
+            # Delete user document
+            db.collection("users").document(user_id).delete()
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to delete user: {str(e)}"
+            )
+
 
 class CycleService:
     """Persists and retrieves per-user cycle logs in Firestore."""

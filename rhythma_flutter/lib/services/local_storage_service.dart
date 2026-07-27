@@ -317,6 +317,33 @@ class LocalStorageService {
 
   // ── Clear all data ─────────────────────────────────────────────────────
 
+  static Future<void> deleteCurrentUserData() async {
+    final uid = currentUserId;
+    if (uid == null) return;
+    final prefix = '$uid::';
+
+    // Remove cycle logs for this user
+    final cycleKeys = _cycleBox.keys.where((k) => k.toString().startsWith(prefix)).toList();
+    for (final k in cycleKeys) {
+      await _cycleBox.delete(k);
+    }
+
+    // Remove user profile for this user
+    final userKeys = _userBox.keys.where((k) => k.toString().startsWith(prefix)).toList();
+    for (final k in userKeys) {
+      await _userBox.delete(k);
+    }
+
+    // Remove settings for this user
+    final settingsKeys = _settings.keys.where((k) => k.toString().startsWith(prefix)).toList();
+    for (final k in settingsKeys) {
+      await _settings.delete(k);
+    }
+    
+    // Also remove the current user id marker
+    await _settings.delete(_kCurrentUserId);
+  }
+
   static Future<void> clearAll() async {
     await _cycleBox.clear();
     await _settings.clear();
