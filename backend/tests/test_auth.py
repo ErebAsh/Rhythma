@@ -32,6 +32,7 @@ os.environ["COOKIE_SECURE"] = "false"
 # ─── Mock firebase_admin ──────────────────────────────────────────────────
 mock_firebase_admin = MagicMock()
 mock_firebase_auth = MagicMock()
+mock_firebase_admin.auth = mock_firebase_auth
 sys.modules["firebase_admin"] = mock_firebase_admin
 sys.modules["firebase_admin.auth"] = mock_firebase_auth
 sys.modules["firebase_admin.credentials"] = MagicMock()
@@ -41,6 +42,18 @@ sys.modules["firebase_admin.firestore"] = MagicMock()
 from main import app
 import firebase_admin.auth
 client = TestClient(app)
+
+import core.auth_router as _auth_router
+_auth_router.firebase_admin = mock_firebase_admin
+
+@pytest.fixture(autouse=True)
+def _ensure_firebase_mock():
+    import core.auth_router as _ar_mod
+    _ar_mod.firebase_admin = mock_firebase_admin
+    mock_firebase_admin.auth = mock_firebase_auth
+    _ar_mod.COOKIE_SECURE = False
+    sys.modules["firebase_admin"] = mock_firebase_admin
+    sys.modules["firebase_admin.auth"] = mock_firebase_auth
 
 from core.auth_router import login_attempts, register_attempts
 from api.sms import sms_history
@@ -193,6 +206,7 @@ def test_cookie_only_auth_works():
 
     # No Authorization header is sent here.
     response = client.get("/api/v1/auth/me")
+    assert response.status_code == 200
     assert response.status_code == 200
 
 def test_logout_clears_cookie():

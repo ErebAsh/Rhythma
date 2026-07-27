@@ -5,6 +5,10 @@ from tests.test_auth import client, mock_auth_dependencies
 import firebase_admin.auth
 from services.scoring_service import build_model_features
 
+@pytest.fixture(autouse=True)
+def _clear_client_state():
+    client.cookies.clear()
+
 @pytest.fixture
 def auth_headers(mock_auth_dependencies):
     firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
