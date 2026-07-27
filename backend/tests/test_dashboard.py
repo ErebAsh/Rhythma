@@ -1,7 +1,7 @@
 import pytest
 from datetime import date
 from unittest.mock import patch
-from tests.test_auth import client, mock_auth_dependencies
+from test_auth import client, mock_auth_dependencies
 import firebase_admin.auth
 from services.scoring_service import build_model_features
 
