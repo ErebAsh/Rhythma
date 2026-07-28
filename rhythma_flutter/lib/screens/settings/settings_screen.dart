@@ -12,6 +12,7 @@ import 'language_screen.dart';
 import 'theme_screen.dart';
 import '../sms/sms_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:rhythma/services/report_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -182,12 +183,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final currentLocaleCode =
         context.watch<LocaleProvider>().locale.languageCode;
     String currentLanguageName = ({
-      'en': l10n.langEnglish,
-      'hi': l10n.langHindi,
-      'ta': l10n.langTamil,
-      'te': l10n.langTelugu,
-      'mr': l10n.langMarathi,
-    }[currentLocaleCode] ?? l10n.langEnglish);
+          'en': l10n.langEnglish,
+          'hi': l10n.langHindi,
+          'ta': l10n.langTamil,
+          'te': l10n.langTelugu,
+          'mr': l10n.langMarathi,
+        }[currentLocaleCode] ??
+        l10n.langEnglish);
 
     return Container(
       decoration: BoxDecoration(gradient: RhythmaGradients.bg),
@@ -369,12 +371,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       size: 36,
                     ),
                     title: const Text('SMS Cycle Summaries'),
-                    subtitle: const Text('Get a text summary sent to your phone'),
-                    trailing: Icon(Icons.chevron_right_rounded, color: RhythmaColors.mutedFg),
+                    subtitle:
+                        const Text('Get a text summary sent to your phone'),
+                    trailing: Icon(Icons.chevron_right_rounded,
+                        color: RhythmaColors.mutedFg),
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SmsScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const SmsScreen()),
                       );
                     },
                   ),
@@ -509,6 +514,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
             ),
+
             const SizedBox(height: 24),
 
             // Help & Support Section

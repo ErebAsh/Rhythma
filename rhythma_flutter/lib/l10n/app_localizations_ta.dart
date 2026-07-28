@@ -716,8 +716,7 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get onboardingPhoneInvalid => 'Please enter a valid phone number';
-  String get onboardingPhoneInvalid =>
-      'Use international format, e.g. +919876543210';
+  
 
   @override
   String get onboardingTapToSelectDate => 'Tap to select date';
