@@ -15,6 +15,7 @@ class _Keys {
   static const languageSelectionCompleted = 'language_selection_completed';
   static const cloudSync = 'cloud_sync';
   static const smsEnabled = 'sms_enabled';
+  static const biometricEnabled = 'biometric_enabled';
   static const themeMode = 'theme_mode';
   static const primaryColor = 'primary_color';
   static const currentUserId = 'current_user_id';
@@ -200,6 +201,14 @@ class LocalStorageService {
 
   static Future<void> setSmsEnabled(bool enabled) async {
     await _settings.put(_Keys.smsEnabled, enabled);
+  }
+
+  static bool get biometricEnabled {
+    return _settings.get(_Keys.biometricEnabled, defaultValue: false) as bool;
+  }
+
+  static Future<void> setBiometricEnabled(bool enabled) async {
+    await _settings.put(_Keys.biometricEnabled, enabled);
   }
 
   static String? getThemeMode() {

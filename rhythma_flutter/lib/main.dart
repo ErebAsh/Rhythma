@@ -6,6 +6,7 @@ import 'package:rhythma/l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+import 'components/biometric_auth_gate.dart';
 import 'components/bottom_nav.dart';
 import 'components/debug_data_indicator.dart';
 import 'components/shared.dart';
@@ -136,7 +137,7 @@ class _RhythmaAppState extends State<RhythmaApp> {
             return const SplashScreen();
           }
           if (snapshot.data != null) {
-            return const RhythmaRoot();
+            return const BiometricAuthGate(child: RhythmaRoot());
           }
           if (!LocalStorageService.languageSelectionCompleted) {
             return const LanguageSelectionScreen();
