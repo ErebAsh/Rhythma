@@ -161,5 +161,4 @@ async def supported_languages(current_user: dict = Depends(get_current_user)):
         {"code": "te", "name": "Telugu"},
         {"code": "kn", "name": "Kannada"},
         {"code": "ml", "name": "Malayalam"},
-        {"code": "bn", "name": "Bengali"},
     ]
