@@ -6,6 +6,7 @@ import '../../components/shared.dart';
 import '../../components/charts.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/api_client.dart';
+import '../../services/report_service.dart';
 
 /// All data on this screen comes from GET /dashboard — nothing here is
 /// computed locally from Hive. That endpoint already returns real,
@@ -430,9 +431,55 @@ class _InsightsScreenState extends State<InsightsScreen> {
               ),
             ),
 
+            
+
             const SizedBox(height: 14),
 
+GlassCard(
+  padding: EdgeInsets.zero,
+  child: ListTile(
+    leading: const TintedIcon(
+      icon: Icons.picture_as_pdf_rounded,
+      color: RhythmaColors.rose,
+      size: 36,
+    ),
+    title: const Text('Export Health Report'),
+    subtitle: const Text(
+      'Generate your health summary as a PDF',
+    ),
+    trailing: Icon(
+      Icons.chevron_right_rounded,
+      color: RhythmaColors.mutedFg,
+    ),
+    onTap: () async {
+      try {
+        await ReportService.generateAndShareReport();
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Health report generated successfully'),
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Report failed: $e'),
+            ),
+          );
+        }
+      }
+    },
+  ),
+),
+
+const SizedBox(height: 14),
+
             // Wellness recommendations
+
+        const SizedBox(height: 14),
             SectionHeader(title: l10n.insightsWellnessLabel),
             ..._buildRecommendations(l10n).map((r) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
