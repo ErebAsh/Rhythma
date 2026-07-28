@@ -22,11 +22,12 @@ from core.auth import (
 )
 from models.user import UserCreate, UserResponse, UserProfileUpdate, UserProfileResponse
 from services.firestore_service import UserService
+from services.rate_limit_service import RateLimitService
+
 import os
 import logging
 from pydantic import BaseModel, EmailStr
 import firebase_admin.auth
-from starlette.concurrency import run_in_threadpool
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +61,10 @@ class VerifyEmailRequest(BaseModel):
     token: str
 
 router = APIRouter(tags=["Authentication"])
+
+# Legacy in-memory rate limit trackers kept for test compatibility
+login_attempts = {}
+register_attempts = {}
 # Env-driven so dev (http://localhost) and prod (https, real domain) differ without code changes.
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"  # True if HTTPS-only, False if HTTP allowed (dev)
 # CSRF Mitigation: The SameSite attribute (lax or strict) prevents the browser from sending 
@@ -68,38 +73,6 @@ COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax").lower()  # "lax" or "stric
 COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", None)  # e.g. ".example.com" to share across subdomains, or None for default (current domain only)
 
 # ─── Rate Limiting ──────────────────────────────────────────────────────────
-# In-memory stores for rate limiting (resets on server restart)
-login_attempts: Dict[str, List[datetime]] = {}
-register_attempts: Dict[str, List[datetime]] = {}
-
-def is_rate_limited(
-    attempts_store: Dict[str, List[datetime]],
-    key: str,
-    limit: int = 5,
-    window_seconds: int = 300,
-) -> Optional[int]:
-    """
-    Returns the number of seconds remaining before the next request is
-    allowed if the key has exceeded the rate limit, or None otherwise.
-    """
-    now = datetime.now(timezone.utc)
-    # Clean old entries
-    if key in attempts_store:
-        attempts_store[key] = [
-            t for t in attempts_store[key]
-            if now - t < timedelta(seconds=window_seconds)
-        ]
-    else:
-        attempts_store[key] = []
-
-    if len(attempts_store[key]) >= limit:
-        # Calculate how many seconds until the oldest entry expires
-        oldest = attempts_store[key][0]
-        remaining = int((oldest + timedelta(seconds=window_seconds) - now).total_seconds())
-        return max(remaining, 1)
-
-    attempts_store[key].append(now)
-    return None
 
 def get_client_ip(request: Request) -> str:
     """Extract the client's IP address from the request."""
@@ -126,7 +99,12 @@ def _set_auth_cookie(response: Response, token: str):
 async def firebase_login(request: Request, response: Response, data: FirebaseLoginRequest):
     # Rate limit by IP address (10 attempts per 5 minutes)
     client_ip = get_client_ip(request)
-    remaining = is_rate_limited(login_attempts, client_ip, limit=10, window_seconds=300)
+    remaining = RateLimitService.is_rate_limited(
+        key=f"login:{client_ip}",
+        limit=10,
+        window_seconds=300,
+    )
+
     if remaining is not None:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -136,7 +114,8 @@ async def firebase_login(request: Request, response: Response, data: FirebaseLog
 
     try:
         # Verify the Firebase ID token
-        decoded_token = await run_in_threadpool(firebase_admin.auth.verify_id_token, data.id_token)
+        decoded_token = firebase_admin.auth.verify_id_token(data.id_token)
+
     except firebase_admin.auth.InvalidIdTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -183,7 +162,11 @@ async def firebase_login(request: Request, response: Response, data: FirebaseLog
         if request.headers.get("X-Client-Platform") == "web":
             return {"token_type": "bearer", "is_new_user": is_new_user}
             
-        return {"access_token": access_token, "token_type": "bearer", "is_new_user": is_new_user}
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "is_new_user": is_new_user
+        }
         
     except Exception as e:
         logger.error(f"Error during firebase login for phone {phone_number}: {e}")

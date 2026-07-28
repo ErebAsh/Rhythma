@@ -4,9 +4,12 @@ import pytest
 from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 
+
 # Ensure backend directory is on the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+
+from services.rate_limit_service import RateLimitService
 # ─── Mock google.generativeai ──────────────────────────────────────────────
 class MockGemini:
     def __getattr__(self, name):
@@ -41,7 +44,12 @@ sys.modules["firebase_admin.firestore"] = MagicMock()
 # ─── Import main after mocks ──────────────────────────────────────────────
 from main import app
 import firebase_admin.auth
-client = TestClient(app)
+client = TestClient(
+    app,
+    headers={
+        "X-Client-Platform": "mobile"
+    }
+)
 
 import core.auth_router as _auth_router
 _auth_router.firebase_admin = mock_firebase_admin
@@ -63,20 +71,23 @@ from core.auth import refresh_token_store, reset_token_store, verification_token
 @pytest.fixture(autouse=True)
 def clear_state():
     client.cookies.clear()
+
     login_attempts.clear()
     register_attempts.clear()
     sms_history.clear()
     _assistant_rate_history.clear()
+
     refresh_token_store.clear()
     reset_token_store.clear()
     verification_token_store.clear()
+
+    # Clear persistent Firestore-backed rate limiter state
+    RateLimitService.clear_all()
 
 # ─── Fixture to mock UserService ──────────────────────
 @pytest.fixture(autouse=True)
 def mock_auth_dependencies():
     import core.auth_router as auth_router_module
-    auth_router_module.login_attempts.clear()
-
     with patch("core.auth_router.UserService") as MockUserService1, \
          patch("core.auth.UserService") as MockUserService2, \
          patch("api.sms.UserService") as MockUserService3:

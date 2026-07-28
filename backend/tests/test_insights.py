@@ -9,7 +9,8 @@ def auth_headers(mock_auth_dependencies):
     firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
     token_response = client.post(
         "/api/v1/auth/firebase-login",
-        json={"id_token": "valid_token"}
+        json={"id_token": "valid_token"},
+        headers={"X-Client-Platform": "mobile"}
     )
     token = token_response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}

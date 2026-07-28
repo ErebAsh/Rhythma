@@ -5,15 +5,27 @@ import pytest
 from unittest.mock import patch
 from test_auth import client, mock_auth_dependencies
 import firebase_admin.auth
+from services.rate_limit_service import RateLimitService
 
 @pytest.fixture
 def auth_headers(mock_auth_dependencies):
-    firebase_admin.auth.verify_id_token.return_value = {"phone_number": "+1234567890", "uid": "firebase_uid"}
+    RateLimitService.clear_all()
+
+    firebase_admin.auth.verify_id_token.return_value = {
+        "phone_number": "+1234567890",
+        "uid": "firebase_uid"
+    }
+
     token_response = client.post(
         "/api/v1/auth/firebase-login",
-        json={"id_token": "valid_token"}
+        json={"id_token": "valid_token"},
+        headers={"X-Client-Platform": "mobile"}
     )
+
     token = token_response.json()["access_token"]
+
+    RateLimitService.clear_all()
+
     return {"Authorization": f"Bearer {token}"}
 
 def test_get_sms_settings_success(auth_headers):
@@ -44,9 +56,7 @@ def test_save_sms_settings_validation_failure(auth_headers):
 @patch("api.sms.os.getenv")
 @patch("twilio.rest.Client")
 def test_send_summary_success(MockClient, mock_getenv, auth_headers):
-    import api.sms as sms_module
-    sms_module.sms_history.clear()
-    
+
     def side_effect(key):
         if key == "TWILIO_ACCOUNT_SID": return "sid"
         if key == "TWILIO_AUTH_TOKEN": return "token"
@@ -67,9 +77,7 @@ def test_send_summary_success(MockClient, mock_getenv, auth_headers):
 @patch("api.sms.os.getenv")
 @patch("twilio.rest.Client")
 def test_send_summary_provider_failure(MockClient, mock_getenv, auth_headers):
-    import api.sms as sms_module
-    sms_module.sms_history.clear()
-    
+
     def side_effect(key):
         if key == "TWILIO_ACCOUNT_SID": return "sid"
         if key == "TWILIO_AUTH_TOKEN": return "token"
