@@ -94,3 +94,11 @@ class UserProfileResponse(BaseModel):
     state: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+
+
+class ScoresResponse(BaseModel):
+    """Response model for GET /insights/{user_id}/scores."""
+    mhs: Optional[float] = None
+    cvi: Optional[str] = None
+    hasEnoughDataForInsights: bool = False
+    loggedCycleCount: int = 0
