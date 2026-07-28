@@ -46,6 +46,7 @@ class UserProfileUpdate(BaseModel):
     fields are written so callers can do partial updates safely.
     """
     full_name: Optional[str] = Field(None, max_length=100)
+    email: Optional[EmailStr] = None
     age: Optional[int] = Field(None, ge=10, le=120)
     height_cm: Optional[float] = Field(None, ge=50.0, le=300.0)
     weight_kg: Optional[float] = Field(None, ge=10.0, le=500.0)

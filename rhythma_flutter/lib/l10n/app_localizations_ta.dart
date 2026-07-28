@@ -660,59 +660,89 @@ class AppLocalizationsTa extends AppLocalizations {
       'தயவுசெய்து சரியான எடையை உள்ளிடவும் (20–300 கிகி)';
 
   @override
-  String get onboardingAgeRequired => 'தயவுசெய்து உங்கள் வயதை உள்ளிடவும் அல்லது ஒரு வரம்பைத் தேர்ந்தெடுக்கவும்';
+  String get onboardingPhoneInvalid =>
+      'Use international format, e.g. +919876543210';
+
   @override
-  String get onboardingHeightRequired => 'தயவுசெய்து உங்கள் உயரத்தை உள்ளிடவும் அல்லது ஒரு வரம்பைத் தேர்ந்தெடுக்கவும்';
+  String get onboardingAgeRequired =>
+      'தயவுசெய்து உங்கள் வயதை உள்ளிடவும் அல்லது ஒரு வரம்பைத் தேர்ந்தெடுக்கவும்';
+
   @override
-  String get onboardingWeightRequired => 'தயவுசெய்து உங்கள் எடையை உள்ளிடவும் அல்லது ஒரு வரம்பைத் தேர்ந்தெடுக்கவும்';
+  String get onboardingHeightRequired =>
+      'தயவுசெய்து உங்கள் உயரத்தை உள்ளிடவும் அல்லது ஒரு வரம்பைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get onboardingWeightRequired =>
+      'தயவுசெய்து உங்கள் எடையை உள்ளிடவும் அல்லது ஒரு வரம்பைத் தேர்ந்தெடுக்கவும்';
+
   @override
   String get onboardingNotSure => 'உறுதியாக தெரியவில்லை';
+
   @override
   String get onboardingApproximate => 'தோராயமான';
+
   @override
   String get onboardingAgeHint => 'உங்கள் வயதை உள்ளிடவும்';
+
   @override
   String get onboardingAgeUnit => 'ஆண்டுகள்';
+
   @override
   String get onboardingHeightHint => 'உங்கள் உயரத்தை உள்ளிடவும்';
+
   @override
   String get onboardingHeightUnit => 'செமீ';
+
   @override
   String get onboardingWeightHint => 'உங்கள் எடையை உள்ளிடவும்';
+
   @override
   String get onboardingWeightUnit => 'கிலோ';
+
   @override
   String get onboardingRangeUnder18 => '18 க்கும் குறைவாக';
+
   @override
   String get onboardingRange18to25 => '18–25';
+
   @override
   String get onboardingRange26to35 => '26–35';
+
   @override
   String get onboardingRange36to50 => '36–50';
+
   @override
   String get onboardingRange51to65 => '51–65';
+
   @override
   String get onboardingRangeOver65 => '65 க்கும் அதிகமாக';
+
   @override
   String get onboardingRangeUnder150 => '150 செமீ க்கும் குறைவாக';
+
   @override
   String get onboardingRange150to160 => '150–160 செமீ';
+
   @override
   String get onboardingRange161to170 => '161–170 செமீ';
+
   @override
   String get onboardingRange171to180 => '171–180 செமீ';
+
   @override
   String get onboardingRangeOver180 => '180 செமீ க்கும் அதிகமாக';
+
   @override
   String get onboardingRangeUnder50kg => '50 கிலோ க்கும் குறைவாக';
+
   @override
   String get onboardingRange50to65kg => '50–65 கிலோ';
+
   @override
   String get onboardingRange66to80kg => '66–80 கிலோ';
+
   @override
   String get onboardingRange81to100kg => '81–100 கிலோ';
-  @override
-  String get onboardingRangeOver100kg => '100 கிலோ க்கும் அதிகமாக';
 
   @override
   String get onboardingPhoneInvalid => 'Please enter a valid phone number';
@@ -875,10 +905,22 @@ class AppLocalizationsTa extends AppLocalizations {
       'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping =>
-      'உதவியாளர் தட்டச்சு செய்து கொண்டிருக்கிறார்';
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 
   @override
   String get languageSelectionError =>
       'மொழியைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountConfirmationDesc =>
+      'This action is permanent and cannot be undone. All your data will be wiped.';
+
+  @override
+  String get accountDeletedSuccess => 'Account deleted successfully.';
 }

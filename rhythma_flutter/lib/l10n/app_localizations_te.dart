@@ -657,13 +657,20 @@ class AppLocalizationsTe extends AppLocalizations {
       'దయచేసి చెల్లుబాటు అయ్యే బరువు నమోదు చేయండి (20–300 కిలో)';
 
   @override
-  String get onboardingAgeRequired => 'దయచేసి మీ వయస్సు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
+  String get onboardingPhoneInvalid =>
+      'దయచేసి చెల్లుబాటు అయ్యే ఫోన్ నంబర్‌ను నమోదు చేయండి';
 
   @override
-  String get onboardingHeightRequired => 'దయచేసి మీ ఎత్తు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
+  String get onboardingAgeRequired =>
+      'దయచేసి మీ వయస్సు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
 
   @override
-  String get onboardingWeightRequired => 'దయచేసి మీ బరువు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
+  String get onboardingHeightRequired =>
+      'దయచేసి మీ ఎత్తు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
+
+  @override
+  String get onboardingWeightRequired =>
+      'దయచేసి మీ బరువు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
 
   @override
   String get onboardingNotSure => 'ఖచ్చితంగా తెలియదు';
@@ -736,10 +743,6 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get onboardingRangeOver100kg => '100 కేజీల కంటే ఎక్కువ';
-
-  @override
-  String get onboardingPhoneInvalid =>
-      'దయచేసి చెల్లుబాటు అయ్యే ఫోన్ నంబర్‌ను నమోదు చేయండి';
 
   @override
   String get onboardingTapToSelectDate => 'తేదీని ఎంచుకోవడానికి ట్యాప్ చేయండి';
@@ -900,9 +903,22 @@ class AppLocalizationsTe extends AppLocalizations {
       'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'సహాయకుడు టైప్ చేస్తున్నాడు';
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 
   @override
   String get languageSelectionError =>
       'భాషను సేవ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountConfirmationDesc =>
+      'This action is permanent and cannot be undone. All your data will be wiped.';
+
+  @override
+  String get accountDeletedSuccess => 'Account deleted successfully.';
 }

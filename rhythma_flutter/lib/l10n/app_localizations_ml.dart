@@ -659,62 +659,90 @@ class AppLocalizationsMl extends AppLocalizations {
       'ദയവായി സാധുവായ ഭാരം നൽകുക (20–300 കി.ഗ്രാം)';
 
   @override
-  String get onboardingAgeRequired => 'Please enter your age or select a range';
-  @override
-  String get onboardingHeightRequired => 'Please enter your height or select a range';
-  @override
-  String get onboardingWeightRequired => 'Please enter your weight or select a range';
-  @override
-  String get onboardingNotSure => 'Not sure';
-  @override
-  String get onboardingApproximate => 'Approximate';
-  @override
-  String get onboardingAgeHint => 'Enter your age';
-  @override
-  String get onboardingAgeUnit => 'years';
-  @override
-  String get onboardingHeightHint => 'Enter your height';
-  @override
-  String get onboardingHeightUnit => 'cm';
-  @override
-  String get onboardingWeightHint => 'Enter your weight';
-  @override
-  String get onboardingWeightUnit => 'kg';
-  @override
-  String get onboardingRangeUnder18 => 'Under 18';
-  @override
-  String get onboardingRange18to25 => '18–25';
-  @override
-  String get onboardingRange26to35 => '26–35';
-  @override
-  String get onboardingRange36to50 => '36–50';
-  @override
-  String get onboardingRange51to65 => '51–65';
-  @override
-  String get onboardingRangeOver65 => 'Over 65';
-  @override
-  String get onboardingRangeUnder150 => 'Under 150 cm';
-  @override
-  String get onboardingRange150to160 => '150–160 cm';
-  @override
-  String get onboardingRange161to170 => '161–170 cm';
-  @override
-  String get onboardingRange171to180 => '171–180 cm';
-  @override
-  String get onboardingRangeOver180 => 'Over 180 cm';
-  @override
-  String get onboardingRangeUnder50kg => 'Under 50 kg';
-  @override
-  String get onboardingRange50to65kg => '50–65 kg';
-  @override
-  String get onboardingRange66to80kg => '66–80 kg';
-  @override
-  String get onboardingRange81to100kg => '81–100 kg';
-  @override
-  String get onboardingRangeOver100kg => 'Over 100 kg';
+  String get onboardingPhoneInvalid => 'ദയവായി സാധുവായ ഫോൺ നമ്പർ നൽകുക';
 
   @override
-  String get onboardingPhoneInvalid => 'ദയവായി സാധുവായ ഫോൺ നമ്പർ നൽകുക';
+  String get onboardingAgeRequired => 'Please enter your age or select a range';
+
+  @override
+  String get onboardingHeightRequired =>
+      'Please enter your height or select a range';
+
+  @override
+  String get onboardingWeightRequired =>
+      'Please enter your weight or select a range';
+
+  @override
+  String get onboardingNotSure => 'Not sure';
+
+  @override
+  String get onboardingApproximate => 'Approximate';
+
+  @override
+  String get onboardingAgeHint => 'Enter your age';
+
+  @override
+  String get onboardingAgeUnit => 'years';
+
+  @override
+  String get onboardingHeightHint => 'Enter your height';
+
+  @override
+  String get onboardingHeightUnit => 'cm';
+
+  @override
+  String get onboardingWeightHint => 'Enter your weight';
+
+  @override
+  String get onboardingWeightUnit => 'kg';
+
+  @override
+  String get onboardingRangeUnder18 => 'Under 18';
+
+  @override
+  String get onboardingRange18to25 => '18–25';
+
+  @override
+  String get onboardingRange26to35 => '26–35';
+
+  @override
+  String get onboardingRange36to50 => '36–50';
+
+  @override
+  String get onboardingRange51to65 => '51–65';
+
+  @override
+  String get onboardingRangeOver65 => 'Over 65';
+
+  @override
+  String get onboardingRangeUnder150 => 'Under 150 cm';
+
+  @override
+  String get onboardingRange150to160 => '150–160 cm';
+
+  @override
+  String get onboardingRange161to170 => '161–170 cm';
+
+  @override
+  String get onboardingRange171to180 => '171–180 cm';
+
+  @override
+  String get onboardingRangeOver180 => 'Over 180 cm';
+
+  @override
+  String get onboardingRangeUnder50kg => 'Under 50 kg';
+
+  @override
+  String get onboardingRange50to65kg => '50–65 kg';
+
+  @override
+  String get onboardingRange66to80kg => '66–80 kg';
+
+  @override
+  String get onboardingRange81to100kg => '81–100 kg';
+
+  @override
+  String get onboardingRangeOver100kg => 'Over 100 kg';
 
   @override
   String get onboardingTapToSelectDate => 'തീയതി തിരഞ്ഞെടുക്കാൻ ടാപ്പ് ചെയ്യുക';
@@ -858,7 +886,7 @@ class AppLocalizationsMl extends AppLocalizations {
       'നിങ്ങളുടെ ട്രെൻഡ് കാണുന്നതിന് കുറഞ്ഞത് രണ്ട് ആർത്തവചക്രങ്ങളെങ്കിലും രേഖപ്പെടുത്തുക.';
 
   @override
-  String get assistantAccessibilitySuggestedPrompt => 'നിർദ്ദേശിച്ച പ്രോംപ്റ്റ്';
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
 
   @override
   String get assistantAccessibilityMessageInput => 'Message input';
@@ -872,12 +900,25 @@ class AppLocalizationsMl extends AppLocalizations {
 
   @override
   String get assistantAccessibilitySendMessageHint =>
-      'നിങ്ങളുടെ സന്ദേശം അസിസ്റ്റന്റിലേക്ക് അയയ്ക്കുന്നു';
+      'Sends your message to the assistant';
 
   @override
-  String get assistantAccessibilityTyping => 'അസിസ്റ്റന്റ് ടൈപ്പ് ചെയ്യുന്നു';
+  String get assistantAccessibilityTyping => 'Assistant is typing';
 
   @override
   String get languageSelectionError =>
       'ഭാഷ സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല. ദയവായി വീണ്ടും ശ്രമിക്കുക.';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountConfirmationDesc =>
+      'This action is permanent and cannot be undone. All your data will be wiped.';
+
+  @override
+  String get accountDeletedSuccess => 'Account deleted successfully.';
 }
