@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Request
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Dict, List
+from datetime import timedelta
+from typing import Optional
 from core.auth import (
     create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -8,6 +8,7 @@ from core.auth import (
 )
 from models.user import UserCreate, UserResponse, UserProfileUpdate, UserProfileResponse
 from services.firestore_service import UserService
+from services.rate_limit_service import RateLimitService
 
 from pydantic import BaseModel
 import firebase_admin.auth
@@ -19,38 +20,6 @@ class FirebaseLoginRequest(BaseModel):
 router = APIRouter(tags=["Authentication"])
 
 # ─── Rate Limiting ──────────────────────────────────────────────────────────
-# In-memory stores for rate limiting (resets on server restart)
-login_attempts: Dict[str, List[datetime]] = {}
-register_attempts: Dict[str, List[datetime]] = {}
-
-def is_rate_limited(
-    attempts_store: Dict[str, List[datetime]],
-    key: str,
-    limit: int = 5,
-    window_seconds: int = 300,
-) -> Optional[int]:
-    """
-    Returns the number of seconds remaining before the next request is
-    allowed if the key has exceeded the rate limit, or None otherwise.
-    """
-    now = datetime.now(timezone.utc)
-    # Clean old entries
-    if key in attempts_store:
-        attempts_store[key] = [
-            t for t in attempts_store[key]
-            if now - t < timedelta(seconds=window_seconds)
-        ]
-    else:
-        attempts_store[key] = []
-
-    if len(attempts_store[key]) >= limit:
-        # Calculate how many seconds until the oldest entry expires
-        oldest = attempts_store[key][0]
-        remaining = int((oldest + timedelta(seconds=window_seconds) - now).total_seconds())
-        return max(remaining, 1)
-
-    attempts_store[key].append(now)
-    return None
 
 def get_client_ip(request: Request) -> str:
     """Extract the client's IP address from the request."""
@@ -65,7 +34,12 @@ def get_client_ip(request: Request) -> str:
 async def firebase_login(request: Request, data: FirebaseLoginRequest):
     # Rate limit by IP address (10 attempts per 5 minutes)
     client_ip = get_client_ip(request)
-    remaining = is_rate_limited(login_attempts, client_ip, limit=10, window_seconds=300)
+    remaining = RateLimitService.is_rate_limited(
+        key=f"login:{client_ip}",
+        limit=10,
+        window_seconds=300,
+    )
+
     if remaining is not None:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,

@@ -44,8 +44,6 @@ def test_save_sms_settings_validation_failure(auth_headers):
 @patch("api.sms.os.getenv")
 @patch("twilio.rest.Client")
 def test_send_summary_success(MockClient, mock_getenv, auth_headers):
-    import api.sms as sms_module
-    sms_module.sms_history.clear()
     
     def side_effect(key):
         if key == "TWILIO_ACCOUNT_SID": return "sid"
@@ -67,8 +65,6 @@ def test_send_summary_success(MockClient, mock_getenv, auth_headers):
 @patch("api.sms.os.getenv")
 @patch("twilio.rest.Client")
 def test_send_summary_provider_failure(MockClient, mock_getenv, auth_headers):
-    import api.sms as sms_module
-    sms_module.sms_history.clear()
     
     def side_effect(key):
         if key == "TWILIO_ACCOUNT_SID": return "sid"

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from core.auth import get_current_user
 from services.firestore_service import UserService
+from services.rate_limit_service import RateLimitService
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, List
-from datetime import datetime, timedelta, timezone
+from typing import Optional
 import os
 import re
 
@@ -20,25 +20,6 @@ class SMSSettings(BaseModel):
     @property
     def normalized_phone(self) -> Optional[str]:
         return self.phoneNumber.strip() if self.phoneNumber else None
-
-
-# ─── Rate Limiter (in-memory) ──────────────────────────────────────────────
-sms_history = {}
-
-def is_rate_limited(user_id: str, limit: int = 1, window_seconds: int = 60) -> Optional[int]:
-    now = datetime.now(timezone.utc)
-    if user_id in sms_history:
-        sms_history[user_id] = [t for t in sms_history[user_id] if now - t < timedelta(seconds=window_seconds)]
-    else:
-        sms_history[user_id] = []
-
-    if len(sms_history[user_id]) >= limit:
-        oldest = sms_history[user_id][0]
-        remaining = int((oldest + timedelta(seconds=window_seconds) - now).total_seconds())
-        return max(remaining, 1)
-
-    sms_history[user_id].append(now)
-    return None
 
 
 # ─── Router ──────────────────────────────────────────────────────────────────
@@ -94,7 +75,12 @@ async def send_sms_summary(
     user_id = current_user["id"]
 
     # Rate limit check
-    remaining = is_rate_limited(user_id)
+    remaining = RateLimitService.is_rate_limited(
+        key=f"sms:{user_id}",
+        limit=1,
+        window_seconds=60,
+    )
+
     if remaining is not None:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,

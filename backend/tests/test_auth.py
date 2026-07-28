@@ -45,8 +45,6 @@ client = TestClient(app)
 @pytest.fixture(autouse=True)
 def mock_auth_dependencies():
     import core.auth_router as auth_router_module
-    auth_router_module.login_attempts.clear()
-
     with patch("core.auth_router.UserService") as MockUserService1, \
          patch("core.auth.UserService") as MockUserService2, \
          patch("api.sms.UserService") as MockUserService3:
