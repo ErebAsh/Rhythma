@@ -19,6 +19,9 @@ dependencies:
   # Secure storage
   flutter_secure_storage: ^9.2.2
 
+  # Local authentication (biometric / PIN)
+  local_auth: ^2.3.0
+
   # State management
   provider: ^6.1.2
 
