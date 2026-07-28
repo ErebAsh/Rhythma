@@ -404,12 +404,8 @@ class _HomeScreenState extends State<HomeScreen> {
             action: l10n.homeLogAll,
             onAction: () {
               final currentDate = DateTime.now();
-              final dateKey = currentDate.toIso8601String().split('T')[0];
-              final logs = LocalStorageService.getCycleLogs();
-              final existingLog = logs.cast<Map<String, dynamic>?>().firstWhere(
-                    (log) => log?['start_date'] == dateKey,
-                    orElse: () => null,
-                  );
+              final existingLog =
+                  LocalStorageService.getCycleLogForDate(currentDate);
 
               LogEntrySheet.show(
                 context,
