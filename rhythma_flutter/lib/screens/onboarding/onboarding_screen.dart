@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../config/theme.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/local_storage_service.dart';
+import '../../services/profile_service.dart';
 import '../../providers/profile_provider.dart';
 import '../../components/approximate_field.dart';
 
@@ -374,9 +375,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     // 1. Persist locally first — data is never lost even if backend is down.
     await context.read<ProfileProvider>().mergeProfileWithSync(profile);
 
-    // 2. Sync to backend is optional for now. The app uses local storage as
-    // the source of truth. A background sync can be added later.
-    // (Previously this called ProfileService.patchProfile, which was removed.)
+    // 2. Sync to backend — best-effort, never blocks the user.
+    ProfileService.patchProfile(profile);
 
     // 3. Mark onboarding done for this user account.
     await LocalStorageService.setOnboardingCompleted(true);
