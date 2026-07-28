@@ -102,6 +102,7 @@ def test_languages_success():
     assert "en" in codes
     assert "hi" in codes
     assert "mr" in codes
+    assert "bn" not in codes
 
 
 def test_languages_unauthorized():
