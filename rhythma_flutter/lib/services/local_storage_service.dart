@@ -18,6 +18,8 @@ class _Keys {
   static const themeMode = 'theme_mode';
   static const primaryColor = 'primary_color';
   static const currentUserId = 'current_user_id';
+  static const dashboardCache = 'dashboard_cache';
+  static const dashboardCacheTimestamp = 'dashboard_cache_timestamp';
 }
 
 /// Manages all on-device storage via Hive.
@@ -313,6 +315,19 @@ class LocalStorageService {
 
   static Future<void> setNudgeDismissed(String key, bool value) async {
     await _settings.put(_scoped('nudge_$key'), value);
+  }
+
+  // ── Dashboard Cache ────────────────────────────────────────────────────
+
+  static Map<String, dynamic>? getCachedDashboard() {
+    final raw = _settings.get(_scoped(_Keys.dashboardCache));
+    return raw != null ? Map<String, dynamic>.from(raw as Map) : null;
+  }
+
+  static Future<void> saveCachedDashboard(Map<String, dynamic> data) async {
+    await _settings.put(_scoped(_Keys.dashboardCache), data);
+    await _settings.put(
+        _scoped(_Keys.dashboardCacheTimestamp), DateTime.now().toIso8601String());
   }
 
   // ── Clear all data ─────────────────────────────────────────────────────

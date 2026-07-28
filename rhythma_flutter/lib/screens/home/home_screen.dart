@@ -35,25 +35,48 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _loadCachedDashboard();
     _fetchDashboardData();
   }
 
+  void _loadCachedDashboard() {
+    final cached = LocalStorageService.getCachedDashboard();
+    if (cached != null) {
+      setState(() {
+        _userData = cached['user'] ?? {};
+        _cycleData = cached['cycle'] ?? {};
+        _insights = cached['insights'] ?? {};
+        _loading = false;
+      });
+    }
+  }
+
   Future<void> _fetchDashboardData() async {
-    setState(() => _loading = true);
     try {
       final dio = ApiClient.dio;
       final response = await dio.get('/dashboard');
+      final data = {
+        'user': response.data['user'] ?? {},
+        'cycle': response.data['cycle'] ?? {},
+        'insights': response.data['insights'] ?? {},
+      };
+      await LocalStorageService.saveCachedDashboard(data);
+      if (!mounted) return;
       setState(() {
-        _userData = response.data['user'] ?? {};
-        _cycleData = response.data['cycle'] ?? {};
-        _insights = response.data['insights'] ?? {};
+        _userData = data['user'] as Map<String, dynamic>;
+        _cycleData = data['cycle'] as Map<String, dynamic>;
+        _insights = data['insights'] as Map<String, dynamic>;
         _loading = false;
+        _error = '';
       });
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      if (!mounted) return;
+      if (_loading) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+      }
     }
   }
 
