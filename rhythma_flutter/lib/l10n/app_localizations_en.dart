@@ -657,10 +657,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingAgeRequired => 'Please enter your age or select a range';
 
   @override
-  String get onboardingHeightRequired => 'Please enter your height or select a range';
+  String get onboardingHeightRequired =>
+      'Please enter your height or select a range';
 
   @override
-  String get onboardingWeightRequired => 'Please enter your weight or select a range';
+  String get onboardingWeightRequired =>
+      'Please enter your weight or select a range';
 
   @override
   String get onboardingNotSure => 'Not sure';
@@ -894,4 +896,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get languageSelectionError =>
       'Unable to save language. Please try again.';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountConfirmationDesc =>
+      'This action is permanent and cannot be undone. All your data will be wiped.';
+
+  @override
+  String get accountDeletedSuccess => 'Account deleted successfully.';
 }

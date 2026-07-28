@@ -21,7 +21,6 @@
   "cancel": "ரத்து",
   "loggedOutSuccess": "வெற்றிகரமாக வெளியேறப்பட்டது",
   "selectLanguage": "மொழியைத் தேர்ந்தெடுக்கவும்",
-  
   "homeGreeting": "வணக்கம்",
   "homePhaseDesc": "நாள் 14 · அண்டவிடுப்பின் நிலை",
   "homeNextPeriod": "அடுத்த மாதவிடாய்",
@@ -45,7 +44,6 @@
   "homeLearnHormones": "ஹார்மோன்கள் 101",
   "homeLearnIron": "இரும்புச் சத்துள்ள உணவுகள்",
   "homeArticle": "கட்டுரை",
-  
   "cycleTrackerTitle": "சுழற்சி டிராக்கர்",
   "cyclePhasePeriod": "மாதவிடாய்",
   "cyclePhaseFollicular": "ஃபோலிகுலர்",
@@ -69,7 +67,6 @@
   "logSympAcne": "முகப்பரு",
   "logLabelEnergy": "ஆற்றல்",
   "logLabelSymptoms": "அறிகுறிகள்",
-  
   "homeErrorNetwork": "இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
   "homeErrorAuth": "உங்கள் அமர்வு காலாவதியாகிவிட்டது. மீண்டும் உள்நுழையவும்.",
   "homeErrorServer": "எங்கள் பக்கம் ஏதோ தவறு நடந்தது. பின்னர் மீண்டும் முயற்சிக்கவும்.",
@@ -77,17 +74,22 @@
   "homeQuickLogTitle": "{label} பதிவு செய்யுங்கள்",
   "@homeQuickLogTitle": {
     "placeholders": {
-      "label": { "type": "String" }
+      "label": {
+        "type": "String"
+      }
     }
   },
   "homeQuickLogSaved": "{label} பதிவு செய்யப்பட்டது: {value}",
   "@homeQuickLogSaved": {
     "placeholders": {
-      "label": { "type": "String" },
-      "value": { "type": "String" }
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
     }
   },
-
   "loginWelcomeBack": "மீண்டும் வரவேற்கிறோம்",
   "loginSubtitle": "உங்கள் தனிப்பட்ட ரித்மா பயணத்தைத் தொடர உள்நுழையவும்.",
   "loginUsername": "பயனர்பெயர்",
@@ -101,7 +103,6 @@
   "loginErrorNetwork": "இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
   "loginErrorInvalidCredentials": "தவறான பயனர்பெயர் அல்லது கடவுச்சொல்.",
   "loginErrorGeneric": "உள்நுழைவு தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.",
-
   "registerTitle": "கணக்கை உருவாக்கு",
   "registerSubtitle": "உங்கள் ரித்மா உதவியாளருக்கு பாதுகாப்பான அணுகலை அமைக்கவும்.",
   "registerFullName": "முழு பெயர் (விரும்பினால்)",
@@ -131,17 +132,20 @@
   "registerAgeRange": "வயது 10 மற்றும் 120 க்கு இடையில் இருக்க வேண்டும்",
   "registerCycleInvalid": "சரியான சராசரி சுழற்சி நீளத்தை உள்ளிடவும்",
   "registerCycleRange": "சுழற்சி நீளம் 15 மற்றும் 45 நாட்களுக்கு இடையில் இருக்க வேண்டும்",
-
   "settingsConfirmTurnOn": "{feature} அம்சத்தை இயக்க விரும்புகிறீர்களா?",
   "@settingsConfirmTurnOn": {
     "placeholders": {
-      "feature": { "type": "String" }
+      "feature": {
+        "type": "String"
+      }
     }
   },
   "settingsConfirmTurnOff": "{feature} அம்சத்தை அணைக்க விரும்புகிறீர்களா?",
   "@settingsConfirmTurnOff": {
     "placeholders": {
-      "feature": { "type": "String" }
+      "feature": {
+        "type": "String"
+      }
     }
   },
   "settingsConfirm": "உறுதிப்படுத்து",
@@ -152,27 +156,28 @@
   "settingsMedicineReminderTitle": "மருந்து நினைவூட்டல்",
   "settingsMedicineReminderBody": "உங்கள் இரும்புச் சத்து துணை எடுக்கும் நேரம்!",
   "settingsThemeColor": "தீம் நிறம்",
-
   "profileNameRequired": "பெயர் காலியாக இருக்கக்கூடாது",
   "profileAgeInvalid": "வயது 10 மற்றும் 120 க்கு இடையில் இருக்க வேண்டும்",
   "profileCycleInvalid": "சுழற்சி நீளம் 15 மற்றும் 45 நாட்களுக்கு இடையில் இருக்க வேண்டும்",
   "profilePhoneInvalid": "சரியான தொலைபேசி எண்ணை உள்ளிடவும் (குறைந்தது 8 இலக்கங்கள்)",
-
   "cycleToday": "இன்று",
-
   "assistantError": "ஏதோ தவறு நடந்தது. மீண்டும் முயற்சிக்கவும்.",
-  
   "assistantTitle": "ரித்மா உதவியாளர்",
   "assistantSubtitle": "உங்கள் தனிப்பட்ட சுகாதார துணை",
   "assistantInputHint": "உங்கள் கேள்வியைக் கேட்கவும்...",
   "assistantWelcome": "வணக்கம் {name} 🌸 நான் ரித்மா, உங்கள் தனிப்பட்ட சுகாதார துணை. உங்கள் சுழற்சி, அறிகுறிகள் பற்றி என்னிடம் கேளுங்கள் — ஆங்கிலம், இந்தி, மராத்தி அல்லது தமிழில்.",
-  "@assistantWelcome": { "placeholders": { "name": { "type": "String" } } },
+  "@assistantWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assistantSug1": "எனது மாதவிடாய் ஏன் ஒழுங்கற்றது?",
   "assistantSug2": "கடுமையான தசைப்பிடிப்பிற்கு காரணம் என்ன?",
   "assistantSug3": "35 நாள் சுழற்சி இயல்பானதா?",
   "assistantSug4": "PMS க்கு உதவும் உணவுகள்",
   "assistantSug5": "என் மாதவிடாய் ஒழுங்கற்றது — இது இயல்பானதா?",
-
   "insightsTitle": "சுகாதார நுண்ணறிவு",
   "insightsSubtitle": "கடந்த 90 நாட்கள்",
   "insightsMhsLabel": "மாதவிடாய் சுகாதார மதிப்பெண்",
@@ -190,7 +195,6 @@
   "insightsRec1": "மாதவிடாய் தொடங்குவதற்கு முன் இரும்புச் சத்துள்ள உணவுகளைச் சேர்க்கவும்",
   "insightsRec2": "லூட்டல் கட்ட நாட்களில் 10 நிமிட யோகா முயற்சிக்கவும்",
   "insightsRec3": "அண்டவிடுப்பின் வாரத்தில் 2.5L தண்ணீர் குடிக்கவும்",
-  
   "profileTitle": "சுயவிவரம்",
   "profileYearsOld": "வயது",
   "profileCycleDay": "சுழற்சி நாள்",
@@ -221,18 +225,15 @@
   "edit": "திருத்து",
   "delete": "நீக்கு",
   "onboardingAvatarOption": "அவதார் விருப்பம்",
-  
   "navHome": "முகப்பு",
   "navCycle": "சுழற்சி",
   "navAsk": "கேள்வி",
   "navYou": "நீங்கள்",
   "navInsights": "நுண்ணறிவுகள்",
-  
   "settingsHelpSupport": "உதவி மற்றும் ஆதரவு",
   "settingsContactUs": "எங்களைத் தொடர்பு கொள்ளவும் / பிழையைப் புகாரளிக்கவும்",
   "settingsContactDesc": "எங்கள் ஆதரவுக் குழுவிற்கு மின்னஞ்சல் அனுப்பவும்",
   "settingsEmailError": "மின்னஞ்சல் பயன்பாட்டைத் திறக்க முடியவில்லை. தயவுசெய்து எங்களை support@rhythma.com இல் தொடர்பு கொள்ளவும்",
-
   "onboardingPrivacyNote": "உங்கள் தகவல் உங்கள் சாதனத்தில் மட்டுமே உள்ளது. உங்கள் அனுமதியின்றி நாங்கள் எப்போதும் உங்கள் தரவை பகிர மாட்டோம்.",
   "onboardingNext": "அடுத்து",
   "onboardingBack": "பின்",
@@ -309,5 +310,9 @@
   "onboardingRange66to80kg": "66–80 கிலோ",
   "onboardingRange81to100kg": "81–100 கிலோ",
   "onboardingRangeOver100kg": "100 கிலோ க்கும் அதிகமாக",
-  "languageSelectionError": "மொழியைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்."
+  "languageSelectionError": "மொழியைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+  "deleteAccount": "Delete Account",
+  "deleteAccountConfirmationTitle": "Delete Account?",
+  "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
+  "accountDeletedSuccess": "Account deleted successfully."
 }

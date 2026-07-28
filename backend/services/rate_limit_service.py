@@ -44,3 +44,19 @@ class RateLimitService:
         timestamps.append(now)
         doc_ref.set({"timestamps": timestamps})
         return None
+
+        timestamps.append(now)
+        doc_ref.set({"timestamps": timestamps})
+        return None
+
+    @staticmethod
+    def clear_all():
+        """
+        Clear all rate limit entries.
+        Used only for tests.
+        """
+        try:
+            if hasattr(db, "_collections"):
+                db._collections.pop(RateLimitService.COLLECTION, None)
+        except Exception:
+            pass

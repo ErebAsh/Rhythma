@@ -233,7 +233,13 @@
   "smsLoadError": "तुमच्या एसएमएस सेटिंग्ज लोड होऊ शकल्या नाहीत. रिफ्रेश करा किंवा पुन्हा प्रयत्न करा.",
   "smsSummaryMessage": "🌸 रिद्मा आरोग्य सारांश\nहा रिद्माकडून तुमचा ऑन-डिमांड सारांश आहे.\nतुमच्या नवीनतम चक्र माहितीसाठी अ‍ॅप उघडा.\nसदस्यता रद्द करण्यासाठी STOP उत्तर द्या.",
   "insightsLoadError": "तुमची अंतर्दृष्टी लोड करता आली नाही: {error}",
-  "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
+  "@insightsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "insightsNotEnoughData": "तुमचे संपूर्ण आरोग्य अंतर्दृष्टी अनलॉक करण्यासाठी Cycle टॅबवर आणखी काही चक्र लॉग करा.",
   "insightsNoSymptomsYet": "अद्याप कोणतीही लक्षणे लॉग केलेली नाहीत - Cycle टॅबवर काही लॉग करा.",
   "insightsNotEnoughTrendData": "तुमचा ट्रेंड पाहण्यासाठी किमान दोन चक्र लॉग करा.",
@@ -246,8 +252,27 @@
   "homeErrorServer": "आमच्या बाजूला काहीतरी चूक झाली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
   "homeErrorGeneric": "डेटा लोड करण्यात असमर्थ. कृपया पुन्हा प्रयत्न करा.",
   "homeQuickLogTitle": "{label} नोंदवा",
-  "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "homeQuickLogSaved": "{label} नोंदवले गेले: {value}",
-  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } },
-  "languageSelectionError": "भाषा जतन करण्यात असमर्थ. कृपया पुन्हा प्रयत्न करा."
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "languageSelectionError": "भाषा जतन करण्यात असमर्थ. कृपया पुन्हा प्रयत्न करा.",
+  "deleteAccount": "Delete Account",
+  "deleteAccountConfirmationTitle": "Delete Account?",
+  "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
+  "accountDeletedSuccess": "Account deleted successfully."
 }

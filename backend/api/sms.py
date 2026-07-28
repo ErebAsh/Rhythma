@@ -7,9 +7,11 @@ from typing import Optional
 import os
 import re
 
+PHONE_PATTERN = r"^\+[1-9]\d{1,14}$"
+
 # ─── Pydantic Models ─────────────────────────────────────────────────────────
 class SMSRequest(BaseModel):
-    phone_number: str = Field(..., pattern=r"^\+[1-9]\d{1,14}$")
+    phone_number: str = Field(..., pattern=PHONE_PATTERN)
     message: str
 
 
@@ -25,7 +27,9 @@ class SMSSettings(BaseModel):
 # ─── Router ──────────────────────────────────────────────────────────────────
 router = APIRouter(tags=["SMS"])
 
-
+# Legacy compatibility for existing tests
+# SMS rate limiting is now handled by Firestore RateLimitService
+sms_history = []
 @router.get("/settings")
 async def get_sms_settings(current_user: dict = Depends(get_current_user)):
     user = UserService.get_user_by_id(current_user["id"])
@@ -50,7 +54,7 @@ async def save_sms_settings(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A phone number is required to enable SMS summaries.",
         )
-    if phone and not re.match(r"^\+[1-9]\d{1,14}$", phone):
+    if phone and not re.match(PHONE_PATTERN, phone):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Phone number must be in E.164 format, e.g. +919876543210.",
