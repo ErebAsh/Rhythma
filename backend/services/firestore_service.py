@@ -79,8 +79,6 @@ class MockQuery:
             yield doc
 
 class MockCollectionReference:
-    _next_id = 1
-
     def __init__(self, name, db):
         self.name = name
         self.db = db
@@ -89,8 +87,28 @@ class MockCollectionReference:
         self.store = db._collections[name]
 
     def add(self, document_data):
-        doc_id = f"mock-doc-id-{MockCollectionReference._next_id}"
-        MockCollectionReference._next_id += 1
+        # Per-collection auto-ID counter.
+        #
+        # Previously this counter was a class-level attribute
+        # (`MockCollectionReference._next_id`), which meant every mock
+        # collection — `users`, `cycle_logs`, `conversations`, etc. —
+        # drew IDs from one shared incrementing sequence, so creating a
+        # user then a cycle log produced `mock-doc-id-1` and
+        # `mock-doc-id-2` instead of `mock-doc-id-1` in each collection.
+        #
+        # The counter cannot live on the instance either, because
+        # `MockFirestoreClient.collection(name)` builds a *fresh*
+        # `MockCollectionReference` on every call — an instance-level
+        # counter would reset to 1 each time and collide immediately.
+        #
+        # Persisting it on the shared `db._counters` dict, keyed by
+        # collection name, gives each collection its own independent
+        # sequence that survives across `db.collection(name)` calls —
+        # matching how real Firestore auto-IDs are namespaced
+        # per-collection.
+        next_id = self.db._counters.get(self.name, 0) + 1
+        self.db._counters[self.name] = next_id
+        doc_id = f"mock-doc-id-{next_id}"
         self.store[doc_id] = document_data
         return (None, MockDocumentReference(doc_id, document_data, self))
 
@@ -115,6 +133,10 @@ class MockCollectionReference:
 class MockFirestoreClient:
     def __init__(self):
         self._collections = {}
+        # Per-collection auto-ID counters for MockCollectionReference.add().
+        # Keyed by collection name so each collection has its own
+        # independent sequence (see MockCollectionReference.add).
+        self._counters = {}
 
     def collection(self, name):
         return MockCollectionReference(name, self)
