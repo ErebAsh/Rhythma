@@ -53,6 +53,7 @@ Future<void> main() async {
   }
 
   await NotificationService.instance.init();
+  await NotificationService.instance.scheduleAllAutomaticNotifications();
   await FirestoreService.init();
 
   ApiClient.init(onUnauthorized: () {

@@ -326,6 +326,26 @@ class LocalStorageService {
     await _settings.put(_scoped('nudge_$key'), value);
   }
 
+  // ── Notification Preferences ─────────────────────────────────────────
+
+  static bool get periodPredictionReminders {
+    return _settings.get(_scoped('period_prediction_reminders'), defaultValue: true)
+        as bool;
+  }
+
+  static Future<void> setPeriodPredictionReminders(bool value) async {
+    await _settings.put(_scoped('period_prediction_reminders'), value);
+  }
+
+  static bool get loggingReminders {
+    return _settings.get(_scoped('logging_reminders'), defaultValue: true)
+        as bool;
+  }
+
+  static Future<void> setLoggingReminders(bool value) async {
+    await _settings.put(_scoped('logging_reminders'), value);
+  }
+
   // ── Dashboard Cache ────────────────────────────────────────────────────
 
   static Map<String, dynamic>? getCachedDashboard() {
