@@ -745,8 +745,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get onboardingRange81to100kg => '81–100 கிலோ';
 
   @override
-  String get onboardingPhoneInvalid => 'Please enter a valid phone number';
-  
+  String get onboardingRangeOver100kg => '100 கிலோ க்கும் அதிகமாக';
 
   @override
   String get onboardingTapToSelectDate => 'Tap to select date';
