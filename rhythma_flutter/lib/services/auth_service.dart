@@ -8,36 +8,13 @@ import 'local_storage_service.dart';
 class AuthService {
   final Dio _dio = ApiClient.dio;
 
-  Future<User> register(
-      String username, String email, String password, String? fullName) async {
+  Future<String> firebaseLogin(String idToken) async {
     try {
       final response = await _dio.post(
-        '/auth/register',
+        '/auth/firebase-login',
         data: {
-          'username': username,
-          'email': email,
-          'password': password,
-          'full_name': fullName,
+          'id_token': idToken,
         },
-      );
-      return User.fromJson(response.data);
-    } on DioException catch (e) {
-      throw AuthException(
-          _readErrorMessage(e, 'Registration failed. Please try again.'));
-    }
-  }
-
-  Future<String> login(String username, String password) async {
-    try {
-      final response = await _dio.post(
-        '/auth/token',
-        data: {
-          'username': username,
-          'password': password,
-        },
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-        ),
       );
       final token = response.data['access_token'] as String;
       await SecureStorage.saveToken(token);
@@ -87,6 +64,9 @@ class AuthService {
             localProfile['weight_kg'] = profile['weight_kg'];
           if (profile['last_period'] != null)
             localProfile['last_period'] = profile['last_period'];
+          if (profile['last_period_is_approximate'] != null)
+            localProfile['last_period_is_approximate'] =
+                profile['last_period_is_approximate'];
           if (profile['cycle_length'] != null)
             localProfile['cycle_length'] = profile['cycle_length'];
           if (profile['period_duration'] != null)
@@ -115,6 +95,16 @@ class AuthService {
     // Clears which account is "active" locally — does not delete that
     // account's cached data, so it's still there if they log back in.
     await LocalStorageService.setCurrentUserId(null);
+  }
+
+  Future<void> deleteAccount() async {
+    try {
+      await _dio.delete('/auth/me');
+    } catch (_) {
+      // Best effort deletion on the server, but we must delete locally regardless
+    }
+    await SecureStorage.deleteToken();
+    await LocalStorageService.deleteCurrentUserData();
   }
 
   Future<bool> isLoggedIn() async {

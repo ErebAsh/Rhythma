@@ -1,19 +1,25 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive/hive.dart';
 import 'package:rhythma/services/local_storage_service.dart';
+import 'test_helpers/local_storage_fixture.dart';
+
+// Mirrors the regex used in onboarding_screen.dart and sms_screen.dart.
+final _e164 = RegExp(r'^\+[1-9]\d{1,14}$');
 
 /// Unit tests for the onboarding-related LocalStorageService methods.
-/// These tests use [LocalStorageService.isTesting] = true to avoid
-/// opening real Hive boxes during testing.
 void main() {
-  setUp(() {
-    LocalStorageService.isTesting = true;
-    LocalStorageService.mockProfile = null;
-    LocalStorageService.mockEmergencyContacts = [];
-    LocalStorageService.mockOnboardingCompleted = false;
+  late Directory tempDir;
+
+  setUp(() async {
+    tempDir = await setUpLocalStorage();
+    await seedCurrentUserId('test-user');
+    await seedOnboardingCompleted('test-user', false);
   });
 
-  tearDown(() {
-    LocalStorageService.isTesting = false;
+  tearDown(() async {
+    await tearDownLocalStorage(tempDir);
   });
 
   group('onboardingCompleted flag', () {
@@ -92,13 +98,11 @@ void main() {
       final profile = LocalStorageService.getProfile();
       expect(profile!['name'], 'Aarya Renamed');
       expect(profile['age'], 26);
-      // Onboarding fields not in the update are preserved
       expect(profile['avatar'], '🌸');
       expect(profile['last_period'], '2025-06-01');
     });
 
     test('mergeProfile does not remove onboarding-only fields', () async {
-      // Simulate onboarding save
       await LocalStorageService.saveProfile({
         'name': 'Aarya',
         'avatar': '🌙',
@@ -109,7 +113,6 @@ void main() {
         'city': 'Mumbai',
         'notifications_enabled': false,
       });
-      // Simulate Edit Profile update (only name + age + cycle_length)
       await LocalStorageService.mergeProfile({
         'name': 'Aarya Updated',
         'age': 27,
@@ -119,7 +122,6 @@ void main() {
       expect(profile['name'], 'Aarya Updated');
       expect(profile['age'], 27);
       expect(profile['cycle_length'], 30);
-      // All onboarding-only fields must still be present
       expect(profile['avatar'], '🌙');
       expect(profile['last_period'], '2025-05-15');
       expect(profile['period_duration'], 5);
@@ -131,7 +133,6 @@ void main() {
 
   group('onboarding persistence flow', () {
     test('full onboarding save followed by edit profile merge', () async {
-      // Simulate completing onboarding
       final onboardingData = {
         'name': 'Sita',
         'avatar': '🌺',
@@ -140,10 +141,11 @@ void main() {
         'height_cm': 162.0,
         'weight_kg': 56.0,
         'last_period': '2025-06-10',
+        'last_period_is_approximate': false,
         'cycle_length': 27,
         'period_duration': 4,
         'cycle_regular': true,
-        'phone': '9876543210',
+        'phone': '+919876543210',
         'city': 'Pune',
         'state': '411001',
         'notifications_enabled': true,
@@ -153,7 +155,6 @@ void main() {
 
       expect(LocalStorageService.onboardingCompleted, isTrue);
 
-      // Later: user edits profile (only name + age + cycle_length)
       await LocalStorageService.mergeProfile({
         'name': 'Sita S.',
         'age': 25,
@@ -164,18 +165,93 @@ void main() {
       expect(profile['name'], 'Sita S.');
       expect(profile['age'], 25);
       expect(profile['cycle_length'], 28);
-      // All other fields preserved
       expect(profile['avatar'], '🌺');
       expect(profile['language'], 'hi');
       expect(profile['height_cm'], 162.0);
       expect(profile['weight_kg'], 56.0);
       expect(profile['last_period'], '2025-06-10');
+      expect(profile['last_period_is_approximate'], false);
       expect(profile['period_duration'], 4);
       expect(profile['cycle_regular'], true);
-      expect(profile['phone'], '9876543210');
+      expect(profile['phone'], '+919876543210');
       expect(profile['city'], 'Pune');
       expect(profile['state'], '411001');
       expect(profile['notifications_enabled'], true);
+    });
+
+    test('approximate onboarding date is stored correctly', () async {
+      final onboardingData = {
+        'name': 'Test',
+        'last_period': '2025-07-01',
+        'last_period_is_approximate': true,
+        'cycle_length': 28,
+        'period_duration': 5,
+        'cycle_regular': true,
+      };
+      await LocalStorageService.saveProfile(onboardingData);
+      final profile = LocalStorageService.getProfile()!;
+      expect(profile['last_period'], '2025-07-01');
+      expect(profile['last_period_is_approximate'], true);
+    });
+  });
+
+  group('nudge preferences', () {
+    test('getNudgeDismissed returns false by default', () {
+      expect(
+          LocalStorageService.getNudgeDismissed('last_period_exact'), isFalse);
+    });
+
+    test('setNudgeDismissed stores and retrieves correctly', () async {
+      await LocalStorageService.setNudgeDismissed('last_period_exact', true);
+      expect(
+          LocalStorageService.getNudgeDismissed('last_period_exact'), isTrue);
+    });
+
+    test('different nudge keys are independent', () async {
+      await LocalStorageService.setNudgeDismissed('nudge_a', true);
+      await LocalStorageService.setNudgeDismissed('nudge_b', false);
+      expect(LocalStorageService.getNudgeDismissed('nudge_a'), isTrue);
+      expect(LocalStorageService.getNudgeDismissed('nudge_b'), isFalse);
+    });
+  });
+
+  // ── Step 4 phone validation (E.164 regex regression) ─────────────────────
+
+  group('Step 4 phone E.164 validation', () {
+    test('empty phone passes (field is optional)', () {
+      expect(''.isEmpty || _e164.hasMatch(''), isTrue);
+    });
+
+    test('valid Indian E.164 number passes', () {
+      expect(_e164.hasMatch('+919876543210'), isTrue);
+    });
+
+    test('valid US E.164 number passes', () {
+      expect(_e164.hasMatch('+12025551234'), isTrue);
+    });
+
+    test('bare 10-digit number without country code fails', () {
+      expect(_e164.hasMatch('9876543210'), isFalse);
+    });
+
+    test('number with spaces fails', () {
+      expect(_e164.hasMatch('+91 98765 43210'), isFalse);
+    });
+
+    test('number with dashes fails', () {
+      expect(_e164.hasMatch('+1-202-555-1234'), isFalse);
+    });
+
+    test('letters-only string fails', () {
+      expect(_e164.hasMatch('abcdefg'), isFalse);
+    });
+
+    test('plus sign alone fails', () {
+      expect(_e164.hasMatch('+'), isFalse);
+    });
+
+    test('leading zero after plus fails (E.164 forbids it)', () {
+      expect(_e164.hasMatch('+0123456789'), isFalse);
     });
   });
 }

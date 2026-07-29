@@ -101,6 +101,7 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
+    Locale('gu'),
     Locale('hi'),
     Locale('kn'),
     Locale('ml'),
@@ -216,6 +217,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Language'**
   String get selectLanguage;
+
+  /// No description provided for @langEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get langEnglish;
+
+  /// No description provided for @langHindi.
+  ///
+  /// In en, this message translates to:
+  /// **'हिन्दी (Hindi)'**
+  String get langHindi;
+
+  /// No description provided for @langTamil.
+  ///
+  /// In en, this message translates to:
+  /// **'தமிழ் (Tamil)'**
+  String get langTamil;
+
+  /// No description provided for @langTelugu.
+  ///
+  /// In en, this message translates to:
+  /// **'తెలుగు (Telugu)'**
+  String get langTelugu;
+
+  /// No description provided for @langMarathi.
+  ///
+  /// In en, this message translates to:
+  /// **'मराठी (Marathi)'**
+  String get langMarathi;
 
   /// No description provided for @homeGreeting.
   ///
@@ -670,8 +701,8 @@ abstract class AppLocalizations {
   /// No description provided for @assistantWelcome.
   ///
   /// In en, this message translates to:
-  /// **'Hi Aarya 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.'**
-  String get assistantWelcome;
+  /// **'Hi {name} 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.'**
+  String assistantWelcome(String name);
 
   /// No description provided for @assistantSug1.
   ///
@@ -907,6 +938,12 @@ abstract class AppLocalizations {
   /// **'Save Changes'**
   String get profileSaveChanges;
 
+  /// No description provided for @profileNameEmptyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid name'**
+  String get profileNameEmptyError;
+
   /// No description provided for @profileAddContact.
   ///
   /// In en, this message translates to:
@@ -948,6 +985,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No emergency contacts set up yet.'**
   String get profileNoContacts;
+
+  /// No description provided for @profileAgeInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid age'**
+  String get profileAgeInvalidError;
+
+  /// No description provided for @profileCycleInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid cycle length'**
+  String get profileCycleInvalidError;
+
+  /// No description provided for @profilePhoneInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid phone number'**
+  String get profilePhoneInvalidError;
+
+  /// No description provided for @contactNameRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact name is required'**
+  String get contactNameRequiredError;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @onboardingAvatarOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar Option'**
+  String get onboardingAvatarOption;
 
   /// No description provided for @navHome.
   ///
@@ -1002,6 +1081,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open email app. Please email us at support@rhythma.com'**
   String get settingsEmailError;
+
+  /// No description provided for @settingsData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsData;
+
+  /// No description provided for @settingsExportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export My Data'**
+  String get settingsExportData;
+
+  /// No description provided for @settingsExportDataDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Download your profile, contacts, and cycle logs as JSON'**
+  String get settingsExportDataDesc;
+
+  /// No description provided for @settingsExportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Data exported successfully'**
+  String get settingsExportSuccess;
 
   /// No description provided for @onboardingPrivacyNote.
   ///
@@ -1159,6 +1262,12 @@ abstract class AppLocalizations {
   /// **'Phone Number (optional)'**
   String get onboardingPhoneLabel;
 
+  /// No description provided for @onboardingPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. +919876543210'**
+  String get onboardingPhoneHint;
+
   /// No description provided for @onboardingCityLabel.
   ///
   /// In en, this message translates to:
@@ -1234,8 +1343,170 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingPhoneInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Please enter a valid phone number'**
+  /// **'Use international format, e.g. +919876543210'**
   String get onboardingPhoneInvalid;
+
+  /// No description provided for @onboardingAgeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your age or select a range'**
+  String get onboardingAgeRequired;
+
+  /// No description provided for @onboardingHeightRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your height or select a range'**
+  String get onboardingHeightRequired;
+
+  /// No description provided for @onboardingWeightRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your weight or select a range'**
+  String get onboardingWeightRequired;
+
+  /// No description provided for @onboardingNotSure.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sure'**
+  String get onboardingNotSure;
+
+  /// No description provided for @onboardingApproximate.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate'**
+  String get onboardingApproximate;
+
+  /// No description provided for @onboardingAgeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your age'**
+  String get onboardingAgeHint;
+
+  /// No description provided for @onboardingAgeUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get onboardingAgeUnit;
+
+  /// No description provided for @onboardingHeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your height'**
+  String get onboardingHeightHint;
+
+  /// No description provided for @onboardingHeightUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'cm'**
+  String get onboardingHeightUnit;
+
+  /// No description provided for @onboardingWeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your weight'**
+  String get onboardingWeightHint;
+
+  /// No description provided for @onboardingWeightUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get onboardingWeightUnit;
+
+  /// No description provided for @onboardingRangeUnder18.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 18'**
+  String get onboardingRangeUnder18;
+
+  /// No description provided for @onboardingRange18to25.
+  ///
+  /// In en, this message translates to:
+  /// **'18–25'**
+  String get onboardingRange18to25;
+
+  /// No description provided for @onboardingRange26to35.
+  ///
+  /// In en, this message translates to:
+  /// **'26–35'**
+  String get onboardingRange26to35;
+
+  /// No description provided for @onboardingRange36to50.
+  ///
+  /// In en, this message translates to:
+  /// **'36–50'**
+  String get onboardingRange36to50;
+
+  /// No description provided for @onboardingRange51to65.
+  ///
+  /// In en, this message translates to:
+  /// **'51–65'**
+  String get onboardingRange51to65;
+
+  /// No description provided for @onboardingRangeOver65.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 65'**
+  String get onboardingRangeOver65;
+
+  /// No description provided for @onboardingRangeUnder150.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 150 cm'**
+  String get onboardingRangeUnder150;
+
+  /// No description provided for @onboardingRange150to160.
+  ///
+  /// In en, this message translates to:
+  /// **'150–160 cm'**
+  String get onboardingRange150to160;
+
+  /// No description provided for @onboardingRange161to170.
+  ///
+  /// In en, this message translates to:
+  /// **'161–170 cm'**
+  String get onboardingRange161to170;
+
+  /// No description provided for @onboardingRange171to180.
+  ///
+  /// In en, this message translates to:
+  /// **'171–180 cm'**
+  String get onboardingRange171to180;
+
+  /// No description provided for @onboardingRangeOver180.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 180 cm'**
+  String get onboardingRangeOver180;
+
+  /// No description provided for @onboardingRangeUnder50kg.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 50 kg'**
+  String get onboardingRangeUnder50kg;
+
+  /// No description provided for @onboardingRange50to65kg.
+  ///
+  /// In en, this message translates to:
+  /// **'50–65 kg'**
+  String get onboardingRange50to65kg;
+
+  /// No description provided for @onboardingRange66to80kg.
+  ///
+  /// In en, this message translates to:
+  /// **'66–80 kg'**
+  String get onboardingRange66to80kg;
+
+  /// No description provided for @onboardingRange81to100kg.
+  ///
+  /// In en, this message translates to:
+  /// **'81–100 kg'**
+  String get onboardingRange81to100kg;
+
+  /// No description provided for @onboardingRangeOver100kg.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 100 kg'**
+  String get onboardingRangeOver100kg;
 
   /// No description provided for @onboardingTapToSelectDate.
   ///
@@ -1248,6 +1519,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'days'**
   String get onboardingDays;
+
+  /// No description provided for @onboardingApproximateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'When was your last period?'**
+  String get onboardingApproximateLabel;
+
+  /// No description provided for @onboardingApproximateLessWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than a week ago'**
+  String get onboardingApproximateLessWeek;
+
+  /// No description provided for @onboardingApproximate1to2Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'1–2 weeks ago'**
+  String get onboardingApproximate1to2Weeks;
+
+  /// No description provided for @onboardingApproximate3to4Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'3–4 weeks ago'**
+  String get onboardingApproximate3to4Weeks;
+
+  /// No description provided for @onboardingApproximateMoreMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'More than a month ago'**
+  String get onboardingApproximateMoreMonth;
+
+  /// No description provided for @onboardingPickExactDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick exact date instead'**
+  String get onboardingPickExactDate;
+
+  /// No description provided for @onboardingLastPeriodRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select when your last period started'**
+  String get onboardingLastPeriodRequired;
+
+  /// No description provided for @nudgeCompleteProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Want more accurate predictions?'**
+  String get nudgeCompleteProfileTitle;
+
+  /// No description provided for @nudgeCompleteProfileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the exact start date of your last period to improve cycle predictions.'**
+  String get nudgeCompleteProfileBody;
+
+  /// No description provided for @nudgeCompleteProfileAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get nudgeCompleteProfileAction;
+
+  /// No description provided for @nudgeCompleteProfileDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe later'**
+  String get nudgeCompleteProfileDismiss;
 
   /// No description provided for @smsScreenTitle.
   ///
@@ -1416,6 +1753,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log at least two cycles to see your trend here.'**
   String get insightsNotEnoughTrendData;
+
+  /// No description provided for @assistantAccessibilitySuggestedPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested prompt'**
+  String get assistantAccessibilitySuggestedPrompt;
+
+  /// No description provided for @assistantAccessibilityMessageInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Message input'**
+  String get assistantAccessibilityMessageInput;
+
+  /// No description provided for @assistantAccessibilityMessageInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your question here'**
+  String get assistantAccessibilityMessageInputHint;
+
+  /// No description provided for @assistantAccessibilitySendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get assistantAccessibilitySendMessage;
+
+  /// No description provided for @assistantAccessibilitySendMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sends your message to the assistant'**
+  String get assistantAccessibilitySendMessageHint;
+
+  /// No description provided for @assistantAccessibilityTyping.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant is typing'**
+  String get assistantAccessibilityTyping;
+
+  /// No description provided for @languageSelectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save language. Please try again.'**
+  String get languageSelectionError;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountConfirmationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account?'**
+  String get deleteAccountConfirmationTitle;
+
+  /// No description provided for @deleteAccountConfirmationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'This action is permanent and cannot be undone. All your data will be wiped.'**
+  String get deleteAccountConfirmationDesc;
+
+  /// No description provided for @accountDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted successfully.'**
+  String get accountDeletedSuccess;
 }
 
 class _AppLocalizationsDelegate

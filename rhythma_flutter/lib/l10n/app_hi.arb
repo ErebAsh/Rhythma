@@ -67,7 +67,14 @@
   "assistantTitle": "रिद्मा सहायक",
   "assistantSubtitle": "आपकी स्वास्थ्य सहयोगी • सुरक्षित और निजी",
   "assistantInputHint": "अपना प्रश्न पूछें...",
-  "assistantWelcome": "नमस्ते आर्या 🌸 मैं रिद्मा हूँ, आपकी निजी स्वास्थ्य सहयोगी। अपने मासिक धर्म चक्र, लक्षणों या स्वास्थ्य से जुड़ा कोई भी प्रश्न मुझसे अंग्रेज़ी, हिंदी, मराठी या तमिल में पूछ सकती हैं।",
+  "assistantWelcome": "नमस्ते {name} 🌸 मैं रिद्मा हूँ, आपकी निजी स्वास्थ्य सहयोगी। अपने मासिक धर्म चक्र, लक्षणों या स्वास्थ्य से जुड़ा कोई भी प्रश्न मुझसे अंग्रेज़ी, हिंदी, मराठी या तमिल में पूछ सकती हैं।",
+  "@assistantWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assistantSug1": "मेरे मासिक धर्म अनियमित क्यों हैं?",
   "assistantSug2": "गंभीर ऐंठन का क्या कारण है?",
   "assistantSug3": "क्या 35 दिन का चक्र सामान्य है?",
@@ -114,6 +121,12 @@
   "profileEmergencyContactsTitle": "आपातकालीन संपर्क",
   "profileAddNew": "नया जोड़ें",
   "profileNoContacts": "अभी तक कोई आपातकालीन संपर्क सेट नहीं किया गया है।",
+  "profileAgeInvalidError": "कृपया मान्य आयु दर्ज करें",
+  "profileCycleInvalidError": "कृपया मान्य मासिक चक्र अवधि दर्ज करें",
+  "profilePhoneInvalidError": "कृपया मान्य फ़ोन नंबर दर्ज करें",
+  "edit": "संपादित करें",
+  "delete": "हटाएँ",
+  "onboardingAvatarOption": "अवतार विकल्प",
   "navHome": "होम",
   "navCycle": "साइकिल",
   "navAsk": "आस्क",
@@ -161,9 +174,47 @@
   "onboardingAgeInvalid": "कृपया वैध आयु दर्ज करें (10–120)",
   "onboardingHeightInvalid": "कृपया वैध ऊंचाई दर्ज करें (50–250 सेमी)",
   "onboardingWeightInvalid": "कृपया वैध वज़न दर्ज करें (20–300 किग्रा)",
+  "onboardingAgeRequired": "कृपया अपनी आयु दर्ज करें या एक सीमा चुनें",
+  "onboardingHeightRequired": "कृपया अपनी ऊँचाई दर्ज करें या एक सीमा चुनें",
+  "onboardingWeightRequired": "कृपया अपना वज़न दर्ज करें या एक सीमा चुनें",
+  "onboardingNotSure": "पक्का नहीं",
+  "onboardingApproximate": "अनुमानित",
+  "onboardingAgeHint": "अपनी आयु दर्ज करें",
+  "onboardingAgeUnit": "वर्ष",
+  "onboardingHeightHint": "अपनी ऊँचाई दर्ज करें",
+  "onboardingHeightUnit": "सेमी",
+  "onboardingWeightHint": "अपना वज़न दर्ज करें",
+  "onboardingWeightUnit": "किलो",
+  "onboardingRangeUnder18": "18 से कम",
+  "onboardingRange18to25": "18–25",
+  "onboardingRange26to35": "26–35",
+  "onboardingRange36to50": "36–50",
+  "onboardingRange51to65": "51–65",
+  "onboardingRangeOver65": "65 से अधिक",
+  "onboardingRangeUnder150": "150 सेमी से कम",
+  "onboardingRange150to160": "150–160 सेमी",
+  "onboardingRange161to170": "161–170 सेमी",
+  "onboardingRange171to180": "171–180 सेमी",
+  "onboardingRangeOver180": "180 सेमी से अधिक",
+  "onboardingRangeUnder50kg": "50 किलो से कम",
+  "onboardingRange50to65kg": "50–65 किलो",
+  "onboardingRange66to80kg": "66–80 किलो",
+  "onboardingRange81to100kg": "81–100 किलो",
+  "onboardingRangeOver100kg": "100 किलो से अधिक",
   "onboardingPhoneInvalid": "कृपया एक मान्य फ़ोन नंबर दर्ज करें",
   "onboardingTapToSelectDate": "तारीख चुनने के लिए टैप करें",
   "onboardingDays": "दिन",
+  "onboardingApproximateLabel": "When was your last period?",
+  "onboardingApproximateLessWeek": "Less than a week ago",
+  "onboardingApproximate1to2Weeks": "1–2 सप्ताह पहले",
+  "onboardingApproximate3to4Weeks": "3–4 सप्ताह पहले",
+  "onboardingApproximateMoreMonth": "एक महीने से अधिक पहले",
+  "onboardingPickExactDate": "इसके बजाय सटीक तिथि चुनें",
+  "onboardingLastPeriodRequired": "कृपया अपने पिछले मासिक धर्म की शुरुआत की तिथि चुनें",
+  "nudgeCompleteProfileTitle": "और सटीक भविष्यवाणियाँ चाहती हैं?",
+  "nudgeCompleteProfileBody": "चक्र भविष्यवाणियों में सुधार के लिए अपने पिछले मासिक धर्म की सटीक तिथि जोड़ें।",
+  "nudgeCompleteProfileAction": "अपडेट करें",
+  "nudgeCompleteProfileDismiss": "बाद में",
   "smsScreenTitle": "एसएमएस सारांश",
   "smsScreenSubtitle": "ऐप के बिना भी जानकारी पाएं",
   "smsInfoCardTitle": "साप्ताहिक स्वास्थ्य सारांश",
@@ -189,7 +240,13 @@
   "smsLoadError": "आपकी एसएमएस सेटिंग्स लोड नहीं हो सकीं। रीफ्रेश करें या पुनः प्रयास करें।",
   "smsSummaryMessage": "🌸 रिद्मा स्वास्थ्य सारांश\nयह रिद्मा से आपका ऑन-डिमांड सारांश है।\nअपनी नवीनतम चक्र जानकारी के लिए ऐप खोलें।\nसदस्यता समाप्त करने के लिए STOP उत्तर दें।",
   "insightsLoadError": "आपकी जानकारी लोड नहीं हो सकी: {error}",
-  "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
+  "@insightsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "insightsNotEnoughData": "अपने पूर्ण स्वास्थ्य अंतर्दृष्टि को अनलॉक करने के लिए Cycle टैब पर कुछ और चक्र लॉग करें।",
   "insightsNoSymptomsYet": "अभी तक कोई लक्षण लॉग नहीं किया गया है - यहाँ पैटर्न देखने के लिए Cycle टैब पर कुछ लॉग करें।",
   "insightsNotEnoughTrendData": "Log at least two cycles to see your trend here.",
@@ -202,7 +259,27 @@
   "homeErrorServer": "हमारी तरफ से कुछ गड़बड़ हुई है। कृपया बाद में फिर से प्रयास करें।",
   "homeErrorGeneric": "डेटा लोड करने में असमर्थ। कृपया फिर से प्रयास करें।",
   "homeQuickLogTitle": "{label} लॉग करें",
-  "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "homeQuickLogSaved": "{label} लॉग किया गया: {value}",
-  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } }
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "languageSelectionError": "भाषा सहेजने में असमर्थ। कृपया पुनः प्रयास करें।",
+  "deleteAccount": "Delete Account",
+  "deleteAccountConfirmationTitle": "Delete Account?",
+  "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
+  "accountDeletedSuccess": "Account deleted successfully."
 }

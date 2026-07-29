@@ -114,6 +114,12 @@
   "profileEmergencyContactsTitle": "आणीबाणी संपर्क",
   "profileAddNew": "नवीन जोडा",
   "profileNoContacts": "अद्याप कोणताही आणीबाणी संपर्क सेट केलेला नाही.",
+  "profileAgeInvalidError": "कृपया वैध वय प्रविष्ट करा",
+  "profileCycleInvalidError": "कृपया वैध मासिक पाळी चक्र कालावधी प्रविष्ट करा",
+  "profilePhoneInvalidError": "कृपया वैध फोन क्रमांक प्रविष्ट करा",
+  "edit": "संपादित करा",
+  "delete": "हटवा",
+  "onboardingAvatarOption": "अवतार पर्याय",
   "navHome": "होम",
   "navCycle": "सायकल",
   "navAsk": "विचारा",
@@ -161,9 +167,47 @@
   "onboardingAgeInvalid": "कृपया वैध वय प्रविष्ट करा (10–120)",
   "onboardingHeightInvalid": "कृपया वैध उंची प्रविष्ट करा (50–250 सेमी)",
   "onboardingWeightInvalid": "कृपया वैध वजन प्रविष्ट करा (20–300 किग्रा)",
+  "onboardingAgeRequired": "कृपया तुमचे वय प्रविष्ट करा किंवा एक श्रेणी निवडा",
+  "onboardingHeightRequired": "कृपया तुमची उंची प्रविष्ट करा किंवा एक श्रेणी निवडा",
+  "onboardingWeightRequired": "कृपया तुमचे वजन प्रविष्ट करा किंवा एक श्रेणी निवडा",
+  "onboardingNotSure": "पक्का नाही",
+  "onboardingApproximate": "अंदाजे",
+  "onboardingAgeHint": "तुमचे वय प्रविष्ट करा",
+  "onboardingAgeUnit": "वर्षे",
+  "onboardingHeightHint": "तुमची उंची प्रविष्ट करा",
+  "onboardingHeightUnit": "सेमी",
+  "onboardingWeightHint": "तुमचे वजन प्रविष्ट करा",
+  "onboardingWeightUnit": "किलो",
+  "onboardingRangeUnder18": "18 पेक्षा कमी",
+  "onboardingRange18to25": "18–25",
+  "onboardingRange26to35": "26–35",
+  "onboardingRange36to50": "36–50",
+  "onboardingRange51to65": "51–65",
+  "onboardingRangeOver65": "65 पेक्षा जास्त",
+  "onboardingRangeUnder150": "150 सेमी पेक्षा कमी",
+  "onboardingRange150to160": "150–160 सेमी",
+  "onboardingRange161to170": "161–170 सेमी",
+  "onboardingRange171to180": "171–180 सेमी",
+  "onboardingRangeOver180": "180 सेमी पेक्षा जास्त",
+  "onboardingRangeUnder50kg": "50 किलो पेक्षा कमी",
+  "onboardingRange50to65kg": "50–65 किलो",
+  "onboardingRange66to80kg": "66–80 किलो",
+  "onboardingRange81to100kg": "81–100 किलो",
+  "onboardingRangeOver100kg": "100 किलो पेक्षा जास्त",
   "onboardingPhoneInvalid": "कृपया वैध फोन नंबर प्रविष्ट करा",
   "onboardingTapToSelectDate": "तारीख निवडण्यासाठी टॅप करा",
   "onboardingDays": "दिवस",
+  "onboardingApproximateLabel": "When was your last period?",
+  "onboardingApproximateLessWeek": "Less than a week ago",
+  "onboardingApproximate1to2Weeks": "1–2 आठड्यांपूर्वी",
+  "onboardingApproximate3to4Weeks": "3–4 आठड्यांपूर्वी",
+  "onboardingApproximateMoreMonth": "एका महिन्यापेक्षा जास्त पूर्वी",
+  "onboardingPickExactDate": "त्याऐवजी अचूक तारीख निवडा",
+  "onboardingLastPeriodRequired": "कृपया आपल्या शेवटच्या मासिक पळीची सुरुवात कधी झाली ते निवडा",
+  "nudgeCompleteProfileTitle": "अधिक अचूक अंदाज हवे आहेत?",
+  "nudgeCompleteProfileBody": "चक्र अंदाज सुधारण्यासाठी आपल्या शेवटच्या मासिक पळीची अचूक सुरुवातीची तारीख जोडा.",
+  "nudgeCompleteProfileAction": "अद्ययावत करा",
+  "nudgeCompleteProfileDismiss": "नंतर",
   "smsScreenTitle": "एसएमएस सारांश",
   "smsScreenSubtitle": "अ‍ॅपशिवायही माहिती मिळवा",
   "smsInfoCardTitle": "साप्ताहिक आरोग्य सारांश",
@@ -189,7 +233,13 @@
   "smsLoadError": "तुमच्या एसएमएस सेटिंग्ज लोड होऊ शकल्या नाहीत. रिफ्रेश करा किंवा पुन्हा प्रयत्न करा.",
   "smsSummaryMessage": "🌸 रिद्मा आरोग्य सारांश\nहा रिद्माकडून तुमचा ऑन-डिमांड सारांश आहे.\nतुमच्या नवीनतम चक्र माहितीसाठी अ‍ॅप उघडा.\nसदस्यता रद्द करण्यासाठी STOP उत्तर द्या.",
   "insightsLoadError": "तुमची अंतर्दृष्टी लोड करता आली नाही: {error}",
-  "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
+  "@insightsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "insightsNotEnoughData": "तुमचे संपूर्ण आरोग्य अंतर्दृष्टी अनलॉक करण्यासाठी Cycle टॅबवर आणखी काही चक्र लॉग करा.",
   "insightsNoSymptomsYet": "अद्याप कोणतीही लक्षणे लॉग केलेली नाहीत - Cycle टॅबवर काही लॉग करा.",
   "insightsNotEnoughTrendData": "तुमचा ट्रेंड पाहण्यासाठी किमान दोन चक्र लॉग करा.",
@@ -202,7 +252,27 @@
   "homeErrorServer": "आमच्या बाजूला काहीतरी चूक झाली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
   "homeErrorGeneric": "डेटा लोड करण्यात असमर्थ. कृपया पुन्हा प्रयत्न करा.",
   "homeQuickLogTitle": "{label} नोंदवा",
-  "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "homeQuickLogSaved": "{label} नोंदवले गेले: {value}",
-  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } }
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "languageSelectionError": "भाषा जतन करण्यात असमर्थ. कृपया पुन्हा प्रयत्न करा.",
+  "deleteAccount": "Delete Account",
+  "deleteAccountConfirmationTitle": "Delete Account?",
+  "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
+  "accountDeletedSuccess": "Account deleted successfully."
 }

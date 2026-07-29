@@ -2,14 +2,6 @@ import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1';
 
-const TOKEN_KEY = 'rhythma_token';
-
-export const tokenStorage = {
-  get: () => localStorage.getItem(TOKEN_KEY),
-  set: (token: string) => localStorage.setItem(TOKEN_KEY, token),
-  clear: () => localStorage.removeItem(TOKEN_KEY),
-};
-
 // Set by the auth provider once the router is mounted, so a 401 anywhere
 // can redirect to /login without this module needing to import React.
 let onUnauthorized: (() => void) | null = null;
@@ -19,25 +11,18 @@ export function setUnauthorizedHandler(handler: () => void) {
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
-});
-
-// Attach the stored token to every request, mirroring api_client.dart's
-// interceptor.
-apiClient.interceptors.request.use((config) => {
-  const token = tokenStorage.get();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+  withCredentials: true, // send cookies with requests to the backend
+  headers: { 'X-Client-Platform': 'web' }, // for the backend to know which client is making requests 
 });
 
 // A 401 anywhere means the token is invalid or expired: clear it and
 // redirect to /login, same as the Flutter app's global onUnauthorized.
+// Modified: No more request interceptor attaching Authorization — the cookie
+// rides along automatically.
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      tokenStorage.clear();
       onUnauthorized?.();
     }
     return Promise.reject(error);

@@ -1,14 +1,41 @@
 import logging
 import os
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 import google.generativeai as genai
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
 from core.auth import get_current_user
+from services.firestore_service import AssistantConversationService
 
 logger = logging.getLogger(__name__)
+
+# ─── Rate Limiter (in-memory, resets on restart) ──────────────────────────
+_assistant_rate_history = {}
+
+ASSISTANT_RATE_LIMIT = int(os.getenv("ASSISTANT_RATE_LIMIT", "10"))
+ASSISTANT_RATE_WINDOW = int(os.getenv("ASSISTANT_RATE_WINDOW", "60"))
+
+
+def is_rate_limited(user_id: str) -> Optional[int]:
+    now = datetime.now(timezone.utc)
+    if user_id in _assistant_rate_history:
+        _assistant_rate_history[user_id] = [
+            t for t in _assistant_rate_history[user_id]
+            if now - t < timedelta(seconds=ASSISTANT_RATE_WINDOW)
+        ]
+    else:
+        _assistant_rate_history[user_id] = []
+
+    if len(_assistant_rate_history[user_id]) >= ASSISTANT_RATE_LIMIT:
+        oldest = _assistant_rate_history[user_id][0]
+        remaining = int((oldest + timedelta(seconds=ASSISTANT_RATE_WINDOW) - now).total_seconds())
+        return max(remaining, 1)
+
+    _assistant_rate_history[user_id].append(now)
+    return None
 
 
 class ChatMessage(BaseModel):
@@ -62,14 +89,32 @@ async def chat(
     if not GEMINI_API_KEY:
         raise HTTPException(status_code=500, detail="AI service not configured.")
 
+    user_id = current_user.get("id")
+
+    # Rate limit check
+    remaining = is_rate_limited(user_id)
+    if remaining is not None:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Rate limit exceeded. Please wait {remaining} seconds before sending another message.",
+            headers={"Retry-After": str(remaining)},
+        )
+
+    # Load persisted history from Firestore, falling back to client-provided history
+    persisted = AssistantConversationService.get_recent_messages(user_id, limit=10)
+    history = [ChatMessage(**m) if isinstance(m, dict) else m for m in persisted]
+
+    if not history and request.history:
+        history = request.history[-10:]
+
     prompt_parts = [
         f"System: {SYSTEM_PROMPT}",
         f"Language: Respond in {request.language}.",
         "\n--- Conversation History ---",
     ]
 
-    if request.history:
-        for msg in request.history[-10:]:
+    if history:
+        for msg in history[-10:]:
             if msg.role == "user":
                 prompt_parts.append(f"User: {msg.content}")
             elif msg.role == "model":
@@ -89,6 +134,12 @@ async def chat(
         model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content("\n".join(prompt_parts))
         reply = response.text.strip() if response.text else "I'm sorry, I couldn't process that."
+        
+        # Persist exchange to Firestore
+        AssistantConversationService.add_messages(user_id, [
+            {"role": "user", "content": request.message},
+            {"role": "model", "content": reply},
+        ])
 
         return AssistantResponse(
             response=reply,

@@ -63,6 +63,21 @@ class AppLocalizationsTa extends AppLocalizations {
   String get selectLanguage => 'மொழியைத் தேர்ந்தெடுக்கவும்';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
   String get homeGreeting => 'வணக்கம்';
 
   @override
@@ -301,8 +316,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get assistantInputHint => 'உங்கள் கேள்வியைக் கேட்கவும்...';
 
   @override
-  String get assistantWelcome =>
-      'வணக்கம் ஆர்யா 🌸 நான் ரித்மா, உங்கள் தனிப்பட்ட சுகாதார துணை. உங்கள் சுழற்சி, அறிகுறிகள் பற்றி என்னிடம் கேளுங்கள் — ஆங்கிலம், இந்தி, மராத்தி அல்லது தமிழில்.';
+  String assistantWelcome(String name) {
+    return 'வணக்கம் $name 🌸 நான் ரித்மா, உங்கள் தனிப்பட்ட சுகாதார துணை. உங்கள் சுழற்சி, அறிகுறிகள் பற்றி என்னிடம் கேளுங்கள் — ஆங்கிலம், இந்தி, மராத்தி அல்லது தமிழில்.';
+  }
 
   @override
   String get assistantSug1 => 'எனது மாதவிடாய் ஏன் ஒழுங்கற்றது?';
@@ -425,6 +441,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get profileSaveChanges => 'மாற்றங்களை சேமி';
 
   @override
+  String get profileNameEmptyError => 'Please enter a valid name';
+
+  @override
   String get profileAddContact => 'தொடர்பைச் சேர்க்கவும்';
 
   @override
@@ -445,6 +464,28 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get profileNoContacts =>
       'அவசரத் தொடர்புகள் எதுவும் இன்னும் அமைக்கப்படவில்லை.';
+
+  @override
+  String get profileAgeInvalidError => 'சரியான வயதை உள்ளிடவும்';
+
+  @override
+  String get profileCycleInvalidError =>
+      'சரியான மாதவிடாய் சுழற்சி காலத்தை உள்ளிடவும்';
+
+  @override
+  String get profilePhoneInvalidError => 'சரியான தொலைபேசி எண்ணை உள்ளிடவும்';
+
+  @override
+  String get contactNameRequiredError => 'Contact name is required';
+
+  @override
+  String get edit => 'திருத்து';
+
+  @override
+  String get delete => 'நீக்கு';
+
+  @override
+  String get onboardingAvatarOption => 'அவதார் விருப்பம்';
 
   @override
   String get navHome => 'முகப்பு';
@@ -475,6 +516,19 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get settingsEmailError =>
       'மின்னஞ்சல் பயன்பாட்டைத் திறக்க முடியவில்லை. தயவுசெய்து எங்களை support@rhythma.com இல் தொடர்பு கொள்ளவும்';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
 
   @override
   String get onboardingPrivacyNote =>
@@ -560,6 +614,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get onboardingPhoneLabel => 'தொலைபேசி எண் (விரும்பினால்)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'நகரம் (விரும்பினால்)';
 
   @override
@@ -603,13 +660,135 @@ class AppLocalizationsTa extends AppLocalizations {
       'தயவுசெய்து சரியான எடையை உள்ளிடவும் (20–300 கிகி)';
 
   @override
-  String get onboardingPhoneInvalid => 'Please enter a valid phone number';
+  String get onboardingPhoneInvalid =>
+      'Use international format, e.g. +919876543210';
+
+  @override
+  String get onboardingAgeRequired =>
+      'தயவுசெய்து உங்கள் வயதை உள்ளிடவும் அல்லது ஒரு வரம்பைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get onboardingHeightRequired =>
+      'தயவுசெய்து உங்கள் உயரத்தை உள்ளிடவும் அல்லது ஒரு வரம்பைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get onboardingWeightRequired =>
+      'தயவுசெய்து உங்கள் எடையை உள்ளிடவும் அல்லது ஒரு வரம்பைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get onboardingNotSure => 'உறுதியாக தெரியவில்லை';
+
+  @override
+  String get onboardingApproximate => 'தோராயமான';
+
+  @override
+  String get onboardingAgeHint => 'உங்கள் வயதை உள்ளிடவும்';
+
+  @override
+  String get onboardingAgeUnit => 'ஆண்டுகள்';
+
+  @override
+  String get onboardingHeightHint => 'உங்கள் உயரத்தை உள்ளிடவும்';
+
+  @override
+  String get onboardingHeightUnit => 'செமீ';
+
+  @override
+  String get onboardingWeightHint => 'உங்கள் எடையை உள்ளிடவும்';
+
+  @override
+  String get onboardingWeightUnit => 'கிலோ';
+
+  @override
+  String get onboardingRangeUnder18 => '18 க்கும் குறைவாக';
+
+  @override
+  String get onboardingRange18to25 => '18–25';
+
+  @override
+  String get onboardingRange26to35 => '26–35';
+
+  @override
+  String get onboardingRange36to50 => '36–50';
+
+  @override
+  String get onboardingRange51to65 => '51–65';
+
+  @override
+  String get onboardingRangeOver65 => '65 க்கும் அதிகமாக';
+
+  @override
+  String get onboardingRangeUnder150 => '150 செமீ க்கும் குறைவாக';
+
+  @override
+  String get onboardingRange150to160 => '150–160 செமீ';
+
+  @override
+  String get onboardingRange161to170 => '161–170 செமீ';
+
+  @override
+  String get onboardingRange171to180 => '171–180 செமீ';
+
+  @override
+  String get onboardingRangeOver180 => '180 செமீ க்கும் அதிகமாக';
+
+  @override
+  String get onboardingRangeUnder50kg => '50 கிலோ க்கும் குறைவாக';
+
+  @override
+  String get onboardingRange50to65kg => '50–65 கிலோ';
+
+  @override
+  String get onboardingRange66to80kg => '66–80 கிலோ';
+
+  @override
+  String get onboardingRange81to100kg => '81–100 கிலோ';
+
+  @override
+  String get onboardingRangeOver100kg => '100 கிலோ க்கும் அதிகமாக';
 
   @override
   String get onboardingTapToSelectDate => 'Tap to select date';
 
   @override
   String get onboardingDays => 'days';
+
+  @override
+  String get onboardingApproximateLabel => 'When was your last period?';
+
+  @override
+  String get onboardingApproximateLessWeek => 'Less than a week ago';
+
+  @override
+  String get onboardingApproximate1to2Weeks => '1–2 வாரங்களுக்கு முன்';
+
+  @override
+  String get onboardingApproximate3to4Weeks => '3–4 வாரங்களுக்கு முன்';
+
+  @override
+  String get onboardingApproximateMoreMonth => 'ஒரு மாதத்திற்கும் மேலாக';
+
+  @override
+  String get onboardingPickExactDate =>
+      'அதற்கு பதிலாக சரியான தேதியைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get onboardingLastPeriodRequired =>
+      'உங்கள் கடந்த மாதவிடாய் எப்போது தொடங்கியது என்பதைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get nudgeCompleteProfileTitle =>
+      'மிகவும் துல்லியமான கணிப்புகள் வேண்டுமா?';
+
+  @override
+  String get nudgeCompleteProfileBody =>
+      'சுழற்சி கணிப்புகளை மேம்படுத்த உங்கள் கடந்த மாதவிடாய் தொடக்க தேதியைச் சேர்க்கவும்.';
+
+  @override
+  String get nudgeCompleteProfileAction => 'புதுப்பி';
+
+  @override
+  String get nudgeCompleteProfileDismiss => 'பிறகு';
 
   @override
   String get smsScreenTitle => 'SMS Summaries';
@@ -706,4 +885,41 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'Log at least two cycles to see your trend here.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'Message input';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'Type your question here';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'Send message';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'Sends your message to the assistant';
+
+  @override
+  String get assistantAccessibilityTyping => 'Assistant is typing';
+
+  @override
+  String get languageSelectionError =>
+      'மொழியைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountConfirmationDesc =>
+      'This action is permanent and cannot be undone. All your data will be wiped.';
+
+  @override
+  String get accountDeletedSuccess => 'Account deleted successfully.';
 }

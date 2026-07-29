@@ -25,6 +25,22 @@ class MockDocumentReference:
         if self.data:
             self.data.update(update_data)
             self.collection.store[self.id] = self.data
+            
+    def set(self, document_data):
+        self.data = document_data.copy()
+        self.collection.store[self.id] = self.data
+        self.exists = True
+
+    def set(self, set_data):
+        self.collection.store[self.id] = set_data
+        self.data = set_data
+        self.exists = True
+
+    def delete(self):
+        if self.id in self.collection.store:
+            del self.collection.store[self.id]
+        self.data = None
+        self.exists = False
 
 class MockQuery:
     def __init__(self, documents):
@@ -63,8 +79,6 @@ class MockQuery:
             yield doc
 
 class MockCollectionReference:
-    _next_id = 1
-
     def __init__(self, name, db):
         self.name = name
         self.db = db
@@ -73,8 +87,28 @@ class MockCollectionReference:
         self.store = db._collections[name]
 
     def add(self, document_data):
-        doc_id = f"mock-doc-id-{MockCollectionReference._next_id}"
-        MockCollectionReference._next_id += 1
+        # Per-collection auto-ID counter.
+        #
+        # Previously this counter was a class-level attribute
+        # (`MockCollectionReference._next_id`), which meant every mock
+        # collection — `users`, `cycle_logs`, `conversations`, etc. —
+        # drew IDs from one shared incrementing sequence, so creating a
+        # user then a cycle log produced `mock-doc-id-1` and
+        # `mock-doc-id-2` instead of `mock-doc-id-1` in each collection.
+        #
+        # The counter cannot live on the instance either, because
+        # `MockFirestoreClient.collection(name)` builds a *fresh*
+        # `MockCollectionReference` on every call — an instance-level
+        # counter would reset to 1 each time and collide immediately.
+        #
+        # Persisting it on the shared `db._counters` dict, keyed by
+        # collection name, gives each collection its own independent
+        # sequence that survives across `db.collection(name)` calls —
+        # matching how real Firestore auto-IDs are namespaced
+        # per-collection.
+        next_id = self.db._counters.get(self.name, 0) + 1
+        self.db._counters[self.name] = next_id
+        doc_id = f"mock-doc-id-{next_id}"
         self.store[doc_id] = document_data
         return (None, MockDocumentReference(doc_id, document_data, self))
 
@@ -99,6 +133,10 @@ class MockCollectionReference:
 class MockFirestoreClient:
     def __init__(self):
         self._collections = {}
+        # Per-collection auto-ID counters for MockCollectionReference.add().
+        # Keyed by collection name so each collection has its own
+        # independent sequence (see MockCollectionReference.add).
+        self._counters = {}
 
     def collection(self, name):
         return MockCollectionReference(name, self)
@@ -185,6 +223,22 @@ class UserService:
             )
 
     @staticmethod
+    def get_user_by_phone(phone: str) -> Optional[Dict[str, Any]]:
+        """Fetch a user by phone number."""
+        try:
+            users = db.collection("users").where("phone", "==", phone).limit(1).stream()
+            for user in users:
+                data = user.to_dict()
+                data["id"] = user.id
+                return data
+            return None
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to fetch user: {str(e)}"
+            )
+
+    @staticmethod
     def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
         """Fetch a user by Firestore document ID."""
         try:
@@ -212,6 +266,45 @@ class UserService:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to update user: {str(e)}"
+            )
+
+    @staticmethod
+    def delete_user(user_id: str) -> None:
+        """Delete a user document and their cycle logs, and from Firebase Auth."""
+        try:
+            user = UserService.get_user_by_id(user_id)
+            if not user:
+                return
+
+            phone = user.get("phone")
+
+            # Delete all cycle logs
+            cycle_logs = db.collection("cycle_logs").where("user_id", "==", user_id).stream()
+            for log in cycle_logs:
+                # In MockFirestoreClient, delete is available on MockDocumentReference
+                # In real Firestore, it's doc.reference.delete()
+                # But here cycle_logs returns doc snapshots. For safety:
+                try:
+                    log.reference.delete()
+                except AttributeError:
+                    log.delete()
+
+            # Delete from Firebase Auth
+            if phone:
+                try:
+                    import firebase_admin.auth
+                    fb_user = firebase_admin.auth.get_user_by_phone_number(phone)
+                    firebase_admin.auth.delete_user(fb_user.uid)
+                except Exception as e:
+                    # Ignore if the user is not found in Firebase Auth
+                    pass
+
+            # Delete user document
+            db.collection("users").document(user_id).delete()
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to delete user: {str(e)}"
             )
 
 
@@ -294,60 +387,174 @@ class CycleService:
             )
 
     @staticmethod
+    def _log_doc_id(user_id: str, log_date: date) -> str:
+        return f"{user_id}_{log_date.isoformat()}"
+
+    @staticmethod
     def upsert_log(user_id: str, log_date: date, fields: Dict[str, Any]) -> str:
-        """Create or update *that day's* cycle log with the given fields.
+        """Create or update *that day's* cycle log with O(1) lookup.
+
+        Uses a deterministic document ID (`{user_id}_{YYYY-MM-DD}`) so
+        upsert is a direct get/update-or-set — no full-collection scan.
 
         Backs the single `POST /cycle/log` endpoint for both the Home
         screen's quick-log tiles (a partial `fields` dict — just the one
         thing being tapped, e.g. `{"flow_intensity": "light"}`) and the
         Cycle screen's "Save" button (a full `fields` dict with everything
-        selected for that day). Either way, this finds-or-creates a single
-        document for (user_id, log_date) and merges `fields` into it,
-        rather than creating a new document per call — without this,
-        logging flow then mood then sleep for the same day would produce
-        three separate half-filled documents instead of one complete one,
-        which would also throw off the day-to-day cycle-length math in the
-        dashboard (each same-day duplicate looks like a separate "cycle
-        start").
-
-        Deliberately avoids a range filter (`start_date` between day-start
-        and day-end) chained onto the `user_id ==` equality filter — that
-        combination needs a composite index in Firestore (same as
-        `get_logs_for_user` avoids). Instead this fetches all of the user's
-        logs (equality filter only) and finds today's match in Python. Fine
-        at this app's current scale; would need revisiting if a single
-        user's log volume grew large.
+        selected for that day).
         """
         try:
+            doc_id = CycleService._log_doc_id(user_id, log_date)
+            doc_ref = db.collection("cycle_logs").document(doc_id)
+            existing = doc_ref.get()
+
             day_start = datetime.combine(log_date, datetime.min.time(), tzinfo=timezone.utc)
-            day_end = datetime.combine(log_date, datetime.max.time(), tzinfo=timezone.utc)
-
-            docs = list(db.collection("cycle_logs").where("user_id", "==", user_id).stream())
-            match = None
-            for doc in docs:
-                start = doc.to_dict().get("start_date")
-                if isinstance(start, datetime) and day_start <= start <= day_end:
-                    match = doc
-                    break
-
             now = datetime.now(timezone.utc)
             update_fields = dict(fields)
-            # Normalize any bare `date` values (e.g. end_date) to UTC datetime,
-            # same as create_log did.
+
             for key, value in list(update_fields.items()):
                 if isinstance(value, date) and not isinstance(value, datetime):
                     update_fields[key] = datetime.combine(value, datetime.min.time(), tzinfo=timezone.utc)
 
-            if match:
+            if existing.exists:
                 update_fields["updated_at"] = now
-                db.collection("cycle_logs").document(match.id).update(update_fields)
-                return match.id
+                doc_ref.update(update_fields)
+                return doc_id
 
             new_data = {**update_fields, "user_id": user_id, "start_date": day_start, "created_at": now}
-            doc_ref = db.collection("cycle_logs").add(new_data)
-            return doc_ref[1].id
+            doc_ref.set(new_data)
+            return doc_id
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to save cycle log: {str(e)}"
             )
+
+    @staticmethod
+    def update_log(user_id: str, log_id: str, fields: Dict[str, Any]) -> str:
+        """Update a specific cycle log by ID."""
+        try:
+            doc_ref = db.collection("cycle_logs").document(log_id)
+            doc = doc_ref.get()
+            
+            if not doc.exists:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Cycle log not found"
+                )
+                
+            if doc.to_dict().get("user_id") != user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not authorized to update this log"
+                )
+                
+            update_fields = dict(fields)
+            for key, value in list(update_fields.items()):
+                if isinstance(value, date) and not isinstance(value, datetime):
+                    update_fields[key] = datetime.combine(value, datetime.min.time(), tzinfo=timezone.utc)
+            
+            update_fields["updated_at"] = datetime.now(timezone.utc)
+            doc_ref.update(update_fields)
+            return log_id
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to update cycle log: {str(e)}"
+            )
+
+    @staticmethod
+    def delete_log(user_id: str, log_id: str) -> None:
+        """Delete a specific cycle log by ID."""
+        try:
+            doc_ref = db.collection("cycle_logs").document(log_id)
+            doc = doc_ref.get()
+            
+            if not doc.exists:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Cycle log not found"
+                )
+                
+            if doc.to_dict().get("user_id") != user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not authorized to delete this log"
+                )
+                
+            doc_ref.delete()
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to delete cycle log: {str(e)}"
+            )
+
+
+# ─── Maximum number of messages kept per conversation ────────────────────
+MAX_CONVERSATION_MESSAGES = 50
+
+
+class AssistantConversationService:
+    """Persists assistant chat messages per user in Firestore.
+
+    Each user has a single document in the ``conversations`` collection,
+    keyed by ``user_id``, with a capped ``messages`` array.  When the
+    array reaches ``MAX_CONVERSATION_MESSAGES`` (50) the oldest messages
+    are trimmed so new ones always fit — effectively a rolling window of
+    the most recent exchanges.
+
+    This guarantees the document never grows large enough to hit
+    Firestore's 1 MiB per-document limit (each message is ~200 bytes,
+    so 50 messages is ~10 KiB) and keeps retrieval of the most recent N
+    messages a single document read.
+    """
+
+    COLLECTION = "conversations"
+
+    @staticmethod
+    def get_or_create(user_id: str) -> dict:
+        now = datetime.now(timezone.utc)
+        doc_ref = db.collection(AssistantConversationService.COLLECTION).document(user_id)
+        doc = doc_ref.get()
+        if doc.exists:
+            return doc.to_dict()
+        conversation = {
+            "user_id": user_id,
+            "messages": [],
+            "created_at": now,
+            "updated_at": now,
+        }
+        doc_ref.set(conversation)
+        return conversation
+
+    @staticmethod
+    def get_recent_messages(user_id: str, limit: int = 10) -> list:
+        conversation = AssistantConversationService.get_or_create(user_id)
+        return conversation.get("messages", [])[-limit:]
+
+    @staticmethod
+    def add_messages(user_id: str, new_messages: list) -> None:
+        now = datetime.now(timezone.utc)
+        doc_ref = db.collection(AssistantConversationService.COLLECTION).document(user_id)
+        doc = doc_ref.get()
+        if not doc.exists:
+            conversation = {
+                "user_id": user_id,
+                "messages": [],
+                "created_at": now,
+                "updated_at": now,
+            }
+            doc_ref.set(conversation)
+            doc = doc_ref.get()
+        current = doc.to_dict().get("messages", [])
+        current.extend(new_messages)
+        if len(current) > MAX_CONVERSATION_MESSAGES:
+            current = current[-MAX_CONVERSATION_MESSAGES:]
+        doc_ref.update({
+            "messages": current,
+            "updated_at": now,
+        })
