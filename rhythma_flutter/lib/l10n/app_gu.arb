@@ -1,7 +1,9 @@
 {
   "@@locale": "gu",
   "appTitle": "Rhythma",
-  "@appTitle": { "description": "The title of the application" },
+  "@appTitle": {
+    "description": "The title of the application"
+  },
   "settingsTitle": "સેટિંગ્સ",
   "appPreferences": "એપ પ્રાથમિકતાઓ",
   "languagePreferences": "ભાષા પ્રાથમિકતાઓ",
@@ -49,15 +51,36 @@
   "homeSleep": "ઊંઘ",
   "homeComingSoon": "ટૂંકમાં આવી રહ્યું છે",
   "homeUnderDevelopment": "{topic} હાલમાં વિકાસ હેઠળ છે.",
-  "@homeUnderDevelopment": { "placeholders": { "topic": { "type": "String" } } },
+  "@homeUnderDevelopment": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
   "homeErrorNetwork": "કૃપા કરીને તમારું ઇન્ટરનેટ કનેક્શન તપાસો અને ફરી પ્રયાસ કરો.",
   "homeErrorAuth": "તમારું સત્ર સમાપ્ત થયું છે. કૃપા કરીને ફરી લૉગ ઇન કરો.",
   "homeErrorServer": "અમારી બાજુથી કંઈક ખોટું થયું. કૃપા કરીને પછીથી ફરી પ્રયાસ કરો.",
   "homeErrorGeneric": "ડેટા લોડ કરવામાં અસમર્થ. કૃપા કરીને ફરી પ્રયાસ કરો.",
   "homeQuickLogTitle": "{label} લૉગ કરો",
-  "@homeQuickLogTitle": { "placeholders": { "label": { "type": "String" } } },
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "homeQuickLogSaved": "{label} લૉગ થયું: {value}",
-  "@homeQuickLogSaved": { "placeholders": { "label": { "type": "String" }, "value": { "type": "String" } } },
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "homePrivacySecurity": "ગોપનીયતા અને સુરક્ષા",
   "homeOk": "ઠીક છે",
   "cycleTrackerTitle": "ચક્ર ટ્રેકર",
@@ -219,8 +242,20 @@
   "smsLoadError": "તમારી SMS સેટિંગ્સ લોડ કરી શકાઈ નથી. રીફ્રેશ કરો અથવા ફરી પ્રયાસ કરો.",
   "smsSummaryMessage": "🌸 Rhythma સ્વાસ્થ્ય સારાંશ\nઆ Rhythma થી તમારો ઑન-ડિમાન્ડ સારાંશ છે.\nતમારી નવીનતમ ચક્ર અંતર્દૃષ્ટિ માટે એપ ખોલો.\nસબ્સ્ક્રિપ્શન રદ કરવા STOP નો જવાબ આપો.",
   "insightsLoadError": "તમારી અંતર્દૃષ્ટિ લોડ કરી શકાઈ નથી: {error}",
-  "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
+  "@insightsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "insightsNotEnoughData": "તમારી સંપૂર્ણ સ્વાસ્થ્ય અંતર્દૃષ્ટિ અનલૉક કરવા માટે ચક્ર ટેબ પર થોડા વધુ ચક્રો લૉગ કરો.",
   "insightsNoSymptomsYet": "હજુ સુધી કોઈ લક્ષણો લૉગ થયા નથી — અહીં પેટર્ન જોવા માટે ચક્ર ટેબ પર કેટલાક લૉગ કરો.",
-  "insightsNotEnoughTrendData": "તમારું વલણ અહીં જોવા માટે ઓછામાં ઓછા બે ચક્રો લૉગ કરો."
+  "insightsNotEnoughTrendData": "તમારું વલણ અહીં જોવા માટે ઓછામાં ઓછા બે ચક્રો લૉગ કરો.",
+  "langEnglish": "English",
+  "langHindi": "हिन्दी (Hindi)",
+  "langTamil": "தமிழ் (Tamil)",
+  "langTelugu": "తెలుగు (Telugu)",
+  "langMarathi": "मराठी (Marathi)",
+  "langGujarati": "ગુજરાતી (Gujarati)"
 }
