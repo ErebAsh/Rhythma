@@ -21,6 +21,24 @@ class AppLocalizationsGu extends AppLocalizations {
   String get languagePreferences => 'ભાષા પ્રાથમિકતાઓ';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
+  String get langGujarati => 'ગુજરાતી (Gujarati)';
+
+  @override
   String get darkMode => 'ડાર્ક મોડ';
 
   @override

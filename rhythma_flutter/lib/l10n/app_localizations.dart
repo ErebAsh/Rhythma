@@ -248,6 +248,12 @@ abstract class AppLocalizations {
   /// **'मराठी (Marathi)'**
   String get langMarathi;
 
+  /// No description provided for @langGujarati.
+  ///
+  /// In en, this message translates to:
+  /// **'ગુજરાતી (Gujarati)'**
+  String get langGujarati;
+
   /// No description provided for @homeGreeting.
   ///
   /// In en, this message translates to:
