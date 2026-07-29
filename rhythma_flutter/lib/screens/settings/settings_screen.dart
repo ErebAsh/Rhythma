@@ -5,6 +5,7 @@ import '../../components/shared.dart';
 import '../../config/theme.dart';
 import '../../services/auth_service.dart';
 import '../../services/export_service.dart';
+import '../../services/local_storage_service.dart';
 import '../../services/notification_service.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -22,10 +23,10 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Notification Toggles
-  bool _cycleTracking = true;
+  bool _cycleTracking = LocalStorageService.periodPredictionReminders;
   bool _medicineAlerts = true;
   bool _wellnessTips = false;
+  bool _loggingReminders = LocalStorageService.loggingReminders;
 
   void _showLogoutDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -381,6 +382,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() {
                           _cycleTracking = value;
                         });
+                        await LocalStorageService.setPeriodPredictionReminders(value);
+                        if (value) {
+                          bool granted = await NotificationService.instance
+                              .requestPermissions();
+                          if (granted) {
+                            NotificationService.instance
+                                .schedulePeriodPredictionReminder();
+                          } else {
+                            setState(() {
+                              _cycleTracking = false;
+                            });
+                          }
+                        } else {
+                          NotificationService.instance
+                              .cancelNotification(2001);
+                        }
                       }
                     },
                   ),
@@ -443,6 +460,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() {
                           _wellnessTips = value;
                         });
+                      }
+                    },
+                  ),
+                  Divider(height: 1, color: RhythmaColors.border),
+                  SwitchListTile(
+                    secondary: TintedIcon(
+                      icon: Icons.edit_calendar_rounded,
+                      color: RhythmaColors.mutedFg,
+                      size: 36,
+                    ),
+                    title: Text('Logging Reminders'),
+                    subtitle: Text('Remind to log if no data for today'),
+                    value: _loggingReminders,
+                    activeThumbColor: RhythmaColors.primary,
+                    onChanged: (bool value) async {
+                      bool confirm = await _showConfirmationDialog(
+                          'Logging Reminders', 'logging reminders', value);
+                      if (confirm) {
+                        setState(() {
+                          _loggingReminders = value;
+                        });
+                        await LocalStorageService.setLoggingReminders(value);
+                        if (value) {
+                          bool granted = await NotificationService.instance
+                              .requestPermissions();
+                          if (granted) {
+                            NotificationService.instance
+                                .scheduleLoggingReminder();
+                          } else {
+                            setState(() {
+                              _loggingReminders = false;
+                            });
+                          }
+                        } else {
+                          NotificationService.instance
+                              .cancelNotification(2002);
+                        }
                       }
                     },
                   ),
