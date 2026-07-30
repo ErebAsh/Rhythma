@@ -1,21 +1,59 @@
 from datetime import date
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
+from typing import Optional
+
 from core.auth import get_current_user
 from services.scoring_service import get_user_scores, as_date, DEFAULT_CYCLE_LENGTH
+
+
+class DashboardUser(BaseModel):
+    name: str
+
+
+class DashboardCycle(BaseModel):
+    day: Optional[int] = None
+    total: int
+    nextPeriodDays: Optional[int] = None
+
+
+class DashboardInsights(BaseModel):
+    mhs: Optional[float] = None
+    cvi: Optional[str] = None
+    sleepHours: Optional[str] = None
+
+
+class CycleHistoryEntry(BaseModel):
+    start_date: str
+    cycle_length: int
+
+
+class DashboardResponse(BaseModel):
+    user: DashboardUser
+    cycle: DashboardCycle
+    insights: DashboardInsights
+    hasEnoughDataForInsights: bool
+    loggedCycleCount: int
+    cycleHistory: list[CycleHistoryEntry]
+    symptomFrequency: dict[str, float]
+    recentStressLevel: Optional[int] = None
+
 
 router = APIRouter(tags=["Dashboard"])
 
 
-@router.get("/dashboard")
+@router.get(
+    "/dashboard",
+    response_model=DashboardResponse,
+    summary="Get dashboard data",
+    description="Returns the user's current cycle summary, computed health scores (MHS/CVI), sleep average, cycle history, symptom frequencies, and recent stress level. All insight data is computed server-side using the same scoring service shared with the Insights endpoint.",
+)
 async def get_dashboard(current_user: dict = Depends(get_current_user)):
     user_id = current_user["id"]
 
-    # `get_user_scores` is the single source of truth for CVI/MHS —
-    # shared with GET /insights/{user_id}/scores so the two endpoints
-    # can never return different numbers for the same user (see #86).
     score_data = get_user_scores(user_id)
-    logs = score_data["logs"]  # Most recent first, matches CycleService.get_logs_for_user.
+    logs = score_data["logs"]
 
     avg_cycle_length = DEFAULT_CYCLE_LENGTH
     cycle_day = None
@@ -44,10 +82,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     if sleep_values:
         avg_sleep = round(sum(sleep_values) / len(sleep_values), 1)
 
-    # Per-cycle length history (oldest first, so a client can plot it
-    # left-to-right as a trend line) — the gap in days between each
-    # consecutive pair of logged start_dates. `logs` is newest-first, so
-    # walk it in reverse.
     cycle_history = []
     ordered = list(reversed(logs))
     for i in range(1, len(ordered)):
@@ -59,10 +93,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
                 "cycle_length": (newer - older).days,
             })
 
-    # Symptom frequency: fraction of logs-with-any-symptom-data that
-    # recorded each canonical symptom. Computed here (not left for the
-    # client to derive from local Hive history) so Insights only ever
-    # needs this one endpoint.
     canonical_symptoms = ["cramps", "headache", "bloating", "acne"]
     logs_with_symptoms = [l for l in logs if l.get("symptoms")]
     symptom_frequency = {
@@ -77,7 +107,7 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
 
     return {
         "user": {
-            "name": current_user.get("username", "User")
+            "name": current_user.get("username") or "User"
         },
         "cycle": {
             "day": cycle_day,
@@ -89,17 +119,9 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
             "cvi": score_data["cvi_risk"],
             "sleepHours": f"{avg_sleep}h" if avg_sleep is not None else None,
         },
-        # Lets the client tell "no data yet" apart from "computed a low
-        # score" — the CVI/MHS models need >=3 / >=2 logs respectively to
-        # return a real number rather than None.
         "hasEnoughDataForInsights": score_data["has_enough_data_for_insights"],
         "loggedCycleCount": score_data["logged_cycle_count"],
-        # Used by Insights' trend chart. Empty until there are at least 2
-        # logged cycles to compute a gap between.
         "cycleHistory": cycle_history,
-        # Used by Insights' symptom-pattern bars and the "recent stress"
-        # mini-card — both computed here so the client never falls back to
-        # deriving anything from local Hive history for this screen.
         "symptomFrequency": symptom_frequency,
         "recentStressLevel": recent_stress_level,
     }

@@ -6,7 +6,7 @@ from typing import Optional, List
 
 from services.firestore_service import CycleService
 
-# ─── Pydantic Model ──────────────────────────────────────────────────────────
+
 class CycleLog(BaseModel):
     start_date: date
     end_date: Optional[date] = None
@@ -16,6 +16,7 @@ class CycleLog(BaseModel):
     sleep_hours: Optional[float] = None
     stress_level: Optional[int] = None
     notes: Optional[str] = None
+
 
 class CycleLogUpdate(BaseModel):
     end_date: Optional[date] = None
@@ -27,27 +28,42 @@ class CycleLogUpdate(BaseModel):
     notes: Optional[str] = None
 
 
-# ─── Router ──────────────────────────────────────────────────────────────────
+class CycleLogResponse(BaseModel):
+    message: str
+    id: str
+    data: CycleLog
+
+
+class CycleHistoryResponse(BaseModel):
+    message: str
+    entries: list
+
+
+class CycleLogUpdateResponse(BaseModel):
+    message: str
+    id: str
+    updated_fields: dict
+
+
+class CycleLogDeleteResponse(BaseModel):
+    message: str
+    id: str
+
+
 router = APIRouter(tags=["Cycle Tracking"])
 
-@router.post("/log")
+
+@router.post(
+    "/log",
+    response_model=CycleLogResponse,
+    summary="Log a cycle entry",
+    description="Creates or updates a cycle log entry for the specified start date. Partial payloads (e.g. only flow_intensity from a quick-log tile) are merged without overwriting previously saved fields for that day.",
+)
 async def log_cycle(
     log: CycleLog,
     current_user: dict = Depends(get_current_user)
 ):
-    """Persists a cycle log entry for `log.start_date`.
-
-    Used both by the Home screen's quick-log tiles (which send a partial
-    CycleLog — just the one field being tapped, e.g. only
-    `flow_intensity` set) and the Cycle screen's "Save" button (which sends
-    a full CycleLog with everything the user selected for that day).
-    Either way this upserts *that day's* single document rather than
-    creating a new one per call — see CycleService.upsert_log for why.
-    """
     user_id = current_user["id"]
-    # Only send along fields the caller actually set, so a partial (Home
-    # quick-log) submission doesn't overwrite the rest of the day's
-    # already-saved fields with nulls.
     fields = {k: v for k, v in log.model_dump().items() if k != "start_date" and v is not None}
     log_id = CycleService.upsert_log(user_id, log.start_date, fields)
     return {
@@ -56,10 +72,16 @@ async def log_cycle(
         "data": log.model_dump()
     }
 
-@router.get("/{user_id}/history")
+
+@router.get(
+    "/{user_id}/history",
+    response_model=CycleHistoryResponse,
+    summary="Get cycle history",
+    description="Returns the most recent cycle log entries for the specified user, ordered by date descending.",
+)
 async def get_cycle_history(
     user_id: str,
-    limit: Optional[int] = 10,        # <-- Added back with default 10
+    limit: Optional[int] = 10,
     current_user: dict = Depends(get_current_user)
 ):
     if user_id != current_user["id"]:
@@ -70,13 +92,18 @@ async def get_cycle_history(
     entries = CycleService.get_logs_for_user(user_id, limit=limit or 10)
     return {"message": f"History for user {user_id}", "entries": entries}
 
-@router.put("/{log_id}")
+
+@router.put(
+    "/{log_id}",
+    response_model=CycleLogUpdateResponse,
+    summary="Update a cycle log",
+    description="Updates one or more fields of an existing cycle log entry. Only the fields included in the request body are modified; all other existing fields are preserved.",
+)
 async def update_cycle_log(
     log_id: str,
     log_update: CycleLogUpdate,
     current_user: dict = Depends(get_current_user)
 ):
-    """Updates an existing cycle log entry."""
     user_id = current_user["id"]
     fields = {k: v for k, v in log_update.model_dump().items() if v is not None}
     if not fields:
@@ -84,7 +111,7 @@ async def update_cycle_log(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No fields provided for update"
         )
-        
+
     CycleService.update_log(user_id, log_id, fields)
     return {
         "message": f"Cycle log {log_id} updated",
@@ -92,15 +119,20 @@ async def update_cycle_log(
         "updated_fields": fields
     }
 
-@router.delete("/{log_id}")
+
+@router.delete(
+    "/{log_id}",
+    response_model=CycleLogDeleteResponse,
+    summary="Delete a cycle log",
+    description="Permanently removes a cycle log entry identified by its ID.",
+)
 async def delete_cycle_log(
     log_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    """Deletes an existing cycle log entry."""
     user_id = current_user["id"]
     CycleService.delete_log(user_id, log_id)
     return {
         "message": f"Cycle log {log_id} deleted",
         "id": log_id
-    }
+    }
