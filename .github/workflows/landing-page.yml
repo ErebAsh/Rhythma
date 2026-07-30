@@ -37,14 +37,8 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: landing-page/pnpm-lock.yaml
 
-      - name: Configure pnpm build approvals
-        run: |
-          echo 'onlyBuiltDependencies[]=sharp' >> .npmrc
-          echo 'onlyBuiltDependencies[]=msw' >> .npmrc
-          echo 'onlyBuiltDependencies[]=unrs-resolver' >> .npmrc
-
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install
 
       - name: Lint
         run: pnpm lint
