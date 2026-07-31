@@ -79,6 +79,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get langMarathi => 'मराठी (Marathi)';
 
   @override
+  String get langGujarati => 'ગુજરાતી (Gujarati)';
+
+  @override
   String get homeGreeting => 'नमस्कार';
 
   @override

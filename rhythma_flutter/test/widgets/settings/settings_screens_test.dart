@@ -69,6 +69,7 @@ void main() {
         'ta': l10n.langTamil,
         'te': l10n.langTelugu,
         'mr': l10n.langMarathi,
+        'gu': l10n.langGujarati,
       };
       for (final code in LanguageScreen.supportedLanguageCodes) {
         expect(find.text(expectedNames[code]!), findsOneWidget);

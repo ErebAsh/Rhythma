@@ -125,6 +125,7 @@ class _RhythmaAppState extends State<RhythmaApp> {
         Locale('ta'),
         Locale('te'),
         Locale('mr'),
+        Locale('gu'),
         Locale('kn'),
         Locale('ml'),
       ],

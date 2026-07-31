@@ -16,13 +16,14 @@ class LanguageScreen extends StatelessWidget {
     'ta',
     'te',
     'mr',
+    'gu',
   ];
 
   // l10n se localized language display name laane ke liye helper method
   String _getLocalizedLanguageName(AppLocalizations l10n, String code) {
     switch (code) {
       case 'en':
-        return l10n.langEnglish; // Ya aapke l10n me jo getter defined ho (e.g., l10n.english)
+        return l10n.langEnglish;
       case 'hi':
         return l10n.langHindi;
       case 'ta':
@@ -31,6 +32,8 @@ class LanguageScreen extends StatelessWidget {
         return l10n.langTelugu;
       case 'mr':
         return l10n.langMarathi;
+      case 'gu':
+        return l10n.langGujarati;
       default:
         return code;
     }

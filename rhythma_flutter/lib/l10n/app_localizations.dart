@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_gu.dart';
 import 'app_localizations_hi.dart';
 import 'app_localizations_kn.dart';
 import 'app_localizations_ml.dart';
@@ -100,6 +101,7 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
+    Locale('gu'),
     Locale('hi'),
     Locale('kn'),
     Locale('ml'),
@@ -245,6 +247,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'मराठी (Marathi)'**
   String get langMarathi;
+
+  /// No description provided for @langGujarati.
+  ///
+  /// In en, this message translates to:
+  /// **'ગુજરાતી (Gujarati)'**
+  String get langGujarati;
 
   /// No description provided for @homeGreeting.
   ///
@@ -1831,6 +1839,7 @@ class _AppLocalizationsDelegate
   @override
   bool isSupported(Locale locale) => <String>[
         'en',
+        'gu',
         'hi',
         'kn',
         'ml',
@@ -1848,6 +1857,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'gu':
+      return AppLocalizationsGu();
     case 'hi':
       return AppLocalizationsHi();
     case 'kn':
