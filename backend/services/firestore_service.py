@@ -7,6 +7,13 @@ from typing import Optional, Dict, Any
 from fastapi import HTTPException, status
 from google.api_core.exceptions import FailedPrecondition  # for missing index detection
 
+# `upstream_error` logs the real Firestore exception (with traceback and the
+# current request id) and returns a safe error to raise. It replaces the
+# `detail=f"...: {str(e)}"` pattern that used to interpolate raw Google API
+# exceptions — project ids, collection paths, index-creation URLs — straight
+# into a response body the client renders. See core/errors.py and issue #268.
+from core.errors import upstream_error
+
 # ─── Mock Firestore Client for Local Development ──────────────────────────
 class MockDocumentReference:
     def __init__(self, doc_id, data, collection):
@@ -185,10 +192,7 @@ class UserService:
             doc_ref = db.collection("users").add(user_data)
             return doc_ref[1].id
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to create user: {str(e)}"
-            )
+            raise upstream_error("Creating your account", e)
 
     @staticmethod
     def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
@@ -201,10 +205,7 @@ class UserService:
                 return data
             return None
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to fetch user: {str(e)}"
-            )
+            raise upstream_error("Loading your profile", e)
 
     @staticmethod
     def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
@@ -217,10 +218,7 @@ class UserService:
                 return data
             return None
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to fetch user: {str(e)}"
-            )
+            raise upstream_error("Loading your profile", e)
 
     @staticmethod
     def get_user_by_phone(phone: str) -> Optional[Dict[str, Any]]:
@@ -233,10 +231,7 @@ class UserService:
                 return data
             return None
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to fetch user: {str(e)}"
-            )
+            raise upstream_error("Loading your profile", e)
 
     @staticmethod
     def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
@@ -249,10 +244,7 @@ class UserService:
                 return data
             return None
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to fetch user: {str(e)}"
-            )
+            raise upstream_error("Loading your profile", e)
 
     @staticmethod
     def update_user(user_id: str, update_data: Dict[str, Any]) -> bool:
@@ -263,10 +255,7 @@ class UserService:
             doc_ref.update(update_data)
             return True
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to update user: {str(e)}"
-            )
+            raise upstream_error("Saving your profile", e)
 
     @staticmethod
     def delete_user(user_id: str) -> None:
@@ -302,10 +291,7 @@ class UserService:
             # Delete user document
             db.collection("users").document(user_id).delete()
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to delete user: {str(e)}"
-            )
+            raise upstream_error("Deleting your account", e)
 
 
 class CycleService:
@@ -338,10 +324,7 @@ class CycleService:
             doc_ref = db.collection("cycle_logs").add(data)
             return doc_ref[1].id
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to save cycle log: {str(e)}"
-            )
+            raise upstream_error("Saving your cycle log", e)
 
     @staticmethod
     def get_logs_for_user(user_id: str, limit: int = 10) -> list:
@@ -381,10 +364,7 @@ class CycleService:
             )
         except Exception as e:
             # Other Firestore errors
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to fetch cycle logs: {str(e)}"
-            )
+            raise upstream_error("Loading your cycle history", e)
 
     @staticmethod
     def _log_doc_id(user_id: str, log_date: date) -> str:
@@ -425,10 +405,7 @@ class CycleService:
             doc_ref.set(new_data)
             return doc_id
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to save cycle log: {str(e)}"
-            )
+            raise upstream_error("Saving your cycle log", e)
 
     @staticmethod
     def update_log(user_id: str, log_id: str, fields: Dict[str, Any]) -> str:
@@ -460,10 +437,7 @@ class CycleService:
         except HTTPException:
             raise
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to update cycle log: {str(e)}"
-            )
+            raise upstream_error("Updating your cycle log", e)
 
     @staticmethod
     def delete_log(user_id: str, log_id: str) -> None:
@@ -488,10 +462,7 @@ class CycleService:
         except HTTPException:
             raise
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to delete cycle log: {str(e)}"
-            )
+            raise upstream_error("Deleting your cycle log", e)
 
 
 # ─── Maximum number of messages kept per conversation ────────────────────

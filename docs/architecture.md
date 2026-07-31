@@ -47,6 +47,40 @@ Rhythma follows an **offline-first, privacy-first** architecture designed for lo
 - Firestore security rules restrict read/write to authenticated user's own documents
 - Backend never stores raw health data in logs
 
+## Observability & Error Handling
+
+Every HTTP request passes through `core/middleware.py`'s `RequestContextMiddleware`, registered *inside* the CORS middleware so preflight requests are answered without generating log noise.
+
+**Request correlation.** The middleware reuses a well-formed inbound `X-Request-ID` header — so a trace started on the Flutter or web client continues through the backend — or mints a UUID4 when there isn't one. The id is bound into a `ContextVar` (`core/request_context.py`), which means any `logger` call anywhere in the call stack is stamped with it automatically, without threading a parameter through every service function. The same id is echoed on the response (and listed in the CORS `expose_headers`, so browser JavaScript can actually read it) and included in every error body.
+
+**Logging.** `core/logging_config.py` is the single place loguru is configured. `LOG_FORMAT=json` switches to a flat single-line JSON sink for log aggregation; the default `console` sink is the human-readable one for local development. stdlib `logging` — which is what uvicorn, httpx and firebase-admin use — is routed through an `InterceptHandler` so output is one format rather than two interleaved ones.
+
+**PII redaction.** A loguru patcher passes every record's bound context through `redact()`, which replaces values under sensitive keys (`phone`, `email`, `token`, `authorization`, `notes`, `symptoms`, `mood`, `sleep_hours`, …) with `[redacted]`. Key names survive; only values are hidden, so a log line still records *that* a phone number was involved. This is what backs the "Backend never stores raw health data in logs" claim in the Privacy Design section above.
+
+**One error envelope.** `core/errors.py` registers handlers that normalize `HTTPException`, request-validation errors and unhandled exceptions into a single shape:
+
+```json
+{
+  "detail": "<unchanged, for backwards compatibility>",
+  "error": {
+    "code": "cycle_log_not_found",
+    "message": "Cycle log not found",
+    "request_id": "9f1c…",
+    "details": null
+  }
+}
+```
+
+`detail` is preserved exactly as before so existing clients keep working; `error.code` is a stable machine-readable string that new client code should branch on — and that clients can use as a localization key instead of string-matching English text. Services raise `AppError` subclasses (`NotFoundError`, `ForbiddenError`, `RateLimitError`, `UpstreamServiceError`, …) to set the code explicitly.
+
+Unhandled exceptions are logged with a full traceback server-side and return only a generic message, so raw Firestore/Google API strings — project ids, collection paths, index URLs — never reach a client UI. `upstream_error()` enforces this for dependency failures; `services/firestore_service.py` uses it in place of the old `detail=f"Failed to …: {str(e)}"` pattern.
+
+| Variable | Values | Default | Effect |
+| :--- | :--- | :--- | :--- |
+| `LOG_LEVEL` | `TRACE`/`DEBUG`/`INFO`/`WARNING`/`ERROR` | `INFO` | Minimum level written to the sink |
+| `LOG_FORMAT` | `console`, `json` | `console` | Human-readable vs. aggregator-friendly output |
+| `LOG_REDACT` | `true`, `false` | `true` | PII redaction in log context (disable for local debugging only) |
+
 ## ML Models
 
 | Model | Purpose | Training Data |
