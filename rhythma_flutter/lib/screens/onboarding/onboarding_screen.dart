@@ -109,7 +109,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     {'code': 'mr', 'label': 'मराठी'},
   ];
   
-  bool? get selected => null;
 
   // ── Navigation ────────────────────────────────────────────────────────────
 
@@ -556,70 +555,73 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep3Title, l.onboardingStep3Subtitle),
           const SizedBox(height: 28),
-          Text(l.onboardingLastPeriodLabel,
-              style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _lastPeriodDate ??
-                    DateTime.now().subtract(const Duration(days: 14)),
-                firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                lastDate: DateTime.now(),
-                builder: (context, child) {
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: isDark
-                          ? ColorScheme.dark(
-                              primary: RhythmaColors.primary,
-                              onPrimary: RhythmaColors.primaryFg,
-                              surface: RhythmaColors.surface,
-                              onSurface: RhythmaColors.foreground,
-                            )
-                          : ColorScheme.light(
-                              primary: RhythmaColors.primary,
-                              onPrimary: RhythmaColors.primaryFg,
-                              surface: RhythmaColors.surface,
-                              onSurface: RhythmaColors.foreground,
-                            ),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (picked != null) setState(() => _lastPeriodDate = picked);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: RhythmaColors.surface,
+          Text(
+  l.onboardingLastPeriodLabel,
+  style: TextStyle(
+    fontSize: 14,
+    color: RhythmaColors.mutedFg,
+  ),
+),
 
-                border: Border.all(color: RhythmaColors.primary.withValues(alpha: 0.3)),
-             ),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today_rounded,
-                      color: RhythmaColors.primary, size: 20),
-                  const SizedBox(width: 12),
-                  Text(
-                    _lastPeriodDate == null
-                        ? l.onboardingTapToSelectDate
-                        : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
-                    style: TextStyle(
-                      color: _lastPeriodDate == null
-                          ? RhythmaColors.mutedFg
-                          : RhythmaColors.foreground,
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+const SizedBox(height: 4),
+
+Text(
+  'Choose the first day of your last period.',
+  style: TextStyle(
+    fontSize: 12,
+    color: RhythmaColors.mutedFg,
+  ),
+),
+
+const SizedBox(height: 8),
+
+Semantics(
+  label: 'Last period date',
+  hint: 'Double tap to open calendar and select a date',
+  button: true,
+  child: GestureDetector(
+    onTap: () async {
+      final picked = await showDatePicker(
+        context: context,
+        initialDate: _lastPeriodDate ??
+            DateTime.now().subtract(const Duration(days: 14)),
+        firstDate: DateTime.now().subtract(const Duration(days: 365)),
+        lastDate: DateTime.now(),
+      );
+
+      if (picked != null) {
+        setState(() => _lastPeriodDate = picked);
+      }
+    },
+    child: Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: RhythmaColors.surface,
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.calendar_today_rounded,
+            color: RhythmaColors.primary,
+            size: 20,
           ),
+          const SizedBox(width: 12),
+          Text(
+            _lastPeriodDate == null
+                ? l.onboardingTapToSelectDate
+                : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
+          ),
+        ],
+      ),
+    ),
+  ),
+),
+
+                
           const SizedBox(height: 24),
           _buildSliderField(
             label: l.onboardingCycleLengthLabel,
@@ -698,26 +700,57 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   // ── Step 5 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep5(AppLocalizations l) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildStepHeader(l.onboardingStep5Title, l.onboardingStep5Subtitle),
-          const SizedBox(height: 36),
-          _buildSwitchTile(
-            icon: '📅',
-            title: l.onboardingEnableNotifications,
-            subtitle: l.onboardingNotificationsDesc,
-            value: _notificationsEnabled,
-            onChanged: (v) => setState(() => _notificationsEnabled = v),
+  return SingleChildScrollView(
+    padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildStepHeader(
+          l.onboardingStep5Title,
+          l.onboardingStep5Subtitle,
+        ),
+        const SizedBox(height: 36),
+
+        _buildSwitchTile(
+          icon: '📅',
+          title: l.onboardingEnableNotifications,
+          subtitle: l.onboardingNotificationsDesc,
+          value: _notificationsEnabled,
+          onChanged: (v) =>
+              setState(() => _notificationsEnabled = v),
+        ),
+
+        const SizedBox(height: 20),
+
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: RhythmaColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(height: 32),
-          GestureDetector(
+          child: Text(
+            'We use your cycle information to provide predictions and reminders. Your information stays private, and you can change these settings later.',
+            style: TextStyle(
+              fontSize: 13,
+              color: RhythmaColors.mutedFg,
+              height: 1.5,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        Semantics(
+          label: 'Data consent',
+          hint: 'Double tap to agree to data usage',
+          checked: _dataConsent,
+          child: GestureDetector(
             onTap: () {
               setState(() {
                 _dataConsent = !_dataConsent;
-                if (_dataConsent) _consentError = null;
+                if (_dataConsent) {
+                  _consentError = null;
+                }
               });
             },
             child: Row(
@@ -740,13 +773,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     ),
                   ),
                   child: _dataConsent
-                      ? const Icon(Icons.check, size: 16, color: Colors.white)
+                      ? const Icon(
+                          Icons.check,
+                          size: 16,
+                          color: Colors.white,
+                        )
                       : null,
                 ),
+
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: [
                       Text(
                         l.onboardingDataConsentLabel,
@@ -756,12 +796,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           height: 1.4,
                         ),
                       ),
+
                       if (_consentError != null) ...[
                         const SizedBox(height: 4),
                         Text(
                           _consentError!,
                           style: const TextStyle(
-                              color: Colors.redAccent, fontSize: 12),
+                            color: Colors.redAccent,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ],
@@ -770,10 +813,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+  
 
   // ── Shared helpers ────────────────────────────────────────────────────────
 
@@ -966,13 +1011,19 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               ],
             ),
           ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: RhythmaColors.primary,
+         
+          Semantics(
+            label: 'Cycle reminders',
+            hint: 'Turn reminders on or off',
+            child: Switch(
+             value: value,
+             onChanged: onChanged,
+             activeThumbColor: RhythmaColors.primary,
+            ),
           ),
         ],
       ),
     );
+   }
   }
-}
+
