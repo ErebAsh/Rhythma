@@ -10,10 +10,11 @@ import ml from './locales/ml.json';
 import mr from './locales/mr.json';
 import ta from './locales/ta.json';
 import te from './locales/te.json';
+import bn from './locales/bn.json';
 
 // Matches the Flutter app's supported locales: English, Hindi, Kannada,
-// Malayalam, Marathi, Tamil, and Telugu. Kannada and Malayalam translations
-// are included, while hi/mr/ta/te currently use placeholder translations and
+// Malayalam, Marathi, Tamil, Telugu, and Bengali. Kannada and Malayalam translations
+// are included, while hi/mr/ta/te/bn currently use placeholder translations and
 // can be localized in future updates.
 i18n
   .use(LanguageDetector)
@@ -28,6 +29,7 @@ i18n
       mr: { translation: mr },
       ta: { translation: ta },
       te: { translation: te },
+      bn: { translation: bn },
     },
     fallbackLng: 'en',
     interpolation: { escapeValue: false },

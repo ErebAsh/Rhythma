@@ -91,6 +91,7 @@ void main() {
             ],
             supportedLocales: const [
               Locale('en'),
+              Locale('bn'),
             ],
             home: Builder(
               builder: (context) => ElevatedButton(
@@ -134,6 +135,7 @@ void main() {
             ],
             supportedLocales: const [
               Locale('en'),
+              Locale('bn'),
             ],
             home: Builder(
               builder: (context) => ElevatedButton(
@@ -172,6 +174,7 @@ void main() {
             ],
             supportedLocales: const [
               Locale('en'),
+              Locale('bn'),
             ],
             home: Builder(
               builder: (context) => ElevatedButton(
