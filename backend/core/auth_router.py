@@ -247,13 +247,40 @@ async def update_profile(
 
 
 @router.delete("/me")
-async def delete_me(current_user: dict = Depends(get_current_user)):
+async def delete_me(response: Response, current_user: dict = Depends(get_current_user)):
     """Deletes the authenticated user's account permanently.
-    
-    This deletes their cycle logs, their user document, and their Firebase Auth user.
+
+    Kept for the clients that already call it (``deleteAccount()`` in
+    ``web/src/api/endpoints.ts``, and the Flutter settings screen), but it
+    now goes through the same cascade as ``POST /privacy/delete-account``:
+    cycle logs, the user document, the Firebase Auth identity, **and** the
+    assistant conversation and rate-limit records this path used to leave
+    behind in Firestore.
+
+    Two other gaps are closed here. Refresh tokens minted before deletion
+    stayed valid in ``refresh_token_store`` until natural expiry, so the
+    account remained usable on other devices. And unlike ``/logout``, the
+    auth cookies were never cleared, so a web client kept sending a cookie
+    for an account that no longer existed and every subsequent request
+    401'd in a way that looked like a bug rather than a finished deletion.
+
+    Prefer ``POST /privacy/delete-account`` for new client work: it is
+    two-step, shows the user exactly what will be destroyed before she
+    confirms, and returns per-collection counts. This route still deletes
+    immediately, with no confirmation step.
     """
-    UserService.delete_user(current_user["id"])
-    return {"status": "success", "detail": "Account deleted successfully"}
+    user_id = current_user["id"]
+    deleted_counts = UserService.delete_user(user_id)
+    revoke_all_user_refresh_tokens(user_id)
+
+    for cookie_name in (COOKIE_NAME, REFRESH_COOKIE_NAME):
+        response.delete_cookie(key=cookie_name, path="/", domain=COOKIE_DOMAIN)
+
+    return {
+        "status": "success",
+        "detail": "Account deleted successfully",
+        "deletedCounts": deleted_counts or {},
+    }
 
 
 # ─── Password-Based Registration & Login ──────────────────────────────────

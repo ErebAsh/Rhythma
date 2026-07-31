@@ -19,6 +19,7 @@ from api.cycle import router as cycle_router
 from api.insights import router as insights_router
 from api.sms import router as sms_router
 from api.dashboard import router as dashboard_router
+from api.privacy import router as privacy_router
 
 # Auth router lives in core (not in api) to avoid duplicate registration
 from core.auth_router import router as auth_router
@@ -82,6 +83,7 @@ app.include_router(cycle_router,     prefix="/api/v1/cycle",     tags=["Cycle Tr
 app.include_router(insights_router,  prefix="/api/v1/insights",  tags=["Insights"])
 app.include_router(sms_router,       prefix="/api/v1/sms",       tags=["SMS"])
 app.include_router(dashboard_router, prefix="/api/v1",           tags=["Dashboard"])
+app.include_router(privacy_router,   prefix="/api/v1/privacy",   tags=["Privacy"])
 
 
 @app.get("/")
