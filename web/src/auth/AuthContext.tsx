@@ -54,12 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (username: string, password: string) => {
-    const form = new URLSearchParams();
-    form.set('username', username);
-    form.set('password', password);
-    await apiClient.post('/auth/token', form, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    });
+    await apiClient.post('/auth/login', { email: username, password });
     // If the token is valid, /auth/me will return the user info.
     // response body's access_token is for Flutter's benefit; web ignores it —
     // the cookie is already set by the backend.
