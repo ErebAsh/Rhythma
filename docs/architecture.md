@@ -47,6 +47,27 @@ Rhythma follows an **offline-first, privacy-first** architecture designed for lo
 - Firestore security rules restrict read/write to authenticated user's own documents
 - Backend never stores raw health data in logs
 
+## Insights: Observations vs. Scores
+
+`menstrual_insights_guidelines.md` sets the rules for health messaging in this project: describe observations rather than make judgments, avoid risk labels, name no conditions, and answer one question for every insight — *is this statement directly supported by the user's logged data?*
+
+`services/health_observations_service.py` is the implementation of that. It is a **rule engine, not a model**: eleven pure functions over `(logs, profile, today)`, each returning a statement plus the exact numbers that produced it.
+
+| | MHS / CVI (`scoring_service.py`) | Observations (`health_observations_service.py`) |
+| :--- | :--- | :--- |
+| Output | one scalar each | a list of specific statements |
+| Backing | trained model artifact | the user's logged values only |
+| Can say *which* cycle was unusual | no | yes, with dates and day counts |
+| Severity language | risk tiers | `info` → `attention` → `seek_care` |
+
+The two are complementary, and the observation layer covers a case the scores structurally cannot: a consistently 45-day cycle has *excellent* variability, so CVI looks good, while the long-cycle rule still surfaces it.
+
+**Severity.** `info` is a neutral trend, `attention` is a pattern worth noticing, `seek_care` is one of the guidelines' "Concerning Symptoms" (prolonged bleeding, no period logged in over 90 days) where the copy recommends consulting a professional. None of the three is a risk rating, and no user-facing string names a condition — rule codes like `no_recent_period_logged` are internal identifiers; the rendered text says "Your last logged period started 94 days ago."
+
+**Thresholds** live in named module-level constants with a sourcing comment each (`SHORT_CYCLE_DAYS = 21`, `PROLONGED_BLEEDING_DAYS = 8`, …), so the clinical framing behind a number is reviewable rather than buried inline.
+
+**Surfaces.** `GET /api/v1/insights/{user_id}/observations` returns the full list plus a `cycleConsistency` descriptor (`consistent` / `slightly_variable` / `variable`). `GET /api/v1/dashboard` embeds only the single highest-priority `topObservation`, computed from the logs it has already fetched — so the Home screen costs no extra Firestore reads and no extra round trip.
+
 ## ML Models
 
 | Model | Purpose | Training Data |
