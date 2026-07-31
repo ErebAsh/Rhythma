@@ -47,6 +47,34 @@ Rhythma follows an **offline-first, privacy-first** architecture designed for lo
 - Firestore security rules restrict read/write to authenticated user's own documents
 - Backend never stores raw health data in logs
 
+## Cycle Prediction
+
+`services/prediction_service.py` answers "when is my next period?", which was previously three lines inside a route handler:
+
+```python
+next_period_days = max(avg_cycle_length - cycle_day, 0)
+```
+
+with `avg_cycle_length` an unweighted mean of every gap in the last ten logs.
+
+| Concern | Before | Now |
+| :--- | :--- | :--- |
+| Being late | clamped to `0` — indistinguishable from "due today" | `daysUntilNextPeriod` goes negative, plus `isOverdue` / `daysOverdue` |
+| Estimator | unweighted mean over 10 cycles | exponentially weighted, so recent cycles count more |
+| Outliers | one 60-day gap shifted the mean for 10 cycles | rejected by median absolute deviation before averaging |
+| Uncertainty | none — a bare point estimate | `confidence` tier plus an explicit `predictedRange` sized from the user's own spread |
+| Profile data | ignored; new users got a hardcoded 28 | fallback ladder history → declared `cycle_length` → default, reported as `cycleLength.source` |
+| Ovulation / fertile window | did not exist | luteal-anchored estimate, labelled `notForContraception` |
+| Phase | client-side, hardcoded at days 5/13/16 | server-side, boundaries scaled to the user's actual cycle length |
+
+**Ovulation is anchored backwards from the next period**, not forwards from the last one: the luteal phase is the stable ~14-day part of a cycle, and nearly all the variation lives in the follicular phase. Below a 25-day cycle the luteal length scales down, so a 21-day cycle doesn't place ovulation on day 7.
+
+**Spread takes the larger of a robust (MAD) estimate and a quarter of the observed range.** MAD alone is too robust here — for cycles of 21/34/24/22 it reports ~2 days, because three of the four sit close together, which would hand an erratic user the same narrow window as a perfectly regular one. For a health prediction, erring wide is the right direction.
+
+**A stale `last_period` reports phase `late`, not `luteal`.** `rhythma_flutter/lib/providers/cycle_provider.dart` computes `date.difference(lastPeriod).inDays + 1` with no wrap, so it reports "day 63" and pins the user in the luteal phase indefinitely. Phase belongs on the server, computed from real history and shared by both clients rather than re-guessed per platform.
+
+Everything is a pure function of `(logs, profile, today)` — `today` is injectable, so tests never depend on the wall clock and a scheduled reminder job can ask what tomorrow looks like. Surfaced at `GET /api/v1/cycle/predictions`, with a compact subset embedded in `GET /api/v1/dashboard` as `prediction` (additive and nullable; `cycle.nextPeriodDays` keeps its old clamped meaning for existing clients).
+
 ## ML Models
 
 | Model | Purpose | Training Data |

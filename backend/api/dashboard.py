@@ -1,10 +1,12 @@
 from datetime import date
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Any, Dict, Optional
 
 from core.auth import get_current_user
+from services.firestore_service import UserService
+from services.prediction_service import dashboard_summary, predict
 from services.scoring_service import get_user_scores, as_date, DEFAULT_CYCLE_LENGTH
 
 
@@ -29,6 +31,44 @@ class CycleHistoryEntry(BaseModel):
     cycle_length: int
 
 
+class DashboardPredictionRange(BaseModel):
+    earliest: Optional[str] = None
+    latest: Optional[str] = None
+
+
+class DashboardFertileWindow(BaseModel):
+    start: Optional[str] = None
+    end: Optional[str] = None
+    isEstimate: bool = True
+    notForContraception: bool = True
+
+
+class DashboardPrediction(BaseModel):
+    """The compact prediction subset the Home screen renders.
+
+    Added alongside `cycle`, not inside it: `cycle.nextPeriodDays` keeps
+    its existing clamped-at-zero meaning so clients written before this
+    field existed are unaffected, while `daysUntilNextPeriod` here is the
+    honest signed value.
+    """
+
+    nextPeriodDate: Optional[str] = None
+    daysUntilNextPeriod: Optional[int] = Field(
+        None, description="Negative when the period is late; not clamped."
+    )
+    isOverdue: bool = False
+    daysOverdue: int = 0
+    phase: str = "unknown"
+    confidence: str = "low"
+    estimateSource: str = "population_default"
+    predictedRange: DashboardPredictionRange = Field(
+        default_factory=DashboardPredictionRange
+    )
+    fertileWindow: DashboardFertileWindow = Field(
+        default_factory=DashboardFertileWindow
+    )
+
+
 class DashboardResponse(BaseModel):
     user: DashboardUser
     cycle: DashboardCycle
@@ -38,6 +78,8 @@ class DashboardResponse(BaseModel):
     cycleHistory: list[CycleHistoryEntry]
     symptomFrequency: dict[str, float]
     recentStressLevel: Optional[int] = None
+    #: Additive and nullable — full detail lives at GET /cycle/predictions.
+    prediction: Optional[DashboardPrediction] = None
 
 
 router = APIRouter(tags=["Dashboard"])
@@ -105,6 +147,12 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
 
     recent_stress_level = logs[0].get("stress_level") if logs else None
 
+    # Reuses the logs already fetched above — no extra Firestore reads on
+    # the app's hottest path. The profile lookup is what lets a user who
+    # completed onboarding but hasn't logged yet still get a prediction
+    # from her declared cycle length and last period.
+    prediction = predict(logs, profile=UserService.get_user_by_id(user_id) or {})
+
     return {
         "user": {
             "name": current_user.get("username") or "User"
@@ -124,4 +172,5 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "cycleHistory": cycle_history,
         "symptomFrequency": symptom_frequency,
         "recentStressLevel": recent_stress_level,
+        "prediction": dashboard_summary(prediction),
     }
