@@ -1,86 +1,74 @@
-from datetime import date, datetime
-from typing import Any, Dict, List, Optional
+from datetime import date
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
+from typing import Optional
+
 from core.auth import get_current_user
-from services.firestore_service import CycleService
-from models.cvi_model import predict_cvi, risk_level
-from models.mhs_model import predict_mhs
+from services.scoring_service import get_user_scores, as_date, DEFAULT_CYCLE_LENGTH
+
+
+class DashboardUser(BaseModel):
+    name: str
+
+
+class DashboardCycle(BaseModel):
+    day: Optional[int] = None
+    total: int
+    nextPeriodDays: Optional[int] = None
+
+
+class DashboardInsights(BaseModel):
+    mhs: Optional[float] = None
+    cvi: Optional[str] = None
+    sleepHours: Optional[str] = None
+
+
+class CycleHistoryEntry(BaseModel):
+    start_date: str
+    cycle_length: int
+
+
+class DashboardResponse(BaseModel):
+    user: DashboardUser
+    cycle: DashboardCycle
+    insights: DashboardInsights
+    hasEnoughDataForInsights: bool
+    loggedCycleCount: int
+    cycleHistory: list[CycleHistoryEntry]
+    symptomFrequency: dict[str, float]
+    recentStressLevel: Optional[int] = None
+
 
 router = APIRouter(tags=["Dashboard"])
 
-_DEFAULT_CYCLE_LENGTH = 28
-_FLOW_INTENSITY_TO_SCORE = {"light": 1, "medium": 2, "heavy": 3}
 
-
-def _as_date(value: Any) -> Optional[date]:
-    """Firestore returns date/datetime fields as datetime (or its own
-    DatetimeWithNanoseconds subclass); normalize everything to a plain
-    `date` for day-math."""
-    if value is None:
-        return None
-    if isinstance(value, datetime):
-        return value.date()
-    if isinstance(value, date):
-        return value
-    return None
-
-
-def _build_model_features(logs_newest_first: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Convert raw CycleLog documents into the feature shape the CVI/MHS
-    models expect (see models/cvi_model.py and models/mhs_model.py)."""
-    features = []
-    for i, log in enumerate(logs_newest_first):
-        start = _as_date(log.get("start_date"))
-        end = _as_date(log.get("end_date"))
-
-        cycle_length = None
-        if i + 1 < len(logs_newest_first):
-            older_start = _as_date(logs_newest_first[i + 1].get("start_date"))
-            if start and older_start:
-                cycle_length = (start - older_start).days
-
-        flow_duration = (end - start).days + 1 if start and end else 5
-        flow_intensity = _FLOW_INTENSITY_TO_SCORE.get(
-            (log.get("flow_intensity") or "").lower(), 2
-        )
-
-        stress = log.get("stress_level")
-        sleep = log.get("sleep_hours")
-
-        features.append({
-            "cycle_length": cycle_length if cycle_length is not None else _DEFAULT_CYCLE_LENGTH,
-            "flow_duration": flow_duration,
-            "flow_intensity": flow_intensity,
-            "symptom_count": len(log.get("symptoms") or []),
-            "stress_avg": stress if stress is not None else 2.5,
-            "sleep_avg": sleep if sleep is not None else 7.0,
-
-        })
-    return features
-
-
-@router.get("/dashboard")
+@router.get(
+    "/dashboard",
+    response_model=DashboardResponse,
+    summary="Get dashboard data",
+    description="Returns the user's current cycle summary, computed health scores (MHS/CVI), sleep average, cycle history, symptom frequencies, and recent stress level. All insight data is computed server-side using the same scoring service shared with the Insights endpoint.",
+)
 async def get_dashboard(current_user: dict = Depends(get_current_user)):
     user_id = current_user["id"]
 
-    # Most recent first, matches what CycleService.get_logs_for_user returns.
-    logs = CycleService.get_logs_for_user(user_id, limit=10)
+    score_data = get_user_scores(user_id)
+    logs = score_data["logs"]
 
-    avg_cycle_length = _DEFAULT_CYCLE_LENGTH
+    avg_cycle_length = DEFAULT_CYCLE_LENGTH
     cycle_day = None
     next_period_days = None
 
     if logs:
-        most_recent_start = _as_date(logs[0].get("start_date"))
+        most_recent_start = as_date(logs[0].get("start_date"))
         if most_recent_start:
             cycle_day = (date.today() - most_recent_start).days + 1
 
         if len(logs) >= 2:
             deltas = []
             for i in range(len(logs) - 1):
-                newer = _as_date(logs[i].get("start_date"))
-                older = _as_date(logs[i + 1].get("start_date"))
+                newer = as_date(logs[i].get("start_date"))
+                older = as_date(logs[i + 1].get("start_date"))
                 if newer and older and (newer - older).days > 0:
                     deltas.append((newer - older).days)
             if deltas:
@@ -89,34 +77,22 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         if cycle_day is not None:
             next_period_days = max(avg_cycle_length - cycle_day, 0)
 
-    features = _build_model_features(logs)
-    mhs = predict_mhs(features)
-    cvi = predict_cvi(features)
-
     avg_sleep = None
     sleep_values = [l.get("sleep_hours") for l in logs if l.get("sleep_hours") is not None]
     if sleep_values:
         avg_sleep = round(sum(sleep_values) / len(sleep_values), 1)
 
-    # Per-cycle length history (oldest first, so a client can plot it
-    # left-to-right as a trend line) — the gap in days between each
-    # consecutive pair of logged start_dates. `logs` is newest-first, so
-    # walk it in reverse.
     cycle_history = []
     ordered = list(reversed(logs))
     for i in range(1, len(ordered)):
-        newer = _as_date(ordered[i].get("start_date"))
-        older = _as_date(ordered[i - 1].get("start_date"))
+        newer = as_date(ordered[i].get("start_date"))
+        older = as_date(ordered[i - 1].get("start_date"))
         if newer and older and (newer - older).days > 0:
             cycle_history.append({
                 "start_date": newer.isoformat(),
                 "cycle_length": (newer - older).days,
             })
 
-    # Symptom frequency: fraction of logs-with-any-symptom-data that
-    # recorded each canonical symptom. Computed here (not left for the
-    # client to derive from local Hive history) so Insights only ever
-    # needs this one endpoint.
     canonical_symptoms = ["cramps", "headache", "bloating", "acne"]
     logs_with_symptoms = [l for l in logs if l.get("symptoms")]
     symptom_frequency = {
@@ -131,7 +107,7 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
 
     return {
         "user": {
-            "name": current_user.get("username", "User")
+            "name": current_user.get("username") or "User"
         },
         "cycle": {
             "day": cycle_day,
@@ -139,21 +115,13 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
             "nextPeriodDays": next_period_days,
         },
         "insights": {
-            "mhs": mhs,
-            "cvi": risk_level(cvi).capitalize() if cvi is not None else None,
+            "mhs": score_data["mhs"],
+            "cvi": score_data["cvi_risk"],
             "sleepHours": f"{avg_sleep}h" if avg_sleep is not None else None,
         },
-        # Lets the client tell "no data yet" apart from "computed a low
-        # score" — the CVI/MHS models need >=3 / >=2 logs respectively to
-        # return a real number rather than None.
-        "hasEnoughDataForInsights": len(logs) >= 3,
-        "loggedCycleCount": len(logs),
-        # Used by Insights' trend chart. Empty until there are at least 2
-        # logged cycles to compute a gap between.
+        "hasEnoughDataForInsights": score_data["has_enough_data_for_insights"],
+        "loggedCycleCount": score_data["logged_cycle_count"],
         "cycleHistory": cycle_history,
-        # Used by Insights' symptom-pattern bars and the "recent stress"
-        # mini-card — both computed here so the client never falls back to
-        # deriving anything from local Hive history for this screen.
         "symptomFrequency": symptom_frequency,
         "recentStressLevel": recent_stress_level,
     }

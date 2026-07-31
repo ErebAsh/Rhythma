@@ -5,7 +5,9 @@ import '../../l10n/app_localizations.dart';
 import '../../config/theme.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/local_storage_service.dart';
+import '../../services/profile_service.dart';
 import '../../providers/profile_provider.dart';
+import '../../components/approximate_field.dart';
 
 /// The 5-step offline-first onboarding flow.
 /// On completion, writes all collected data to LocalStorageService and
@@ -46,8 +48,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   String? _heightError;
   String? _weightError;
 
+  // Step 2 – "Not sure" toggle state
+  bool _ageIsEstimated = false;
+  String? _ageSelectedRange;
+  bool _heightIsEstimated = false;
+  String? _heightSelectedRange;
+  bool _weightIsEstimated = false;
+  String? _weightSelectedRange;
+
   // Step 3 – Menstrual Profile
   DateTime? _lastPeriodDate;
+  bool _isLastPeriodApproximate = false;
+  bool _showExactDatePicker = true;
+  String? _lastPeriodError;
+  int _selectedApproximateIndex = -1;
   int _cycleLength = 28;
   int _periodDuration = 5;
   bool _isRegular = true;
@@ -121,6 +135,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       _weightError = null;
       _consentError = null;
       _phoneError = null;
+      _lastPeriodError = null;
     });
 
     if (_currentPage == 1) {
@@ -129,25 +144,73 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         setState(() => _nameError = l.onboardingNameRequired);
         valid = false;
       }
-      final age = int.tryParse(_ageController.text);
-      if (_ageController.text.isNotEmpty &&
-          (age == null || age < 10 || age > 120)) {
-        setState(() => _ageError = l.onboardingAgeInvalid);
-        valid = false;
+
+      // Age – required
+      if (_ageIsEstimated) {
+        if (_ageSelectedRange == null) {
+          setState(() => _ageError = l.onboardingAgeRequired);
+          valid = false;
+        }
+      } else {
+        if (_ageController.text.trim().isEmpty) {
+          setState(() => _ageError = l.onboardingAgeRequired);
+          valid = false;
+        } else {
+          final age = int.tryParse(_ageController.text);
+          if (age == null || age < 1 || age > 120) {
+            setState(() => _ageError = l.onboardingAgeInvalid);
+            valid = false;
+          }
+        }
       }
-      final h = double.tryParse(_heightController.text);
-      if (_heightController.text.isNotEmpty &&
-          (h == null || h < 50 || h > 250)) {
-        setState(() => _heightError = l.onboardingHeightInvalid);
-        valid = false;
+
+      // Height – required
+      if (_heightIsEstimated) {
+        if (_heightSelectedRange == null) {
+          setState(() => _heightError = l.onboardingHeightRequired);
+          valid = false;
+        }
+      } else {
+        if (_heightController.text.trim().isEmpty) {
+          setState(() => _heightError = l.onboardingHeightRequired);
+          valid = false;
+        } else {
+          final h = double.tryParse(_heightController.text);
+          if (h == null || h < 50 || h > 250) {
+            setState(() => _heightError = l.onboardingHeightInvalid);
+            valid = false;
+          }
+        }
       }
-      final w = double.tryParse(_weightController.text);
-      if (_weightController.text.isNotEmpty &&
-          (w == null || w < 20 || w > 300)) {
-        setState(() => _weightError = l.onboardingWeightInvalid);
-        valid = false;
+
+      // Weight – required
+      if (_weightIsEstimated) {
+        if (_weightSelectedRange == null) {
+          setState(() => _weightError = l.onboardingWeightRequired);
+          valid = false;
+        }
+      } else {
+        if (_weightController.text.trim().isEmpty) {
+          setState(() => _weightError = l.onboardingWeightRequired);
+          valid = false;
+        } else {
+          final w = double.tryParse(_weightController.text);
+          if (w == null || w < 20 || w > 300) {
+            setState(() => _weightError = l.onboardingWeightInvalid);
+            valid = false;
+          }
+        }
       }
+
       return valid;
+    }
+
+    if (_currentPage == 2) {
+      if (_lastPeriodDate == null) {
+        setState(() => _lastPeriodError = l.onboardingLastPeriodRequired);
+        return false;
+      }
+      return true;
     }
 
     if (_currentPage == 3) {
@@ -209,6 +272,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   Future<void> _saveAndComplete() async {
+    final l = AppLocalizations.of(context)!;
     final profile = <String, dynamic>{
       'name': _nameController.text.trim().isEmpty
           ? 'User'
@@ -218,14 +282,32 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     };
     final age = int.tryParse(_ageController.text);
     if (age != null) profile['age'] = age;
+    profile['age_is_estimated'] = _ageIsEstimated;
+    if (_ageIsEstimated) {
+      final midpoint = _getMidpoint(_buildAgeRanges(l), _ageSelectedRange);
+      if (midpoint != null) profile['age'] = midpoint;
+    }
     final h = double.tryParse(_heightController.text);
     if (h != null) profile['height_cm'] = h;
+    profile['height_is_estimated'] = _heightIsEstimated;
+    if (_heightIsEstimated) {
+      final midpoint = _getMidpoint(_buildHeightRanges(l), _heightSelectedRange);
+      if (midpoint != null) profile['height_cm'] = midpoint;
+    }
     final w = double.tryParse(_weightController.text);
     if (w != null) profile['weight_kg'] = w;
+    profile['weight_is_estimated'] = _weightIsEstimated;
+    if (_weightIsEstimated) {
+      final midpoint = _getMidpoint(_buildWeightRanges(l), _weightSelectedRange);
+      if (midpoint != null) profile['weight_kg'] = midpoint;
+    }
     if (_lastPeriodDate != null) {
       profile['last_period'] =
           _lastPeriodDate!.toIso8601String().split('T').first;
+      profile['last_period_is_approximate'] = _isLastPeriodApproximate;
     }
+    profile['onboarding_completed_at'] =
+        DateTime.now().toIso8601String().split('T').first;
     profile['cycle_length'] = _cycleLength;
     profile['period_duration'] = _periodDuration;
     profile['cycle_regular'] = _isRegular;
@@ -238,11 +320,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     profile['notifications_enabled'] = _notificationsEnabled;
 
     // 1. Persist locally first — data is never lost even if backend is down.
-    await context.read<ProfileProvider>().saveProfile(profile);
+    await context.read<ProfileProvider>().mergeProfileWithSync(profile);
 
-    // 2. Sync to backend is optional for now. The app uses local storage as
-    // the source of truth. A background sync can be added later.
-    // (Previously this called ProfileService.patchProfile, which was removed.)
+    // 2. Sync to backend — best-effort, never blocks the user.
+    ProfileService.patchProfile(profile);
 
     // 3. Mark onboarding done for this user account.
     await LocalStorageService.setOnboardingCompleted(true);
@@ -507,39 +588,136 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: 14),
-          _buildTextField(
-            controller: _ageController,
+          ApproximateField(
             label: l.onboardingAgeLabel,
+            hint: l.onboardingAgeHint,
+            unit: l.onboardingAgeUnit,
+            ranges: _buildAgeRanges(l),
+            controller: _ageController,
+            isEstimated: _ageIsEstimated,
+            onEstimatedChanged: (v) => setState(() {
+              _ageIsEstimated = v;
+              _ageError = null;
+            }),
+            selectedRange: _ageSelectedRange,
+            onRangeChanged: (v) => setState(() {
+              _ageSelectedRange = v;
+              _ageError = null;
+            }),
             error: _ageError,
-            keyboardType: TextInputType.number,
-            textInputAction: TextInputAction.next,
+            minValue: 1,
+            maxValue: 120,
+            toggleLabel: l.onboardingNotSure,
+            approximateLabel: l.onboardingApproximate,
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  controller: _heightController,
-                  label: l.onboardingHeightLabel,
-                  error: _heightError,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  textInputAction: TextInputAction.next,
+          // Height & Weight: side-by-side in exact mode; vertical when
+          // either enters approximate mode to avoid overflow on small screens.
+          if (_heightIsEstimated || _weightIsEstimated) ...[
+            ApproximateField(
+              label: l.onboardingHeightLabel,
+              hint: l.onboardingHeightHint,
+              unit: l.onboardingHeightUnit,
+              ranges: _buildHeightRanges(l),
+              controller: _heightController,
+              isEstimated: _heightIsEstimated,
+              onEstimatedChanged: (v) => setState(() {
+                _heightIsEstimated = v;
+                _heightError = null;
+              }),
+              selectedRange: _heightSelectedRange,
+              onRangeChanged: (v) => setState(() {
+                _heightSelectedRange = v;
+                _heightError = null;
+              }),
+              error: _heightError,
+              isDecimal: true,
+              minValue: 50,
+              maxValue: 250,
+              toggleLabel: l.onboardingNotSure,
+              approximateLabel: l.onboardingApproximate,
+            ),
+            const SizedBox(height: 14),
+            ApproximateField(
+              label: l.onboardingWeightLabel,
+              hint: l.onboardingWeightHint,
+              unit: l.onboardingWeightUnit,
+              ranges: _buildWeightRanges(l),
+              controller: _weightController,
+              isEstimated: _weightIsEstimated,
+              onEstimatedChanged: (v) => setState(() {
+                _weightIsEstimated = v;
+                _weightError = null;
+              }),
+              selectedRange: _weightSelectedRange,
+              onRangeChanged: (v) => setState(() {
+                _weightSelectedRange = v;
+                _weightError = null;
+              }),
+              error: _weightError,
+              isDecimal: true,
+              minValue: 20,
+              maxValue: 300,
+              toggleLabel: l.onboardingNotSure,
+              approximateLabel: l.onboardingApproximate,
+            ),
+          ] else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: ApproximateField(
+                    label: l.onboardingHeightLabel,
+                    hint: l.onboardingHeightHint,
+                    unit: l.onboardingHeightUnit,
+                    ranges: _buildHeightRanges(l),
+                    controller: _heightController,
+                    isEstimated: _heightIsEstimated,
+                    onEstimatedChanged: (v) => setState(() {
+                      _heightIsEstimated = v;
+                      _heightError = null;
+                    }),
+                    selectedRange: _heightSelectedRange,
+                    onRangeChanged: (v) => setState(() {
+                      _heightSelectedRange = v;
+                      _heightError = null;
+                    }),
+                    error: _heightError,
+                    isDecimal: true,
+                    minValue: 50,
+                    maxValue: 250,
+                    toggleLabel: l.onboardingNotSure,
+                    approximateLabel: l.onboardingApproximate,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: _buildTextField(
-                  controller: _weightController,
-                  label: l.onboardingWeightLabel,
-                  error: _weightError,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  textInputAction: TextInputAction.done,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: ApproximateField(
+                    label: l.onboardingWeightLabel,
+                    hint: l.onboardingWeightHint,
+                    unit: l.onboardingWeightUnit,
+                    ranges: _buildWeightRanges(l),
+                    controller: _weightController,
+                    isEstimated: _weightIsEstimated,
+                    onEstimatedChanged: (v) => setState(() {
+                      _weightIsEstimated = v;
+                      _weightError = null;
+                    }),
+                    selectedRange: _weightSelectedRange,
+                    onRangeChanged: (v) => setState(() {
+                      _weightSelectedRange = v;
+                      _weightError = null;
+                    }),
+                    error: _weightError,
+                    isDecimal: true,
+                    minValue: 20,
+                    maxValue: 300,
+                    toggleLabel: l.onboardingNotSure,
+                    approximateLabel: l.onboardingApproximate,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -959,6 +1137,44 @@ Semantics(
                   selected ? RhythmaColors.primary : RhythmaColors.foreground,
               fontSize: 15,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApproximateChip(String label, int daysAgo, int index) {
+    final selected =
+        _isLastPeriodApproximate && _selectedApproximateIndex == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _lastPeriodDate = DateTime.now().subtract(Duration(days: daysAgo));
+          _isLastPeriodApproximate = true;
+          _selectedApproximateIndex = index;
+          _showExactDatePicker = false;
+          _lastPeriodError = null;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: selected
+              ? RhythmaColors.primary.withValues(alpha: 0.15)
+              : RhythmaColors.surface,
+          border: Border.all(
+            color: selected ? RhythmaColors.primary : RhythmaColors.border,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            color: selected ? RhythmaColors.primary : RhythmaColors.foreground,
           ),
         ),
       ),

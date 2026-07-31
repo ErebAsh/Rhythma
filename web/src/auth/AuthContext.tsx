@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiClient, setUnauthorizedHandler, tokenStorage } from '../api/client';
+import { apiClient, setUnauthorizedHandler } from '../api/client';
 
 interface User {
   id: string;
@@ -13,7 +13,7 @@ interface AuthContextValue {
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string, fullName?: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -38,10 +38,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Flutter app's splash-screen session validation.
   useEffect(() => {
     const validate = async () => {
-      if (!tokenStorage.get()) {
-        setLoading(false);
-        return;
-      }
       try {
         const response = await apiClient.get('/auth/me');
         setUser(response.data);
@@ -58,13 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (username: string, password: string) => {
-    const form = new URLSearchParams();
-    form.set('username', username);
-    form.set('password', password);
-    const response = await apiClient.post('/auth/token', form, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    });
-    tokenStorage.set(response.data.access_token);
+    await apiClient.post('/auth/login', { email: username, password });
+    // If the token is valid, /auth/me will return the user info.
+    // response body's access_token is for Flutter's benefit; web ignores it —
+    // the cookie is already set by the backend.
     const me = await apiClient.get('/auth/me');
     setUser(me.data);
   };
@@ -83,10 +76,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const logout = () => {
-    tokenStorage.clear();
-    setUser(null);
-    navigate('/login', { replace: true });
+  const logout = async () => {
+    try {
+      await apiClient.post('/auth/logout');
+    } catch {
+      // Ignore errors on logout
+    } finally {
+      setUser(null);
+      navigate('/login', { replace: true });
+    }
   };
 
   return (

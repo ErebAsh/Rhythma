@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -40,23 +41,33 @@ app = FastAPI(
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-# TODO: Tighten this in production (allow only specific origins)
+# Read allowed origins from environment variable (comma-separated).
+# Defaults to localhost URLs for local development.
+_default_origins = [
+    "http://localhost:8000",
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:8081",
+    "http://127.0.0.1:8081",
+    "http://localhost:8082",
+    "http://127.0.0.1:8082",
+]
+raw = os.getenv("ALLOWED_ORIGINS")
+if raw:
+    allowed_origins = [origin.strip() for origin in raw.split(",") if origin.strip()]
+    origin_regex = None
+else:
+    allowed_origins = _default_origins
+    origin_regex = r"https?://(localhost|127\.0\.0\.1)(:\d+)?"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8000",  # So Swagger UI works
-        "http://localhost:3000",  # Your Flutter web (if you ever run it)
-        "http://127.0.0.1:8000",
-        "http://localhost:5173",  # Vite dev server default port (web/)
-        "http://127.0.0.1:5173",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "http://localhost:8081",   # Flutter web dev server
-        "http://127.0.0.1:8081",
-        "http://localhost:8082",
-        "http://127.0.0.1:8082",
-    ],
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_origins=allowed_origins,
+    allow_origin_regex=origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

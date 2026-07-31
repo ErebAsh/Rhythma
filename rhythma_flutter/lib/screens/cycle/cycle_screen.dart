@@ -10,6 +10,7 @@ import '../../providers/theme_provider.dart';
 import '../../providers/cycle_provider.dart';
 import '../../services/cycle_service.dart';
 import '../../services/local_storage_service.dart';
+import '../../utils/date_utils.dart';
 import '../../utils/log_options.dart';
 import 'components/calendar_grid.dart';
 
@@ -79,7 +80,8 @@ class _CycleScreenState extends State<CycleScreen> {
     }
   }
 
-  Future<void> _onLogSelect(DateTime date, String field, LogOption option) async {
+  Future<void> _onLogSelect(
+      DateTime date, String field, LogOption option) async {
     final existing = LocalStorageService.getCycleLogForDate(date) ?? {};
 
     dynamic newValue;
@@ -93,7 +95,8 @@ class _CycleScreenState extends State<CycleScreen> {
       newValue = current;
     } else {
       // Tapping the already-selected chip again clears that field.
-      newValue = existing[field] == option.value ? null : _coerce(field, option.value);
+      newValue =
+          existing[field] == option.value ? null : _coerce(field, option.value);
     }
 
     await LocalStorageService.saveQuickLogField(date, field, newValue);
@@ -130,15 +133,33 @@ class _CycleScreenState extends State<CycleScreen> {
       });
     } catch (e) {
       if (!mounted) return;
+
+      bool offline = false;
+      String errorMessage =
+          "Saved on this device, but the server rejected the save.";
+
+      if (e is DioException) {
+        offline = e.type == DioExceptionType.connectionError ||
+            e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.unknown;
+
+        if (!offline && e.response?.statusCode == 422) {
+          final detail = e.response?.data['detail'];
+
+          if (detail is List && detail.isNotEmpty) {
+            errorMessage = detail.first['msg'] ?? errorMessage;
+          } else if (detail is String) {
+            errorMessage = detail;
+          }
+        }
+      }
+
       setState(() {
         _saving = false;
-        _saveError = e.toString();
-        _saveErrorWasOffline = e is DioException &&
-            (e.type == DioExceptionType.connectionError ||
-                e.type == DioExceptionType.connectionTimeout ||
-                e.type == DioExceptionType.receiveTimeout ||
-                e.type == DioExceptionType.sendTimeout ||
-                e.type == DioExceptionType.unknown);
+        _saveError = errorMessage;
+        _saveErrorWasOffline = offline;
       });
     }
   }
@@ -158,9 +179,46 @@ class _CycleScreenState extends State<CycleScreen> {
   String? _formatStoredValue(dynamic raw) {
     if (raw == null) return null;
     if (raw is num) {
-      return raw == raw.roundToDouble() ? raw.toInt().toString() : raw.toString();
+      return raw == raw.roundToDouble()
+          ? raw.toInt().toString()
+          : raw.toString();
     }
     return raw.toString();
+  }
+
+  Future<void> _deleteCycleLog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Entry'),
+        content: const Text(
+          'Are you sure you want to delete this day\'s log? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final cycleProvider = context.read<CycleProvider>();
+    final dateKey = RhythmaDateUtils.toDateKey(cycleProvider.selectedDate);
+    await LocalStorageService.deleteCycleLog(dateKey);
+
+    try {
+      await CycleService().deleteLog(dateKey);
+    } catch (_) {}
+
+    if (!mounted) return;
+    cycleProvider.refresh();
   }
 
   @override
@@ -171,7 +229,8 @@ class _CycleScreenState extends State<CycleScreen> {
 
     final displayedMonth = cycleProvider.displayedMonth;
     final selectedDate = cycleProvider.selectedDate;
-    final selectedLog = LocalStorageService.getCycleLogForDate(selectedDate) ?? {};
+    final selectedLog =
+        LocalStorageService.getCycleLogForDate(selectedDate) ?? {};
     final hasSelections = selectedLog.isNotEmpty;
 
     return SingleChildScrollView(
@@ -191,10 +250,10 @@ class _CycleScreenState extends State<CycleScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                  child: TextButton.icon(
-                    onPressed: _jumpToToday,
-                    icon: const Icon(Icons.today_rounded, size: 16),
-                    label: Text(l10n.cycleToday),
+                child: TextButton.icon(
+                  onPressed: _jumpToToday,
+                  icon: const Icon(Icons.today_rounded, size: 16),
+                  label: Text(l10n.cycleToday),
                   style: TextButton.styleFrom(
                     foregroundColor: RhythmaColors.primary,
                   ),
@@ -297,7 +356,8 @@ class _CycleScreenState extends State<CycleScreen> {
             options: LogOptions.flow(l10n),
             color: RhythmaColors.rose,
             selectedValue: selectedLog['flow_intensity'] as String?,
-            onSelect: (opt) => _onLogSelect(selectedDate, 'flow_intensity', opt),
+            onSelect: (opt) =>
+                _onLogSelect(selectedDate, 'flow_intensity', opt),
           ),
           const SizedBox(height: 10),
           _LogRow(
@@ -313,7 +373,7 @@ class _CycleScreenState extends State<CycleScreen> {
             icon: Icons.bolt_rounded,
             label: l10n.logLabelEnergy,
             options: LogOptions.stress(l10n),
-            color: RhythmaColors.primary,
+            color: RhythmaColors.teal,
             selectedValue: selectedLog['stress_level']?.toString(),
             onSelect: (opt) => _onLogSelect(selectedDate, 'stress_level', opt),
           ),
@@ -332,7 +392,8 @@ class _CycleScreenState extends State<CycleScreen> {
             label: l10n.logLabelSymptoms,
             options: LogOptions.symptoms(l10n),
             color: RhythmaColors.teal,
-            multiSelectedValues: List<String>.from(selectedLog['symptoms'] ?? const []),
+            multiSelectedValues:
+                List<String>.from(selectedLog['symptoms'] ?? const []),
             onSelect: (opt) => _onLogSelect(selectedDate, 'symptoms', opt),
           ),
 
@@ -340,31 +401,53 @@ class _CycleScreenState extends State<CycleScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: !hasSelections || _saving ? null : () => _saveToBackend(selectedDate),
+              onPressed: !hasSelections || _saving
+                  ? null
+                  : () => _saveToBackend(selectedDate),
               style: ElevatedButton.styleFrom(
                 backgroundColor: RhythmaColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
               ),
               child: _saving
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
                     )
-                  : const Text('Save Log', style: TextStyle(fontWeight: FontWeight.w700)),
+                  : const Text('Save Log',
+                      style: TextStyle(fontWeight: FontWeight.w700)),
             ),
           ),
+          if (hasSelections) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton.icon(
+                onPressed: _deleteCycleLog,
+                icon: const Icon(Icons.delete_outline_rounded, size: 16),
+                label: const Text('Delete Log'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                ),
+              ),
+            ),
+          ],
           if (_savedSuccessfully) ...[
             const SizedBox(height: 10),
             Row(
               children: [
-                Icon(Icons.check_circle_rounded, color: RhythmaColors.teal, size: 16),
+                Icon(Icons.check_circle_rounded,
+                    color: RhythmaColors.teal, size: 16),
                 const SizedBox(width: 6),
                 Text(
                   'Saved to your account',
-                  style: TextStyle(fontSize: 12, color: RhythmaColors.teal, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: RhythmaColors.teal,
+                      fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -374,14 +457,16 @@ class _CycleScreenState extends State<CycleScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.error_outline_rounded, color: RhythmaColors.rose, size: 16),
+                Icon(Icons.error_outline_rounded,
+                    color: RhythmaColors.rose, size: 16),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     _saveErrorWasOffline
                         ? "Saved on this device, but couldn't reach the server yet. Try again once you're back online."
-                        : "Saved on this device, but the server rejected the save. Try again in a bit.",
-                    style: TextStyle(fontSize: 12, color: RhythmaColors.mutedFg),
+                        : _saveError!,
+                    style:
+                        TextStyle(fontSize: 12, color: RhythmaColors.mutedFg),
                   ),
                 ),
               ],
@@ -429,7 +514,7 @@ class _LogRow extends StatelessWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
+                  color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 17),
@@ -455,7 +540,8 @@ class _LogRow extends StatelessWidget {
                 onTap: () => onSelect(opt),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 160),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                   decoration: BoxDecoration(
                     color: sel ? color : RhythmaColors.surfaceMuted,
                     borderRadius: BorderRadius.circular(20),

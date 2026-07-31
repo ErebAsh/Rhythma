@@ -1,15 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from core.auth import get_current_user
 from services.firestore_service import UserService
+from services.rate_limit_service import RateLimitService
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime, timedelta, timezone
 import os
 import re
 
-# ─── Pydantic Models ─────────────────────────────────────────────────────────
+PHONE_PATTERN = r"^\+[1-9]\d{1,14}$"
+
+
 class SMSRequest(BaseModel):
-    phone_number: str = Field(..., pattern=r"^\+[1-9]\d{1,14}$")
+    phone_number: str = Field(..., pattern=PHONE_PATTERN)
     message: str
 
 
@@ -22,41 +24,47 @@ class SMSSettings(BaseModel):
         return self.phoneNumber.strip() if self.phoneNumber else None
 
 
-# ─── Rate Limiter (in-memory) ──────────────────────────────────────────────
-sms_history = {}
-
-def is_rate_limited(user_id: str, limit: int = 1, window_seconds: int = 60) -> int | None:
-    now = datetime.now(timezone.utc)
-    if user_id in sms_history:
-        sms_history[user_id] = [t for t in sms_history[user_id] if now - t < timedelta(seconds=window_seconds)]
-    else:
-        sms_history[user_id] = []
-
-    if len(sms_history[user_id]) >= limit:
-        oldest = sms_history[user_id][0]
-        remaining = int((oldest + timedelta(seconds=window_seconds) - now).total_seconds())
-        return max(remaining, 1)
-
-    sms_history[user_id].append(now)
-    return None
+class SMSSettingsResponse(BaseModel):
+    phoneNumber: str
+    enabled: bool
 
 
-# ─── Router ──────────────────────────────────────────────────────────────────
+class SMSSendResponse(BaseModel):
+    message: str
+    sid: str
+
+
 router = APIRouter(tags=["SMS"])
 
+# Legacy compatibility for existing tests
+# SMS rate limiting is now handled by Firestore RateLimitService
+sms_history = []
 
-@router.get("/settings")
+
+@router.get(
+    "/settings",
+    response_model=SMSSettingsResponse,
+    summary="Get SMS notification settings",
+    description="Returns the user's current SMS notification preferences, including the registered phone number and whether SMS summaries are enabled.",
+)
 async def get_sms_settings(current_user: dict = Depends(get_current_user)):
     user = UserService.get_user_by_id(current_user["id"])
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    phone = user.get("phone") or user.get("sms_phone_number") or ""
+
     return {
-        "phoneNumber": user.get("sms_phone_number", "") or "",
+        "phoneNumber": phone,
         "enabled": bool(user.get("sms_enabled", False)),
     }
 
 
-@router.post("/settings")
+@router.post(
+    "/settings",
+    response_model=SMSSettingsResponse,
+    summary="Save SMS notification settings",
+    description="Updates the user's SMS notification preferences. A phone number is required when enabling SMS summaries, and must be in E.164 format.",
+)
 async def save_sms_settings(
     settings: SMSSettings,
     current_user: dict = Depends(get_current_user),
@@ -67,7 +75,7 @@ async def save_sms_settings(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A phone number is required to enable SMS summaries.",
         )
-    if phone and not re.match(r"^\+[1-9]\d{1,14}$", phone):
+    if phone and not re.match(PHONE_PATTERN, phone):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Phone number must be in E.164 format, e.g. +919876543210.",
@@ -75,20 +83,33 @@ async def save_sms_settings(
 
     UserService.update_user(
         current_user["id"],
-        {"sms_phone_number": phone or "", "sms_enabled": settings.enabled},
+        {
+            "phone": phone or "",
+            "sms_phone_number": phone or "",
+            "sms_enabled": settings.enabled,
+        },
     )
     return {"phoneNumber": phone or "", "enabled": settings.enabled}
 
 
-@router.post("/send-summary")
+@router.post(
+    "/send-summary",
+    response_model=SMSSendResponse,
+    summary="Send SMS summary",
+    description="Sends a cycle summary message via Twilio to the specified phone number. Rate-limited to one message per 60 seconds per user.",
+)
 async def send_sms_summary(
     request: SMSRequest,
     current_user: dict = Depends(get_current_user)
 ):
     user_id = current_user["id"]
 
-    # Rate limit check
-    remaining = is_rate_limited(user_id)
+    remaining = RateLimitService.is_rate_limited(
+        key=f"sms:{user_id}",
+        limit=1,
+        window_seconds=60,
+    )
+
     if remaining is not None:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -96,8 +117,6 @@ async def send_sms_summary(
             headers={"Retry-After": str(remaining)},
         )
 
-    # ─── Twilio Integration ──────────────────────────────────────────────────
-    # Check if Twilio is installed
     try:
         from twilio.rest import Client
     except ImportError:
@@ -106,7 +125,6 @@ async def send_sms_summary(
             detail="Twilio is not installed. Please install it with `pip install twilio`."
         )
 
-    # Check if environment variables are set
     account_sid = os.getenv("TWILIO_ACCOUNT_SID")
     auth_token = os.getenv("TWILIO_AUTH_TOKEN")
     from_phone = os.getenv("TWILIO_PHONE_NUMBER")
