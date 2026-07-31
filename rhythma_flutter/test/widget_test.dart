@@ -83,6 +83,7 @@ void main() {
             Locale('ta'),
             Locale('te'),
             Locale('mr'),
+            Locale('bn'),
           ],
           home: const Scaffold(
             body: ProfileScreen(),
@@ -349,6 +350,7 @@ void main() {
           ],
           supportedLocales: const [
             Locale('en'),
+            Locale('bn'),
           ],
           home: Scaffold(
             body: Builder(
