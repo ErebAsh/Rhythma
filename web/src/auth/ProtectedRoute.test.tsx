@@ -7,7 +7,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 // control flow, not the session bootstrap (covered in AuthContext.test.tsx).
 const authState = { user: null as { id: string } | null, loading: false };
 
-vi.mock('./AuthContext', () => ({
+vi.mock('./useAuth', () => ({
   useAuth: () => authState,
 }));
 

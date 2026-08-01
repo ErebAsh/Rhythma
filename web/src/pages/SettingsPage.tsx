@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/useAuth';
 import { deleteAccount, fetchSupportedLanguages, patchProfile, type SupportedLanguage } from '../api/endpoints';
 
 const FALLBACK_LANGUAGES: SupportedLanguage[] = [
@@ -81,6 +81,15 @@ export function SettingsPage() {
             </button>
           ))}
         </div>
+
+        <Link to="/sharing" className="menu-item glass-card">
+          <span>🩺</span>
+          <div className="menu-item-body">
+            <span>{t('settings.sharing')}</span>
+            <span className="card-sub">{t('settings.sharingSubtitle')}</span>
+          </div>
+          <span className="chevron">›</span>
+        </Link>
 
         <Link to="/sms" className="menu-item glass-card">
           <span>📱</span>
