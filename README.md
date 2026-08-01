@@ -64,8 +64,7 @@ Rhythma aims to be an offline-first, multilingual women's health companion for t
 Rhythma consists of **two front ends sharing one backend**, not two separate products:
 
 1. **Flutter mobile app** (`rhythma_flutter/`) — the primary experience today. Most of the UI described in this README lives here.
-2. **Website** (`web/`) — a browser-based client aiming for **the same features as the app** (cycle tracking, AI Assistant, Insights, Profile), talking to the same FastAPI backend, for women who don't have or don't want to install a mobile app. **Scaffolding has started**: a React + Vite + TypeScript app with working registration, login, protected routing, and i18n (same 5 locales as Flutter) against the real backend `/auth` endpoints — but it only has a placeholder home page so far. Cycle tracking, AI Assistant, and Insights pages don't exist on the web yet.
-
+2. **Website** (`web/`) — a browser-based client aiming for **the same features as the app** (cycle tracking, AI Assistant, Insights, Profile), talking to the same FastAPI backend, for women who don't have or don't want to install a mobile app.
 This is separate from `landing-page/`, a Next.js **marketing** site that explains the product but runs none of its functionality. Don't confuse the two when navigating the codebase.
 
 ---
@@ -76,25 +75,25 @@ Rhythma is designed to grow into support for multiple groups of Indian women, ea
 
 | Group | Age / context | What they need |
 | --- | --- | --- |
-| **Teen girls (first period journey)** | 12–17 | Simple, non-clinical first-period guidance and menstrual education — **planned, not yet built** (see [Future Features](#future-features)) |
+| **Teen girls (first period journey)** | 12–17 | Simple, non-clinical first-period guidance and menstrual education |
 | **College students & working women** | 18–35 | Irregular-cycle tracking, PCOD/PCOS awareness, hormonal health support — **primary users of the current app** |
 | **Women with irregular cycles** | 18–35+ | Long-term pattern detection (CVI), not single-cycle guesswork |
-| **Community / self-help groups** | Extended ecosystem (NGOs, rural users, shared devices) across Tier-2, Tier-3 & semi-urban India | Offline access, SMS support, and eventually WhatsApp-based access without needing to install an app — **partially planned** |
+| **Community / self-help groups** | Extended ecosystem (NGOs, rural users, shared devices) across Tier-2, Tier-3 & semi-urban India | Offline access, SMS support, and eventually WhatsApp-based access without needing to install an app |
 
 | **Feature** | **Details** |
 | --- | --- |
 | **Languages** | Hindi, Marathi, Tamil, Telugu, English — more planned |
-| **Health scores** | CVI™ (Cycle Variability Index) + MHS™ (Menstrual Health Score) — proprietary |
+| **Health scores** | CVI (Cycle Variability Index) + MHS (Menstrual Health Score) — proprietary |
 | **Connectivity** | Offline-first; core features work with zero internet, sync when available |
 | **Privacy** | 100% on-device processing and storage by default |
 
-Contributors working on onboarding flows, content, or accessibility should keep these different personas in mind, especially the gap between the current adult-focused experience and the still-unbuilt teen-focused one.
+Contributors working on onboarding flows, content, or accessibility should keep these different personas in mind, especially the gap between the adult-focused experience and the teen-focused one.
 
 ---
 
 ## Screenshots
 
-*(Screenshots below reflect UI mockups for screens that are visually complete but, in some cases, not yet wired to real data — see [Project Status](#project-status).)*
+*(Screenshots below reflect UI mockups)*
 
 | Dashboard | Cycle Calendar | AI Assistant |
 | --- | --- | --- |
@@ -108,7 +107,7 @@ Contributors working on onboarding flows, content, or accessibility should keep 
 
 ## Demo Video
 
-Two UI walkthroughs are included in the repo under [`design-concepts/`](design-concepts):
+Two UI walkthroughs (mockups) are included in the repo under [`design-concepts/`](design-concepts):
 - [`UI_Demo_1.mp4`](design-concepts/UI_Demo_1.mp4)
 - [`UI_Demo_2.mp4`](design-concepts/UI_Demo_2.mp4)
 
@@ -116,7 +115,7 @@ Two UI walkthroughs are included in the repo under [`design-concepts/`](design-c
 
 ## Live Demo
 
-The public landing page is live at **[rhythma-navy.vercel.app](https://rhythma-navy.vercel.app)**. (This is the marketing site, not the app itself — the Flutter app and backend currently need to be run locally; see [Installation](#installation).)
+The public landing page is live at **[rhythma-navy.vercel.app](https://rhythma-navy.vercel.app)**. (This is the marketing site, not the app itself.)
 
 ---
 
@@ -130,8 +129,8 @@ The public landing page is live at **[rhythma-navy.vercel.app](https://rhythma-n
 | SMS-Based Health Support | ❌ | ❌ | ❌ | ✅ |
 | Privacy-First Data Ownership | ✅ | ✅ | ➖ | ✅ |
 | Indian Language Support | ❌ | ✅ | ✅ | ✅ |
-| CVI™ Score (Proprietary) | ❌ | ❌ | ❌ | ✅ |
-| MHS™ Score (Proprietary) | ❌ | ❌ | ❌ | ✅ |
+| CVI Score (Proprietary) | ❌ | ❌ | ❌ | ✅ |
+| MHS Score (Proprietary) | ❌ | ❌ | ❌ | ✅ |
 | Educational Ayurvedic Layer | ❌ | ➖ | ✅ | ✅ |
 
 *Feature comparison based on publicly available information from official websites, app stores, and product documentation. Availability may change over time.*
@@ -147,17 +146,17 @@ The public landing page is live at **[rhythma-navy.vercel.app](https://rhythma-n
 | 🔐 **Account Login / Registration** | JWT-based sign up and sign in, gating access to the app. |
 | 🌸 **Smart Cycle Tracking** | Handles irregular cycles. No fixed 28-day assumption. Tracks flow, mood, and daily symptoms. |
 | 🤖 **Gemini-Powered AI Assistant** | Multilingual health education and wellness guidance in Hindi, Marathi, Tamil, Telugu, English, and more. |
-| 📊 **Cycle Variability Index™ (CVI)** | Proprietary 0–100 score quantifying hormonal instability over rolling 6–12 months. |
-| ❤️ **Menstrual Health Score™ (MHS)** | Holistic composite score: CVI + lifestyle + sleep + stress + symptoms. |
+| 📊 **Cycle Variability Index (CVI)** | Proprietary 0–100 score quantifying hormonal instability over rolling 6–12 months. |
+| ❤️ **Menstrual Health Score (MHS)** | Holistic composite score: CVI + lifestyle + sleep + stress + symptoms. |
 | 🏥 **Hormonal Risk Indicator** | 3-tier alert system (Low / Medium / High) based on cycle gaps and symptom clusters. (Awareness tool, not a diagnosis.) |
 | 📱 **Offline-First Architecture** | Hive local storage → Firestore cloud sync when connectivity is available. |
 | 🔒 **Privacy-First Design** | On-device encryption. No data leaves the phone without explicit user consent. |
 | 🌍 **Indian Regional Languages** | Full UI localization across Indian languages. |
 | 📩 **SMS Health Summaries** | Weekly summaries via Twilio SMS for users in low-data areas. |
-| 🩸 **First Period Guidance** | A dedicated, age-appropriate onboarding and education flow for first-time users (ages 12–17) — separate tone, content, and simplicity level from the adult cycle-tracking experience. *(Planned — see [Future Features](#future-features).)* |
+| 🩸 **First Period Guidance** | A dedicated, age-appropriate onboarding and education flow for first-time users (ages 12–17) — separate tone, content, and simplicity level from the adult cycle-tracking experience. |
 | 🌿 **Ayurvedic Correlation Layer** | Educational wellness insights that connect lifestyle and cycle patterns with traditional Ayurvedic wellness concepts, for cultural relevance (educational only, not medical advice). |
-| 💬 **WhatsApp Bot Integration** | Gemini-powered WhatsApp assistant (via Twilio/Meta Cloud API) for cycle tracking and health Q&A without requiring an app install — aimed at community/self-help-group users on shared or low-end devices. *(Planned — see [Future Features](#future-features).)* |
-| 🌐 **Website (feature parity)** | A browser-based client offering the same cycle tracking, AI Assistant, Insights, and Profile features as the Flutter app, on the same backend. *(In progress — auth only today.)* |
+| 💬 **WhatsApp Bot Integration** | Gemini-powered WhatsApp assistant (via Twilio/Meta Cloud API) for cycle tracking and health Q&A without requiring an app install — aimed at community/self-help-group users on shared or low-end devices. |
+| 🌐 **Website (feature parity)** | A browser-based client offering the same cycle tracking, AI Assistant, Insights, and Profile features as the Flutter app, on the same backend. |
 
 > **ML models run entirely on-device.** No sensitive health data leaves the phone unless the user explicitly enables cloud sync.
 
@@ -176,12 +175,12 @@ The public landing page is live at **[rhythma-navy.vercel.app](https://rhythma-n
 | google_fonts | ^6.2.1 | Typography | Used in theme |
 | go_router | ^13.2.0 | Navigation | Used |
 | hive / hive_flutter | ^2.2.3 / ^1.1.0 | Local offline storage | Used extensively in `local_storage_service.dart` |
-| firebase_core / cloud_firestore / firebase_auth | ^3.3.0 / ^5.2.1 / ^5.1.3 | Cloud sync | **In pubspec.yaml but never initialized — no `Firebase.initializeApp()` call anywhere in the codebase** |
+| firebase_core / cloud_firestore / firebase_auth | ^3.3.0 / ^5.2.1 / ^5.1.3 | Cloud sync | Initialized in `main.dart` (`Firebase.initializeApp()`) and wired to `FirestoreService` for client-side offline-first sync — see [Flutter Client Firebase Setup](#flutter-client-firebase-setup-client-side-firestore-sync) |
 | encrypt | ^5.0.3 | Local encryption | Present |
 | fl_chart | ^0.68.0 | Charts | Used in `components/charts.dart` |
 | flutter_localizations / intl | — / ^0.20.2 | i18n | Used, 5 languages generated |
 | permission_handler | ^12.0.3 | Runtime permissions | Used by notification service |
-| connectivity_plus | ^6.0.3 | Network state | **In pubspec.yaml but not imported anywhere in `lib/`** |
+| connectivity_plus | ^6.0.3 | Network state | Used in `firestore_service.dart` to detect connectivity and auto-trigger sync on restore |
 | shared_preferences | ^2.3.2 | Lightweight key-value storage | Present |
 | url_launcher | ^6.3.0 | Open external links | Present |
 | flutter_local_notifications / timezone | ^22.0.1 / ^0.11.1 | Local notifications | Used, but only wired to manual Settings toggles |
@@ -232,7 +231,7 @@ Legend: ✅ **Done** (real, working, no mocks) · 🟡 **Partial / Needs Attenti
 | `POST /cycle/quick-log` (single-field upsert, discussed in issue #50) | ❌ Not Implemented | Not present in `api/cycle.py` — only the full-log endpoint exists server-side |
 | `GET /dashboard` (CVI, MHS, cycle day, next period) | ✅ Done | Real feature extraction from Firestore logs, real model calls, `hasEnoughDataForInsights` flag |
 | GET /{user_id}/scores (Insights endpoint) | ✅ Done | Reuses the shared scoring service (`services/scoring_service.py`) to return real MHS/CVI scores, matching the dashboard computation. |
-| CVI model (`cvi_model.py`) | 🟡 Partial | Real feature engineering + XGBoost inference path exists, but **no trained `.joblib` file is committed** — every request currently falls back to a hardcoded heuristic (`std_dev * 8 + 30`) |
+| CVI model (`cvi_model.py`) | 🟡 Partial | Real feature engineering + XGBoost inference path exists, and a trained `models/cvi_model.joblib` is now committed (via `scripts/train_cvi_model.py`) — needs a contributor to confirm live requests are actually loading it rather than still falling back to the heuristic (`std_dev * 8 + 30`) |
 | MHS model (`mhs_model.py`) | 🟡 Partial | Real weighted composite of CVI/sleep/stress/symptoms, but **`lifestyle_score` is hardcoded to `70.0`** pending lifestyle tracking |
 | AI Assistant (`POST /assistant/chat`) | 🟡 Partial | Real Gemini API call with a real system prompt; **no grounding in a sourced medical dataset**, no conversation persistence (history is client-passed only, lost on restart), no per-user rate limiting |
 | SMS settings + send (`api/sms.py`) | 🟡 Partial | Real Twilio call, real rate limiting, real phone validation — but **the message body must be supplied by the caller**; there's no backend logic that generates the summary content from real MHS/CVI data |
@@ -305,6 +304,8 @@ Legend: ✅ **Done** (real, working, no mocks) · 🟡 **Partial / Needs Attenti
 | PR template enforcing source citations for health content | ❌ Not Implemented |
 | Issue templates / CODEOWNERS | ❌ Not Implemented |
 
+**Nothing else is deployed yet.** The FastAPI backend, the `web/` React app, and the Flutter app all currently need to be run locally — see [Installation](#installation). The backend needs a host (Render/Railway free tier is the likely candidate), `web/` can then point at that live backend and deploy to Vercel the same way `landing-page/` does, and Flutter can ship two ways — a downloadable APK attached to GitHub Releases for anyone to sideload, and/or a `flutter build web` deploy (Flutter already has a `web/` platform target committed) to get a browser-testable build of the actual app, distinct from the React `web/` folder.
+
 > This table is maintained by contributors alongside their PRs — see [CONTRIBUTING.md → Documentation Guidelines](CONTRIBUTING.md#documentation-guidelines). A PR that implements something listed here as ❌ or 🟡 should update the relevant row in the same PR.
 
 ---
@@ -315,9 +316,16 @@ Legend: ✅ **Done** (real, working, no mocks) · 🟡 **Partial / Needs Attenti
 Rhythma/
 │
 ├── .github/
+│   ├── CODEOWNERS
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.yml
+│   │   └── feature_request.yml
 │   └── workflows/
 │       ├── backend.yml            # CI: pytest on backend/, PR + push triggers, path-filtered
-│       └── flutter.yml            # CI: flutter analyze + flutter test, PR + push triggers
+│       ├── flutter.yml            # CI: flutter analyze + flutter test, PR + push triggers
+│       ├── web.yml                # CI: lint, test, build on web/, path-filtered
+│       └── landing-page.yml       # CI: lint + build on landing-page/, path-filtered
 │
 ├── backend/                        # FastAPI backend
 │   ├── .env.example
@@ -327,7 +335,7 @@ Rhythma/
 │   │   ├── cycle.py               # POST /cycle/log, GET /cycle/{user_id}/history
 │   │   ├── dashboard.py           # GET /dashboard — real CVI/MHS aggregation
 │   │   ├── health.py              # Health check endpoint
-│   │   ├── insights.py            # GET /{user_id}/scores — STUB, returns placeholder text
+│   │   ├── insights.py            # GET /{user_id}/scores — real, backed by scoring_service.py
 │   │   └── sms.py                 # GET/POST /sms/settings, POST /sms/send-summary (real Twilio call)
 │   ├── core/
 │   │   ├── auth.py                # JWT creation/verification, bcrypt hashing
@@ -368,12 +376,15 @@ Rhythma/
 │   │   │   └── user.dart
 │   │   ├── providers/
 │   │   │   ├── cycle_provider.dart
+│   │   │   ├── dashboard_provider.dart
+│   │   │   ├── data_mode_provider.dart
 │   │   │   ├── locale_provider.dart
 │   │   │   ├── profile_provider.dart
+│   │   │   ├── sync_status_provider.dart
 │   │   │   └── theme_provider.dart
 │   │   ├── screens/
 │   │   │   ├── assistant/assistant_screen.dart
-│   │   │   ├── auth/login_screen.dart, register_screen.dart
+│   │   │   ├── auth/login_screen.dart, language_selection_screen.dart   # language picker now shown before login
 │   │   │   ├── cycle/cycle_screen.dart
 │   │   │   │   └── components/calendar_grid.dart, log_entry_sheet.dart
 │   │   │   ├── home/home_screen.dart
@@ -386,7 +397,7 @@ Rhythma/
 │   │   │   ├── api_client.dart            # Dio instance, base URL config
 │   │   │   ├── assistant_service.dart      # Calls backend /assistant/chat
 │   │   │   ├── auth_service.dart           # Calls backend /auth/* — real
-│   │   │   ├── firestore_service.dart      # STUB — Firebase imports commented out, no-op sync
+│   │   │   ├── firestore_service.dart      # Real offline-first sync — Hive queue, connectivity_plus, last-write-wins
 │   │   │   ├── local_storage_service.dart  # Hive-based local persistence — largest service (363 lines)
 │   │   │   └── notification_service.dart   # flutter_local_notifications — wired ONLY to manual
 │   │   │                                     toggles in Settings, not to period/log reminders
@@ -436,15 +447,18 @@ Rhythma/
 │   └── UI_Demo_2.mp4
 │
 ├── docs/
-│   ├── architecture.md              # 67 lines — high-level only, no CVI/MHS methodology doc
+│   ├── architecture.md              # High-level only, no CVI/MHS methodology doc, no mention of web/ or auth flow yet
 │   └── Rhythma_Blog.docx
 │
 ├── screenshots/                     # 8 PNGs (dashboard, calendar, CVI, MHS, AI assistant, SMS, insights, logo)
 │
 ├── .gitignore
+├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
+├── SECURITY.md
+├── SUPPORT.md
 └── requirements.txt
 ```
 
@@ -524,8 +538,6 @@ npm install
 npm run dev
 ```
 
-This gets you a working registration/login flow and a placeholder home page — there's no cycle tracking, AI Assistant, or Insights page here yet (see [Platforms](#platforms)).
-
 > **Note:** Both the Flutter app and the web app now require a real account. Register through either front end's Register screen against a running backend before you'll see anything past the login screen.
 
 ### Running the Landing Page
@@ -575,39 +587,6 @@ The backend currently uses Firebase **only for user accounts and cycle data** (v
 4. Ensure Firestore is enabled in the project (Native mode).
 
 > **Note:** The Flutter app does not currently initialize Firebase or connect to Firestore on the client side — `firebase_core`, `cloud_firestore`, and `firebase_auth` are listed as dependencies for planned client-side sync but are not yet wired up. No `google-services.json` / `GoogleService-Info.plist` setup is required today.
-
-### Flutter Client Firebase Setup (Client-Side Firestore Sync)
-
-For client-side offline-first Firestore synchronization (Issue #27), additional setup is required:
-
-#### Android
-1. In Firebase Console, add an Android app with package name `com.example.rhythma`
-2. Download `google-services.json` and place it at:
-   ```
-   rhythma_flutter/android/app/google-services.json
-   ```
-3. The `android/app/build.gradle.kts` and `android/settings.gradle.kts` are already configured with the google-services plugin.
-
-#### iOS
-1. In Firebase Console, add an iOS app with bundle ID `com.example.rhythma`
-2. Download `GoogleService-Info.plist` and place it at:
-   ```
-   rhythma_flutter/ios/Runner/GoogleService-Info.plist
-   ```
-3. Add the file to your Xcode project if not already included.
-
-#### Initialize Firebase in App
-The Flutter app now initializes Firebase in `main.dart`:
-```dart
-await Firebase.initializeApp();
-await FirestoreService.init();
-```
-
-This enables:
-- Offline persistence via Firestore's local cache
-- Automatic sync when connectivity is restored
-- `SyncStatusProvider` for UI sync indicators (Issue #20)
-- Hive (local) remains the primary source of truth; Firestore syncs when online
 
 ---
 
@@ -661,8 +640,7 @@ Contributions are very welcome — code, docs, translations, design, and bug rep
 
 Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** before opening an issue or pull request. It covers project setup, branch naming, commit conventions, coding style, and the PR workflow in detail.
 
-If you're looking for a place to start, the [Project Status](#project-status) tables above double as a task list: anything marked ❌ or 🟡 is fair game, and issues referenced in the "Evidence" column (e.g. #27, #30, #38–#43, #50, #73) are already tracked on the [Issues](https://github.com/ishita2740/Rhythma/issues) page.
-
+If you're looking for a place to start, the [Project Status](#project-status) tables above double as a task list: anything marked ❌ or 🟡 is fair game.
 ---
 
 ## License
