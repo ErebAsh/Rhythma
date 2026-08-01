@@ -1,10 +1,16 @@
 from datetime import date
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Any, Dict, Optional
 
 from core.auth import get_current_user
+from services.health_observations_service import (
+    build_analysis,
+    describe_consistency,
+    evaluate,
+    top_observation,
+)
 from services.scoring_service import get_user_scores, as_date, DEFAULT_CYCLE_LENGTH
 
 
@@ -29,6 +35,25 @@ class CycleHistoryEntry(BaseModel):
     cycle_length: int
 
 
+class DashboardObservation(BaseModel):
+    """The single highest-priority observation, for the Home screen.
+
+    Nullable: a brand-new user with no logs has nothing to say yet, and a
+    client written before this field existed must keep working, so it is
+    additive and optional rather than a required object.
+    """
+
+    code: str
+    severity: str
+    title: str
+    body: str
+    titleKey: str
+    bodyKey: str
+    evidence: Dict[str, Any] = Field(default_factory=dict)
+    isMedicalAdvice: bool = False
+    disclaimerKey: str
+
+
 class DashboardResponse(BaseModel):
     user: DashboardUser
     cycle: DashboardCycle
@@ -38,6 +63,15 @@ class DashboardResponse(BaseModel):
     cycleHistory: list[CycleHistoryEntry]
     symptomFrequency: dict[str, float]
     recentStressLevel: Optional[int] = None
+    #: Highest-severity factual observation about the user's logged data,
+    #: computed from the logs already fetched above — so the Home screen
+    #: needs no second round trip. Full list lives at
+    #: GET /insights/{user_id}/observations.
+    topObservation: Optional[DashboardObservation] = None
+    #: Descriptive consistency label (consistent / slightly_variable /
+    #: variable / unknown), per menstrual_insights_guidelines.md's summary
+    #: card guidance — a word, not a score.
+    cycleConsistency: str = "unknown"
 
 
 router = APIRouter(tags=["Dashboard"])
@@ -105,6 +139,15 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
 
     recent_stress_level = logs[0].get("stress_level") if logs else None
 
+    # Observations reuse the logs already fetched above rather than
+    # re-querying Firestore, so the Home screen still costs one round trip
+    # and one read path. `build_analysis` is called separately from
+    # `evaluate` only because the consistency label needs the analysis
+    # object; both are pure functions over the same list.
+    observations = evaluate(logs)
+    highest = top_observation(observations)
+    consistency = describe_consistency(build_analysis(logs))
+
     return {
         "user": {
             "name": current_user.get("username") or "User"
@@ -124,4 +167,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "cycleHistory": cycle_history,
         "symptomFrequency": symptom_frequency,
         "recentStressLevel": recent_stress_level,
+        "topObservation": highest.to_dict() if highest else None,
+        "cycleConsistency": consistency,
     }
