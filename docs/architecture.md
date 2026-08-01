@@ -47,39 +47,33 @@ Rhythma follows an **offline-first, privacy-first** architecture designed for lo
 - Firestore security rules restrict read/write to authenticated user's own documents
 - Backend never stores raw health data in logs
 
-## Observability & Error Handling
+## Cycle Prediction
 
-Every HTTP request passes through `core/middleware.py`'s `RequestContextMiddleware`, registered *inside* the CORS middleware so preflight requests are answered without generating log noise.
+`services/prediction_service.py` answers "when is my next period?", which was previously three lines inside a route handler:
 
-**Request correlation.** The middleware reuses a well-formed inbound `X-Request-ID` header — so a trace started on the Flutter or web client continues through the backend — or mints a UUID4 when there isn't one. The id is bound into a `ContextVar` (`core/request_context.py`), which means any `logger` call anywhere in the call stack is stamped with it automatically, without threading a parameter through every service function. The same id is echoed on the response (and listed in the CORS `expose_headers`, so browser JavaScript can actually read it) and included in every error body.
-
-**Logging.** `core/logging_config.py` is the single place loguru is configured. `LOG_FORMAT=json` switches to a flat single-line JSON sink for log aggregation; the default `console` sink is the human-readable one for local development. stdlib `logging` — which is what uvicorn, httpx and firebase-admin use — is routed through an `InterceptHandler` so output is one format rather than two interleaved ones.
-
-**PII redaction.** A loguru patcher passes every record's bound context through `redact()`, which replaces values under sensitive keys (`phone`, `email`, `token`, `authorization`, `notes`, `symptoms`, `mood`, `sleep_hours`, …) with `[redacted]`. Key names survive; only values are hidden, so a log line still records *that* a phone number was involved. This is what backs the "Backend never stores raw health data in logs" claim in the Privacy Design section above.
-
-**One error envelope.** `core/errors.py` registers handlers that normalize `HTTPException`, request-validation errors and unhandled exceptions into a single shape:
-
-```json
-{
-  "detail": "<unchanged, for backwards compatibility>",
-  "error": {
-    "code": "cycle_log_not_found",
-    "message": "Cycle log not found",
-    "request_id": "9f1c…",
-    "details": null
-  }
-}
+```python
+next_period_days = max(avg_cycle_length - cycle_day, 0)
 ```
 
-`detail` is preserved exactly as before so existing clients keep working; `error.code` is a stable machine-readable string that new client code should branch on — and that clients can use as a localization key instead of string-matching English text. Services raise `AppError` subclasses (`NotFoundError`, `ForbiddenError`, `RateLimitError`, `UpstreamServiceError`, …) to set the code explicitly.
+with `avg_cycle_length` an unweighted mean of every gap in the last ten logs.
 
-Unhandled exceptions are logged with a full traceback server-side and return only a generic message, so raw Firestore/Google API strings — project ids, collection paths, index URLs — never reach a client UI. `upstream_error()` enforces this for dependency failures; `services/firestore_service.py` uses it in place of the old `detail=f"Failed to …: {str(e)}"` pattern.
+| Concern | Before | Now |
+| :--- | :--- | :--- |
+| Being late | clamped to `0` — indistinguishable from "due today" | `daysUntilNextPeriod` goes negative, plus `isOverdue` / `daysOverdue` |
+| Estimator | unweighted mean over 10 cycles | exponentially weighted, so recent cycles count more |
+| Outliers | one 60-day gap shifted the mean for 10 cycles | rejected by median absolute deviation before averaging |
+| Uncertainty | none — a bare point estimate | `confidence` tier plus an explicit `predictedRange` sized from the user's own spread |
+| Profile data | ignored; new users got a hardcoded 28 | fallback ladder history → declared `cycle_length` → default, reported as `cycleLength.source` |
+| Ovulation / fertile window | did not exist | luteal-anchored estimate, labelled `notForContraception` |
+| Phase | client-side, hardcoded at days 5/13/16 | server-side, boundaries scaled to the user's actual cycle length |
 
-| Variable | Values | Default | Effect |
-| :--- | :--- | :--- | :--- |
-| `LOG_LEVEL` | `TRACE`/`DEBUG`/`INFO`/`WARNING`/`ERROR` | `INFO` | Minimum level written to the sink |
-| `LOG_FORMAT` | `console`, `json` | `console` | Human-readable vs. aggregator-friendly output |
-| `LOG_REDACT` | `true`, `false` | `true` | PII redaction in log context (disable for local debugging only) |
+**Ovulation is anchored backwards from the next period**, not forwards from the last one: the luteal phase is the stable ~14-day part of a cycle, and nearly all the variation lives in the follicular phase. Below a 25-day cycle the luteal length scales down, so a 21-day cycle doesn't place ovulation on day 7.
+
+**Spread takes the larger of a robust (MAD) estimate and a quarter of the observed range.** MAD alone is too robust here — for cycles of 21/34/24/22 it reports ~2 days, because three of the four sit close together, which would hand an erratic user the same narrow window as a perfectly regular one. For a health prediction, erring wide is the right direction.
+
+**A stale `last_period` reports phase `late`, not `luteal`.** `rhythma_flutter/lib/providers/cycle_provider.dart` computes `date.difference(lastPeriod).inDays + 1` with no wrap, so it reports "day 63" and pins the user in the luteal phase indefinitely. Phase belongs on the server, computed from real history and shared by both clients rather than re-guessed per platform.
+
+Everything is a pure function of `(logs, profile, today)` — `today` is injectable, so tests never depend on the wall clock and a scheduled reminder job can ask what tomorrow looks like. Surfaced at `GET /api/v1/cycle/predictions`, with a compact subset embedded in `GET /api/v1/dashboard` as `prediction` (additive and nullable; `cycle.nextPeriodDays` keeps its old clamped meaning for existing clients).
 
 ## ML Models
 
