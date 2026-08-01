@@ -258,38 +258,30 @@ class UserService:
             raise upstream_error("Saving your profile", e)
 
     @staticmethod
-    def delete_user(user_id: str) -> None:
-        """Delete a user document and their cycle logs, and from Firebase Auth."""
+    def delete_user(user_id: str) -> Dict[str, int]:
+        """Delete everything stored for a user. Returns per-collection counts.
+
+        Delegates to ``DataPrivacyService.purge_user_data()`` rather than
+        implementing the cascade here. This method used to do it inline and
+        covered only ``users``, ``cycle_logs`` and Firebase Auth — it never
+        touched ``conversations`` (the assistant chat transcript, one
+        document keyed by ``user_id``) or the ``rate_limits`` documents
+        keyed ``sms:{user_id}``. So a "successfully deleted" account left
+        the user's health conversation in Firestore indefinitely, keyed by
+        an id no longer reachable through the app.
+
+        Keeping exactly one implementation of the cascade is what stops
+        that class of omission from recurring: a new collection is
+        registered once, in ``USER_DATA_COLLECTIONS``, and both deletion
+        and the data-summary inventory pick it up.
+
+        The import is local to avoid an import cycle — the privacy service
+        imports this module for ``UserService`` and ``db``.
+        """
         try:
-            user = UserService.get_user_by_id(user_id)
-            if not user:
-                return
+            from services.data_privacy_service import purge_user_data
 
-            phone = user.get("phone")
-
-            # Delete all cycle logs
-            cycle_logs = db.collection("cycle_logs").where("user_id", "==", user_id).stream()
-            for log in cycle_logs:
-                # In MockFirestoreClient, delete is available on MockDocumentReference
-                # In real Firestore, it's doc.reference.delete()
-                # But here cycle_logs returns doc snapshots. For safety:
-                try:
-                    log.reference.delete()
-                except AttributeError:
-                    log.delete()
-
-            # Delete from Firebase Auth
-            if phone:
-                try:
-                    import firebase_admin.auth
-                    fb_user = firebase_admin.auth.get_user_by_phone_number(phone)
-                    firebase_admin.auth.delete_user(fb_user.uid)
-                except Exception as e:
-                    # Ignore if the user is not found in Firebase Auth
-                    pass
-
-            # Delete user document
-            db.collection("users").document(user_id).delete()
+            return purge_user_data(user_id)
         except Exception as e:
             raise upstream_error("Deleting your account", e)
 

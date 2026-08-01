@@ -47,26 +47,24 @@ Rhythma follows an **offline-first, privacy-first** architecture designed for lo
 - Firestore security rules restrict read/write to authenticated user's own documents
 - Backend never stores raw health data in logs
 
-## Insights: Observations vs. Scores
+### Data portability & erasure
 
-`menstrual_insights_guidelines.md` sets the rules for health messaging in this project: describe observations rather than make judgments, avoid risk labels, name no conditions, and answer one question for every insight — *is this statement directly supported by the user's logged data?*
+`services/data_privacy_service.py` owns both, and `api/privacy.py` exposes them under `/api/v1/privacy`. Every route operates strictly on `current_user["id"]` — none takes a user id from the path, so there is no authorization check to get wrong on an endpoint that hands out a full health export or destroys an account.
 
-`services/health_observations_service.py` is the implementation of that. It is a **rule engine, not a model**: eleven pure functions over `(logs, profile, today)`, each returning a statement plus the exact numbers that produced it.
+| Route | Purpose |
+| :--- | :--- |
+| `GET /privacy/summary` | Inventory: per category, how many records, which fields, the date range, the retention note. Field *names*, never values. |
+| `GET /privacy/export?format=json\|csv` | The full bundle. JSON is canonical and versioned by `schema_version`; CSV is a flattened cycle-log table for spreadsheets. The password hash is excluded. |
+| `POST /privacy/delete-account` | Two-step. Without a token: returns a single-use token plus an impact preview (202). With it: performs the cascade and returns per-collection counts (200). |
+| `GET /privacy/deletion-status` | Confirms an account is gone, from the audit record. |
 
-| | MHS / CVI (`scoring_service.py`) | Observations (`health_observations_service.py`) |
-| :--- | :--- | :--- |
-| Output | one scalar each | a list of specific statements |
-| Backing | trained model artifact | the user's logged values only |
-| Can say *which* cycle was unusual | no | yes, with dates and day counts |
-| Severity language | risk tiers | `info` → `attention` → `seek_care` |
+**One cascade, one list of collections.** `purge_user_data()` is the only implementation, and `UserService.delete_user()` (and therefore the existing `DELETE /auth/me`) delegates to it. Before this, `delete_user()` had its own partial cascade that covered `users`, `cycle_logs` and Firebase Auth but silently missed `conversations` — the assistant chat transcript, one document keyed by `user_id` — and the `rate_limits` documents keyed `sms:{user_id}`. A "successfully deleted" account left the user's health conversation in Firestore indefinitely. A new collection is now registered once in `USER_DATA_COLLECTIONS` and both deletion and the inventory pick it up.
 
-The two are complementary, and the observation layer covers a case the scores structurally cannot: a consistently 45-day cycle has *excellent* variability, so CVI looks good, while the long-cycle rule still surfaces it.
+**Rate-limit documents are found by id suffix**, not by a `user_id` field query — they don't have one, which is precisely why the query-based delete missed them.
 
-**Severity.** `info` is a neutral trend, `attention` is a pattern worth noticing, `seek_care` is one of the guidelines' "Concerning Symptoms" (prolonged bleeding, no period logged in over 90 days) where the copy recommends consulting a professional. None of the three is a risk rating, and no user-facing string names a condition — rule codes like `no_recent_period_logged` are internal identifiers; the rendered text says "Your last logged period started 94 days ago."
+**The audit record holds no personal data**: a SHA-256 of the user id, a timestamp, and the per-collection counts. Enough to answer "did you actually delete my data?" and to spot a purge that removed nothing; not enough to enumerate past users. It deliberately lives outside `USER_DATA_COLLECTIONS` so it survives the purge.
 
-**Thresholds** live in named module-level constants with a sourcing comment each (`SHORT_CYCLE_DAYS = 21`, `PROLONGED_BLEEDING_DAYS = 8`, …), so the clinical framing behind a number is reviewable rather than buried inline.
-
-**Surfaces.** `GET /api/v1/insights/{user_id}/observations` returns the full list plus a `cycleConsistency` descriptor (`consistent` / `slightly_variable` / `variable`). `GET /api/v1/dashboard` embeds only the single highest-priority `topObservation`, computed from the logs it has already fetched — so the Home screen costs no extra Firestore reads and no extra round trip.
+This is distinct from the PDF health report in [#228](https://github.com/ishita2740/Rhythma/issues/228): that is a human-readable summary for sharing with a clinician, this is machine-readable portability and erasure.
 
 ## ML Models
 
