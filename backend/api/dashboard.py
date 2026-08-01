@@ -5,8 +5,12 @@ from pydantic import BaseModel, Field
 from typing import Any, Dict, Optional
 
 from core.auth import get_current_user
-from services.firestore_service import UserService
-from services.prediction_service import dashboard_summary, predict
+from services.health_observations_service import (
+    build_analysis,
+    describe_consistency,
+    evaluate,
+    top_observation,
+)
 from services.scoring_service import get_user_scores, as_date, DEFAULT_CYCLE_LENGTH
 
 
@@ -31,42 +35,23 @@ class CycleHistoryEntry(BaseModel):
     cycle_length: int
 
 
-class DashboardPredictionRange(BaseModel):
-    earliest: Optional[str] = None
-    latest: Optional[str] = None
+class DashboardObservation(BaseModel):
+    """The single highest-priority observation, for the Home screen.
 
-
-class DashboardFertileWindow(BaseModel):
-    start: Optional[str] = None
-    end: Optional[str] = None
-    isEstimate: bool = True
-    notForContraception: bool = True
-
-
-class DashboardPrediction(BaseModel):
-    """The compact prediction subset the Home screen renders.
-
-    Added alongside `cycle`, not inside it: `cycle.nextPeriodDays` keeps
-    its existing clamped-at-zero meaning so clients written before this
-    field existed are unaffected, while `daysUntilNextPeriod` here is the
-    honest signed value.
+    Nullable: a brand-new user with no logs has nothing to say yet, and a
+    client written before this field existed must keep working, so it is
+    additive and optional rather than a required object.
     """
 
-    nextPeriodDate: Optional[str] = None
-    daysUntilNextPeriod: Optional[int] = Field(
-        None, description="Negative when the period is late; not clamped."
-    )
-    isOverdue: bool = False
-    daysOverdue: int = 0
-    phase: str = "unknown"
-    confidence: str = "low"
-    estimateSource: str = "population_default"
-    predictedRange: DashboardPredictionRange = Field(
-        default_factory=DashboardPredictionRange
-    )
-    fertileWindow: DashboardFertileWindow = Field(
-        default_factory=DashboardFertileWindow
-    )
+    code: str
+    severity: str
+    title: str
+    body: str
+    titleKey: str
+    bodyKey: str
+    evidence: Dict[str, Any] = Field(default_factory=dict)
+    isMedicalAdvice: bool = False
+    disclaimerKey: str
 
 
 class DashboardResponse(BaseModel):
@@ -78,8 +63,15 @@ class DashboardResponse(BaseModel):
     cycleHistory: list[CycleHistoryEntry]
     symptomFrequency: dict[str, float]
     recentStressLevel: Optional[int] = None
-    #: Additive and nullable — full detail lives at GET /cycle/predictions.
-    prediction: Optional[DashboardPrediction] = None
+    #: Highest-severity factual observation about the user's logged data,
+    #: computed from the logs already fetched above — so the Home screen
+    #: needs no second round trip. Full list lives at
+    #: GET /insights/{user_id}/observations.
+    topObservation: Optional[DashboardObservation] = None
+    #: Descriptive consistency label (consistent / slightly_variable /
+    #: variable / unknown), per menstrual_insights_guidelines.md's summary
+    #: card guidance — a word, not a score.
+    cycleConsistency: str = "unknown"
 
 
 router = APIRouter(tags=["Dashboard"])
@@ -147,11 +139,14 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
 
     recent_stress_level = logs[0].get("stress_level") if logs else None
 
-    # Reuses the logs already fetched above — no extra Firestore reads on
-    # the app's hottest path. The profile lookup is what lets a user who
-    # completed onboarding but hasn't logged yet still get a prediction
-    # from her declared cycle length and last period.
-    prediction = predict(logs, profile=UserService.get_user_by_id(user_id) or {})
+    # Observations reuse the logs already fetched above rather than
+    # re-querying Firestore, so the Home screen still costs one round trip
+    # and one read path. `build_analysis` is called separately from
+    # `evaluate` only because the consistency label needs the analysis
+    # object; both are pure functions over the same list.
+    observations = evaluate(logs)
+    highest = top_observation(observations)
+    consistency = describe_consistency(build_analysis(logs))
 
     return {
         "user": {
@@ -172,5 +167,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "cycleHistory": cycle_history,
         "symptomFrequency": symptom_frequency,
         "recentStressLevel": recent_stress_level,
-        "prediction": dashboard_summary(prediction),
+        "topObservation": highest.to_dict() if highest else None,
+        "cycleConsistency": consistency,
     }
