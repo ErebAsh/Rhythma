@@ -11,6 +11,7 @@ from services.health_observations_service import (
     evaluate,
     top_observation,
 )
+from services.prediction_service import dashboard_summary, predict
 from services.scoring_service import get_user_scores, as_date, DEFAULT_CYCLE_LENGTH
 
 
@@ -54,6 +55,25 @@ class DashboardObservation(BaseModel):
     disclaimerKey: str
 
 
+class DashboardPrediction(BaseModel):
+    """The compact prediction summary the Home screen renders.
+
+    Mirrors ``services/prediction_service.py::dashboard_summary``. Fields
+    are Optional because a new user with no logged period has no anchor
+    date; ``isOverdue`` defaults to False in that case.
+    """
+
+    nextPeriodDate: Optional[str] = None
+    daysUntilNextPeriod: Optional[int] = None
+    isOverdue: bool = False
+    daysOverdue: int = 0
+    phase: str = "unknown"
+    confidence: Optional[str] = None
+    estimateSource: Optional[str] = None
+    predictedRange: Dict[str, Optional[str]] = Field(default_factory=dict)
+    fertileWindow: Dict[str, Any] = Field(default_factory=dict)
+
+
 class DashboardResponse(BaseModel):
     user: DashboardUser
     cycle: DashboardCycle
@@ -72,6 +92,10 @@ class DashboardResponse(BaseModel):
     #: variable / unknown), per menstrual_insights_guidelines.md's summary
     #: card guidance — a word, not a score.
     cycleConsistency: str = "unknown"
+    #: "When is my next period?" — the overdue-aware prediction summary.
+    #: Additive and nullable so clients written before this field existed
+    #: keep working.
+    prediction: Optional[DashboardPrediction] = None
 
 
 router = APIRouter(tags=["Dashboard"])
@@ -148,6 +172,14 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     highest = top_observation(observations)
     consistency = describe_consistency(build_analysis(logs))
 
+    # The prediction summary reuses the same logs (and the profile already
+    # fetched for scoring) so the Home screen needs no extra read. It is the
+    # overdue-aware "when is my next period?" answer; the legacy clamped
+    # `cycle.nextPeriodDays` above is kept untouched for existing clients.
+    prediction = dashboard_summary(
+        predict(logs, profile=score_data.get("profile"), today=date.today())
+    )
+
     return {
         "user": {
             "name": current_user.get("username") or "User"
@@ -169,4 +201,5 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "recentStressLevel": recent_stress_level,
         "topObservation": highest.to_dict() if highest else None,
         "cycleConsistency": consistency,
+        "prediction": prediction,
     }

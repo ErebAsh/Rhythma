@@ -102,6 +102,10 @@ def get_user_scores(user_id: str) -> Dict[str, Any]:
                 (>=3) for a meaningful CVI; lets clients distinguish
                 "no data yet" from "computed a low score".
             logged_cycle_count: total number of logs fetched.
+            profile: the user's profile dict (or None), so callers that
+                need it for features beyond the two scores — e.g. the
+                dashboard's cycle prediction — don't fetch it a second
+                time.
     """
     logs = CycleService.get_logs_for_user(user_id, limit=_LOGS_LIMIT)
     features = build_model_features(logs)
@@ -113,6 +117,7 @@ def get_user_scores(user_id: str) -> Dict[str, Any]:
 
     return {
         "logs": logs,
+        "profile": profile,
         "mhs": mhs,
         "cvi": cvi,
         "cvi_risk": cvi_risk,
