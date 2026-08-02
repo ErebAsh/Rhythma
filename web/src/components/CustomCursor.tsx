@@ -6,6 +6,7 @@ const INTERACTIVE_SELECTOR = 'a, button, input, textarea, select, [role="button"
 export function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
+  const rafId = useRef<number | null>(null);
   const [isTouchDevice, setIsTouchDevice] = useState(true);
   const [isPointer, setIsPointer] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
@@ -17,20 +18,31 @@ export function CustomCursor() {
   }, []);
 
   useEffect(() => {
-    if (isTouchDevice) return;
+    if (isTouchDevice) {
+      document.body.classList.remove('custom-cursor-active');
+      return;
+    }
 
     document.body.classList.add('custom-cursor-active');
 
     const handleMouseMove = (e: MouseEvent) => {
-      setIsVisible(true);
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      if (rafId.current !== null) {
+        cancelAnimationFrame(rafId.current);
       }
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-      }
-      const target = e.target as HTMLElement;
-      setIsPointer(Boolean(target.closest(INTERACTIVE_SELECTOR)));
+
+      rafId.current = requestAnimationFrame(() => {
+        setIsVisible(true);
+        if (dotRef.current) {
+          dotRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        }
+        if (ringRef.current) {
+          ringRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        }
+        const target = e.target as HTMLElement | null;
+        if (target) {
+          setIsPointer(Boolean(target.closest(INTERACTIVE_SELECTOR)));
+        }
+      });
     };
 
     const handleMouseDown = () => setIsClicking(true);
@@ -43,6 +55,9 @@ export function CustomCursor() {
     document.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
+      if (rafId.current !== null) {
+        cancelAnimationFrame(rafId.current);
+      }
       document.body.classList.remove('custom-cursor-active');
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mousedown', handleMouseDown);
