@@ -208,3 +208,112 @@ export async function patchProfile(updates: ProfileUpdate): Promise<Profile> {
 export async function deleteAccount() {
   await apiClient.delete('/auth/me');
 }
+
+// ─── Provider Dashboard & Data Sharing (issue #267) ────────────────────────
+
+export interface Consent {
+  id: string;
+  patient_id: string;
+  provider_id: string;
+  provider_email: string;
+  provider_name: string;
+  status: 'active' | 'revoked';
+  created_at?: string | null;
+  updated_at?: string | null;
+  revoked_at?: string | null;
+}
+
+export interface ProviderPatientSummary {
+  patient_id: string;
+  name: string;
+  age?: number | null;
+  city?: string | null;
+  state?: string | null;
+  sharedSince?: string | null;
+  loggedCycleCount: number;
+  mhs?: number | null;
+  cvi?: string | null;
+  hasEnoughDataForInsights: boolean;
+}
+
+export interface ProviderPatientDetail {
+  patient: {
+    id: string;
+    name: string;
+    age?: number | null;
+    city?: string | null;
+    state?: string | null;
+    cycle_length?: number | null;
+    period_duration?: number | null;
+    cycle_regular?: boolean | null;
+    last_period?: string | null;
+  };
+  summary: {
+    mhs?: number | null;
+    cvi?: string | null;
+    cvi_raw?: number | null;
+    loggedCycleCount: number;
+    hasEnoughDataForInsights: boolean;
+    avgSleepHours?: number | null;
+  };
+  cycleLogs: Array<{
+    id: string;
+    start_date?: string | null;
+    end_date?: string | null;
+    flow_intensity?: string | null;
+    mood?: string | null;
+    symptoms?: string[] | null;
+    sleep_hours?: number | null;
+    stress_level?: number | null;
+    notes?: string | null;
+  }>;
+  consent: { grantedAt?: string | null; status: string };
+}
+
+export interface ProviderProfile {
+  id: string;
+  email: string;
+  username?: string | null;
+  full_name?: string | null;
+  specialty?: string | null;
+  license_number?: string | null;
+  role: string;
+}
+
+export async function grantConsent(providerEmail: string): Promise<Consent> {
+  const response = await apiClient.post<Consent>('/provider/consents', {
+    provider_email: providerEmail,
+  });
+  return response.data;
+}
+
+export async function fetchConsents(): Promise<Consent[]> {
+  const response = await apiClient.get<{ consents: Consent[] }>('/provider/consents');
+  return response.data.consents;
+}
+
+export async function revokeConsent(consentId: string): Promise<Consent> {
+  const response = await apiClient.delete<Consent>(`/provider/consents/${consentId}`);
+  return response.data;
+}
+
+export async function fetchProviderProfile(): Promise<ProviderProfile> {
+  const response = await apiClient.get<ProviderProfile>('/provider/me');
+  return response.data;
+}
+
+export async function fetchProviderPatients(): Promise<ProviderPatientSummary[]> {
+  const response = await apiClient.get<{ patients: ProviderPatientSummary[] }>(
+    '/provider/patients',
+  );
+  return response.data.patients;
+}
+
+export async function fetchProviderPatientDetail(
+  patientId: string,
+): Promise<ProviderPatientDetail> {
+  const response = await apiClient.get<ProviderPatientDetail>(
+    `/provider/patients/${patientId}`,
+  );
+  return response.data;
+}

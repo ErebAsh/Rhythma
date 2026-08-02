@@ -5,8 +5,11 @@ import userEvent from '@testing-library/user-event';
 const login = vi.fn();
 const navigate = vi.fn();
 
-vi.mock('../auth/AuthContext', () => ({
+vi.mock('../auth/useAuth', () => ({
   useAuth: () => ({ login, user: null, loading: false, register: vi.fn(), logout: vi.fn() }),
+}));
+
+vi.mock('../auth/AuthContext', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
@@ -140,7 +143,7 @@ describe('LoginPage', () => {
 
   it('offers a link to registration', () => {
     renderWithProviders(<LoginPage />, { route: '/login' });
-    expect(screen.getByRole('link')).toHaveAttribute('href', '/register');
+    expect(screen.getByRole('link', { name: /register/i })).toHaveAttribute('href', '/register');
   });
 
   it('marks both credential fields as required', () => {

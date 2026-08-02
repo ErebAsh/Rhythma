@@ -1207,6 +1207,121 @@ p {
   margin: 0;
 }
 
+/* ── Provider dashboard & data sharing (issue #267) ─────────────────────── */
+
+.provider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.provider-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.1rem;
+}
+
+.provider-card a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-subtitle {
+  margin-top: -0.4rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge.active {
+  background: color-mix(in srgb, #52b3b0 15%, transparent);
+  color: #2e9e9b;
+}
+
+.badge.revoked {
+  background: color-mix(in srgb, #b05252 15%, transparent);
+  color: #b05252;
+}
+
+.list-card {
+  padding: 0.9rem 1rem;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.list-row:last-child {
+  border-bottom: none;
+}
+
+.list-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.list-row-title {
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.list-row-sub {
+  font-size: 0.82rem;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.data-table th {
+  color: var(--text);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-section {
+  margin-top: 1.1rem;
+}
+
+.detail-section h2 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 
 @media (max-width: 520px) {

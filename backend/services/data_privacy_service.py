@@ -58,12 +58,14 @@ USERS_COLLECTION = "users"
 CYCLE_LOGS_COLLECTION = "cycle_logs"
 CONVERSATIONS_COLLECTION = "conversations"
 RATE_LIMITS_COLLECTION = "rate_limits"
+CONSENTS_COLLECTION = "consents"
 
 USER_DATA_COLLECTIONS: Tuple[str, ...] = (
     USERS_COLLECTION,
     CYCLE_LOGS_COLLECTION,
     CONVERSATIONS_COLLECTION,
     RATE_LIMITS_COLLECTION,
+    CONSENTS_COLLECTION,
 )
 
 #: Collection holding deletion audit records. Deliberately *not* in
@@ -222,6 +224,21 @@ def _rate_limit_doc_ids(user_id: str) -> List[str]:
     ]
 
 
+def _consent_doc_ids(user_id: str) -> List[str]:
+    """Consent records a user appears in, on either side.
+
+    A consent links a ``patient_id`` (the person granting access) and a
+    ``provider_id`` (the person receiving it), so deleting an account must
+    remove the record regardless of which side the account sat on.
+    """
+    return [
+        doc.id
+        for doc in _stream_collection(CONSENTS_COLLECTION)
+        if (doc.to_dict() or {}).get("patient_id") == user_id
+        or (doc.to_dict() or {}).get("provider_id") == user_id
+    ]
+
+
 def _delete_doc(collection: str, doc_id: str) -> bool:
     try:
         _db().collection(collection).document(doc_id).delete()
@@ -256,6 +273,7 @@ def build_data_summary(user_id: str) -> Dict[str, Any]:
     message_count = len(conversation.get("messages", []) if conversation else [])
 
     rate_limit_ids = _rate_limit_doc_ids(user_id)
+    consent_ids = _consent_doc_ids(user_id)
 
     identity_fields = sorted(
         field
@@ -306,11 +324,22 @@ def build_data_summary(user_id: str) -> Dict[str, Any]:
                 "collection": RATE_LIMITS_COLLECTION,
                 "retentionNote": "Short-lived request timestamps, no health data.",
             },
+            {
+                "key": "consents",
+                "label": "Provider data-sharing consents",
+                "recordCount": len(consent_ids),
+                "storedFields": (
+                    ["provider_id", "provider_email", "status"] if consent_ids else []
+                ),
+                "collection": CONSENTS_COLLECTION,
+                "retentionNote": "Kept until you revoke them or delete your account.",
+            },
         ],
         "totalRecords": (1 if user else 0)
         + len(cycle_logs)
         + (1 if message_count else 0)
-        + len(rate_limit_ids),
+        + len(rate_limit_ids)
+        + len(consent_ids),
     }
 
 
@@ -500,6 +529,11 @@ def purge_user_data(user_id: str) -> Dict[str, int]:
         if _delete_doc(RATE_LIMITS_COLLECTION, doc_id):
             counts[RATE_LIMITS_COLLECTION] += 1
 
+    # Data-sharing consents, on either side of the relationship.
+    for doc_id in _consent_doc_ids(user_id):
+        if _delete_doc(CONSENTS_COLLECTION, doc_id):
+            counts[CONSENTS_COLLECTION] += 1
+
     # Firebase Auth identity, before the user document is gone — the phone
     # number needed to look it up lives there.
     user = UserService.get_user_by_id(user_id)
@@ -593,6 +627,7 @@ def account_exists(user_id: str) -> bool:
 
 __all__ = [
     "CSV_COLUMNS",
+    "CONSENTS_COLLECTION",
     "DELETION_AUDIT_COLLECTION",
     "DELETION_TOKEN_TTL_SECONDS",
     "EXPORT_SCHEMA_VERSION",

@@ -4,14 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
 import { friendlyAuthError } from '../api/client';
 
-export function RegisterPage() {
+export function ProviderLoginPage() {
   const { t } = useTranslation();
-  const { register } = useAuth();
+  const { loginProvider } = useAuth();
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,10 +19,10 @@ export function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      await register(username, email, password, fullName);
-      navigate('/login', { replace: true });
+      await loginProvider(email, password);
+      navigate('/provider', { replace: true });
     } catch (err) {
-      setError(friendlyAuthError(err, t('auth.registerError')));
+      setError(friendlyAuthError(err, t('provider.loginError')));
     } finally {
       setLoading(false);
     }
@@ -33,21 +31,13 @@ export function RegisterPage() {
   return (
     <div className="auth-page">
       <form className="auth-form" onSubmit={handleSubmit}>
-        <h1>{t('auth.registerTitle')}</h1>
+        <h1>{t('provider.loginTitle')}</h1>
+        <p className="auth-subtitle">{t('provider.subtitle')}</p>
 
         {error && <p className="error-text">{error}</p>}
 
         <label>
-          {t('auth.username')}
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </label>
-
-        <label>
-          {t('auth.email')}
+          {t('provider.email')}
           <input
             type="email"
             value={email}
@@ -57,12 +47,7 @@ export function RegisterPage() {
         </label>
 
         <label>
-          {t('auth.fullName')}
-          <input value={fullName} onChange={(e) => setFullName(e.target.value)} />
-        </label>
-
-        <label>
-          {t('auth.password')}
+          {t('provider.password')}
           <input
             type="password"
             value={password}
@@ -72,11 +57,15 @@ export function RegisterPage() {
         </label>
 
         <button type="submit" disabled={loading}>
-          {loading ? t('auth.registering') : t('auth.registerButton')}
+          {loading ? t('provider.loggingIn') : t('provider.loginButton')}
         </button>
 
         <p>
-          {t('auth.haveAccount')} <Link to="/login">{t('auth.loginLink')}</Link>
+          {t('provider.noAccount')}{' '}
+          <Link to="/provider/register">{t('provider.registerLink')}</Link>
+        </p>
+        <p>
+          <Link to="/login">{t('provider.patientLogin')}</Link>
         </p>
       </form>
     </div>

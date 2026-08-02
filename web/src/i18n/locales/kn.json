@@ -15,7 +15,8 @@
     "noAccount": "ಖಾತೆ ಇಲ್ಲವೇ?",
     "registerLink": "ನೋಂದಾಯಿಸಿ",
     "haveAccount": "ಈಗಾಗಲೇ ಖಾತೆ ಇದೆಯೇ?",
-    "loginLink": "ಲಾಗಿನ್"
+    "loginLink": "ಲಾಗಿನ್",
+    "providerLink": "Healthcare professional? Sign in here"
   },
   "home": {
     "welcome": "ಸ್ವಾಗತ, {{name}}",
@@ -47,6 +48,7 @@
     "assistant": "Assistant",
     "insights": "Insights",
     "profile": "Profile",
+    "sharing": "Sharing",
     "settings": "Settings",
     "logout": "Log out"
   },
@@ -176,6 +178,8 @@
     "title": "Settings",
     "language": "Language",
     "languageSubtitle": "Choose your preferred language",
+    "sharing": "Data sharing",
+    "sharingSubtitle": "Choose which healthcare providers can see your data",
     "sms": "SMS Cycle Summaries",
     "smsSubtitle": "Get a text summary sent to your phone",
     "logOut": "Log out",
@@ -202,5 +206,81 @@
     "send": "Send",
     "phoneRequired": "A phone number is required to enable SMS summaries.",
     "phoneInvalid": "Phone number must be in E.164 format, e.g. +919876543210."
+  },
+  "provider": {
+    "loginTitle": "Healthcare provider sign in",
+    "registerTitle": "Create a provider account",
+    "subtitle": "For healthcare professionals only",
+    "email": "Work email",
+    "fullName": "Full name",
+    "specialty": "Specialty",
+    "specialtyPlaceholder": "e.g. Gynecology",
+    "licenseNumber": "Medical license number (optional)",
+    "password": "Password",
+    "loginButton": "Sign in",
+    "loggingIn": "Signing in…",
+    "registerButton": "Create account",
+    "registering": "Creating account…",
+    "loginError": "Invalid email or password.",
+    "registerError": "Could not create your provider account. Please try again.",
+    "noAccount": "Don't have a provider account?",
+    "registerLink": "Register",
+    "haveAccount": "Already have a provider account?",
+    "loginLink": "Sign in",
+    "patientLogin": "Patient? Log in here"
+  },
+  "providerNav": {
+    "dashboard": "Patients",
+    "logout": "Log out"
+  },
+  "providerDashboard": {
+    "title": "Patient Dashboard",
+    "welcome": "Welcome, {{name}}",
+    "empty": "You don't have any patients yet. When a patient shares her data with you, she will appear here.",
+    "mhs": "MHS",
+    "cvi": "CVI",
+    "cyclesLogged": "{{count}} cycles",
+    "viewPatient": "View patient",
+    "loadError": "Couldn't load your patients."
+  },
+  "providerPatient": {
+    "back": "Back to patients",
+    "notFound": "Patient not found, or you no longer have consent to view their data.",
+    "profile": "Profile",
+    "age": "Age",
+    "location": "Location",
+    "cycleLength": "Avg cycle length",
+    "periodDuration": "Period duration",
+    "lastPeriod": "Last period",
+    "summary": "Health summary",
+    "sleep": "Avg sleep",
+    "cycleLogs": "Cycle history",
+    "date": "Date",
+    "flow": "Flow",
+    "mood": "Mood",
+    "symptoms": "Symptoms",
+    "sleepHours": "Sleep",
+    "notes": "Notes",
+    "noLogs": "No cycle logs shared yet.",
+    "grantedOn": "Shared since {{date}}"
+  },
+  "sharing": {
+    "title": "Data Sharing",
+    "subtitle": "Share your health data with a healthcare professional",
+    "intro": "Only share data with a provider you trust. You can revoke access at any time.",
+    "addTitle": "Add a provider",
+    "providerEmail": "Provider email",
+    "addButton": "Share my data",
+    "adding": "Sharing…",
+    "added": "Data shared with {{name}}.",
+    "notFound": "No provider account found with that email.",
+    "active": "Active",
+    "revoked": "Revoked",
+    "revoke": "Revoke access",
+    "revokeConfirm": "Revoke {{name}}'s access to your data?",
+    "revokedMsg": "Access revoked.",
+    "empty": "You haven't shared your data with anyone yet.",
+    "grantedOn": "Shared since {{date}}",
+    "loadError": "Couldn't load your sharing settings."
   }
 }
