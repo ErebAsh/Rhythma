@@ -62,7 +62,8 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     if logs:
         most_recent_start = as_date(logs[0].get("start_date"))
         if most_recent_start:
-            cycle_day = (date.today() - most_recent_start).days + 1
+            raw_day = (date.today() - most_recent_start).days + 1
+            cycle_day = max(1, raw_day)
 
         if len(logs) >= 2:
             deltas = []
