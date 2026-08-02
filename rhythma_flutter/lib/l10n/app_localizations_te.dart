@@ -79,9 +79,6 @@ class AppLocalizationsTe extends AppLocalizations {
   String get langMarathi => 'मराठी (Marathi)';
 
   @override
-  String get langGujarati => 'ગુજરાતી (Gujarati)';
-
-  @override
   String get homeGreeting => 'నమస్తే';
 
   @override
@@ -924,4 +921,7 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get accountDeletedSuccess => 'Account deleted successfully.';
+
+  @override
+  String get langGujarati => 'ગુજરાતી (Gujarati)';
 }

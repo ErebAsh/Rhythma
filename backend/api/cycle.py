@@ -136,7 +136,7 @@ async def log_cycle(
     return {
         "message": f"Cycle logged for user {user_id}",
         "id": log_id,
-        "data": log.model_dump()
+        "data": log,
     }
 
 

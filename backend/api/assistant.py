@@ -32,14 +32,16 @@ def is_rate_limited(user_id: str) -> Optional[int]:
             t for t in _assistant_rate_history[user_id]
             if now - t < timedelta(seconds=ASSISTANT_RATE_WINDOW)
         ]
-    else:
-        _assistant_rate_history[user_id] = []
+        if not _assistant_rate_history[user_id]:
+            del _assistant_rate_history[user_id]
 
-    if len(_assistant_rate_history[user_id]) >= ASSISTANT_RATE_LIMIT:
+    if user_id in _assistant_rate_history and len(_assistant_rate_history[user_id]) >= ASSISTANT_RATE_LIMIT:
         oldest = _assistant_rate_history[user_id][0]
         remaining = int((oldest + timedelta(seconds=ASSISTANT_RATE_WINDOW) - now).total_seconds())
         return max(remaining, 1)
 
+    if user_id not in _assistant_rate_history:
+        _assistant_rate_history[user_id] = []
     _assistant_rate_history[user_id].append(now)
     return None
 
@@ -170,7 +172,20 @@ async def chat(
     try:
         model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content("\n".join(prompt_parts))
-        reply = response.text.strip() if response.text else "I'm sorry, I couldn't process that."
+        
+        reply = None
+        if hasattr(response, "candidates") and response.candidates:
+            first_candidate = response.candidates[0]
+            finish_reason = str(getattr(first_candidate, "finish_reason", ""))
+            if "SAFETY" in finish_reason or finish_reason == "2":
+                reply = "I cannot process this request as it triggered safety guidelines. Please consult a healthcare professional."
+        
+        if reply is None:
+            try:
+                reply = response.text.strip() if response.text else "I'm sorry, I couldn't process that."
+            except Exception as val_err:
+                logger.warning("Could not read response.text due to filter/exception: %s", val_err)
+                reply = "I'm sorry, I couldn't generate a response. Please rephrase your query or consult a healthcare professional."
         
         # Persist exchange to Firestore
         AssistantConversationService.add_messages(user_id, [

@@ -58,26 +58,37 @@ class AuthService {
             'language': profile['language'] ?? 'en',
           };
           if (profile['age'] != null) localProfile['age'] = profile['age'];
-          if (profile['height_cm'] != null)
+          if (profile['height_cm'] != null) {
             localProfile['height_cm'] = profile['height_cm'];
-          if (profile['weight_kg'] != null)
+          }
+          if (profile['weight_kg'] != null) {
             localProfile['weight_kg'] = profile['weight_kg'];
-          if (profile['last_period'] != null)
+          }
+          if (profile['last_period'] != null) {
             localProfile['last_period'] = profile['last_period'];
-          if (profile['last_period_is_approximate'] != null)
+          }
+          if (profile['last_period_is_approximate'] != null) {
             localProfile['last_period_is_approximate'] =
                 profile['last_period_is_approximate'];
-          if (profile['cycle_length'] != null)
+          }
+          if (profile['cycle_length'] != null) {
             localProfile['cycle_length'] = profile['cycle_length'];
-          if (profile['period_duration'] != null)
+          }
+          if (profile['period_duration'] != null) {
             localProfile['period_duration'] = profile['period_duration'];
-          if (profile['cycle_regular'] != null)
+          }
+          if (profile['cycle_regular'] != null) {
             localProfile['cycle_regular'] = profile['cycle_regular'];
-          if (profile['phone'] != null)
+          }
+          if (profile['phone'] != null) {
             localProfile['phone'] = profile['phone'];
-          if (profile['city'] != null) localProfile['city'] = profile['city'];
-          if (profile['state'] != null)
+          }
+          if (profile['city'] != null) {
+            localProfile['city'] = profile['city'];
+          }
+          if (profile['state'] != null) {
             localProfile['state'] = profile['state'];
+          }
           if (profile['notifications_enabled'] != null) {
             localProfile['notifications_enabled'] =
                 profile['notifications_enabled'];

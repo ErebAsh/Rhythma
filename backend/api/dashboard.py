@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from typing import Any, Dict, Optional
 
 from core.auth import get_current_user
+from services.firestore_service import UserService
 from services.health_observations_service import (
     build_analysis,
     describe_consistency,
@@ -34,6 +35,44 @@ class DashboardInsights(BaseModel):
 class CycleHistoryEntry(BaseModel):
     start_date: str
     cycle_length: int
+
+
+class DashboardPredictionRange(BaseModel):
+    earliest: Optional[str] = None
+    latest: Optional[str] = None
+
+
+class DashboardFertileWindow(BaseModel):
+    start: Optional[str] = None
+    end: Optional[str] = None
+    isEstimate: bool = True
+    notForContraception: bool = True
+
+
+class DashboardPrediction(BaseModel):
+    """The compact prediction subset the Home screen renders.
+
+    Added alongside `cycle`, not inside it: `cycle.nextPeriodDays` keeps
+    its existing clamped-at-zero meaning so clients written before this
+    field existed are unaffected, while `daysUntilNextPeriod` here is the
+    honest signed value.
+    """
+
+    nextPeriodDate: Optional[str] = None
+    daysUntilNextPeriod: Optional[int] = Field(
+        None, description="Negative when the period is late; not clamped."
+    )
+    isOverdue: bool = False
+    daysOverdue: int = 0
+    phase: str = "unknown"
+    confidence: str = "low"
+    estimateSource: str = "population_default"
+    predictedRange: DashboardPredictionRange = Field(
+        default_factory=DashboardPredictionRange
+    )
+    fertileWindow: DashboardFertileWindow = Field(
+        default_factory=DashboardFertileWindow
+    )
 
 
 class DashboardObservation(BaseModel):
@@ -120,7 +159,8 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     if logs:
         most_recent_start = as_date(logs[0].get("start_date"))
         if most_recent_start:
-            cycle_day = (date.today() - most_recent_start).days + 1
+            raw_day = (date.today() - most_recent_start).days + 1
+            cycle_day = max(1, raw_day)
 
         if len(logs) >= 2:
             deltas = []

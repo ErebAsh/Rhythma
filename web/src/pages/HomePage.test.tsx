@@ -10,7 +10,7 @@ vi.mock('../api/endpoints', () => ({
   submitCycleLog: (...args: unknown[]) => submitCycleLog(...args),
 }));
 
-vi.mock('../auth/AuthContext', () => ({
+vi.mock('../auth/useAuth', () => ({
   useAuth: () => ({
     user: { id: 'u1', username: 'asha', email: 'asha@example.com' },
     loading: false,
@@ -18,6 +18,9 @@ vi.mock('../auth/AuthContext', () => ({
     register: vi.fn(),
     logout: vi.fn(),
   }),
+}));
+
+vi.mock('../auth/AuthContext', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 

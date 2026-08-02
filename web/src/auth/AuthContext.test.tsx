@@ -10,7 +10,8 @@ vi.mock('../api/client', () => ({
 }));
 
 import { apiClient, setUnauthorizedHandler } from '../api/client';
-import { AuthProvider, useAuth } from './AuthContext';
+import { AuthProvider } from './AuthContext';
+import { useAuth } from './useAuth';
 
 const mockClient = apiClient as unknown as {
   get: ReturnType<typeof vi.fn>;

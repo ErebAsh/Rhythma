@@ -209,6 +209,7 @@ class _CycleScreenState extends State<CycleScreen> {
     );
     if (confirmed != true) return;
 
+    if (!mounted) return;
     final cycleProvider = context.read<CycleProvider>();
     final dateKey = RhythmaDateUtils.toDateKey(cycleProvider.selectedDate);
     await LocalStorageService.deleteCycleLog(dateKey);
@@ -438,10 +439,10 @@ class _CycleScreenState extends State<CycleScreen> {
           if (_savedSuccessfully) ...[
             const SizedBox(height: 10),
             Row(
-              children: [
+              children: const [
                 Icon(Icons.check_circle_rounded,
                     color: RhythmaColors.teal, size: 16),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Text(
                   'Saved to your account',
                   style: TextStyle(
