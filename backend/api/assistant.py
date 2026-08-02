@@ -133,7 +133,20 @@ async def chat(
     try:
         model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content("\n".join(prompt_parts))
-        reply = response.text.strip() if response.text else "I'm sorry, I couldn't process that."
+        
+        reply = None
+        if hasattr(response, "candidates") and response.candidates:
+            first_candidate = response.candidates[0]
+            finish_reason = str(getattr(first_candidate, "finish_reason", ""))
+            if "SAFETY" in finish_reason or finish_reason == "2":
+                reply = "I cannot process this request as it triggered safety guidelines. Please consult a healthcare professional."
+        
+        if reply is None:
+            try:
+                reply = response.text.strip() if response.text else "I'm sorry, I couldn't process that."
+            except Exception as val_err:
+                logger.warning("Could not read response.text due to filter/exception: %s", val_err)
+                reply = "I'm sorry, I couldn't generate a response. Please rephrase your query or consult a healthcare professional."
         
         # Persist exchange to Firestore
         AssistantConversationService.add_messages(user_id, [
