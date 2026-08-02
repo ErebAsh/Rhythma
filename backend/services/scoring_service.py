@@ -56,10 +56,13 @@ def build_model_features(logs_newest_first: List[Dict[str, Any]]) -> List[Dict[s
         cycle_length = None
         if i + 1 < len(logs_newest_first):
             older_start = as_date(logs_newest_first[i + 1].get("start_date"))
-            if start and older_start:
+            if start and older_start and (start - older_start).days > 0:
                 cycle_length = (start - older_start).days
 
-        flow_duration = (end - start).days + 1 if start and end else 5
+        if start and end and end >= start:
+            flow_duration = max(1, (end - start).days + 1)
+        else:
+            flow_duration = 5
         flow_intensity = _FLOW_INTENSITY_TO_SCORE.get(
             (log.get("flow_intensity") or "").lower(), 2
         )
