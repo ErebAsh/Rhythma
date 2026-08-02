@@ -75,6 +75,10 @@ This is distinct from the PDF health report in [#228](https://github.com/ishita2
 
 Models are exported via `joblib` and bundled for on-device inference (planned: TFLite conversion for Flutter).
 
+### AI Assistant Grounding
+
+The assistant (`backend/api/assistant.py`) is grounded with a curated, sourced medical reference dataset (`backend/data/medical_references.json`) so its health answers come from trusted sources (WHO, NHS, and other approved organizations) instead of the model's memory. `backend/services/medical_knowledge_service.py` retrieves the entries relevant to each user message and embeds their facts and source URLs into the Gemini system prompt. Sourcing and citations policy live in [`medical_sources.md`](./medical_sources.md), and the dataset integrity is enforced by `backend/tests/test_medical_knowledge.py`.
+
 ## Planned: WhatsApp Integration
 
 ```

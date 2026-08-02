@@ -5,12 +5,18 @@ from typing import List, Optional
 
 import google.generativeai as genai
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from core.auth import get_current_user
 from services.firestore_service import AssistantConversationService
+from services.medical_knowledge_service import MedicalKnowledgeService
 
 logger = logging.getLogger(__name__)
+
+#: Loads the curated, sourced medical reference dataset (issue #266) and
+#: retrieves relevant facts to ground each assistant answer. Degrades to
+#: ungrounded responses if the dataset is unavailable.
+medical_knowledge_service = MedicalKnowledgeService()
 
 # ─── Rate Limiter (in-memory, resets on restart) ──────────────────────────
 _assistant_rate_history = {}
@@ -51,10 +57,26 @@ class AssistantRequest(BaseModel):
     history: Optional[List[ChatMessage]] = None
 
 
+class AssistantSource(BaseModel):
+    """A citable source backing the answer, for the client to render as links.
+
+    Populated from the retrieved medical references, so users can verify
+    the information themselves (menstrual_insights_guidelines.md).
+    """
+
+    name: str
+    title: str
+    url: str
+    accessedOn: str
+
+
 class AssistantResponse(BaseModel):
     response: str
     language: str
     disclaimer: str = "Please consult a healthcare professional for medical advice."
+    #: The sources the answer was grounded on; empty when no medical
+    #: reference matched the message.
+    sources: List[AssistantSource] = Field(default_factory=list)
 
 
 SYSTEM_PROMPT = """
@@ -109,11 +131,26 @@ async def chat(
     if not history and request.history:
         history = request.history[-10:]
 
+    # Ground the answer with sourced medical references. The retrieval query
+    # folds in recent user turns so follow-ups like "and what about the
+    # bleeding?" still match the right topic. See services/medical_knowledge_service.py.
+    retrieval_query = " ".join(
+        [m.content for m in history[-5:] if m.role == "user" and m.content]
+        + [request.message]
+    ).strip()
+    references = medical_knowledge_service.retrieve(retrieval_query, limit=3)
+    grounding = medical_knowledge_service.build_grounding_block(references)
+
     prompt_parts = [
         f"System: {SYSTEM_PROMPT}",
-        f"Language: Respond in {request.language}.",
-        "\n--- Conversation History ---",
     ]
+
+    if grounding:
+        prompt_parts.append(f"Grounding: {grounding}")
+
+    prompt_parts.append(f"Language: Respond in {request.language}.")
+
+    prompt_parts.append("\n--- Conversation History ---")
 
     if history:
         for msg in history[-10:]:
@@ -160,6 +197,7 @@ async def chat(
             response=reply,
             language=request.language or "en",
             disclaimer="Please consult a healthcare professional for medical advice.",
+            sources=medical_knowledge_service.source_list(references),
         )
     except Exception as exc:
         logger.error("Gemini API error: %s", exc, exc_info=True)

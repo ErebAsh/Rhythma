@@ -94,6 +94,25 @@ class DashboardObservation(BaseModel):
     disclaimerKey: str
 
 
+class DashboardPrediction(BaseModel):
+    """The compact prediction summary the Home screen renders.
+
+    Mirrors ``services/prediction_service.py::dashboard_summary``. Fields
+    are Optional because a new user with no logged period has no anchor
+    date; ``isOverdue`` defaults to False in that case.
+    """
+
+    nextPeriodDate: Optional[str] = None
+    daysUntilNextPeriod: Optional[int] = None
+    isOverdue: bool = False
+    daysOverdue: int = 0
+    phase: str = "unknown"
+    confidence: Optional[str] = None
+    estimateSource: Optional[str] = None
+    predictedRange: Dict[str, Optional[str]] = Field(default_factory=dict)
+    fertileWindow: Dict[str, Any] = Field(default_factory=dict)
+
+
 class DashboardResponse(BaseModel):
     user: DashboardUser
     cycle: DashboardCycle
@@ -112,7 +131,9 @@ class DashboardResponse(BaseModel):
     #: variable / unknown), per menstrual_insights_guidelines.md's summary
     #: card guidance — a word, not a score.
     cycleConsistency: str = "unknown"
-    #: Additive and nullable — full detail lives at GET /cycle/predictions.
+    #: "When is my next period?" — the overdue-aware prediction summary.
+    #: Additive and nullable so clients written before this field existed
+    #: keep working.
     prediction: Optional[DashboardPrediction] = None
 
 
@@ -191,11 +212,13 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     highest = top_observation(observations)
     consistency = describe_consistency(build_analysis(logs))
 
-    # Reuses the logs already fetched above — no extra Firestore reads on
-    # the app's hottest path. The profile lookup is what lets a user who
-    # completed onboarding but hasn't logged yet still get a prediction
-    # from her declared cycle length and last period.
-    prediction = predict(logs, profile=UserService.get_user_by_id(user_id) or {})
+    # The prediction summary reuses the same logs (and the profile already
+    # fetched for scoring) so the Home screen needs no extra read. It is the
+    # overdue-aware "when is my next period?" answer; the legacy clamped
+    # `cycle.nextPeriodDays` above is kept untouched for existing clients.
+    prediction = dashboard_summary(
+        predict(logs, profile=score_data.get("profile"), today=date.today())
+    )
 
     return {
         "user": {
@@ -218,5 +241,5 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "recentStressLevel": recent_stress_level,
         "topObservation": highest.to_dict() if highest else None,
         "cycleConsistency": consistency,
-        "prediction": dashboard_summary(prediction),
+        "prediction": prediction,
     }
