@@ -26,14 +26,16 @@ def is_rate_limited(user_id: str) -> Optional[int]:
             t for t in _assistant_rate_history[user_id]
             if now - t < timedelta(seconds=ASSISTANT_RATE_WINDOW)
         ]
-    else:
-        _assistant_rate_history[user_id] = []
+        if not _assistant_rate_history[user_id]:
+            del _assistant_rate_history[user_id]
 
-    if len(_assistant_rate_history[user_id]) >= ASSISTANT_RATE_LIMIT:
+    if user_id in _assistant_rate_history and len(_assistant_rate_history[user_id]) >= ASSISTANT_RATE_LIMIT:
         oldest = _assistant_rate_history[user_id][0]
         remaining = int((oldest + timedelta(seconds=ASSISTANT_RATE_WINDOW) - now).total_seconds())
         return max(remaining, 1)
 
+    if user_id not in _assistant_rate_history:
+        _assistant_rate_history[user_id] = []
     _assistant_rate_history[user_id].append(now)
     return None
 
