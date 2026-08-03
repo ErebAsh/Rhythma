@@ -83,10 +83,13 @@ def test_chat_with_language():
 
 
 def test_chat_empty_message():
+    # 422, not the old ad-hoc 400: emptiness is now decided by the request
+    # model alongside every other input rule, so all bad input on this
+    # route is shaped the same way (issue #332).
     payload = {"message": "   "}
     response = client.post("/api/v1/assistant/chat", json=payload)
-    assert response.status_code == 400
-    assert "empty" in response.json()["detail"].lower()
+    assert response.status_code == 422
+    assert "empty" in str(response.json()["detail"]).lower()
 
 
 def test_chat_unauthorized():

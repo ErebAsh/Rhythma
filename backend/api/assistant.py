@@ -1,11 +1,13 @@
 import logging
 import os
+import re
+import unicodedata
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 import google.generativeai as genai
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from core.auth import get_current_user
 from services.firestore_service import AssistantConversationService
@@ -46,15 +48,129 @@ def is_rate_limited(user_id: str) -> Optional[int]:
     return None
 
 
+# ─── Supported languages ──────────────────────────────────────────────────
+#: The one definition of what this endpoint speaks. `GET /languages`
+#: publishes it and `AssistantRequest` validates against it, so the list a
+#: client is shown and the list it is judged against cannot drift apart.
+SUPPORTED_LANGUAGES = [
+    {"code": "en", "name": "English"},
+    {"code": "hi", "name": "Hindi"},
+    {"code": "mr", "name": "Marathi"},
+    {"code": "ta", "name": "Tamil"},
+    {"code": "te", "name": "Telugu"},
+    {"code": "kn", "name": "Kannada"},
+    {"code": "ml", "name": "Malayalam"},
+    {"code": "gu", "name": "Gujarati"},
+]
+
+SUPPORTED_LANGUAGE_CODES = frozenset(lang["code"] for lang in SUPPORTED_LANGUAGES)
+
+
+# ─── Input limits ─────────────────────────────────────────────────────────
+# Read from the environment at import, matching ASSISTANT_RATE_LIMIT above.
+# The rate limit caps *requests*; these cap what one request may carry,
+# which is what the token bill is actually made of. Ten 500 KB messages a
+# minute sits comfortably inside a 10/minute limit.
+ASSISTANT_MAX_MESSAGE_CHARS = int(os.getenv("ASSISTANT_MAX_MESSAGE_CHARS", "2000"))
+ASSISTANT_MAX_HISTORY_MESSAGES = int(os.getenv("ASSISTANT_MAX_HISTORY_MESSAGES", "20"))
+ASSISTANT_MAX_HISTORY_CHARS = int(os.getenv("ASSISTANT_MAX_HISTORY_CHARS", "2000"))
+
+
+def to_single_line(value: str) -> str:
+    """Collapse anything that could forge a new line in the prompt.
+
+    The prompt is assembled as newline-separated instruction lines, so a
+    value containing a newline can introduce a line of its own. Validation
+    already restricts `language` to a known code, which closes that on its
+    own; this runs anyway because the two defences are independent and this
+    one costs nothing. Unicode line separators (U+2028, U+2029) and other
+    control characters are stripped too — they are invisible in a payload
+    and a plain `\\n` check would miss them.
+    """
+    # Replaced with a space rather than deleted: dropping the newline in
+    # "cramps\nadvice" would glue the words into "crampsadvice" and change
+    # what was said, which is a different bug from the one being fixed.
+    flattened = "".join(
+        " "
+        if char in ("\u2028", "\u2029") or unicodedata.category(char) == "Cc"
+        else char
+        for char in value
+    )
+    return re.sub(r"\s+", " ", flattened).strip()
+
+
 class ChatMessage(BaseModel):
-    role: str
-    content: str
+    #: Only the two roles the prompt builder understands. Anything else was
+    #: silently dropped before, so a client could send history it believed
+    #: was in use and never find out otherwise.
+    role: Literal["user", "model"]
+    content: str = Field(
+        ...,
+        min_length=1,
+        max_length=ASSISTANT_MAX_HISTORY_CHARS,
+        description="One turn of the conversation.",
+    )
 
 
 class AssistantRequest(BaseModel):
-    message: str
-    language: Optional[str] = "en"
-    history: Optional[List[ChatMessage]] = None
+    message: str = Field(
+        ...,
+        min_length=1,
+        max_length=ASSISTANT_MAX_MESSAGE_CHARS,
+        description="The user's question. Length-capped before any model call is made.",
+    )
+    language: Optional[str] = Field(
+        "en",
+        description=(
+            "One of the codes from GET /assistant/languages. Rejected with "
+            "422 if it is anything else."
+        ),
+    )
+    history: Optional[List[ChatMessage]] = Field(
+        None,
+        max_length=ASSISTANT_MAX_HISTORY_MESSAGES,
+        description=(
+            "Recent turns, used only when nothing is persisted server-side "
+            "for this user."
+        ),
+    )
+
+    @field_validator("message")
+    @classmethod
+    def message_must_not_be_blank(cls, value: str) -> str:
+        """A message of spaces is an empty message with extra steps."""
+        if not value.strip():
+            raise ValueError("Message cannot be empty.")
+        return value
+
+    @field_validator("language")
+    @classmethod
+    def language_must_be_supported(cls, value: Optional[str]) -> Optional[str]:
+        """Reject anything not in SUPPORTED_LANGUAGE_CODES.
+
+        This field is interpolated into the prompt as its own instruction
+        line — `Language: Respond in {language}.` — directly beneath the
+        system prompt that forbids diagnosing and prescribing. Unvalidated,
+        it is a place for a caller to write their own instructions in the
+        position the guardrails occupy. Restricting it to an eight-item
+        allowlist removes the vector rather than trying to filter it.
+        """
+        if value is None:
+            return "en"
+
+        # Region tags are accepted and reduced to their base language:
+        # the web client sends `i18n.language`, which the browser language
+        # detector routinely reports as `en-US` or `hi-IN`. Refusing those
+        # would break real users over a formatting difference that carries
+        # no meaning for a prompt.
+        normalized = value.strip().lower().replace("_", "-").split("-")[0]
+
+        if normalized not in SUPPORTED_LANGUAGE_CODES:
+            supported = ", ".join(sorted(SUPPORTED_LANGUAGE_CODES))
+            raise ValueError(
+                f"Unsupported language {value!r}. Supported languages: {supported}."
+            )
+        return normalized
 
 
 class AssistantSource(BaseModel):
@@ -102,14 +218,33 @@ else:
     genai.configure(api_key=GEMINI_API_KEY)
 
 
-@router.post("/chat", response_model=AssistantResponse)
+@router.post(
+    "/chat",
+    response_model=AssistantResponse,
+    summary="Ask the AI health assistant a question",
+    description=(
+        "Answers a question about menstrual and reproductive health, "
+        "grounded in the curated medical reference dataset and in the "
+        "user's recent conversation.\n\n"
+        "Input is bounded: `message` and each `history[].content` are "
+        "length-capped, `history` is item-capped, `role` accepts only "
+        "`user` or `model`, and `language` must be one of the codes from "
+        "`GET /assistant/languages`. All of it is enforced by the request "
+        "model, so an over-limit or malformed request returns `422` "
+        "without a model call being made — the per-user rate limit caps "
+        "requests, not the tokens inside them.\n\n"
+        "Returns `429` with `Retry-After` when the per-user rate limit is "
+        "exceeded."
+    ),
+)
 async def chat(
     request: AssistantRequest,
     current_user: dict = Depends(get_current_user),
 ):
-    if not request.message.strip():
-        raise HTTPException(status_code=400, detail="Message cannot be empty.")
-
+    # Emptiness, length and language are all settled by AssistantRequest
+    # before this body runs — so an oversized or malformed request is
+    # refused without a Gemini call, and without the token bill attached
+    # to one.
     if not GEMINI_API_KEY:
         raise HTTPException(status_code=500, detail="AI service not configured.")
 
@@ -148,7 +283,11 @@ async def chat(
     if grounding:
         prompt_parts.append(f"Grounding: {grounding}")
 
-    prompt_parts.append(f"Language: Respond in {request.language}.")
+    # `to_single_line` on a value that is already restricted to an
+    # eight-item allowlist is redundant by design: if the allowlist is ever
+    # widened, or a caller reaches this without going through the model,
+    # the prompt still cannot gain a line it didn't ask for.
+    prompt_parts.append(f"Language: Respond in {to_single_line(request.language or 'en')}.")
 
     prompt_parts.append("\n--- Conversation History ---")
 
@@ -204,15 +343,15 @@ async def chat(
         raise HTTPException(status_code=500, detail="AI service error. Please try again later.")
 
 
-@router.get("/languages")
+@router.get(
+    "/languages",
+    summary="Languages the assistant will answer in",
+    description=(
+        "The codes accepted by the `language` field of `POST "
+        "/assistant/chat`. Served from the same list the request model "
+        "validates against, so this cannot advertise a language the "
+        "endpoint would then reject."
+    ),
+)
 async def supported_languages(current_user: dict = Depends(get_current_user)):
-    return [
-        {"code": "en", "name": "English"},
-        {"code": "hi", "name": "Hindi"},
-        {"code": "mr", "name": "Marathi"},
-        {"code": "ta", "name": "Tamil"},
-        {"code": "te", "name": "Telugu"},
-        {"code": "kn", "name": "Kannada"},
-        {"code": "ml", "name": "Malayalam"},
-        {"code": "gu", "name": "Gujarati"},
-    ]
+    return SUPPORTED_LANGUAGES
