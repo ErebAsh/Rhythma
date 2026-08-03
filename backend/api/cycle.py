@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from core.auth import get_current_user
 from pydantic import BaseModel, Field
 from datetime import date
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, List, Optional
 
 from services.firestore_service import CycleService, UserService
 from services.prediction_service import DEFAULT_FORECAST_HORIZON, predict
@@ -35,9 +35,55 @@ class CycleLogResponse(BaseModel):
     data: CycleLog
 
 
+class CycleHistoryEntry(BaseModel):
+    """One stored log, as it comes back from Firestore.
+
+    Every field but ``id`` is optional because a log is built up over
+    time — the Home screen's quick-log tiles write a single field for the
+    day, so a document holding only ``flow_intensity`` is normal, not
+    corrupt. ``model_config`` allows the extra keys Firestore carries
+    (``user_id``, ``created_at``, ``updated_at``) through untouched, so
+    typing the response does not silently drop fields the clients already
+    read.
+    """
+
+    model_config = {"extra": "allow"}
+
+    id: str
+    start_date: Optional[Any] = None
+    end_date: Optional[Any] = None
+    flow_intensity: Optional[str] = None
+    mood: Optional[str] = None
+    symptoms: Optional[List[str]] = None
+    sleep_hours: Optional[float] = None
+    stress_level: Optional[int] = None
+    notes: Optional[str] = None
+
+
+class CycleHistoryPage(BaseModel):
+    """Where this page sits, and whether there is another one."""
+
+    limit: int = Field(..., description="How many entries were requested.")
+    offset: int = Field(..., description="How many entries were skipped.")
+    count: int = Field(..., description="How many entries this page holds.")
+    hasMore: bool = Field(
+        ...,
+        description=(
+            "True when at least one more entry exists past this page. "
+            "Derived from fetching one extra document rather than from a "
+            "count query, so paging costs no extra round trip."
+        ),
+    )
+    nextOffset: Optional[int] = Field(
+        None,
+        description="Offset for the next page, or null when this is the last one.",
+    )
+
+
 class CycleHistoryResponse(BaseModel):
     message: str
-    entries: list
+    entries: List[CycleHistoryEntry]
+    page: CycleHistoryPage
 
 
 class CycleLogUpdateResponse(BaseModel):
@@ -140,24 +186,101 @@ async def log_cycle(
     }
 
 
+#: Ceiling on one page. High enough that a month view or a year of period
+#: starts fits in a single request, low enough that no response can grow
+#: without bound on a 2G connection.
+MAX_HISTORY_PAGE = 100
+
+#: What a client gets when it asks for nothing in particular.
+DEFAULT_HISTORY_PAGE = 20
+
+
 @router.get(
     "/{user_id}/history",
     response_model=CycleHistoryResponse,
     summary="Get cycle history",
-    description="Returns the most recent cycle log entries for the specified user, ordered by date descending.",
+    description=(
+        "Returns a page of the user's cycle log entries, ordered by date "
+        "descending.\n\n"
+        "`limit` and `offset` page through the history; `start_date` and "
+        "`end_date` (both inclusive, `YYYY-MM-DD`) restrict it to a window, "
+        "so a client can ask for a specific month rather than only for the "
+        "most recent N entries.\n\n"
+        "The `page` object reports where this page sits and whether another "
+        "one exists. `hasMore` comes from fetching one extra document, not "
+        "from a count query, so paging costs no additional round trip.\n\n"
+        "Calling with no query parameters returns the most recent entries, "
+        "newest first, exactly as before."
+    ),
 )
 async def get_cycle_history(
     user_id: str,
-    limit: Optional[int] = 10,
+    limit: int = Query(
+        DEFAULT_HISTORY_PAGE,
+        ge=1,
+        le=MAX_HISTORY_PAGE,
+        description="How many entries to return (1-100).",
+    ),
+    offset: int = Query(
+        0,
+        ge=0,
+        description="How many entries to skip, for paging.",
+    ),
+    start_date: Optional[date] = Query(
+        None,
+        description="Only return entries on or after this date (inclusive).",
+    ),
+    end_date: Optional[date] = Query(
+        None,
+        description="Only return entries on or before this date (inclusive).",
+    ),
     current_user: dict = Depends(get_current_user)
 ):
+    """One page of the user's own history.
+
+    The bounds on ``limit`` are the point of this signature. It used to be
+    an unvalidated ``Optional[int]`` passed straight into the query, where
+    ``?limit=-1`` reached a Python slice as ``docs[:-1]`` and returned
+    every log *except the oldest* — not an error, not empty, and not what
+    anyone asked for — while ``?limit=100000`` was accepted and would
+    serialize an entire history into one response. Both are now a 422 from
+    FastAPI's own validation, before any handler code runs.
+    """
     if user_id != current_user["id"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to view this user's data"
         )
-    entries = CycleService.get_logs_for_user(user_id, limit=limit or 10)
-    return {"message": f"History for user {user_id}", "entries": entries}
+
+    # Checked here rather than by a validator because it is a relationship
+    # between two parameters, not a property of either one. An inverted
+    # range is a bug in the caller; returning an empty list would let it
+    # look like "you have no logs in March".
+    if start_date and end_date and start_date > end_date:
+        raise HTTPException(
+            status_code=422,
+            detail="start_date must not be after end_date",
+        )
+
+    entries, has_more = CycleService.get_logs_page(
+        user_id,
+        limit=limit,
+        offset=offset,
+        start_date=start_date,
+        end_date=end_date,
+    )
+
+    return {
+        "message": f"History for user {user_id}",
+        "entries": entries,
+        "page": {
+            "limit": limit,
+            "offset": offset,
+            "count": len(entries),
+            "hasMore": has_more,
+            "nextOffset": offset + len(entries) if has_more else None,
+        },
+    }
 
 
 @router.get(
