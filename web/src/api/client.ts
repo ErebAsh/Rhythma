@@ -15,13 +15,35 @@ export const apiClient = axios.create({
   headers: { 'X-Client-Platform': 'web' }, // for the backend to know which client is making requests 
 });
 
+// The id the backend stamped on the most recent response, success or
+// failure. `core/middleware.py` returns it as X-Request-ID and #268
+// exposed it to JavaScript so the client could surface it; the error
+// boundary shows it, which is what turns "the app broke" in a bug report
+// into a specific line in the server log.
+const REQUEST_ID_HEADER = 'x-request-id';
+let lastRequestId: string | null = null;
+
+export function getLastRequestId(): string | null {
+  return lastRequestId;
+}
+
+function recordRequestId(headers: unknown) {
+  if (!headers || typeof headers !== 'object') return;
+  const value = (headers as Record<string, unknown>)[REQUEST_ID_HEADER];
+  if (typeof value === 'string' && value) lastRequestId = value;
+}
+
 // A 401 anywhere means the token is invalid or expired: clear it and
 // redirect to /login, same as the Flutter app's global onUnauthorized.
 // Modified: No more request interceptor attaching Authorization — the cookie
 // rides along automatically.
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    recordRequestId(response.headers);
+    return response;
+  },
   (error) => {
+    recordRequestId(error.response?.headers);
     if (error.response?.status === 401) {
       onUnauthorized?.();
     }

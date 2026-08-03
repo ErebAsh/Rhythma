@@ -282,5 +282,14 @@
     "empty": "You haven't shared your data with anyone yet.",
     "grantedOn": "Shared since {{date}}",
     "loadError": "Couldn't load your sharing settings."
+  },
+  "errors": {
+    "boundaryTitle": "ಈ ಪರದೆಯಲ್ಲಿ ಏನೋ ತಪ್ಪಾಗಿದೆ",
+    "boundaryBody": "ನಿಮ್ಮ ಡೇಟಾ ಸುರಕ್ಷಿತವಾಗಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಮುಖಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ.",
+    "retry": "ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
+    "goHome": "ಮುಖಪುಟಕ್ಕೆ ಹೋಗಿ",
+    "requestId": "ಉಲ್ಲೇಖ",
+    "notFoundTitle": "ಈ ಪುಟ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ",
+    "notFoundBody": "ಲಿಂಕ್ ಹಳೆಯದಾಗಿರಬಹುದು ಅಥವಾ ವಿಳಾಸದಲ್ಲಿ ತಪ್ಪಿರಬಹುದು."
   }
 }

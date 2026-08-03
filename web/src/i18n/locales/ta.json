@@ -282,5 +282,14 @@
     "empty": "You haven't shared your data with anyone yet.",
     "grantedOn": "Shared since {{date}}",
     "loadError": "Couldn't load your sharing settings."
+  },
+  "errors": {
+    "boundaryTitle": "Something went wrong on this screen",
+    "boundaryBody": "Your data is safe. You can try again, or go back to the home screen.",
+    "retry": "Try again",
+    "goHome": "Go to home",
+    "requestId": "Reference",
+    "notFoundTitle": "This page doesn't exist",
+    "notFoundBody": "The link may be out of date, or the address may have a typo."
   }
 }
