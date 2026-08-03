@@ -63,7 +63,6 @@ def _ensure_firebase_mock():
     sys.modules["firebase_admin"] = mock_firebase_admin
     sys.modules["firebase_admin.auth"] = mock_firebase_auth
 
-from core.auth_router import login_attempts, register_attempts
 from api.sms import sms_history
 from api.assistant import _assistant_rate_history
 from core.auth import refresh_token_store, reset_token_store, verification_token_store
@@ -72,8 +71,6 @@ from core.auth import refresh_token_store, reset_token_store, verification_token
 def clear_state():
     client.cookies.clear()
 
-    login_attempts.clear()
-    register_attempts.clear()
     sms_history.clear()
     _assistant_rate_history.clear()
 
