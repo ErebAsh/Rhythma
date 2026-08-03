@@ -106,6 +106,37 @@ p {
   margin: 0 0 0.5rem;
 }
 
+/* Password requirements on the register form. Colour reinforces the state,
+   it never carries it alone — every row also shows a ✓ or a •, so met and
+   unmet stay distinguishable with a red-green colour vision deficiency or
+   on a monochrome screen. */
+.password-requirements {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  color: #6b6b6b;
+}
+
+.password-requirements p {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.password-requirements ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.password-requirements .rule-met {
+  color: #1e7a45;
+}
+
+.password-requirements .rule-unmet {
+  color: #6b6b6b;
+}
+
 .centered-loader {
   min-height: 100vh;
   display: flex;

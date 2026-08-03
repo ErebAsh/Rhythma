@@ -16,7 +16,17 @@
     "registerLink": "രജിസ്റ്റർ ചെയ്യുക",
     "haveAccount": "ഇതിനകം അക്കൗണ്ട് ഉണ്ടോ?",
     "loginLink": "ലോഗിൻ ചെയ്യുക",
-    "providerLink": "Healthcare professional? Sign in here"
+    "providerLink": "Healthcare professional? Sign in here",
+    "passwordRequirementsTitle": "നിങ്ങളുടെ പാസ്‌വേഡ് ഇങ്ങനെയായിരിക്കണം:",
+    "passwordRejected": "ദയവായി മറ്റൊരു പാസ്‌വേഡ് തിരഞ്ഞെടുക്കുക:",
+    "passwordRules": {
+      "too_short": "കുറഞ്ഞത് {{min}} അക്ഷരങ്ങൾ നീളം",
+      "too_long": "സുരക്ഷിതമായി സൂക്ഷിക്കാൻ കഴിയുന്നത്ര ചെറുത് ({{bytes}} ബൈറ്റ് വരെ — ഇന്ത്യൻ ലിപികളിലെ ഓരോ അക്ഷരത്തിനും ഏകദേശം മൂന്ന് ബൈറ്റ്)",
+      "too_common": "ഏറ്റവും കൂടുതൽ ഉപയോഗിക്കുന്ന പാസ്‌വേഡുകളിൽ ഒന്നല്ല",
+      "contains_identifier": "നിങ്ങളുടെ ഇമെയിലോ ഉപയോക്തൃനാമമോ അല്ല",
+      "not_varied_enough": "ആവർത്തിക്കുന്ന ഏതാനും അക്ഷരങ്ങളിൽ കൂടുതൽ വൈവിധ്യമുള്ളത്",
+      "sequential": "12345 അല്ലെങ്കിൽ qwerty പോലുള്ള നീണ്ട ശ്രേണികളില്ലാത്തത്"
+    }
   },
   "home": {
     "welcome": "സ്വാഗതം, {{name}}",
