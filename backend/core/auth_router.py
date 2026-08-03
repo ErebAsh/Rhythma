@@ -20,6 +20,7 @@ from core.auth import (
     get_password_hash,
     verify_password,
 )
+from core.password_policy import enforce_password_policy, requirements as password_requirements
 from models.user import UserCreate, UserResponse, UserProfileUpdate, UserProfileResponse
 from services.firestore_service import UserService
 from services.rate_limit_service import RateLimitService
@@ -283,10 +284,39 @@ async def delete_me(response: Response, current_user: dict = Depends(get_current
     }
 
 
+# ─── Password Policy ──────────────────────────────────────────────────────
+
+
+@router.get(
+    "/password-requirements",
+    summary="The password rules this server enforces",
+    description=(
+        "Returns the minimum length, the byte ceiling, and a plain-language "
+        "list of the rules applied to new passwords by `POST /auth/register` "
+        "and `POST /auth/reset-password`.\n\n"
+        "Exists so a sign-up form can show a user the rules *before* she "
+        "submits, without each client keeping its own copy that drifts from "
+        "what the server actually enforces. Unauthenticated: the rules are "
+        "not a secret, and they are needed on the registration screen."
+    ),
+)
+async def get_password_requirements():
+    return password_requirements()
+
+
 # ─── Password-Based Registration & Login ──────────────────────────────────
 
 @router.post("/register")
 async def register(data: RegisterRequest):
+    # Checked before the email lookup so a weak password is rejected on its
+    # own terms, rather than the response depending on whether the address
+    # happened to be taken as well.
+    enforce_password_policy(
+        data.password,
+        email=data.email,
+        username=data.username,
+    )
+
     user = UserService.get_user_by_email(data.email)
     if user:
         raise HTTPException(
@@ -427,6 +457,16 @@ async def reset_password(data: ResetPasswordRequest):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
+
+    # Same policy, same code path as registration. Enforced after the token
+    # check so an unauthenticated caller can't use this route to probe the
+    # rules or the account's existence; the holder of a valid token is
+    # already past both.
+    enforce_password_policy(
+        data.new_password,
+        email=data.email,
+        username=user.get("username"),
+    )
 
     new_hash = get_password_hash(data.new_password)
     UserService.update_user(user["id"], {"password": new_hash})

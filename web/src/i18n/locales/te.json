@@ -16,7 +16,17 @@
     "registerLink": "Register",
     "haveAccount": "Already have an account?",
     "loginLink": "Log in",
-    "providerLink": "Healthcare professional? Sign in here"
+    "providerLink": "Healthcare professional? Sign in here",
+    "passwordRequirementsTitle": "Your password should be:",
+    "passwordRejected": "Please choose a different password:",
+    "passwordRules": {
+      "too_short": "At least {{min}} characters long",
+      "too_long": "Short enough to store safely (up to {{bytes}} bytes — letters in Indian scripts take about three bytes each)",
+      "too_common": "Not one of the most commonly used passwords",
+      "contains_identifier": "Not your email address or username",
+      "not_varied_enough": "Made of more than a couple of repeated characters",
+      "sequential": "Free of long runs like 12345 or qwerty"
+    }
   },
   "nav": {
     "home": "Home",
