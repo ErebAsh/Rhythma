@@ -10,7 +10,7 @@ not about what came back.
 
 import os
 import sys
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
 import pytest
@@ -108,6 +108,30 @@ def seed_logs(count, first=date(2026, 1, 1), step_days=28, user_id=USER_ID):
 
 def returned_dates(response):
     return [entry["start_date"][:10] for entry in response.json()["entries"]]
+
+
+def start_day(start):
+    """Normalize a ``date`` or ``datetime`` start_date to its day string."""
+    return start.date().isoformat() if isinstance(start, datetime) else start.isoformat()
+
+
+def seed_raw_logs(*starts, user_id=USER_ID):
+    """Write logs straight into the mock store, bypassing ``upsert_log``.
+
+    ``upsert_log`` always coerces ``start_date`` to a UTC-midnight datetime,
+    so it can never produce the mixed ``date``/``datetime`` shape this suite
+    needs to exercise. Writing to the backing store directly reproduces the
+    documents a migrated or legacy Firestore collection can legitimately
+    hold (issue #129).
+    """
+    store = db.collection("cycle_logs").store
+    for index, start in enumerate(starts):
+        store[f"mixed-{user_id}-{index}"] = {
+            "user_id": user_id,
+            "start_date": start,
+            "flow_intensity": "medium",
+            "created_at": datetime.now(timezone.utc),
+        }
 
 
 # ─── Defaults and backwards compatibility ─────────────────────────────────
@@ -482,3 +506,45 @@ def test_get_logs_for_user_still_works_for_its_existing_callers():
     logs = CycleService.get_logs_for_user(USER_ID, limit=3)
 
     assert [log["start_date"].date().isoformat() for log in logs] == expected[:3]
+
+
+def test_get_logs_for_user_sorts_mixed_datetime_and_date_start_dates():
+    """``start_date`` can be stored as either a bare ``date`` or a
+    ``datetime``; ordering must interleave them by actual day, newest first.
+
+    This is the edge case the old Python-side sort in ``get_logs_for_user``
+    handled via a normalizing key before the composite-index query (PR
+    #155) moved sorting into Firestore's ``order_by``. Python's default
+    sort raises ``TypeError`` comparing ``date`` and ``datetime`` directly,
+    so this pins the behavior so a future refactor cannot silently
+    reintroduce incorrect ordering. See issue #129.
+    """
+    seed_raw_logs(
+        date(2026, 2, 1),
+        datetime(2026, 3, 1, 0, 0, tzinfo=timezone.utc),
+        date(2026, 4, 1),
+    )
+
+    logs = CycleService.get_logs_for_user(USER_ID, limit=10)
+
+    assert [start_day(log["start_date"]) for log in logs] == [
+        "2026-04-01",
+        "2026-03-01",
+        "2026-02-01",
+    ]
+
+
+def test_get_logs_for_user_limits_after_sorting_mixed_start_dates():
+    """``limit`` applies to the *sorted* result, not to write order."""
+    seed_raw_logs(
+        date(2026, 1, 3),
+        datetime(2026, 1, 1, 0, 0, tzinfo=timezone.utc),
+        date(2026, 1, 2),
+    )
+
+    logs = CycleService.get_logs_for_user(USER_ID, limit=2)
+
+    assert [start_day(log["start_date"]) for log in logs] == [
+        "2026-01-03",
+        "2026-01-02",
+    ]
