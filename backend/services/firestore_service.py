@@ -49,6 +49,25 @@ class MockDocumentReference:
         self.data = None
         self.exists = False
 
+def _mock_order_key(value):
+    """Sort key for ``order_by`` in the mock query.
+
+    ``start_date`` (and anything else date-like) can legitimately be stored
+    as a bare ``date`` or as a ``datetime``; Firestore treats both as the
+    same point-in-time type, so a query ordering on such a field must
+    interleave them by actual value, not crash. Python's default sort
+    raises ``TypeError`` comparing ``date`` and ``datetime`` directly, so
+    the mock normalizes them to a common type — mirroring the sort key the
+    old Python-side fallback in ``get_logs_for_user`` used before the
+    composite-index query (issue #129).
+    """
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, date):
+        return datetime.combine(value, datetime.min.time(), tzinfo=timezone.utc)
+    return value
+
+
 #: Comparison operators the mock query understands, matching the subset of
 #: Firestore's operators this codebase actually uses.
 _MOCK_OPERATORS = {
@@ -111,7 +130,7 @@ class MockQuery:
         if self._order_by_field:
             reverse = (self._order_by_direction == firestore.Query.DESCENDING)
             docs.sort(
-                key=lambda doc: doc.data.get(self._order_by_field),
+                key=lambda doc: _mock_order_key(doc.data.get(self._order_by_field)),
                 reverse=reverse
             )
 
