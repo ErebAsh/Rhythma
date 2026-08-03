@@ -58,14 +58,11 @@ def _reset_collections():
 
 @pytest.fixture(autouse=True)
 def _clean_state():
-    from core.auth_router import login_attempts, register_attempts
     from core.auth import refresh_token_store
     from services.rate_limit_service import RateLimitService
 
     def _reset():
         client.cookies.clear()
-        login_attempts.clear()
-        register_attempts.clear()
         refresh_token_store.clear()
         clear_deletion_tokens()
         # RateLimitService holds its own module-level `db` reference, which

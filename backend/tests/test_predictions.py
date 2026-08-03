@@ -481,13 +481,10 @@ def test_serialized_payload_has_iso_dates_and_no_python_objects():
 
 @pytest.fixture(autouse=True)
 def _clear_client_state():
-    from core.auth_router import login_attempts, register_attempts
     from services.rate_limit_service import RateLimitService
 
     def _reset():
         client.cookies.clear()
-        login_attempts.clear()
-        register_attempts.clear()
         RateLimitService.clear_all()
 
     _reset()

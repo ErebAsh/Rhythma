@@ -597,13 +597,10 @@ def _clear_client_state():
     thoroughly confusing to debug. `test_auth.clear_state` does the same
     thing, but autouse fixtures don't cross module boundaries.
     """
-    from core.auth_router import login_attempts, register_attempts
     from services.rate_limit_service import RateLimitService
 
     def _reset():
         client.cookies.clear()
-        login_attempts.clear()
-        register_attempts.clear()
         RateLimitService.clear_all()
 
     _reset()
