@@ -1324,6 +1324,44 @@ p {
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 
+/* ── Error boundary & 404 ────────────────────────────────────────────────── */
+
+.error-boundary,
+.not-found-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 4rem 1.25rem;
+  text-align: center;
+  align-items: center;
+}
+
+.error-boundary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+/* The Link styled as a button needs the padding a <button> gets for free. */
+.error-boundary-actions a {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.error-request-id code,
+.not-found-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  /* Long, unbreakable strings: a request id or a pasted URL must wrap
+     rather than push the page into a horizontal scroll on a phone. */
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 520px) {
   .quick-tiles {
     grid-template-columns: repeat(2, 1fr);
