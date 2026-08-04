@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/useAuth';
 import { fetchDashboard, submitCycleLog, type CycleLogInput, type DashboardData } from '../api/endpoints';
 import { ScoreRing } from '../components/charts';
 import { toISODate } from '../lib/dates';

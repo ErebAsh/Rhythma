@@ -56,10 +56,13 @@ def build_model_features(logs_newest_first: List[Dict[str, Any]]) -> List[Dict[s
         cycle_length = None
         if i + 1 < len(logs_newest_first):
             older_start = as_date(logs_newest_first[i + 1].get("start_date"))
-            if start and older_start:
+            if start and older_start and (start - older_start).days > 0:
                 cycle_length = (start - older_start).days
 
-        flow_duration = (end - start).days + 1 if start and end else 5
+        if start and end and end >= start:
+            flow_duration = max(1, (end - start).days + 1)
+        else:
+            flow_duration = 5
         flow_intensity = _FLOW_INTENSITY_TO_SCORE.get(
             (log.get("flow_intensity") or "").lower(), 2
         )
@@ -102,6 +105,10 @@ def get_user_scores(user_id: str) -> Dict[str, Any]:
                 (>=3) for a meaningful CVI; lets clients distinguish
                 "no data yet" from "computed a low score".
             logged_cycle_count: total number of logs fetched.
+            profile: the user's profile dict (or None), so callers that
+                need it for features beyond the two scores — e.g. the
+                dashboard's cycle prediction — don't fetch it a second
+                time.
     """
     logs = CycleService.get_logs_for_user(user_id, limit=_LOGS_LIMIT)
     features = build_model_features(logs)
@@ -113,6 +120,7 @@ def get_user_scores(user_id: str) -> Dict[str, Any]:
 
     return {
         "logs": logs,
+        "profile": profile,
         "mhs": mhs,
         "cvi": cvi,
         "cvi_risk": cvi_risk,

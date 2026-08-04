@@ -47,6 +47,25 @@ Rhythma follows an **offline-first, privacy-first** architecture designed for lo
 - Firestore security rules restrict read/write to authenticated user's own documents
 - Backend never stores raw health data in logs
 
+### Data portability & erasure
+
+`services/data_privacy_service.py` owns both, and `api/privacy.py` exposes them under `/api/v1/privacy`. Every route operates strictly on `current_user["id"]` — none takes a user id from the path, so there is no authorization check to get wrong on an endpoint that hands out a full health export or destroys an account.
+
+| Route | Purpose |
+| :--- | :--- |
+| `GET /privacy/summary` | Inventory: per category, how many records, which fields, the date range, the retention note. Field *names*, never values. |
+| `GET /privacy/export?format=json\|csv` | The full bundle. JSON is canonical and versioned by `schema_version`; CSV is a flattened cycle-log table for spreadsheets. The password hash is excluded. |
+| `POST /privacy/delete-account` | Two-step. Without a token: returns a single-use token plus an impact preview (202). With it: performs the cascade and returns per-collection counts (200). |
+| `GET /privacy/deletion-status` | Confirms an account is gone, from the audit record. |
+
+**One cascade, one list of collections.** `purge_user_data()` is the only implementation, and `UserService.delete_user()` (and therefore the existing `DELETE /auth/me`) delegates to it. Before this, `delete_user()` had its own partial cascade that covered `users`, `cycle_logs` and Firebase Auth but silently missed `conversations` — the assistant chat transcript, one document keyed by `user_id` — and the `rate_limits` documents keyed `sms:{user_id}`. A "successfully deleted" account left the user's health conversation in Firestore indefinitely. A new collection is now registered once in `USER_DATA_COLLECTIONS` and both deletion and the inventory pick it up.
+
+**Rate-limit documents are found by id suffix**, not by a `user_id` field query — they don't have one, which is precisely why the query-based delete missed them.
+
+**The audit record holds no personal data**: a SHA-256 of the user id, a timestamp, and the per-collection counts. Enough to answer "did you actually delete my data?" and to spot a purge that removed nothing; not enough to enumerate past users. It deliberately lives outside `USER_DATA_COLLECTIONS` so it survives the purge.
+
+This is distinct from the PDF health report in [#228](https://github.com/ishita2740/Rhythma/issues/228): that is a human-readable summary for sharing with a clinician, this is machine-readable portability and erasure.
+
 ## ML Models
 
 | Model | Purpose | Training Data |
@@ -55,6 +74,10 @@ Rhythma follows an **offline-first, privacy-first** architecture designed for lo
 | Logistic Regression | Menstrual Health Score (MHS) — 0–100 score | Multi-factor wellness inputs |
 
 Models are exported via `joblib` and bundled for on-device inference (planned: TFLite conversion for Flutter).
+
+### AI Assistant Grounding
+
+The assistant (`backend/api/assistant.py`) is grounded with a curated, sourced medical reference dataset (`backend/data/medical_references.json`) so its health answers come from trusted sources (WHO, NHS, and other approved organizations) instead of the model's memory. `backend/services/medical_knowledge_service.py` retrieves the entries relevant to each user message and embeds their facts and source URLs into the Gemini system prompt. Sourcing and citations policy live in [`medical_sources.md`](./medical_sources.md), and the dataset integrity is enforced by `backend/tests/test_medical_knowledge.py`.
 
 ## Planned: WhatsApp Integration
 

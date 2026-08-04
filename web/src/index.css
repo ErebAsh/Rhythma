@@ -106,6 +106,37 @@ p {
   margin: 0 0 0.5rem;
 }
 
+/* Password requirements on the register form. Colour reinforces the state,
+   it never carries it alone — every row also shows a ✓ or a •, so met and
+   unmet stay distinguishable with a red-green colour vision deficiency or
+   on a monochrome screen. */
+.password-requirements {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  color: #6b6b6b;
+}
+
+.password-requirements p {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.password-requirements ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.password-requirements .rule-met {
+  color: #1e7a45;
+}
+
+.password-requirements .rule-unmet {
+  color: #6b6b6b;
+}
+
 .centered-loader {
   min-height: 100vh;
   display: flex;
@@ -1207,7 +1238,160 @@ p {
   margin: 0;
 }
 
+/* ── Provider dashboard & data sharing (issue #267) ─────────────────────── */
+
+.provider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.provider-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.1rem;
+}
+
+.provider-card a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-subtitle {
+  margin-top: -0.4rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge.active {
+  background: color-mix(in srgb, #52b3b0 15%, transparent);
+  color: #2e9e9b;
+}
+
+.badge.revoked {
+  background: color-mix(in srgb, #b05252 15%, transparent);
+  color: #b05252;
+}
+
+.list-card {
+  padding: 0.9rem 1rem;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.list-row:last-child {
+  border-bottom: none;
+}
+
+.list-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.list-row-title {
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.list-row-sub {
+  font-size: 0.82rem;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.data-table th {
+  color: var(--text);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-section {
+  margin-top: 1.1rem;
+}
+
+.detail-section h2 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
+
+/* ── Error boundary & 404 ────────────────────────────────────────────────── */
+
+.error-boundary,
+.not-found-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 4rem 1.25rem;
+  text-align: center;
+  align-items: center;
+}
+
+.error-boundary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+/* The Link styled as a button needs the padding a <button> gets for free. */
+.error-boundary-actions a {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.error-request-id code,
+.not-found-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  /* Long, unbreakable strings: a request id or a pasted URL must wrap
+     rather than push the page into a horizontal scroll on a phone. */
+  overflow-wrap: anywhere;
+}
 
 @media (max-width: 520px) {
   .quick-tiles {

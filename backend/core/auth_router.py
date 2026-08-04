@@ -20,9 +20,24 @@ from core.auth import (
     get_password_hash,
     verify_password,
 )
+from core.password_policy import enforce_password_policy, requirements as password_requirements
+from core.rate_limits import (
+    EMAIL_VERIFY_IP,
+    FIREBASE_LOGIN_IP,
+    LOGIN_ACCOUNT,
+    LOGIN_IP,
+    PASSWORD_RESET_CONFIRM_IP,
+    PASSWORD_RESET_REQUEST_ACCOUNT,
+    PASSWORD_RESET_REQUEST_IP,
+    REGISTER_IP,
+    TOKEN_REFRESH_IP,
+    VERIFICATION_RESEND_ACCOUNT,
+    clear as clear_rate_limit,
+    client_ip,
+    enforce as enforce_rate_limit,
+)
 from models.user import UserCreate, UserResponse, UserProfileUpdate, UserProfileResponse
 from services.firestore_service import UserService
-from services.rate_limit_service import RateLimitService
 
 import os
 import logging
@@ -62,9 +77,6 @@ class VerifyEmailRequest(BaseModel):
 
 router = APIRouter(tags=["Authentication"])
 
-# Legacy in-memory rate limit trackers kept for test compatibility
-login_attempts = {}
-register_attempts = {}
 # Env-driven so dev (http://localhost) and prod (https, real domain) differ without code changes.
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"  # True if HTTPS-only, False if HTTP allowed (dev)
 # CSRF Mitigation: The SameSite attribute (lax or strict) prevents the browser from sending 
@@ -75,11 +87,13 @@ COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", None)  # e.g. ".example.com" to share
 # ─── Rate Limiting ──────────────────────────────────────────────────────────
 
 def get_client_ip(request: Request) -> str:
-    """Extract the client's IP address from the request."""
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host or "unknown"
+    """Extract the client's IP address from the request.
+
+    Thin wrapper over ``core.rate_limits.client_ip`` so the several call
+    sites that already import this name keep working while there is only
+    one implementation of "which address is this".
+    """
+    return client_ip(request)
 
 def _set_auth_cookie(response: Response, token: str):
     response.set_cookie(
@@ -97,20 +111,10 @@ def _set_auth_cookie(response: Response, token: str):
 
 @router.post("/firebase-login")
 async def firebase_login(request: Request, response: Response, data: FirebaseLoginRequest):
-    # Rate limit by IP address (10 attempts per 5 minutes)
-    client_ip = get_client_ip(request)
-    remaining = RateLimitService.is_rate_limited(
-        key=f"login:{client_ip}",
-        limit=10,
-        window_seconds=300,
-    )
-
-    if remaining is not None:
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Too many login attempts. Please wait 5 minutes.",
-            headers={"Retry-After": str(remaining)},
-        )
+    # Same 10-per-5-minutes ceiling this route has always had, now expressed
+    # as a named policy so it is configurable and consistent with the rest
+    # of the auth surface rather than a pair of literals in a handler.
+    enforce_rate_limit(FIREBASE_LOGIN_IP, get_client_ip(request))
 
     try:
         # Verify the Firebase ID token
@@ -247,19 +251,81 @@ async def update_profile(
 
 
 @router.delete("/me")
-async def delete_me(current_user: dict = Depends(get_current_user)):
+async def delete_me(response: Response, current_user: dict = Depends(get_current_user)):
     """Deletes the authenticated user's account permanently.
-    
-    This deletes their cycle logs, their user document, and their Firebase Auth user.
+
+    Kept for the clients that already call it (``deleteAccount()`` in
+    ``web/src/api/endpoints.ts``, and the Flutter settings screen), but it
+    now goes through the same cascade as ``POST /privacy/delete-account``:
+    cycle logs, the user document, the Firebase Auth identity, **and** the
+    assistant conversation and rate-limit records this path used to leave
+    behind in Firestore.
+
+    Two other gaps are closed here. Refresh tokens minted before deletion
+    stayed valid in ``refresh_token_store`` until natural expiry, so the
+    account remained usable on other devices. And unlike ``/logout``, the
+    auth cookies were never cleared, so a web client kept sending a cookie
+    for an account that no longer existed and every subsequent request
+    401'd in a way that looked like a bug rather than a finished deletion.
+
+    Prefer ``POST /privacy/delete-account`` for new client work: it is
+    two-step, shows the user exactly what will be destroyed before she
+    confirms, and returns per-collection counts. This route still deletes
+    immediately, with no confirmation step.
     """
-    UserService.delete_user(current_user["id"])
-    return {"status": "success", "detail": "Account deleted successfully"}
+    user_id = current_user["id"]
+    deleted_counts = UserService.delete_user(user_id)
+    revoke_all_user_refresh_tokens(user_id)
+
+    for cookie_name in (COOKIE_NAME, REFRESH_COOKIE_NAME):
+        response.delete_cookie(key=cookie_name, path="/", domain=COOKIE_DOMAIN)
+
+    return {
+        "status": "success",
+        "detail": "Account deleted successfully",
+        "deletedCounts": deleted_counts or {},
+    }
+
+
+# ─── Password Policy ──────────────────────────────────────────────────────
+
+
+@router.get(
+    "/password-requirements",
+    summary="The password rules this server enforces",
+    description=(
+        "Returns the minimum length, the byte ceiling, and a plain-language "
+        "list of the rules applied to new passwords by `POST /auth/register` "
+        "and `POST /auth/reset-password`.\n\n"
+        "Exists so a sign-up form can show a user the rules *before* she "
+        "submits, without each client keeping its own copy that drifts from "
+        "what the server actually enforces. Unauthenticated: the rules are "
+        "not a secret, and they are needed on the registration screen."
+    ),
+)
+async def get_password_requirements():
+    return password_requirements()
 
 
 # ─── Password-Based Registration & Login ──────────────────────────────────
 
 @router.post("/register")
-async def register(data: RegisterRequest):
+async def register(data: RegisterRequest, request: Request):
+    # Rate limit first: it is the cheaper check, and it is enforced before
+    # the email lookup so the 409/200 difference — a working
+    # account-enumeration oracle — is not available at whatever rate the
+    # caller likes.
+    enforce_rate_limit(REGISTER_IP, get_client_ip(request))
+
+    # Then the password, also before the lookup, so a weak password is
+    # rejected on its own terms rather than the response depending on
+    # whether the address happened to be taken as well.
+    enforce_password_policy(
+        data.password,
+        email=data.email,
+        username=data.username,
+    )
+
     user = UserService.get_user_by_email(data.email)
     if user:
         raise HTTPException(
@@ -298,7 +364,15 @@ async def register(data: RegisterRequest):
 
 
 @router.post("/login")
-async def login(data: LoginRequest, response: Response):
+async def login(data: LoginRequest, request: Request, response: Response):
+    # Both keys are checked, and both are checked *before* the user lookup.
+    # Counting only failures would mean an attacker who happens to guess
+    # correctly on attempt 4 walks away with no record of the first three;
+    # counting only known accounts would make the limit itself an
+    # enumeration signal, since unknown emails would never be throttled.
+    enforce_rate_limit(LOGIN_IP, get_client_ip(request))
+    enforce_rate_limit(LOGIN_ACCOUNT, data.email)
+
     user = UserService.get_user_by_email(data.email)
     if not user:
         raise HTTPException(
@@ -312,6 +386,11 @@ async def login(data: LoginRequest, response: Response):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
         )
+
+    # Correct password: forget this account's recent attempts, so the three
+    # typos that preceded it don't leave her one mistake from a lockout.
+    # The per-IP bucket is deliberately left alone — see rate_limits.clear.
+    clear_rate_limit(LOGIN_ACCOUNT, data.email)
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -343,7 +422,13 @@ async def login(data: LoginRequest, response: Response):
 # ─── Refresh Tokens ───────────────────────────────────────────────────────
 
 @router.post("/refresh")
-async def refresh_token(data: RefreshTokenRequest):
+async def refresh_token(data: RefreshTokenRequest, request: Request):
+    # A refresh token is a bearer secret like any other, so unlimited
+    # submissions are unlimited guesses. The ceiling is set well above what
+    # a healthy client needs (one call per access-token lifetime) so a
+    # normal app never sees it.
+    enforce_rate_limit(TOKEN_REFRESH_IP, get_client_ip(request))
+
     user_id = verify_refresh_token(data.refresh_token)
     if not user_id:
         raise HTTPException(
@@ -375,7 +460,14 @@ async def logout_all(current_user: dict = Depends(get_current_user)):
 # ─── Password Reset ───────────────────────────────────────────────────────
 
 @router.post("/forgot-password")
-async def forgot_password(data: ForgotPasswordRequest):
+async def forgot_password(data: ForgotPasswordRequest, request: Request):
+    # Per-account so this cannot be pointed at one inbox as a mail bomb,
+    # per-IP so it cannot be pointed at many. Both run before the lookup so
+    # the throttle behaves identically for addresses that do and don't
+    # exist — otherwise it undoes the deliberately identical response below.
+    enforce_rate_limit(PASSWORD_RESET_REQUEST_IP, get_client_ip(request))
+    enforce_rate_limit(PASSWORD_RESET_REQUEST_ACCOUNT, data.email)
+
     user = UserService.get_user_by_email(data.email)
     if not user:
         return {"message": "If an account with that email exists, a reset link has been sent."}
@@ -387,7 +479,11 @@ async def forgot_password(data: ForgotPasswordRequest):
 
 
 @router.post("/reset-password")
-async def reset_password(data: ResetPasswordRequest):
+async def reset_password(data: ResetPasswordRequest, request: Request):
+    # Submitting a token is a guess at a secret that can take over an
+    # account, so this is the tightest of the auth policies.
+    enforce_rate_limit(PASSWORD_RESET_CONFIRM_IP, get_client_ip(request))
+
     if not verify_reset_token(data.email, data.token):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -401,6 +497,16 @@ async def reset_password(data: ResetPasswordRequest):
             detail="User not found"
         )
 
+    # Same policy, same code path as registration. Enforced after the token
+    # check so an unauthenticated caller can't use this route to probe the
+    # rules or the account's existence; the holder of a valid token is
+    # already past both.
+    enforce_password_policy(
+        data.new_password,
+        email=data.email,
+        username=user.get("username"),
+    )
+
     new_hash = get_password_hash(data.new_password)
     UserService.update_user(user["id"], {"password": new_hash})
 
@@ -412,7 +518,9 @@ async def reset_password(data: ResetPasswordRequest):
 # ─── Email Verification ───────────────────────────────────────────────────
 
 @router.post("/verify-email")
-async def verify_email(data: VerifyEmailRequest):
+async def verify_email(data: VerifyEmailRequest, request: Request):
+    enforce_rate_limit(EMAIL_VERIFY_IP, get_client_ip(request))
+
     if not verify_email_token(data.email, data.token):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -431,7 +539,12 @@ async def verify_email(data: VerifyEmailRequest):
 
 
 @router.post("/resend-verification")
-async def resend_verification(data: ForgotPasswordRequest):
+async def resend_verification(data: ForgotPasswordRequest, request: Request):
+    # Same shape as forgot-password: this one also sends mail to an address
+    # supplied by whoever called it.
+    enforce_rate_limit(EMAIL_VERIFY_IP, get_client_ip(request))
+    enforce_rate_limit(VERIFICATION_RESEND_ACCOUNT, data.email)
+
     user = UserService.get_user_by_email(data.email)
     if not user:
         return {"message": "If an account with that email exists, a verification email has been sent."}

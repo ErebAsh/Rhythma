@@ -15,7 +15,38 @@
     "noAccount": "Don't have an account?",
     "registerLink": "Register",
     "haveAccount": "Already have an account?",
-    "loginLink": "Log in"
+    "loginLink": "Log in",
+    "providerLink": "Healthcare professional? Sign in here",
+    "passwordRequirementsTitle": "Your password should be:",
+    "passwordRejected": "Please choose a different password:",
+    "passwordRules": {
+      "too_short": "At least {{min}} characters long",
+      "too_long": "Short enough to store safely (up to {{bytes}} bytes — letters in Indian scripts take about three bytes each)",
+      "too_common": "Not one of the most commonly used passwords",
+      "contains_identifier": "Not your email address or username",
+      "not_varied_enough": "Made of more than a couple of repeated characters",
+      "sequential": "Free of long runs like 12345 or qwerty"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "cycle": "Cycle",
+    "assistant": "Assistant",
+    "insights": "Insights",
+    "profile": "Profile",
+    "sharing": "Sharing",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "today": "Today",
+    "days": "days",
+    "back": "Back"
   },
   "home": {
     "welcome": "Welcome, {{name}}",
@@ -40,25 +71,6 @@
     "failedToLoad": "Failed to load",
     "logged": "{{label}} logged",
     "savedOffline": "Couldn't reach the server. Please try again."
-  },
-  "nav": {
-    "home": "Home",
-    "cycle": "Cycle",
-    "assistant": "Assistant",
-    "insights": "Insights",
-    "profile": "Profile",
-    "settings": "Settings",
-    "logout": "Log out"
-  },
-  "common": {
-    "loading": "Loading…",
-    "retry": "Retry",
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "today": "Today",
-    "days": "days",
-    "back": "Back"
   },
   "quickLog": {
     "none": "None",
@@ -176,6 +188,8 @@
     "title": "Settings",
     "language": "Language",
     "languageSubtitle": "Choose your preferred language",
+    "sharing": "Data sharing",
+    "sharingSubtitle": "Choose which healthcare providers can see your data",
     "sms": "SMS Cycle Summaries",
     "smsSubtitle": "Get a text summary sent to your phone",
     "logOut": "Log out",
@@ -202,5 +216,90 @@
     "send": "Send",
     "phoneRequired": "A phone number is required to enable SMS summaries.",
     "phoneInvalid": "Phone number must be in E.164 format, e.g. +919876543210."
+  },
+  "provider": {
+    "loginTitle": "Healthcare provider sign in",
+    "registerTitle": "Create a provider account",
+    "subtitle": "For healthcare professionals only",
+    "email": "Work email",
+    "fullName": "Full name",
+    "specialty": "Specialty",
+    "specialtyPlaceholder": "e.g. Gynecology",
+    "licenseNumber": "Medical license number (optional)",
+    "password": "Password",
+    "loginButton": "Sign in",
+    "loggingIn": "Signing in…",
+    "registerButton": "Create account",
+    "registering": "Creating account…",
+    "loginError": "Invalid email or password.",
+    "registerError": "Could not create your provider account. Please try again.",
+    "noAccount": "Don't have a provider account?",
+    "registerLink": "Register",
+    "haveAccount": "Already have a provider account?",
+    "loginLink": "Sign in",
+    "patientLogin": "Patient? Log in here"
+  },
+  "providerNav": {
+    "dashboard": "Patients",
+    "logout": "Log out"
+  },
+  "providerDashboard": {
+    "title": "Patient Dashboard",
+    "welcome": "Welcome, {{name}}",
+    "empty": "You don't have any patients yet. When a patient shares her data with you, she will appear here.",
+    "mhs": "MHS",
+    "cvi": "CVI",
+    "cyclesLogged": "{{count}} cycles",
+    "viewPatient": "View patient",
+    "loadError": "Couldn't load your patients."
+  },
+  "providerPatient": {
+    "back": "Back to patients",
+    "notFound": "Patient not found, or you no longer have consent to view their data.",
+    "profile": "Profile",
+    "age": "Age",
+    "location": "Location",
+    "cycleLength": "Avg cycle length",
+    "periodDuration": "Period duration",
+    "lastPeriod": "Last period",
+    "summary": "Health summary",
+    "sleep": "Avg sleep",
+    "cycleLogs": "Cycle history",
+    "date": "Date",
+    "flow": "Flow",
+    "mood": "Mood",
+    "symptoms": "Symptoms",
+    "sleepHours": "Sleep",
+    "notes": "Notes",
+    "noLogs": "No cycle logs shared yet.",
+    "grantedOn": "Shared since {{date}}"
+  },
+  "sharing": {
+    "title": "Data Sharing",
+    "subtitle": "Share your health data with a healthcare professional",
+    "intro": "Only share data with a provider you trust. You can revoke access at any time.",
+    "addTitle": "Add a provider",
+    "providerEmail": "Provider email",
+    "addButton": "Share my data",
+    "adding": "Sharing…",
+    "added": "Data shared with {{name}}.",
+    "notFound": "No provider account found with that email.",
+    "active": "Active",
+    "revoked": "Revoked",
+    "revoke": "Revoke access",
+    "revokeConfirm": "Revoke {{name}}'s access to your data?",
+    "revokedMsg": "Access revoked.",
+    "empty": "You haven't shared your data with anyone yet.",
+    "grantedOn": "Shared since {{date}}",
+    "loadError": "Couldn't load your sharing settings."
+  },
+  "errors": {
+    "boundaryTitle": "Something went wrong on this screen",
+    "boundaryBody": "Your data is safe. You can try again, or go back to the home screen.",
+    "retry": "Try again",
+    "goHome": "Go to home",
+    "requestId": "Reference",
+    "notFoundTitle": "This page doesn't exist",
+    "notFoundBody": "The link may be out of date, or the address may have a typo."
   }
 }

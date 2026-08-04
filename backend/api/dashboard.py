@@ -1,10 +1,18 @@
 from datetime import date
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Any, Dict, Optional
 
 from core.auth import get_current_user
+from services.firestore_service import UserService
+from services.health_observations_service import (
+    build_analysis,
+    describe_consistency,
+    evaluate,
+    top_observation,
+)
+from services.prediction_service import dashboard_summary, predict
 from services.scoring_service import get_user_scores, as_date, DEFAULT_CYCLE_LENGTH
 
 
@@ -29,6 +37,82 @@ class CycleHistoryEntry(BaseModel):
     cycle_length: int
 
 
+class DashboardPredictionRange(BaseModel):
+    earliest: Optional[str] = None
+    latest: Optional[str] = None
+
+
+class DashboardFertileWindow(BaseModel):
+    start: Optional[str] = None
+    end: Optional[str] = None
+    isEstimate: bool = True
+    notForContraception: bool = True
+
+
+class DashboardPrediction(BaseModel):
+    """The compact prediction subset the Home screen renders.
+
+    Added alongside `cycle`, not inside it: `cycle.nextPeriodDays` keeps
+    its existing clamped-at-zero meaning so clients written before this
+    field existed are unaffected, while `daysUntilNextPeriod` here is the
+    honest signed value.
+    """
+
+    nextPeriodDate: Optional[str] = None
+    daysUntilNextPeriod: Optional[int] = Field(
+        None, description="Negative when the period is late; not clamped."
+    )
+    isOverdue: bool = False
+    daysOverdue: int = 0
+    phase: str = "unknown"
+    confidence: str = "low"
+    estimateSource: str = "population_default"
+    predictedRange: DashboardPredictionRange = Field(
+        default_factory=DashboardPredictionRange
+    )
+    fertileWindow: DashboardFertileWindow = Field(
+        default_factory=DashboardFertileWindow
+    )
+
+
+class DashboardObservation(BaseModel):
+    """The single highest-priority observation, for the Home screen.
+
+    Nullable: a brand-new user with no logs has nothing to say yet, and a
+    client written before this field existed must keep working, so it is
+    additive and optional rather than a required object.
+    """
+
+    code: str
+    severity: str
+    title: str
+    body: str
+    titleKey: str
+    bodyKey: str
+    evidence: Dict[str, Any] = Field(default_factory=dict)
+    isMedicalAdvice: bool = False
+    disclaimerKey: str
+
+
+class DashboardPrediction(BaseModel):
+    """The compact prediction summary the Home screen renders.
+
+    Mirrors ``services/prediction_service.py::dashboard_summary``. Fields
+    are Optional because a new user with no logged period has no anchor
+    date; ``isOverdue`` defaults to False in that case.
+    """
+
+    nextPeriodDate: Optional[str] = None
+    daysUntilNextPeriod: Optional[int] = None
+    isOverdue: bool = False
+    daysOverdue: int = 0
+    phase: str = "unknown"
+    confidence: Optional[str] = None
+    estimateSource: Optional[str] = None
+    predictedRange: Dict[str, Optional[str]] = Field(default_factory=dict)
+    fertileWindow: Dict[str, Any] = Field(default_factory=dict)
+
+
 class DashboardResponse(BaseModel):
     user: DashboardUser
     cycle: DashboardCycle
@@ -38,6 +122,19 @@ class DashboardResponse(BaseModel):
     cycleHistory: list[CycleHistoryEntry]
     symptomFrequency: dict[str, float]
     recentStressLevel: Optional[int] = None
+    #: Highest-severity factual observation about the user's logged data,
+    #: computed from the logs already fetched above — so the Home screen
+    #: needs no second round trip. Full list lives at
+    #: GET /insights/{user_id}/observations.
+    topObservation: Optional[DashboardObservation] = None
+    #: Descriptive consistency label (consistent / slightly_variable /
+    #: variable / unknown), per menstrual_insights_guidelines.md's summary
+    #: card guidance — a word, not a score.
+    cycleConsistency: str = "unknown"
+    #: "When is my next period?" — the overdue-aware prediction summary.
+    #: Additive and nullable so clients written before this field existed
+    #: keep working.
+    prediction: Optional[DashboardPrediction] = None
 
 
 router = APIRouter(tags=["Dashboard"])
@@ -62,7 +159,8 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     if logs:
         most_recent_start = as_date(logs[0].get("start_date"))
         if most_recent_start:
-            cycle_day = (date.today() - most_recent_start).days + 1
+            raw_day = (date.today() - most_recent_start).days + 1
+            cycle_day = max(1, raw_day)
 
         if len(logs) >= 2:
             deltas = []
@@ -105,6 +203,23 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
 
     recent_stress_level = logs[0].get("stress_level") if logs else None
 
+    # Observations reuse the logs already fetched above rather than
+    # re-querying Firestore, so the Home screen still costs one round trip
+    # and one read path. `build_analysis` is called separately from
+    # `evaluate` only because the consistency label needs the analysis
+    # object; both are pure functions over the same list.
+    observations = evaluate(logs)
+    highest = top_observation(observations)
+    consistency = describe_consistency(build_analysis(logs))
+
+    # The prediction summary reuses the same logs (and the profile already
+    # fetched for scoring) so the Home screen needs no extra read. It is the
+    # overdue-aware "when is my next period?" answer; the legacy clamped
+    # `cycle.nextPeriodDays` above is kept untouched for existing clients.
+    prediction = dashboard_summary(
+        predict(logs, profile=score_data.get("profile"), today=date.today())
+    )
+
     return {
         "user": {
             "name": current_user.get("username") or "User"
@@ -124,4 +239,7 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "cycleHistory": cycle_history,
         "symptomFrequency": symptom_frequency,
         "recentStressLevel": recent_stress_level,
+        "topObservation": highest.to_dict() if highest else None,
+        "cycleConsistency": consistency,
+        "prediction": prediction,
     }

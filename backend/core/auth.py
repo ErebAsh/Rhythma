@@ -153,5 +153,6 @@ async def get_current_user(
         "id": user["id"],
         "phone": user.get("phone"),
         "username": user.get("username"),
-        "email": user.get("email")
+        "email": user.get("email"),
+        "role": user.get("role", "patient"),
     }
