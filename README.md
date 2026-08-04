@@ -586,7 +586,40 @@ The backend currently uses Firebase **only for user accounts and cycle data** (v
 3. Either paste the resulting JSON into `FIREBASE_SERVICE_ACCOUNT_JSON`, or save the file and point `FIREBASE_SERVICE_ACCOUNT_PATH` at it.
 4. Ensure Firestore is enabled in the project (Native mode).
 
-> **Note:** The Flutter app does not currently initialize Firebase or connect to Firestore on the client side — `firebase_core`, `cloud_firestore`, and `firebase_auth` are listed as dependencies for planned client-side sync but are not yet wired up. No `google-services.json` / `GoogleService-Info.plist` setup is required today.
+> **Note:** The steps above cover the **backend** Firebase credentials. The Flutter app separately initializes Firebase on the client side (`main.dart` calls `Firebase.initializeApp()` and `FirestoreService.init()`), so client-side sync also needs the platform config files below.
+
+### Flutter Client Firebase Setup (Client-Side Firestore Sync)
+
+For client-side offline-first Firestore synchronization (issue #27), the Flutter app needs its own Firebase config:
+
+#### Android
+1. In the Firebase Console, add an Android app with package name `com.example.rhythma`.
+2. Download `google-services.json` and place it at:
+   ```
+   rhythma_flutter/android/app/google-services.json
+   ```
+3. `android/app/build.gradle.kts` and `android/settings.gradle.kts` are already configured with the google-services plugin.
+
+#### iOS
+1. In the Firebase Console, add an iOS app with bundle ID `com.example.rhythma`.
+2. Download `GoogleService-Info.plist` and place it at:
+   ```
+   rhythma_flutter/ios/Runner/GoogleService-Info.plist
+   ```
+3. Add the file to the Xcode project if it is not already included.
+
+#### App initialization
+`main.dart` initializes Firebase and the sync service at startup:
+```dart
+await Firebase.initializeApp();
+await FirestoreService.init();
+```
+
+This enables:
+- Offline persistence via Firestore's local cache
+- Automatic sync when connectivity is restored (issue #30)
+- `SyncStatusProvider` for the sync status indicator (issue #20)
+- Hive (local) remains the source of truth for reads; Firestore syncs when online and cloud sync is enabled
 
 ---
 

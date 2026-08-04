@@ -149,12 +149,12 @@ export function HomePage() {
 
         <div className="stat-row">
           <div className="stat-cell">
-            <span className="stat-label">{t('home.mhs')}</span>
-            <span className="stat-value">{insights?.mhs == null ? '—' : Math.round(insights.mhs)}</span>
+            <span className="stat-label">{t('home.avgCycle')}</span>
+            <span className="stat-value">{insights?.averageCycleLength == null ? '—' : insights.averageCycleLength}</span>
           </div>
           <div className="stat-cell">
-            <span className="stat-label">{t('home.cvi')}</span>
-            <span className="stat-value">{insights?.cvi ?? '—'}</span>
+            <span className="stat-label">{t('home.bleeding')}</span>
+            <span className="stat-value">{insights?.averageBleedingDuration == null ? '—' : `${insights.averageBleedingDuration}d`}</span>
           </div>
           <div className="stat-cell">
             <span className="stat-label">{t('home.sleep')}</span>

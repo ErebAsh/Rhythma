@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
 import {
   deleteCycleLog,
-  fetchCycleHistory,
+  fetchCycleHistoryRange,
   fetchProfile,
   submitCycleLog,
   type CycleLogEntry,
@@ -14,6 +14,7 @@ import {
   formatDayMonth,
   formatMonthYear,
   isSameDay,
+  monthWindow,
   PHASE_COLORS,
   phaseFor,
   startOfMonth,
@@ -89,6 +90,7 @@ export function CyclePage() {
   const [logs, setLogs] = useState<Map<string, CycleLogEntry>>(new Map());
   const [lastPeriod, setLastPeriod] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -97,28 +99,52 @@ export function CyclePage() {
   // selected date (or the fetched history) changes.
   const [draft, setDraft] = useState<CycleLogInput | null>(null);
 
+  // The window of history currently loaded. Keyed off the displayed month
+  // rather than a fixed count: the calendar renders one month at a time,
+  // and this page used to ask for `limit=365`, which the endpoint refuses
+  // outright (its ceiling is 100). The 422 was caught below and turned
+  // into an empty Map, so the calendar rendered as if the user had never
+  // logged anything (#349).
+  const loadedWindow = useMemo(() => monthWindow(displayedMonth), [displayedMonth]);
+
+  // Depended on by `load`, and deliberately the id rather than the whole
+  // `user` object. A context that hands back a fresh object on each render
+  // would otherwise make `load` a new function every render, so the effect
+  // below would re-fire, set state, and render again — an unbounded fetch
+  // loop that only shows up under a re-rendering provider.
+  const userId = user?.id;
+
   const load = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     setLoading(true);
     try {
       const [history, profile] = await Promise.all([
-        fetchCycleHistory(user.id, 365),
+        fetchCycleHistoryRange(userId, loadedWindow.start, loadedWindow.end),
         fetchProfile().catch(() => null),
       ]);
       const map = new Map<string, CycleLogEntry>();
       for (const entry of history) {
+        if (!entry.start_date) continue;
         const key = entry.start_date.slice(0, 10);
         map.set(key, { ...entry, start_date: key });
       }
       setLogs(map);
       setLastPeriod(profile?.last_period ?? null);
+      setLoadError(false);
     } catch {
+      // Distinguished from "no logs yet". Clearing to an empty Map without
+      // saying so is what made the original bug invisible — an empty
+      // calendar looks exactly like a new account.
       setLogs(new Map());
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [userId, loadedWindow.start, loadedWindow.end]);
 
+  // Re-runs when the displayed month changes, because `loadedWindow`
+  // changes with it. Before this the whole history was fetched once and
+  // any month outside it would have been blank regardless.
   useEffect(() => {
     void load();
   }, [load]);
@@ -230,6 +256,15 @@ export function CyclePage() {
       <header className="page-header">
         <h1>{t('cycle.title')}</h1>
       </header>
+
+      {loadError ? (
+        <p className="error-text" role="alert">
+          {t('cycle.loadFailed')}{' '}
+          <button type="button" className="ghost-btn" onClick={() => void load()}>
+            {t('cycle.retry')}
+          </button>
+        </p>
+      ) : null}
 
       <section className="glass-card calendar-card">
         <div className="calendar-toolbar">

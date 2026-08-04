@@ -16,7 +16,17 @@
     "registerLink": "Register",
     "haveAccount": "Already have an account?",
     "loginLink": "Log in",
-    "providerLink": "Healthcare professional? Sign in here"
+    "providerLink": "Healthcare professional? Sign in here",
+    "passwordRequirementsTitle": "Your password should be:",
+    "passwordRejected": "Please choose a different password:",
+    "passwordRules": {
+      "too_short": "At least {{min}} characters long",
+      "too_long": "Short enough to store safely (up to {{bytes}} bytes — letters in Indian scripts take about three bytes each)",
+      "too_common": "Not one of the most commonly used passwords",
+      "contains_identifier": "Not your email address or username",
+      "not_varied_enough": "Made of more than a couple of repeated characters",
+      "sequential": "Free of long runs like 12345 or qwerty"
+    }
   },
   "nav": {
     "home": "Home",
@@ -45,8 +55,8 @@
     "nextPeriod": "Next period in",
     "days": "days",
     "fertileWindow": "Fertile window + High energy",
-    "mhs": "MHS",
-    "cvi": "CVI",
+    "avgCycle": "Avg Cycle",
+    "bleeding": "Bleeding",
     "sleep": "Sleep",
     "assistantTitle": "AI Assistant",
     "assistantSubtitle": "Your personal health companion",
@@ -103,7 +113,9 @@
     "fatigue": "Fatigue",
     "nausea": "Nausea",
     "acne": "Acne",
-    "backPain": "Back Pain"
+    "backPain": "Back Pain",
+    "loadFailed": "Couldn't load your logs for this month.",
+    "retry": "Try again"
   },
   "assistant": {
     "title": "AI Assistant",
@@ -124,13 +136,15 @@
     "title": "Insights",
     "subtitle": "Your health at a glance",
     "notEnoughData": "Log a few cycles to unlock personalized insights.",
-    "mhsLabel": "MENTAL HEALTH SCORE",
-    "cviLabel": "CVI",
-    "mhsDelta": "Score based on your recent cycles",
+    "cycleStats": "CYCLE STATISTICS",
+    "avgCycle": "Avg Cycle",
+    "shortest": "Shortest",
+    "longest": "Longest",
+    "avgBleeding": "Avg Bleeding",
+    "mhsDelta": "Based on your recent cycles",
     "regular": "Regular",
     "irregular": "Irregular",
     "variability": "Variability",
-    "avgCycle": "Avg cycle",
     "sleep": "Sleep",
     "stress": "Stress",
     "low": "Low",
@@ -160,7 +174,7 @@
     "ovulation": "Ovulation Phase",
     "luteal": "Luteal Phase",
     "avgCycleLength": "Avg cycle length",
-    "avgMhs": "Avg mental health score",
+    "avgBleeding": "Avg bleeding",
     "cycleVariability": "Cycle variability",
     "lastCycleLength": "Last cycle length",
     "editInfo": "Edit Info",
@@ -282,5 +296,14 @@
     "empty": "You haven't shared your data with anyone yet.",
     "grantedOn": "Shared since {{date}}",
     "loadError": "Couldn't load your sharing settings."
+  },
+  "errors": {
+    "boundaryTitle": "Something went wrong on this screen",
+    "boundaryBody": "Your data is safe. You can try again, or go back to the home screen.",
+    "retry": "Try again",
+    "goHome": "Go to home",
+    "requestId": "Reference",
+    "notFoundTitle": "This page doesn't exist",
+    "notFoundBody": "The link may be out of date, or the address may have a typo."
   }
 }
