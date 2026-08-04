@@ -59,9 +59,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   // Step 3 – Menstrual Profile
   DateTime? _lastPeriodDate;
   bool _isLastPeriodApproximate = false;
-  bool _showExactDatePicker = true;
-  String? _lastPeriodError;
-  int _selectedApproximateIndex = -1;
   int _cycleLength = 28;
   int _periodDuration = 5;
   bool _isRegular = true;
@@ -167,7 +164,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       _weightError = null;
       _consentError = null;
       _phoneError = null;
-      _lastPeriodError = null;
     });
 
     if (_currentPage == 1) {
@@ -239,7 +235,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
     if (_currentPage == 2) {
       if (_lastPeriodDate == null) {
-        setState(() => _lastPeriodError = l.onboardingLastPeriodRequired);
         return false;
       }
       return true;
@@ -1169,44 +1164,6 @@ Semantics(
                   selected ? RhythmaColors.primary : RhythmaColors.foreground,
               fontSize: 15,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildApproximateChip(String label, int daysAgo, int index) {
-    final selected =
-        _isLastPeriodApproximate && _selectedApproximateIndex == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _lastPeriodDate = DateTime.now().subtract(Duration(days: daysAgo));
-          _isLastPeriodApproximate = true;
-          _selectedApproximateIndex = index;
-          _showExactDatePicker = false;
-          _lastPeriodError = null;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: selected
-              ? RhythmaColors.primary.withValues(alpha: 0.15)
-              : RhythmaColors.surface,
-          border: Border.all(
-            color: selected ? RhythmaColors.primary : RhythmaColors.border,
-            width: 1.5,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-            color: selected ? RhythmaColors.primary : RhythmaColors.foreground,
           ),
         ),
       ),

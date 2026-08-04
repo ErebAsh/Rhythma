@@ -28,6 +28,7 @@ interface OptionDef {
 }
 
 const FLOW_OPTIONS: OptionDef[] = [
+  { value: 'none', labelKey: 'quickLog.none' },
   { value: 'light', labelKey: 'quickLog.light' },
   { value: 'medium', labelKey: 'quickLog.medium' },
   { value: 'heavy', labelKey: 'quickLog.heavy' },
