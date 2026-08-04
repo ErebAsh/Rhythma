@@ -77,7 +77,7 @@ describe('HomePage with data', () => {
     fetchDashboard.mockResolvedValue(
       dashboardFixture({
         cycle: { day: null, total: 28, nextPeriodDays: null },
-        insights: { mhs: null, cvi: null, sleepHours: null },
+        insights: { averageCycleLength: null, shortestCycleLength: null, longestCycleLength: null, averageBleedingDuration: null, sleepHours: null },
         hasEnoughDataForInsights: false,
         loggedCycleCount: 0,
         cycleHistory: [],

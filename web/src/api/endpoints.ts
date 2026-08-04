@@ -9,8 +9,10 @@ export interface DashboardCycle {
 }
 
 export interface DashboardInsights {
-  mhs: number | null;
-  cvi: string | null;
+  averageCycleLength: number | null;
+  shortestCycleLength: number | null;
+  longestCycleLength: number | null;
+  averageBleedingDuration: number | null;
   sleepHours: string | null;
 }
 

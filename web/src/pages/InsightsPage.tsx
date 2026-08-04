@@ -51,8 +51,10 @@ export function InsightsPage() {
         )
       : null;
   const isHealthy = variability != null && variability <= 3;
-  const mhs = data?.insights.mhs ?? null;
-  const cvi = data?.insights.cvi ?? null;
+  const avgCycle = data?.insights.averageCycleLength ?? null;
+  const shortestCycle = data?.insights.shortestCycleLength ?? null;
+  const longestCycle = data?.insights.longestCycleLength ?? null;
+  const avgBleeding = data?.insights.averageBleedingDuration ?? null;
   const sleep = data?.insights.sleepHours ?? null;
   const stress = stressLabel(data?.recentStressLevel ?? null, t);
   const symptoms = data?.symptomFrequency ?? {};
@@ -82,14 +84,28 @@ export function InsightsPage() {
       ) : null}
 
       <section className="glass-card mhs-card">
-        <ScoreRing value={mhs} size={120} />
         <div className="mhs-info">
-          <p className="card-label">{t('insights.mhsLabel')}</p>
-          <p className="mhs-value">
-            {mhs == null ? '—' : Math.round(mhs)} <span className="mhs-total">/ 100</span>
-          </p>
+          <p className="card-label">{t('insights.cycleStats')}</p>
+          <div className="stat-row">
+            <div className="stat-cell">
+              <span className="stat-label">{t('insights.avgCycle')}</span>
+              <span className="stat-value">{avgCycle == null ? '—' : `${avgCycle}d`}</span>
+            </div>
+            <div className="stat-cell">
+              <span className="stat-label">{t('insights.shortest')}</span>
+              <span className="stat-value">{shortestCycle == null ? '—' : `${shortestCycle}d`}</span>
+            </div>
+            <div className="stat-cell">
+              <span className="stat-label">{t('insights.longest')}</span>
+              <span className="stat-value">{longestCycle == null ? '—' : `${longestCycle}d`}</span>
+            </div>
+            <div className="stat-cell">
+              <span className="stat-label">{t('insights.avgBleeding')}</span>
+              <span className="stat-value">{avgBleeding == null ? '—' : `${avgBleeding}d`}</span>
+            </div>
+          </div>
           <p className="card-sub">
-            {cvi ? `${t('insights.regular')} · ${t('insights.cviLabel')}: ${cvi}` : t('insights.mhsDelta')}
+            {isHealthy ? t('insights.regular') : t('insights.mhsDelta')}
           </p>
         </div>
       </section>
