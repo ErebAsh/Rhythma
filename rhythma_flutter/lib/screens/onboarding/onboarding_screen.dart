@@ -83,6 +83,38 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   // E.164 format: leading '+' followed by 1-15 digits.
   static final _e164 = RegExp(r'^\+[1-9]\d{1,14}$');
 
+  List<ApproxRange> _buildAgeRanges(AppLocalizations l) => [
+        const ApproxRange(key: 'under_18', label: 'Under 18', midpoint: 16),
+        const ApproxRange(key: '18_25', label: '18-25', midpoint: 21.5),
+        const ApproxRange(key: '26_35', label: '26-35', midpoint: 30.5),
+        const ApproxRange(key: '36_45', label: '36-45', midpoint: 40.5),
+        const ApproxRange(key: '46_plus', label: '46+', midpoint: 55),
+      ];
+
+  List<ApproxRange> _buildHeightRanges(AppLocalizations l) => [
+        const ApproxRange(key: 'under_150', label: 'Under 150 cm', midpoint: 145),
+        const ApproxRange(key: '150_160', label: '150-160 cm', midpoint: 155),
+        const ApproxRange(key: '160_170', label: '160-170 cm', midpoint: 165),
+        const ApproxRange(key: '170_180', label: '170-180 cm', midpoint: 175),
+        const ApproxRange(key: '180_plus', label: '180+ cm', midpoint: 185),
+      ];
+
+  List<ApproxRange> _buildWeightRanges(AppLocalizations l) => [
+        const ApproxRange(key: 'under_50', label: 'Under 50 kg', midpoint: 45),
+        const ApproxRange(key: '50_60', label: '50-60 kg', midpoint: 55),
+        const ApproxRange(key: '60_70', label: '60-70 kg', midpoint: 65),
+        const ApproxRange(key: '70_80', label: '70-80 kg', midpoint: 75),
+        const ApproxRange(key: '80_plus', label: '80+ kg', midpoint: 90),
+      ];
+
+  double? _getMidpoint(List<ApproxRange> ranges, String? selectedKey) {
+    if (selectedKey == null) return null;
+    for (final r in ranges) {
+      if (r.key == selectedKey) return r.midpoint;
+    }
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();

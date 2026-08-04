@@ -1,17 +1,16 @@
 """
 Shared score-computation service.
 
-This module is the single source of truth for turning a user's raw
-CycleLog history into the CVI (Cycle Variability Index) and MHS
-(Menstrual Health Score) numbers that get surfaced to clients.
+This module provides two categories of output:
 
-Both `GET /dashboard` (api/dashboard.py) and
-`GET /insights/{user_id}/scores` (api/insights.py) call
-`get_user_scores()` below instead of independently fetching logs and
-calling the CVI/MHS models themselves. This guarantees the two
-endpoints can never return different scores for the same user (see
-issue #86) and keeps route handlers free of business logic, per the
-contribution guide.
+1. **Factual cycle statistics** (average / shortest / longest cycle length,
+   average bleeding duration) computed directly from CycleLog history with
+   no model inference.  These are the primary stats surfaced to clients
+   since Issue #300.
+
+2. Legacy CVI/MHS scores (kept internally for the provider dashboard which
+   still depends on them).  They are *not* exposed through /dashboard or
+   /scores any longer.
 """
 
 from datetime import date, datetime
@@ -43,6 +42,49 @@ def as_date(value: Any) -> Optional[date]:
     if isinstance(value, date):
         return value
     return None
+
+
+def compute_cycle_stats(logs: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Compute factual cycle statistics directly from raw CycleLog history.
+
+    Returns a dict with:
+        average_cycle_length: mean days between consecutive period start dates.
+        shortest_cycle_length: minimum cycle length observed.
+        longest_cycle_length: maximum cycle length observed.
+        average_bleeding_duration: mean number of bleeding days (from
+            start_date to end_date, inclusive).
+
+    All values are ``None`` when there is insufficient data (fewer than
+    2 logs for cycle lengths, fewer than 1 log with an end_date for
+    bleeding duration).  Values are rounded to one decimal place.
+    """
+    # logs are newest-first
+    cycle_lengths: List[int] = []
+    bleeding_days: List[int] = []
+
+    for i in range(len(logs) - 1):
+        newer = as_date(logs[i].get("start_date"))
+        older = as_date(logs[i + 1].get("start_date"))
+        if newer and older and (newer - older).days > 0:
+            cycle_lengths.append((newer - older).days)
+
+    for log in logs:
+        start = as_date(log.get("start_date"))
+        end = as_date(log.get("end_date"))
+        if start and end and end >= start:
+            bleeding_days.append(max(1, (end - start).days + 1))
+
+    avg_cycle = round(sum(cycle_lengths) / len(cycle_lengths), 1) if cycle_lengths else None
+    min_cycle = min(cycle_lengths) if cycle_lengths else None
+    max_cycle = max(cycle_lengths) if cycle_lengths else None
+    avg_bleed = round(sum(bleeding_days) / len(bleeding_days), 1) if bleeding_days else None
+
+    return {
+        "average_cycle_length": avg_cycle,
+        "shortest_cycle_length": min_cycle,
+        "longest_cycle_length": max_cycle,
+        "average_bleeding_duration": avg_bleed,
+    }
 
 
 def build_model_features(logs_newest_first: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
