@@ -42,7 +42,7 @@ from services.firestore_service import UserService
 import os
 import logging
 from pydantic import BaseModel, EmailStr
-import firebase_admin.auth
+import firebase_admin.auth # type: ignore
 
 logger = logging.getLogger(__name__)
 

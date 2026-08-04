@@ -1,7 +1,7 @@
 import bcrypt
 import secrets
 import hashlib
-from jose import JWTError, jwt
+from jose import JWTError, jwt # type: ignore
 from fastapi import HTTPException, status, Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 import os
