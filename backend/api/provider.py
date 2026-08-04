@@ -24,7 +24,7 @@ so the two flows cannot drift apart again.
 from datetime import timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from pydantic import BaseModel, EmailStr, Field
 
 from core import auth_router as auth_router_module
@@ -45,6 +45,7 @@ from core.rate_limits import (
     clear as clear_rate_limit,
     enforce as enforce_rate_limit,
 )
+from services import access_log_service
 from services.firestore_service import UserService
 from services.provider_service import ConsentService, ProviderService
 
@@ -291,9 +292,64 @@ async def grant_consent(
 
 @router.get("/consents")
 async def list_consents(current_user: dict = Depends(get_current_user)):
-    """A patient lists everyone she has shared data with."""
+    """A patient lists everyone she has shared data with.
+
+    Each consent carries ``viewCount`` and ``lastAccessedAt`` (issue
+    #350). Folded in here rather than served separately so the Sharing
+    screen can render "last viewed 2 days ago" beside each provider
+    without a second round trip — and because permission and use belong
+    on the same row. Knowing who *could* look is only half of what a
+    patient needs; knowing who *did* is the half that lets her act.
+    """
     _require_role(current_user, "patient")
-    return {"consents": ConsentService.list_for_patient(current_user["id"])}
+    consents = ConsentService.list_for_patient(current_user["id"])
+    access = access_log_service.summary_for_patient(current_user["id"])
+
+    for consent in consents:
+        stats = access.get(consent.get("provider_id")) or {}
+        consent["viewCount"] = stats.get("viewCount", 0)
+        consent["lastAccessedAt"] = stats.get("lastAccessedAt")
+
+    return {"consents": consents}
+
+
+@router.get("/access-log")
+async def list_access_log(
+    limit: int = Query(
+        access_log_service.DEFAULT_ACCESS_LOG_PAGE,
+        ge=1,
+        le=access_log_service.MAX_ACCESS_LOG_PAGE,
+        description="How many entries to return (1-100).",
+    ),
+    offset: int = Query(0, ge=0, description="How many entries to skip."),
+    current_user: dict = Depends(get_current_user),
+):
+    """When a provider read this patient's records, newest first.
+
+    Patient-only, and scoped to ``current_user["id"]`` rather than to a
+    path parameter, so there is no cross-user authorization check to get
+    wrong. A provider cannot read this: her side of the relationship is
+    the thing being recorded, and letting the subject of an audit trail
+    read it is how audit trails stop being useful.
+
+    Paged the same way cycle history is (#331) — ``hasMore`` comes from
+    reading one past the page rather than from a count.
+    """
+    _require_role(current_user, "patient")
+    entries, has_more = access_log_service.list_for_patient(
+        current_user["id"], limit=limit, offset=offset
+    )
+
+    return {
+        "entries": entries,
+        "page": {
+            "limit": limit,
+            "offset": offset,
+            "count": len(entries),
+            "hasMore": has_more,
+            "nextOffset": offset + len(entries) if has_more else None,
+        },
+    }
 
 
 @router.delete("/consents/{consent_id}")
