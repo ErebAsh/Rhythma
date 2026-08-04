@@ -113,7 +113,9 @@
     "fatigue": "Fatigue",
     "nausea": "Nausea",
     "acne": "Acne",
-    "backPain": "Back Pain"
+    "backPain": "Back Pain",
+    "loadFailed": "Couldn't load your logs for this month.",
+    "retry": "Try again"
   },
   "assistant": {
     "title": "AI Assistant",

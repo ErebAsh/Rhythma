@@ -59,10 +59,45 @@ export interface CycleLogEntry extends CycleLogInput {
   id: string;
 }
 
+/**
+ * Where a page sits in the history, from the backend's `page` object.
+ * Added with #331 on the server; the client threw it away until #349.
+ */
+export interface CycleHistoryPageInfo {
+  limit: number;
+  offset: number;
+  count: number;
+  hasMore: boolean;
+  nextOffset: number | null;
+}
+
 export interface CycleHistory {
   message: string;
   entries: CycleLogEntry[];
+  page: CycleHistoryPageInfo;
 }
+
+/**
+ * The server's ceiling on one page, from `MAX_HISTORY_PAGE` in
+ * `backend/api/cycle.py`.
+ *
+ * Duplicated here on purpose, and asserted on in the tests. Asking for
+ * more is not a truncated response — it is a 422 before the handler runs,
+ * which is how the Cycle page came to render an empty calendar for every
+ * user (#349). A named constant the client clamps to is the smallest
+ * thing that makes that mismatch impossible to reintroduce by typing a
+ * bigger number.
+ */
+export const MAX_HISTORY_PAGE = 100;
+
+/**
+ * Stop following `nextOffset` after this many requests.
+ *
+ * A server that always returned `hasMore: true` would otherwise spin
+ * forever. Ten pages is 1000 entries — years of logs — so the ceiling is
+ * a bug-stopper, not a product limit.
+ */
+const MAX_PAGES_FOLLOWED = 10;
 
 export async function submitCycleLog(log: CycleLogInput) {
   const response = await apiClient.post<{ id: string; message: string; data: CycleLogInput }>(
@@ -72,11 +107,88 @@ export async function submitCycleLog(log: CycleLogInput) {
   return response.data;
 }
 
+export interface CycleHistoryQuery {
+  limit?: number;
+  offset?: number;
+  /** Inclusive, `YYYY-MM-DD`. */
+  startDate?: string;
+  /** Inclusive, `YYYY-MM-DD`. */
+  endDate?: string;
+}
+
+/**
+ * One page of history, `page` object included.
+ *
+ * `limit` is clamped rather than passed through: a caller asking for a
+ * year has made an ordinary mistake about what this endpoint offers, and
+ * turning that into a 422 — which the calling page then renders as "no
+ * logs" — is a worse outcome than returning the first hundred and
+ * reporting `hasMore`.
+ */
+export async function fetchCycleHistoryPage(
+  userId: string,
+  query: CycleHistoryQuery = {},
+): Promise<CycleHistory> {
+  const params: Record<string, string | number> = {
+    limit: Math.min(Math.max(query.limit ?? 20, 1), MAX_HISTORY_PAGE),
+  };
+  if (query.offset) params.offset = query.offset;
+  if (query.startDate) params.start_date = query.startDate;
+  if (query.endDate) params.end_date = query.endDate;
+
+  const response = await apiClient.get<CycleHistory>(`/cycle/${userId}/history`, { params });
+  return response.data;
+}
+
+/**
+ * Every entry in a date window, following `nextOffset` until the server
+ * says there is no more.
+ *
+ * Fetching by window rather than by count is the point. The calendar
+ * renders one month at a time, and `start_date`/`end_date` were added to
+ * the endpoint in #331 for exactly this — no client used them. A month is
+ * at most 31 entries, so in practice this is a single request that
+ * happens to be correct if a user somehow has more.
+ */
+export async function fetchCycleHistoryRange(
+  userId: string,
+  startDate: string,
+  endDate: string,
+): Promise<CycleLogEntry[]> {
+  const entries: CycleLogEntry[] = [];
+  let offset = 0;
+
+  for (let page = 0; page < MAX_PAGES_FOLLOWED; page++) {
+    const result = await fetchCycleHistoryPage(userId, {
+      limit: MAX_HISTORY_PAGE,
+      offset,
+      startDate,
+      endDate,
+    });
+    entries.push(...result.entries);
+
+    // `nextOffset` is null on the last page. Guarding on the offset
+    // *advancing* as well as on `hasMore` means a server that reported
+    // `hasMore: true` with an unchanged offset ends the loop instead of
+    // re-fetching the same page until the ceiling.
+    const next = result.page?.nextOffset;
+    if (!result.page?.hasMore || next == null || next <= offset) break;
+    offset = next;
+  }
+
+  return entries;
+}
+
+/**
+ * The most recent entries, newest first.
+ *
+ * Kept for callers that genuinely want "the last N", such as the Home
+ * screen. The `limit` is clamped to the server's ceiling — the previous
+ * signature accepted any number and passed it straight through.
+ */
 export async function fetchCycleHistory(userId: string, limit = 90): Promise<CycleLogEntry[]> {
-  const response = await apiClient.get<CycleHistory>(`/cycle/${userId}/history`, {
-    params: { limit },
-  });
-  return response.data.entries;
+  const result = await fetchCycleHistoryPage(userId, { limit });
+  return result.entries;
 }
 
 export async function deleteCycleLog(logId: string) {

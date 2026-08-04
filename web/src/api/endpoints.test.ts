@@ -19,7 +19,10 @@ import {
   deleteAccount,
   deleteCycleLog,
   fetchCycleHistory,
+  fetchCycleHistoryPage,
+  fetchCycleHistoryRange,
   fetchDashboard,
+  MAX_HISTORY_PAGE,
   fetchProfile,
   fetchSmsSettings,
   fetchSupportedLanguages,
@@ -102,6 +105,144 @@ describe('cycle tracking', () => {
     await deleteCycleLog('log-42');
 
     expect(mockClient.delete).toHaveBeenCalledWith('/cycle/log-42');
+  });
+});
+
+// The server bounds `limit` at 100 (`MAX_HISTORY_PAGE` in
+// backend/api/cycle.py) and answers 422 above it — not a truncated page, a
+// refused request. The Cycle page asked for 365 and rendered an empty
+// calendar for every user as a result (#349).
+describe('cycle history paging', () => {
+  function pageResponse(entries: unknown[], page: Record<string, unknown> = {}) {
+    return {
+      data: {
+        message: 'ok',
+        entries,
+        page: {
+          limit: 100,
+          offset: 0,
+          count: entries.length,
+          hasMore: false,
+          nextOffset: null,
+          ...page,
+        },
+      },
+    };
+  }
+
+  it('never asks for more than the server accepts', async () => {
+    mockClient.get.mockResolvedValue(pageResponse([]));
+
+    await fetchCycleHistoryPage('user-1', { limit: 365 });
+
+    expect(mockClient.get.mock.calls[0][1].params.limit).toBe(MAX_HISTORY_PAGE);
+  });
+
+  it('clamps a zero or negative limit up to a real page', async () => {
+    mockClient.get.mockResolvedValue(pageResponse([]));
+
+    await fetchCycleHistoryPage('user-1', { limit: 0 });
+
+    expect(mockClient.get.mock.calls[0][1].params.limit).toBeGreaterThanOrEqual(1);
+  });
+
+  it('keeps the legacy helper inside the ceiling too', async () => {
+    // `fetchCycleHistory(id, 365)` was the exact call that broke.
+    mockClient.get.mockResolvedValue(pageResponse([]));
+
+    await fetchCycleHistory('user-1', 365);
+
+    expect(mockClient.get.mock.calls[0][1].params.limit).toBe(MAX_HISTORY_PAGE);
+  });
+
+  it('returns the page object rather than discarding it', async () => {
+    mockClient.get.mockResolvedValue(
+      pageResponse([{ id: 'a' }], { hasMore: true, nextOffset: 100 }),
+    );
+
+    const result = await fetchCycleHistoryPage('user-1');
+
+    expect(result.page.hasMore).toBe(true);
+    expect(result.page.nextOffset).toBe(100);
+  });
+
+  it('sends a date window as start_date and end_date', async () => {
+    mockClient.get.mockResolvedValue(pageResponse([]));
+
+    await fetchCycleHistoryPage('user-1', {
+      startDate: '2026-05-01',
+      endDate: '2026-05-31',
+    });
+
+    expect(mockClient.get.mock.calls[0][1].params).toMatchObject({
+      start_date: '2026-05-01',
+      end_date: '2026-05-31',
+    });
+  });
+
+  it('omits offset when there is nothing to skip', async () => {
+    mockClient.get.mockResolvedValue(pageResponse([]));
+
+    await fetchCycleHistoryPage('user-1', { offset: 0 });
+
+    expect(mockClient.get.mock.calls[0][1].params).not.toHaveProperty('offset');
+  });
+
+  it('follows nextOffset until the server says there is no more', async () => {
+    mockClient.get
+      .mockResolvedValueOnce(
+        pageResponse([{ id: 'a' }], { hasMore: true, nextOffset: 100 }),
+      )
+      .mockResolvedValueOnce(
+        pageResponse([{ id: 'b' }], { offset: 100, hasMore: true, nextOffset: 200 }),
+      )
+      .mockResolvedValueOnce(pageResponse([{ id: 'c' }], { offset: 200 }));
+
+    const entries = await fetchCycleHistoryRange('user-1', '2026-01-01', '2026-12-31');
+
+    expect(entries.map((entry) => entry.id)).toEqual(['a', 'b', 'c']);
+    expect(mockClient.get).toHaveBeenCalledTimes(3);
+  });
+
+  it('stops rather than spinning when hasMore never goes false', async () => {
+    // A server bug must not become an infinite client loop.
+    mockClient.get.mockResolvedValue(
+      pageResponse([{ id: 'x' }], { hasMore: true, nextOffset: 100 }),
+    );
+
+    await fetchCycleHistoryRange('user-1', '2026-01-01', '2026-12-31');
+
+    expect(mockClient.get.mock.calls.length).toBeLessThanOrEqual(10);
+  });
+
+  it('stops when the offset stops advancing', async () => {
+    // `hasMore: true` with an unchanged `nextOffset` would otherwise
+    // re-fetch the same page until the ceiling.
+    mockClient.get.mockResolvedValue(
+      pageResponse([{ id: 'x' }], { offset: 0, hasMore: true, nextOffset: 0 }),
+    );
+
+    const entries = await fetchCycleHistoryRange('user-1', '2026-01-01', '2026-12-31');
+
+    expect(mockClient.get).toHaveBeenCalledTimes(1);
+    expect(entries).toHaveLength(1);
+  });
+
+  it('survives a response with no page object', async () => {
+    mockClient.get.mockResolvedValue({ data: { message: 'ok', entries: [{ id: 'a' }] } });
+
+    await expect(
+      fetchCycleHistoryRange('user-1', '2026-01-01', '2026-12-31'),
+    ).resolves.toHaveLength(1);
+  });
+
+  it('propagates a failure rather than returning a partial range', async () => {
+    // The page needs to be able to tell "no logs" from "could not load".
+    mockClient.get.mockRejectedValue(new Error('422'));
+
+    await expect(
+      fetchCycleHistoryRange('user-1', '2026-01-01', '2026-12-31'),
+    ).rejects.toThrow();
   });
 });
 
