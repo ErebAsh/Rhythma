@@ -107,10 +107,10 @@ class ReportService {
           ),
           pw.SizedBox(height: 10),
           pw.Text(
-            'MHS: ${dashboard['insights']?['mhs'] ?? 'N/A'}',
+            'Avg Cycle Length: ${dashboard['insights']?['averageCycleLength'] ?? 'N/A'} days',
           ),
           pw.Text(
-            'CVI: ${dashboard['insights']?['cvi'] ?? 'N/A'}',
+            'Avg Bleeding Duration: ${dashboard['insights']?['averageBleedingDuration'] ?? 'N/A'} days',
           ),
           pw.Text(
             'Sleep Hours: ${dashboard['insights']?['sleepHours'] ?? 'N/A'}',
