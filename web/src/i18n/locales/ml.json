@@ -291,7 +291,15 @@
     "revokedMsg": "Access revoked.",
     "empty": "You haven't shared your data with anyone yet.",
     "grantedOn": "Shared since {{date}}",
-    "loadError": "Couldn't load your sharing settings."
+    "loadError": "Couldn't load your sharing settings.",
+    "accessLogTitle": "Who has viewed your data",
+    "accessLogSubtitle": "A record of every time a provider opened your records. Rhythma never stores a copy of what they saw.",
+    "accessLogEmpty": "No provider has viewed your data yet.",
+    "viewedFullRecord": "Opened your full record",
+    "viewedSummaryCard": "Saw your summary card",
+    "neverViewed": "Has not viewed your data yet",
+    "viewedSummary": "Viewed {{count}} times · last on {{date}}",
+    "unknownProvider": "A provider who has since closed their account"
   },
   "errors": {
     "boundaryTitle": "ഈ സ്ക്രീനിൽ എന്തോ കുഴപ്പം സംഭവിച്ചു",

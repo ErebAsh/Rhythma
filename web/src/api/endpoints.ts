@@ -221,6 +221,46 @@ export interface Consent {
   created_at?: string | null;
   updated_at?: string | null;
   revoked_at?: string | null;
+  /**
+   * How many times this provider has opened the patient's data, and when
+   * she last did (issue #350). Folded into the consent list by the
+   * backend so the sharing screen needs no second request.
+   *
+   * Optional so the page keeps rendering against a backend that predates
+   * the field, rather than showing "0 views" — which would be a claim,
+   * not a gap.
+   */
+  viewCount?: number;
+  lastAccessedAt?: string | null;
+}
+
+/** One recorded read of the patient's data by a provider (issue #350). */
+export interface AccessLogEntry {
+  id: string;
+  providerId: string;
+  providerName: string | null;
+  /** `patient_list` (dashboard card) or `patient_detail` (full record). */
+  view: 'patient_list' | 'patient_detail';
+  consentId: string | null;
+  accessedAt: string | null;
+}
+
+/**
+ * Where a page of access history sits. Mirrors the `page` object the
+ * cycle-history endpoint returns (#331); declared separately rather than
+ * shared so the two can diverge without one silently changing the other.
+ */
+export interface AccessLogPageInfo {
+  limit: number;
+  offset: number;
+  count: number;
+  hasMore: boolean;
+  nextOffset: number | null;
+}
+
+export interface AccessLogPage {
+  entries: AccessLogEntry[];
+  page: AccessLogPageInfo;
 }
 
 export interface ProviderPatientSummary {
@@ -307,6 +347,19 @@ export async function fetchProviderPatients(): Promise<ProviderPatientSummary[]>
     '/provider/patients',
   );
   return response.data.patients;
+}
+
+/**
+ * The patient's own record of who has viewed her data, newest first.
+ *
+ * Patient-only on the server: a provider cannot read this, because her
+ * side of the relationship is the thing being recorded.
+ */
+export async function fetchAccessLog(limit = 20, offset = 0): Promise<AccessLogPage> {
+  const response = await apiClient.get<AccessLogPage>('/provider/access-log', {
+    params: { limit, offset },
+  });
+  return response.data;
 }
 
 export async function fetchProviderPatientDetail(
