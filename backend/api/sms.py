@@ -12,7 +12,40 @@ PHONE_PATTERN = r"^\+[1-9]\d{1,14}$"
 
 class SMSRequest(BaseModel):
     phone_number: str = Field(..., pattern=PHONE_PATTERN)
-    message: str
+    message: Optional[str] = None
+
+
+def generate_cycle_sms_summary(user_id: str) -> str:
+    from services.scoring_service import get_user_scores, as_date, DEFAULT_CYCLE_LENGTH
+    from datetime import date
+
+    score_data = get_user_scores(user_id)
+    logs = score_data.get("logs") or []
+
+    avg_cycle_length = DEFAULT_CYCLE_LENGTH
+    cycle_day = 1
+    next_period_days = 28
+
+    if logs:
+        most_recent_start = as_date(logs[0].get("start_date"))
+        if most_recent_start:
+            raw_day = (date.today() - most_recent_start).days + 1
+            cycle_day = max(1, raw_day)
+
+        if len(logs) >= 2:
+            deltas = []
+            for i in range(len(logs) - 1):
+                newer = as_date(logs[i].get("start_date"))
+                older = as_date(logs[i + 1].get("start_date"))
+                if newer and older and (newer - older).days > 0:
+                    deltas.append((newer - older).days)
+            if deltas:
+                avg_cycle_length = round(sum(deltas) / len(deltas))
+
+        next_period_days = max(avg_cycle_length - cycle_day, 0)
+
+    summary = f"Rhythma Summary: Cycle Day {cycle_day}/{avg_cycle_length}. Next period expected in ~{next_period_days} days."
+    return summary[:160]
 
 
 class SMSSettings(BaseModel):
@@ -117,6 +150,8 @@ async def send_sms_summary(
             headers={"Retry-After": str(remaining)},
         )
 
+    body_text = request.message or generate_cycle_sms_summary(user_id)
+
     try:
         from twilio.rest import Client
     except ImportError:
@@ -138,10 +173,11 @@ async def send_sms_summary(
     try:
         client = Client(account_sid, auth_token)
         message = client.messages.create(
-            body=request.message,
+            body=body_text,
             from_=from_phone,
             to=request.phone_number
         )
+        return {"message": "SMS sent successfully", "sid": message.sid}
         return {"message": "SMS sent successfully", "sid": message.sid}
 
     except Exception as e:
