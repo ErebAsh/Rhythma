@@ -134,36 +134,38 @@
   },
   "insights": {
     "title": "Insights",
-    "subtitle": "Your health at a glance",
-    "notEnoughData": "Log a few cycles to unlock personalized insights.",
-    "cycleStats": "CYCLE STATISTICS",
-    "avgCycle": "Avg Cycle",
-    "shortest": "Shortest",
-    "longest": "Longest",
-    "avgBleeding": "Avg Bleeding",
-    "mhsDelta": "Based on your recent cycles",
-    "regular": "Regular",
-    "irregular": "Irregular",
-    "variability": "Variability",
-    "avgCycle": "Avg cycle",
-    "sleep": "Sleep",
-    "stress": "Stress",
-    "low": "Low",
-    "moderate": "Moderate",
-    "high": "High",
-    "stabilizing": "Your cycle is stabilizing",
-    "moderateTrend": "Your cycle shows moderate variation",
-    "healthy": "Healthy",
-    "trendLabel": "Cycle length trend",
-    "notEnoughTrendData": "Log at least two cycles to see your trend",
-    "symptomsLabel": "Symptom patterns",
-    "noSymptomsYet": "No symptoms logged yet",
-    "exportReport": "Export Health Report",
-    "exportSubtitle": "Generate your health summary as a PDF",
-    "wellness": "Wellness recommendations",
-    "rec1": "Stay hydrated and get plenty of rest during your period.",
-    "rec2": "Try gentle exercise like walking or yoga to ease cramps.",
-    "rec3": "Track your sleep — aim for 7-9 hours per night.",
+    "subtitle": "Patterns from your own logged data",
+    "notEnoughData": "Log a few more cycles to unlock your full insights.",
+    "cycleStatsLabel": "Cycle stats",
+    "avgCycleLength": "Avg cycle length",
+    "cyclesAnalyzed": "Cycles analyzed",
+    "consistencyLabel": "Cycle consistency",
+    "consistency": {
+      "unknown": {
+        "pill": "Not enough data",
+        "description": "Log a couple more cycles to see how consistent your cycle length has been."
+      },
+      "consistent": {
+        "pill": "Consistent",
+        "description": "Your cycle length has stayed within a few days across your recent cycles."
+      },
+      "slightly_variable": {
+        "pill": "Slightly variable",
+        "description": "Your cycle length has varied a bit across your recent cycles."
+      },
+      "variable": {
+        "pill": "Variable",
+        "description": "Your cycle length has varied noticeably across your recent cycles."
+      }
+    },
+    "observationsLabel": "What your logs show",
+    "noObservations": "Nothing stands out in your recent logs — everything looks consistent with your own patterns.",
+    "severity": {
+      "info": "Info",
+      "attention": "Worth noting",
+      "seek_care": "Consider medical advice"
+    },
+    "disclaimer": "These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.",
     "loadError": "Couldn't load your insights."
   },
   "profile": {

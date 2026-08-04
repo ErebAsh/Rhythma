@@ -22,7 +22,7 @@ import {
   fetchCycleHistoryPage,
   fetchCycleHistoryRange,
   fetchDashboard,
-  MAX_HISTORY_PAGE,
+  fetchObservations,
   fetchProfile,
   fetchSmsSettings,
   fetchSupportedLanguages,
@@ -32,7 +32,7 @@ import {
   sendSmsSummary,
   submitCycleLog,
 } from './endpoints';
-import { dashboardFixture } from '../test/utils';
+import { dashboardFixture, observationsFixture } from '../test/utils';
 
 const mockClient = apiClient as unknown as {
   get: ReturnType<typeof vi.fn>;
@@ -351,6 +351,23 @@ describe('profile', () => {
     await deleteAccount();
 
     expect(mockClient.delete).toHaveBeenCalledWith('/auth/me');
+  });
+});
+
+describe('insights observations', () => {
+  it('GETs /insights/{userId}/observations and unwraps the body', async () => {
+    mockClient.get.mockResolvedValue({ data: observationsFixture() });
+
+    const data = await fetchObservations('user-1');
+
+    expect(mockClient.get).toHaveBeenCalledWith('/insights/user-1/observations');
+    expect(data.cycleConsistency).toBe('slightly_variable');
+    expect(data.observations).toHaveLength(2);
+  });
+
+  it('propagates a failure rather than returning a partial object', async () => {
+    mockClient.get.mockRejectedValue(new Error('500'));
+    await expect(fetchObservations('user-1')).rejects.toThrow();
   });
 });
 
