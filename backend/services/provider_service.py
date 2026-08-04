@@ -18,6 +18,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import HTTPException, status
 
+from services import access_log_service
 from services.firestore_service import UserService
 from services.scoring_service import get_user_scores
 
@@ -53,6 +54,22 @@ def _db():
 def _consent_doc_id(patient_id: str, provider_id: str) -> str:
     """Deterministic id so a grant is an upsert, not a duplicate."""
     return f"{patient_id}::{provider_id}"
+
+
+def _provider_display_name(provider_id: str) -> Optional[str]:
+    """How to name this provider on the patient's access-history screen.
+
+    Resolved once per request and stamped onto each record rather than
+    joined at read time — see ``access_log_service.record``. Falls back
+    through the same chain the consent record uses, so the two screens
+    name the same clinician the same way.
+    """
+    provider = UserService.get_user_by_id(provider_id) or {}
+    return (
+        provider.get("full_name")
+        or provider.get("username")
+        or provider.get("email")
+    )
 
 
 class ConsentService:
@@ -166,13 +183,28 @@ class ProviderService:
 
     @staticmethod
     def patient_summaries(provider_id: str) -> List[Dict[str, Any]]:
-        """One lightweight card per sharing patient for the dashboard."""
+        """One lightweight card per sharing patient for the dashboard.
+
+        Recorded per patient rather than once per request (issue #350).
+        The record answers "was my data looked at?", and that question is
+        asked by each patient about herself — a single "the provider
+        opened her dashboard" row would be unattributable to any of them.
+        """
         summaries: List[Dict[str, Any]] = []
+        provider_name = _provider_display_name(provider_id)
+
         for consent in ConsentService.list_active_for_provider(provider_id):
             patient = UserService.get_user_by_id(consent["patient_id"])
             if not patient:
                 continue
             scores = get_user_scores(consent["patient_id"])
+            access_log_service.record(
+                provider_id=provider_id,
+                patient_id=consent["patient_id"],
+                view=access_log_service.VIEW_PATIENT_LIST,
+                consent_id=consent.get("id"),
+                provider_name=provider_name,
+            )
             summaries.append(
                 {
                     "patient_id": consent["patient_id"],
@@ -209,6 +241,19 @@ class ProviderService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Patient not found",
             )
+
+        # Recorded after the consent and existence checks and before the
+        # data is assembled, so the log holds reads that were actually
+        # authorised — a refused 403 is not an access, and logging it here
+        # would let a provider without consent write rows into a
+        # patient's history simply by requesting her id (issue #350).
+        access_log_service.record(
+            provider_id=provider_id,
+            patient_id=patient_id,
+            view=access_log_service.VIEW_PATIENT_DETAIL,
+            consent_id=consent.get("id"),
+            provider_name=_provider_display_name(provider_id),
+        )
 
         scores = get_user_scores(patient_id)
 

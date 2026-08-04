@@ -36,16 +36,42 @@ from core.auth_router import router as auth_router
 from core.errors import register_exception_handlers
 from core.middleware import RequestContextMiddleware
 from core.request_context import REQUEST_ID_HEADER
+from services.health_check_service import build_info, run_checks
 
 from utils.logger import logger
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    info = build_info()
     logger.bind(
         log_format=os.getenv("LOG_FORMAT", "console"),
         log_level=os.getenv("LOG_LEVEL", "INFO"),
+        version=info["version"],
+        commit=info["commit"],
+        environment=info["environment"],
     ).info("Rhythma backend starting up...")
+
+    # Report the dependency picture once at startup, so a misconfigured
+    # deploy is visible in the first few log lines rather than only to
+    # whoever thinks to curl /health/ready. Every branch below is a log
+    # call: a health check must never be able to stop the app booting,
+    # and refusing to start on a degraded optional dependency would be a
+    # far worse failure than the one being reported (#348).
+    try:
+        report = run_checks()
+        for component in report.components:
+            if component.status == "ok":
+                continue
+            log = logger.error if component.required else logger.warning
+            log(f"Dependency {component.name!r} is {component.status}: {component.detail}")
+        if not report.ready:
+            logger.error(
+                "Backend started NOT READY — /health/ready will return 503."
+            )
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning(f"Startup health check could not run: {exc}")
+
     yield
     logger.info("Rhythma backend shutting down.")
 
@@ -122,4 +148,12 @@ app.include_router(provider_router,  prefix="/api/v1/provider",  tags=["Provider
 
 @app.get("/")
 async def root():
-    return {"message": "Rhythma AI API is running 🌸", "version": "0.1.0"}
+    # The version used to be a string literal here that had never changed,
+    # so after a deploy there was no way to confirm which commit was live.
+    # It now comes from the same build metadata /health reports (#348).
+    info = build_info()
+    return {
+        "message": "Rhythma AI API is running 🌸",
+        "version": info["version"],
+        "commit": info["commit"],
+    }

@@ -97,8 +97,22 @@ class UserProfileResponse(BaseModel):
 
 
 class ScoresResponse(BaseModel):
-    """Response model for GET /insights/{user_id}/scores."""
-    mhs: Optional[float] = None
-    cvi: Optional[str] = None
+    """Response model for GET /insights/{user_id}/scores.
+
+    Returns factual cycle statistics computed directly from CycleLog
+    history, with no clinical scoring model involved.
+    """
+    averageCycleLength: Optional[float] = Field(
+        None, description="Mean days between consecutive period start dates."
+    )
+    shortestCycleLength: Optional[int] = Field(
+        None, description="Shortest observed cycle length in days."
+    )
+    longestCycleLength: Optional[int] = Field(
+        None, description="Longest observed cycle length in days."
+    )
+    averageBleedingDuration: Optional[float] = Field(
+        None, description="Mean bleeding duration in days (start_date to end_date, inclusive)."
+    )
     hasEnoughDataForInsights: bool = False
     loggedCycleCount: int = 0

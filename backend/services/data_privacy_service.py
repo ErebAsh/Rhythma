@@ -39,6 +39,7 @@ import secrets
 from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from services import access_log_service
 from services import firestore_service as _firestore
 from services.firestore_service import UserService
 from utils.logger import logger
@@ -48,7 +49,11 @@ from utils.logger import logger
 #: Bumped whenever the export's shape changes, so a consumer holding an old
 #: bundle can tell which format it has. Consumers should refuse to parse a
 #: major version they don't know rather than guessing.
-EXPORT_SCHEMA_VERSION = "1.0"
+#:
+#: 1.1 — added `provider_access_log` (issue #350). A minor bump because the
+#: change is purely additive: every 1.0 key is still present and unchanged,
+#: so a consumer written against 1.0 keeps working.
+EXPORT_SCHEMA_VERSION = "1.1"
 
 #: Every collection that can hold something attributable to a user. This is
 #: the single list that both the summary and the purge walk — a new
@@ -60,12 +65,21 @@ CONVERSATIONS_COLLECTION = "conversations"
 RATE_LIMITS_COLLECTION = "rate_limits"
 CONSENTS_COLLECTION = "consents"
 
+#: Provider access records (issue #350). In USER_DATA_COLLECTIONS, unlike
+#: DELETION_AUDIT_COLLECTION below, because these *are* the patient's
+#: data: they record who read her health information, they are shown to
+#: her on the Sharing screen, and deletion should mean deletion. The
+#: evidence that a purge happened is the deletion audit record, which is
+#: precisely what that other collection exists for.
+ACCESS_LOG_COLLECTION = "access_log"
+
 USER_DATA_COLLECTIONS: Tuple[str, ...] = (
     USERS_COLLECTION,
     CYCLE_LOGS_COLLECTION,
     CONVERSATIONS_COLLECTION,
     RATE_LIMITS_COLLECTION,
     CONSENTS_COLLECTION,
+    ACCESS_LOG_COLLECTION,
 )
 
 #: Collection holding deletion audit records. Deliberately *not* in
@@ -274,6 +288,7 @@ def build_data_summary(user_id: str) -> Dict[str, Any]:
 
     rate_limit_ids = _rate_limit_doc_ids(user_id)
     consent_ids = _consent_doc_ids(user_id)
+    access_count = access_log_service.count_for_patient(user_id)
 
     identity_fields = sorted(
         field
@@ -334,12 +349,28 @@ def build_data_summary(user_id: str) -> Dict[str, Any]:
                 "collection": CONSENTS_COLLECTION,
                 "retentionNote": "Kept until you revoke them or delete your account.",
             },
+            {
+                "key": "provider_access_log",
+                "label": "Record of providers viewing your data",
+                "recordCount": access_count,
+                "storedFields": (
+                    ["provider_id", "provider_name", "view", "accessed_at"]
+                    if access_count
+                    else []
+                ),
+                "collection": ACCESS_LOG_COLLECTION,
+                "retentionNote": (
+                    "Records that a provider viewed your data — never a copy "
+                    "of the data itself. Kept until you delete your account."
+                ),
+            },
         ],
         "totalRecords": (1 if user else 0)
         + len(cycle_logs)
         + (1 if message_count else 0)
         + len(rate_limit_ids)
-        + len(consent_ids),
+        + len(consent_ids)
+        + access_count,
     }
 
 
@@ -399,6 +430,13 @@ def build_export_bundle(user_id: str) -> Dict[str, Any]:
     conversation = _get_conversation(user_id) or {}
     messages = [_serialize(message) for message in conversation.get("messages", [])]
 
+    # Every access record, not one page of them (issue #350). This is the
+    # portability surface — a page boundary here would make the export
+    # quietly incomplete, which is the one thing an export must not be.
+    access_log, _ = access_log_service.list_for_patient(
+        user_id, limit=access_log_service.count_for_patient(user_id) or 1
+    )
+
     return {
         "schema_version": EXPORT_SCHEMA_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -408,6 +446,10 @@ def build_export_bundle(user_id: str) -> Dict[str, Any]:
         "assistant_conversation": {
             "message_count": len(messages),
             "messages": messages,
+        },
+        "provider_access_log": {
+            "entry_count": len(access_log),
+            "entries": access_log,
         },
         "sms_settings": {
             "enabled": bool(user.get("sms_enabled", False)),
@@ -533,6 +575,13 @@ def purge_user_data(user_id: str) -> Dict[str, int]:
     for doc_id in _consent_doc_ids(user_id):
         if _delete_doc(CONSENTS_COLLECTION, doc_id):
             counts[CONSENTS_COLLECTION] += 1
+
+    # Provider access records, also on either side. A patient's records
+    # are hers; and a *provider* closing her account should not leave rows
+    # naming her in other people's access histories (issue #350).
+    for doc_id in access_log_service.doc_ids_for_user(user_id):
+        if _delete_doc(ACCESS_LOG_COLLECTION, doc_id):
+            counts[ACCESS_LOG_COLLECTION] += 1
 
     # Firebase Auth identity, before the user document is gone — the phone
     # number needed to look it up lives there.

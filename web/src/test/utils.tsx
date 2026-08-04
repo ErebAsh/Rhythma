@@ -94,7 +94,7 @@ export function dashboardFixture(overrides: Record<string, unknown> = {}) {
   return {
     user: { name: 'Asha' },
     cycle: { day: 12, total: 28, nextPeriodDays: 16 },
-    insights: { mhs: 78, cvi: 'Low', sleepHours: '7.4h' },
+    insights: { averageCycleLength: 28, shortestCycleLength: 25, longestCycleLength: 31, averageBleedingDuration: 5, sleepHours: '7.4h' },
     hasEnoughDataForInsights: true,
     loggedCycleCount: 6,
     cycleHistory: [

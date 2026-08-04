@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   PHASE_COLORS,
+  addDays,
   addMonths,
   cycleDayFor,
   daysBetween,
   isSameDay,
+  endOfMonth,
+  monthWindow,
   parseISODate,
   phaseFor,
   startOfMonth,
@@ -166,5 +169,54 @@ describe('phaseFor', () => {
     // is not wrapped by cycle length, so a stale last_period pins the user
     // in luteal indefinitely. Same shortcoming as the Flutter provider.
     expect(phaseFor(parseISODate('2026-07-15'), '2026-05-01')).toBe('luteal');
+  });
+});
+
+// Added with #349: the Cycle calendar now loads a date window per month
+// instead of asking for a fixed number of the most recent entries.
+describe('month windows', () => {
+  it('finds the last day of a 31-day month', () => {
+    expect(toISODate(endOfMonth(parseISODate('2026-01-10')))).toBe('2026-01-31');
+  });
+
+  it('finds the last day of a 30-day month', () => {
+    expect(toISODate(endOfMonth(parseISODate('2026-04-10')))).toBe('2026-04-30');
+  });
+
+  it('gets February right in a leap year', () => {
+    // The reason this is `day 0 of next month` rather than a lookup table.
+    expect(toISODate(endOfMonth(parseISODate('2028-02-10')))).toBe('2028-02-29');
+    expect(toISODate(endOfMonth(parseISODate('2026-02-10')))).toBe('2026-02-28');
+  });
+
+  it('rolls addDays across a month boundary', () => {
+    expect(toISODate(addDays(parseISODate('2026-01-31'), 1))).toBe('2026-02-01');
+    expect(toISODate(addDays(parseISODate('2026-03-01'), -1))).toBe('2026-02-28');
+  });
+
+  it('rolls addDays across a year boundary', () => {
+    expect(toISODate(addDays(parseISODate('2026-12-31'), 1))).toBe('2027-01-01');
+  });
+
+  it('brackets the month with margin on both sides', () => {
+    const { start, end } = monthWindow(parseISODate('2026-05-14'), 7);
+
+    expect(start).toBe('2026-04-24');
+    expect(end).toBe('2026-06-07');
+  });
+
+  it('always contains the whole month it was asked for', () => {
+    for (let month = 0; month < 12; month++) {
+      const { start, end } = monthWindow(new Date(2026, month, 1));
+      expect(start <= toISODate(new Date(2026, month, 1))).toBe(true);
+      expect(end >= toISODate(endOfMonth(new Date(2026, month, 1)))).toBe(true);
+    }
+  });
+
+  it('stays inside a single server page', () => {
+    // A window wider than MAX_HISTORY_PAGE entries would need paging on
+    // every month change, which is the cost this design avoids.
+    const { start, end } = monthWindow(parseISODate('2026-01-15'));
+    expect(daysBetween(parseISODate(start), parseISODate(end))).toBeLessThan(100);
   });
 });

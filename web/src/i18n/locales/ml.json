@@ -16,7 +16,17 @@
     "registerLink": "രജിസ്റ്റർ ചെയ്യുക",
     "haveAccount": "ഇതിനകം അക്കൗണ്ട് ഉണ്ടോ?",
     "loginLink": "ലോഗിൻ ചെയ്യുക",
-    "providerLink": "Healthcare professional? Sign in here"
+    "providerLink": "Healthcare professional? Sign in here",
+    "passwordRequirementsTitle": "നിങ്ങളുടെ പാസ്‌വേഡ് ഇങ്ങനെയായിരിക്കണം:",
+    "passwordRejected": "ദയവായി മറ്റൊരു പാസ്‌വേഡ് തിരഞ്ഞെടുക്കുക:",
+    "passwordRules": {
+      "too_short": "കുറഞ്ഞത് {{min}} അക്ഷരങ്ങൾ നീളം",
+      "too_long": "സുരക്ഷിതമായി സൂക്ഷിക്കാൻ കഴിയുന്നത്ര ചെറുത് ({{bytes}} ബൈറ്റ് വരെ — ഇന്ത്യൻ ലിപികളിലെ ഓരോ അക്ഷരത്തിനും ഏകദേശം മൂന്ന് ബൈറ്റ്)",
+      "too_common": "ഏറ്റവും കൂടുതൽ ഉപയോഗിക്കുന്ന പാസ്‌വേഡുകളിൽ ഒന്നല്ല",
+      "contains_identifier": "നിങ്ങളുടെ ഇമെയിലോ ഉപയോക്തൃനാമമോ അല്ല",
+      "not_varied_enough": "ആവർത്തിക്കുന്ന ഏതാനും അക്ഷരങ്ങളിൽ കൂടുതൽ വൈവിധ്യമുള്ളത്",
+      "sequential": "12345 അല്ലെങ്കിൽ qwerty പോലുള്ള നീണ്ട ശ്രേണികളില്ലാത്തത്"
+    }
   },
   "home": {
     "welcome": "സ്വാഗതം, {{name}}",
@@ -25,8 +35,8 @@
     "nextPeriod": "Next period in",
     "days": "days",
     "fertileWindow": "Fertile window + High energy",
-    "mhs": "MHS",
-    "cvi": "CVI",
+    "avgCycle": "Avg Cycle",
+    "bleeding": "Bleeding",
     "sleep": "Sleep",
     "assistantTitle": "AI Assistant",
     "assistantSubtitle": "Your personal health companion",
@@ -103,7 +113,9 @@
     "fatigue": "Fatigue",
     "nausea": "Nausea",
     "acne": "Acne",
-    "backPain": "Back Pain"
+    "backPain": "Back Pain",
+    "loadFailed": "Couldn't load your logs for this month.",
+    "retry": "Try again"
   },
   "assistant": {
     "title": "AI Assistant",
@@ -165,7 +177,7 @@
     "ovulation": "Ovulation Phase",
     "luteal": "Luteal Phase",
     "avgCycleLength": "Avg cycle length",
-    "avgMhs": "Avg mental health score",
+    "avgBleeding": "Avg bleeding",
     "cycleVariability": "Cycle variability",
     "lastCycleLength": "Last cycle length",
     "editInfo": "Edit Info",
@@ -286,6 +298,23 @@
     "revokedMsg": "Access revoked.",
     "empty": "You haven't shared your data with anyone yet.",
     "grantedOn": "Shared since {{date}}",
-    "loadError": "Couldn't load your sharing settings."
+    "loadError": "Couldn't load your sharing settings.",
+    "accessLogTitle": "Who has viewed your data",
+    "accessLogSubtitle": "A record of every time a provider opened your records. Rhythma never stores a copy of what they saw.",
+    "accessLogEmpty": "No provider has viewed your data yet.",
+    "viewedFullRecord": "Opened your full record",
+    "viewedSummaryCard": "Saw your summary card",
+    "neverViewed": "Has not viewed your data yet",
+    "viewedSummary": "Viewed {{count}} times · last on {{date}}",
+    "unknownProvider": "A provider who has since closed their account"
+  },
+  "errors": {
+    "boundaryTitle": "ഈ സ്ക്രീനിൽ എന്തോ കുഴപ്പം സംഭവിച്ചു",
+    "boundaryBody": "നിങ്ങളുടെ ഡാറ്റ സുരക്ഷിതമാണ്. വീണ്ടും ശ്രമിക്കുക, അല്ലെങ്കിൽ ഹോം സ്ക്രീനിലേക്ക് മടങ്ങുക.",
+    "retry": "വീണ്ടും ശ്രമിക്കുക",
+    "goHome": "ഹോമിലേക്ക് പോകുക",
+    "requestId": "റഫറൻസ്",
+    "notFoundTitle": "ഈ പേജ് നിലവിലില്ല",
+    "notFoundBody": "ലിങ്ക് കാലഹരണപ്പെട്ടതാകാം, അല്ലെങ്കിൽ വിലാസത്തിൽ പിശകുണ്ടാകാം."
   }
 }

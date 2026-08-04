@@ -49,6 +49,37 @@ class MockDocumentReference:
         self.data = None
         self.exists = False
 
+def _mock_order_key(value):
+    """Sort key for ``order_by`` in the mock query.
+
+    ``start_date`` (and anything else date-like) can legitimately be stored
+    as a bare ``date`` or as a ``datetime``; Firestore treats both as the
+    same point-in-time type, so a query ordering on such a field must
+    interleave them by actual value, not crash. Python's default sort
+    raises ``TypeError`` comparing ``date`` and ``datetime`` directly, so
+    the mock normalizes them to a common type — mirroring the sort key the
+    old Python-side fallback in ``get_logs_for_user`` used before the
+    composite-index query (issue #129).
+    """
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, date):
+        return datetime.combine(value, datetime.min.time(), tzinfo=timezone.utc)
+    return value
+
+
+#: Comparison operators the mock query understands, matching the subset of
+#: Firestore's operators this codebase actually uses.
+_MOCK_OPERATORS = {
+    "==": lambda left, right: left == right,
+    "!=": lambda left, right: left != right,
+    ">": lambda left, right: left is not None and left > right,
+    ">=": lambda left, right: left is not None and left >= right,
+    "<": lambda left, right: left is not None and left < right,
+    "<=": lambda left, right: left is not None and left <= right,
+}
+
+
 class MockQuery:
     def __init__(self, documents):
         # documents is a list of MockDocumentReference
@@ -56,15 +87,40 @@ class MockQuery:
         self._order_by_field = None
         self._order_by_direction = None
         self._limit_count = None
+        self._offset_count = 0
 
     def limit(self, count):
         self._limit_count = count
+        return self
+
+    def offset(self, count):
+        """Skip the first ``count`` results, as Firestore's offset does."""
+        self._offset_count = count
         return self
 
     def order_by(self, field, direction=None):
         self._order_by_field = field
         self._order_by_direction = direction or firestore.Query.ASCENDING
         return self
+
+    def where(self, field, op, value):
+        """Narrow an existing query further.
+
+        Only the collection had a `where` before, so a second filter — a
+        date range on top of the `user_id` match, say — had nowhere to go
+        and would have silently returned an unfiltered query.
+        """
+        compare = _MOCK_OPERATORS.get(op)
+        if compare is None:
+            raise NotImplementedError(f"MockQuery does not support the {op!r} operator")
+
+        filtered = [doc for doc in self._documents if compare(doc.data.get(field), value)]
+        narrowed = MockQuery(filtered)
+        narrowed._order_by_field = self._order_by_field
+        narrowed._order_by_direction = self._order_by_direction
+        narrowed._limit_count = self._limit_count
+        narrowed._offset_count = self._offset_count
+        return narrowed
 
     def stream(self):
         # Start with the filtered documents
@@ -74,9 +130,14 @@ class MockQuery:
         if self._order_by_field:
             reverse = (self._order_by_direction == firestore.Query.DESCENDING)
             docs.sort(
-                key=lambda doc: doc.data.get(self._order_by_field),
+                key=lambda doc: _mock_order_key(doc.data.get(self._order_by_field)),
                 reverse=reverse
             )
+
+        # Offset before limit, matching Firestore: `.offset(10).limit(5)`
+        # returns results 11-15, not the first five of everything after 10.
+        if self._offset_count:
+            docs = docs[self._offset_count:]
 
         # Apply limit if requested
         if self._limit_count is not None:
@@ -124,9 +185,15 @@ class MockCollectionReference:
         return MockDocumentReference(doc_id, data, self)
 
     def where(self, field, op, value):
+        compare = _MOCK_OPERATORS.get(op)
+        if compare is None:
+            raise NotImplementedError(
+                f"MockCollectionReference does not support the {op!r} operator"
+            )
+
         filtered = []
         for doc_id, data in self.store.items():
-            if data.get(field) == value:
+            if compare(data.get(field), value):
                 filtered.append(MockDocumentReference(doc_id, data, self))
         return MockQuery(filtered)
 
@@ -319,6 +386,81 @@ class CycleService:
             raise upstream_error("Saving your cycle log", e)
 
     @staticmethod
+    def _as_day_start(value) -> datetime:
+        """Normalize a date to the UTC midnight `upsert_log` stores."""
+        if isinstance(value, datetime):
+            return value
+        return datetime.combine(value, datetime.min.time(), tzinfo=timezone.utc)
+
+    @staticmethod
+    def get_logs_page(
+        user_id: str,
+        limit: int = 20,
+        offset: int = 0,
+        start_date=None,
+        end_date=None,
+    ) -> tuple:
+        """One page of a user's logs, newest first, plus whether more exist.
+
+        Returns ``(entries, has_more)``.
+
+        ``has_more`` comes from asking Firestore for ``limit + 1`` documents
+        and checking whether the extra one arrived, rather than from a
+        separate count query. A count is a second round trip that grows
+        with the collection, and "is there another page" is the only thing
+        a client actually needs to render a Next button. The cost of the
+        approach is one extra document read per page — flat, and cheaper
+        than the count at any history size.
+
+        Both date bounds are inclusive and are normalized to the UTC
+        midnight `upsert_log` writes, so `start_date == end_date` returns
+        that one day rather than nothing.
+
+        Requires the same composite index on ``(user_id, start_date desc)``
+        the unpaginated query needed; a date filter on the field already
+        being ordered adds no further index requirement.
+        """
+        try:
+            query = db.collection("cycle_logs").where("user_id", "==", user_id)
+
+            if start_date is not None:
+                query = query.where(
+                    "start_date", ">=", CycleService._as_day_start(start_date)
+                )
+            if end_date is not None:
+                query = query.where(
+                    "start_date", "<=", CycleService._as_day_start(end_date)
+                )
+
+            query = query.order_by(
+                "start_date", direction=firestore.Query.DESCENDING
+            )
+
+            if offset:
+                query = query.offset(offset)
+
+            # One more than asked for: its presence is the "has more" answer.
+            query = query.limit(limit + 1)
+
+            results = []
+            for doc in query.stream():
+                data = doc.to_dict()
+                data["id"] = doc.id
+                results.append(data)
+
+            has_more = len(results) > limit
+            return results[:limit], has_more
+        except FailedPrecondition as e:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=str(e)
+            )
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise upstream_error("Loading your cycle history", e)
+
+    @staticmethod
     def get_logs_for_user(user_id: str, limit: int = 10) -> list:
         """Return a user's cycle logs, most recent (by start_date) first.
 
@@ -330,8 +472,10 @@ class CycleService:
         exception with a direct link to create it. That error is preserved
         in the response (status 503) so the admin can use the link directly.
 
-        For users with > 500 logs, consider adding pagination (offset/limit)
-        to avoid large data transfers.
+        Kept as the plain "most recent N" call used by the dashboard,
+        predictions, insights and scoring, none of which page. Anything
+        that needs a window rather than a prefix should use
+        :meth:`get_logs_page`.
         """
         try:
             query = (
@@ -398,6 +542,43 @@ class CycleService:
             return doc_id
         except Exception as e:
             raise upstream_error("Saving your cycle log", e)
+
+    @staticmethod
+    def get_log(user_id: str, log_id: str) -> Dict[str, Any]:
+        """One log by id, ownership checked (issue #347).
+
+        Added so a partial update can be validated against the values
+        already stored — `PUT /cycle/{log_id}` carries an `end_date` but no
+        `start_date`, and "does this end date come before the start date?"
+        cannot be answered from the payload alone.
+
+        Raises the same 404/403 as :meth:`update_log` and :meth:`delete_log`
+        rather than returning ``None``, so a caller cannot accidentally
+        treat "not yours" as "not found" or, worse, as "no constraint to
+        check".
+        """
+        try:
+            doc = db.collection("cycle_logs").document(log_id).get()
+
+            if not doc.exists:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Cycle log not found"
+                )
+
+            data = doc.to_dict() or {}
+            if data.get("user_id") != user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not authorized to view this log"
+                )
+
+            data["id"] = doc.id
+            return data
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise upstream_error("Loading your cycle log", e)
 
     @staticmethod
     def update_log(user_id: str, log_id: str, fields: Dict[str, Any]) -> str:
