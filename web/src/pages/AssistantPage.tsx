@@ -118,7 +118,22 @@ export function AssistantPage() {
           <h1>{t('assistant.title')}</h1>
           <p className="card-sub">{t('assistant.subtitle')}</p>
         </div>
-        <span className="language-badge">{i18n.language.toUpperCase()}</span>
+        <select
+          className="language-select"
+          value={i18n.language.slice(0, 2)}
+          onChange={(e) => void i18n.changeLanguage(e.target.value)}
+          aria-label="Select AI Assistant Language"
+        >
+          <option value="en">English (EN)</option>
+          <option value="hi">Hindi (हिन्दी)</option>
+          <option value="mr">Marathi (मराठी)</option>
+          <option value="ta">Tamil (தமிழ்)</option>
+          <option value="te">Telugu (తెలుగు)</option>
+          <option value="kn">Kannada (ಕನ್ನಡ)</option>
+          <option value="ml">Malayalam (മലയാളം)</option>
+          <option value="gu">Gujarati (ગુજરાતી)</option>
+          <option value="bn">Bengali (বাংলা)</option>
+        </select>
       </header>
 
       <div className="chat-list" ref={listRef}>
