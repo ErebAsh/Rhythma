@@ -13,7 +13,7 @@ from services.health_observations_service import (
     top_observation,
 )
 from services.prediction_service import dashboard_summary, predict
-from services.scoring_service import get_user_scores, as_date, DEFAULT_CYCLE_LENGTH
+from services.scoring_service import get_user_scores, compute_cycle_stats, as_date, DEFAULT_CYCLE_LENGTH
 
 
 class DashboardUser(BaseModel):
@@ -27,8 +27,10 @@ class DashboardCycle(BaseModel):
 
 
 class DashboardInsights(BaseModel):
-    mhs: Optional[float] = None
-    cvi: Optional[str] = None
+    averageCycleLength: Optional[float] = None
+    shortestCycleLength: Optional[int] = None
+    longestCycleLength: Optional[int] = None
+    averageBleedingDuration: Optional[float] = None
     sleepHours: Optional[str] = None
 
 
@@ -144,7 +146,7 @@ router = APIRouter(tags=["Dashboard"])
     "/dashboard",
     response_model=DashboardResponse,
     summary="Get dashboard data",
-    description="Returns the user's current cycle summary, computed health scores (MHS/CVI), sleep average, cycle history, symptom frequencies, and recent stress level. All insight data is computed server-side using the same scoring service shared with the Insights endpoint.",
+    description="Returns the user's current cycle summary, factual cycle statistics (average/shortest/longest cycle length, average bleeding duration), sleep average, cycle history, symptom frequencies, and recent stress level. All insight data is computed server-side directly from CycleLog history.",
 )
 async def get_dashboard(current_user: dict = Depends(get_current_user)):
     user_id = current_user["id"]
@@ -220,6 +222,8 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         predict(logs, profile=score_data.get("profile"), today=date.today())
     )
 
+    cycle_stats = compute_cycle_stats(logs)
+
     return {
         "user": {
             "name": current_user.get("username") or "User"
@@ -230,8 +234,10 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
             "nextPeriodDays": next_period_days,
         },
         "insights": {
-            "mhs": score_data["mhs"],
-            "cvi": score_data["cvi_risk"],
+            "averageCycleLength": cycle_stats["average_cycle_length"],
+            "shortestCycleLength": cycle_stats["shortest_cycle_length"],
+            "longestCycleLength": cycle_stats["longest_cycle_length"],
+            "averageBleedingDuration": cycle_stats["average_bleeding_duration"],
             "sleepHours": f"{avg_sleep}h" if avg_sleep is not None else None,
         },
         "hasEnoughDataForInsights": score_data["has_enough_data_for_insights"],
