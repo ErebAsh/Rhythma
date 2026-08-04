@@ -42,6 +42,46 @@ export async function fetchDashboard(): Promise<DashboardData> {
   return response.data;
 }
 
+// ─── Insights (factual observations, issue #320) ───────────────────────────
+//
+// Replaces the old MHS/CVI score display. Every statement here is derived
+// directly from the user's own logged data — see
+// backend/services/health_observations_service.py for the rule engine that
+// produces it. `title`/`body` are English fallbacks; `titleKey`/`bodyKey`
+// are reserved for clients that want to localize and interpolate
+// `evidence` themselves.
+
+export type ObservationSeverity = 'info' | 'attention' | 'seek_care';
+
+export interface Observation {
+  code: string;
+  severity: ObservationSeverity;
+  title: string;
+  body: string;
+  titleKey: string;
+  bodyKey: string;
+  evidence: Record<string, unknown>;
+  isMedicalAdvice: boolean;
+  disclaimerKey: string;
+}
+
+export type CycleConsistency = 'unknown' | 'consistent' | 'slightly_variable' | 'variable';
+
+export interface ObservationsResponse {
+  observations: Observation[];
+  topObservation: Observation | null;
+  cycleConsistency: CycleConsistency;
+  averageCycleLength: number | null;
+  analyzedCycleCount: number;
+  disclaimer: string;
+  disclaimerKey: string;
+}
+
+export async function fetchObservations(userId: string): Promise<ObservationsResponse> {
+  const response = await apiClient.get<ObservationsResponse>(`/insights/${userId}/observations`);
+  return response.data;
+}
+
 // ─── Cycle Tracking ─────────────────────────────────────────────────────────
 
 export interface CycleLogInput {
