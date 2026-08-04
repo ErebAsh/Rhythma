@@ -52,6 +52,43 @@ export function axiosError(status?: number, detail?: string) {
   };
 }
 
+/** A minimal observations payload matching the backend's ObservationsResponse. */
+export function observationsFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    observations: [
+      {
+        code: 'long_cycle_observed',
+        severity: 'attention',
+        title: 'A longer cycle than most',
+        body: 'One of your recent cycles was 42 days, longer than the 21-35 day range most cycles fall into. If this is new for you, consider mentioning it at your next check-up.',
+        titleKey: 'observations.long_cycle_observed.title',
+        bodyKey: 'observations.long_cycle_observed.body',
+        evidence: { longest_cycle_days: 42, threshold_days: 35, occurrences: 1 },
+        isMedicalAdvice: false,
+        disclaimerKey: 'insights.disclaimer',
+      },
+      {
+        code: 'sustained_high_stress',
+        severity: 'info',
+        title: 'Stress has been high lately',
+        body: 'Your logged stress has averaged 4.2 out of 5 across your last 3 entries.',
+        titleKey: 'observations.sustained_high_stress.title',
+        bodyKey: 'observations.sustained_high_stress.body',
+        evidence: { average_stress: 4.2, entries: 3, scale_max: 5 },
+        isMedicalAdvice: false,
+        disclaimerKey: 'insights.disclaimer',
+      },
+    ],
+    topObservation: null,
+    cycleConsistency: 'slightly_variable',
+    averageCycleLength: 33,
+    analyzedCycleCount: 6,
+    disclaimer: 'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.',
+    disclaimerKey: 'insights.disclaimer',
+    ...overrides,
+  };
+}
+
 /** A dashboard payload matching the backend's DashboardResponse model. */
 export function dashboardFixture(overrides: Record<string, unknown> = {}) {
   return {
