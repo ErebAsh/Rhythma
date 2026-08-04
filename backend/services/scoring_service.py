@@ -25,7 +25,18 @@ from models.mhs_model import predict_mhs
 # to compute a real average.
 DEFAULT_CYCLE_LENGTH = 28
 
-_FLOW_INTENSITY_TO_SCORE = {"light": 1, "medium": 2, "heavy": 3}
+# `none` is included because the Flutter quick-log sheet sends it
+# (`LogOptions.flow`). Without an entry it fell through to the "no value
+# logged" default below and scored as *medium* — so a user explicitly
+# recording no bleeding was fed to the model as an average period day.
+# Zero extends the existing ordinal scale in the only direction that makes
+# sense: none < light < medium < heavy.
+_FLOW_INTENSITY_TO_SCORE = {"none": 0, "light": 1, "medium": 2, "heavy": 3}
+
+# What to assume when a log carries no flow intensity at all. Distinct from
+# `none`, which is a value the user chose: this is the absence of an answer,
+# and the midpoint is the least-assuming stand-in for it.
+_FLOW_INTENSITY_WHEN_ABSENT = 2
 
 # Number of most-recent cycle logs fetched for scoring. Matches the
 # previous behavior of api/dashboard.py.
@@ -64,7 +75,7 @@ def build_model_features(logs_newest_first: List[Dict[str, Any]]) -> List[Dict[s
         else:
             flow_duration = 5
         flow_intensity = _FLOW_INTENSITY_TO_SCORE.get(
-            (log.get("flow_intensity") or "").lower(), 2
+            (log.get("flow_intensity") or "").lower(), _FLOW_INTENSITY_WHEN_ABSENT
         )
 
         stress = log.get("stress_level")

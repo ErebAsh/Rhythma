@@ -544,6 +544,43 @@ class CycleService:
             raise upstream_error("Saving your cycle log", e)
 
     @staticmethod
+    def get_log(user_id: str, log_id: str) -> Dict[str, Any]:
+        """One log by id, ownership checked (issue #347).
+
+        Added so a partial update can be validated against the values
+        already stored — `PUT /cycle/{log_id}` carries an `end_date` but no
+        `start_date`, and "does this end date come before the start date?"
+        cannot be answered from the payload alone.
+
+        Raises the same 404/403 as :meth:`update_log` and :meth:`delete_log`
+        rather than returning ``None``, so a caller cannot accidentally
+        treat "not yours" as "not found" or, worse, as "no constraint to
+        check".
+        """
+        try:
+            doc = db.collection("cycle_logs").document(log_id).get()
+
+            if not doc.exists:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Cycle log not found"
+                )
+
+            data = doc.to_dict() or {}
+            if data.get("user_id") != user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not authorized to view this log"
+                )
+
+            data["id"] = doc.id
+            return data
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise upstream_error("Loading your cycle log", e)
+
+    @staticmethod
     def update_log(user_id: str, log_id: str, fields: Dict[str, Any]) -> str:
         """Update a specific cycle log by ID."""
         try:
