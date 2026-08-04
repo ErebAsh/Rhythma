@@ -117,8 +117,8 @@ void main() {
       tester.element(find.byType(HomeScreen)),
     )!;
 
-    expect(find.text('77'), findsOneWidget);
-    expect(find.text('Low'), findsOneWidget);
+    expect(find.text('28d'), findsOneWidget); // avg cycle
+    expect(find.text('5d'), findsOneWidget); // avg bleeding
     expect(find.text('6.5h'), findsOneWidget);
   });
 

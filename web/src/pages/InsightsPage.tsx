@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fetchDashboard, type DashboardData } from '../api/endpoints';
-import { ScoreRing, Sparkline } from '../components/charts';
+import { Sparkline } from '../components/charts';
 
 const SYMPTOM_COLORS: Record<string, string> = {
   cramps: '#E07AAD',
