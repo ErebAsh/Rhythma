@@ -128,6 +128,23 @@ REGISTER_IP = RateLimitPolicy(
     message="Too many accounts created from this device. Please try again in {seconds} seconds.",
 )
 
+# Provider registration is checked against REGISTER_IP *as well as* this
+# policy, so the two routes share one ceiling on account creation from a
+# single address rather than each handing out its own budget. This second,
+# tighter bucket exists because the two routes are not equally risky: a
+# provider account is the one that can read other people's cycle logs once
+# a patient consents, and a genuine clinic signing its staff up does not
+# need to create more than a couple of accounts an hour from one address.
+PROVIDER_REGISTER_IP = RateLimitPolicy(
+    name="provider_register_ip",
+    default_limit=3,
+    default_window=3600,
+    message=(
+        "Too many provider accounts created from this device. "
+        "Please try again in {seconds} seconds."
+    ),
+)
+
 # Requesting a reset link mints a token and (once email delivery is wired
 # up) sends mail to an address the requester chose, not one they proved they
 # own. Limited per account so it cannot be used to flood one inbox, and per
