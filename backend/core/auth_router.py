@@ -160,18 +160,31 @@ async def firebase_login(request: Request, response: Response, data: FirebaseLog
         )
         
         _set_auth_cookie(response, access_token)
-        
+
+        # Create a refresh token for all clients (was missing for Firebase login)
+        refresh_token = create_refresh_token(user["id"])
+        response.set_cookie(
+            key=REFRESH_COOKIE_NAME,
+            value=refresh_token,
+            max_age=REFRESH_TOKEN_EXPIRE_DAYS * 86400,
+            httponly=True,
+            secure=COOKIE_SECURE,
+            samesite=COOKIE_SAMESITE,
+            domain=COOKIE_DOMAIN,
+            path="/",
+        )
+
         # Web clients rely on the HttpOnly cookie for security and do not need the token in the body.
         # Flutter/Mobile clients still need the token in the response body.
         if request.headers.get("X-Client-Platform") == "web":
             return {"token_type": "bearer", "is_new_user": is_new_user}
-            
+
         return {
             "access_token": access_token,
+            "refresh_token": refresh_token,
             "token_type": "bearer",
             "is_new_user": is_new_user
         }
-        
     except Exception as e:
         logger.error(f"Error during firebase login for phone {phone_number}: {e}")
         raise HTTPException(
@@ -182,11 +195,12 @@ async def firebase_login(request: Request, response: Response, data: FirebaseLog
 
 @router.post("/logout")
 async def logout(response: Response):
-    response.delete_cookie(
-        key=COOKIE_NAME,
-        path="/",
-        domain=COOKIE_DOMAIN,
-    )
+    for cookie_name in (COOKIE_NAME, REFRESH_COOKIE_NAME):
+        response.delete_cookie(
+            key=cookie_name,
+            path="/",
+            domain=COOKIE_DOMAIN,
+        )
     return {"message": "Successfully logged out."}
 
 @router.get("/me")
@@ -422,27 +436,55 @@ async def login(data: LoginRequest, request: Request, response: Response):
 # ─── Refresh Tokens ───────────────────────────────────────────────────────
 
 @router.post("/refresh")
-async def refresh_token(data: RefreshTokenRequest, request: Request):
+async def refresh_token(request: Request, response: Response, data: RefreshTokenRequest | None = None):
     # A refresh token is a bearer secret like any other, so unlimited
     # submissions are unlimited guesses. The ceiling is set well above what
     # a healthy client needs (one call per access-token lifetime) so a
     # normal app never sees it.
     enforce_rate_limit(TOKEN_REFRESH_IP, get_client_ip(request))
 
-    user_id = verify_refresh_token(data.refresh_token)
+    # Dual-mode refresh: mobile clients send the token in the JSON body;
+    # web clients rely on the HttpOnly cookie so the token never touches JS.
+    refresh_token_value = None
+    if data and data.refresh_token:
+        refresh_token_value = data.refresh_token
+    else:
+        refresh_token_value = request.cookies.get(REFRESH_COOKIE_NAME)
+
+    if not refresh_token_value:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No refresh token provided"
+        )
+
+    user_id = verify_refresh_token(refresh_token_value)
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token"
         )
 
-    revoke_refresh_token(data.refresh_token)
+    revoke_refresh_token(refresh_token_value)
 
     new_access_token = create_access_token(
         data={"sub": user_id},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     new_refresh_token = create_refresh_token(user_id)
+
+    # Rotate the access cookie for web clients
+    _set_auth_cookie(response, new_access_token)
+    # Rotate the refresh cookie for web clients
+    response.set_cookie(
+        key=REFRESH_COOKIE_NAME,
+        value=new_refresh_token,
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 86400,
+        httponly=True,
+        secure=COOKIE_SECURE,
+        samesite=COOKIE_SAMESITE,
+        domain=COOKIE_DOMAIN,
+        path="/",
+    )
 
     return {
         "access_token": new_access_token,

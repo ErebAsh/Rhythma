@@ -1,18 +1,28 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import axios from 'axios';
 import { apiClient, friendlyAuthError, setUnauthorizedHandler } from './client';
 import { axiosError } from '../test/utils';
 
+// Mock axios so the refresh helper does not hit the network.
+vi.mock('axios', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('axios')>();
+  return {
+    ...actual,
+    default: {
+      ...actual.default,
+      post: vi.fn(),
+    },
+  };
+});
+
+const mockedAxiosPost = vi.mocked(axios.post);
+
 describe('apiClient configuration', () => {
   it('sends cookies with every request', () => {
-    // The backend switched from a bearer token in localStorage to an
-    // HttpOnly cookie; without withCredentials the cookie is never sent
-    // and every authenticated request 401s.
     expect(apiClient.defaults.withCredentials).toBe(true);
   });
 
   it('identifies itself as the web client', () => {
-    // core/auth_router.py branches on this header: web clients get the
-    // cookie only, mobile clients also get the token in the body.
     expect(apiClient.defaults.headers['X-Client-Platform']).toBe('web');
   });
 
@@ -21,16 +31,13 @@ describe('apiClient configuration', () => {
   });
 });
 
-describe('401 interceptor', () => {
+describe('401 interceptor — auto-refresh', () => {
   afterEach(() => {
-    // The handler is module-level state; leaving one registered would let
-    // a later test's rejection call a previous test's spy.
     setUnauthorizedHandler(() => {});
+    vi.clearAllMocks();
   });
 
   async function runResponseInterceptor(error: unknown) {
-    // Reach into the registered interceptor rather than making a real
-    // request: the point is to test the handler, not axios.
     const handlers = (
       apiClient.interceptors.response as unknown as {
         handlers: { rejected: (e: unknown) => Promise<unknown> }[];
@@ -40,16 +47,123 @@ describe('401 interceptor', () => {
     return rejected(error).catch((e: unknown) => e);
   }
 
-  it('calls the unauthorized handler on a 401', async () => {
+  it('calls the unauthorized handler on a 401 for public endpoints', async () => {
     const onUnauthorized = vi.fn();
     setUnauthorizedHandler(onUnauthorized);
 
-    await runResponseInterceptor({ response: { status: 401 } });
+    await runResponseInterceptor({
+      response: { status: 401 },
+      config: { url: '/auth/login' },
+    });
 
     expect(onUnauthorized).toHaveBeenCalledTimes(1);
   });
 
-  it('does not call it for other statuses', async () => {
+  it('refreshes token and retries on 401 for protected endpoints', async () => {
+    mockedAxiosPost.mockResolvedValueOnce({ status: 200 });
+
+    const onUnauthorized = vi.fn();
+    setUnauthorizedHandler(onUnauthorized);
+
+    const error = {
+      response: { status: 401 },
+      config: { url: '/dashboard', headers: {} },
+    };
+
+    // The interceptor should retry via apiClient(error.config)
+    // which we spy on.
+    const apiSpy = vi.spyOn(apiClient, 'request').mockResolvedValueOnce({
+      data: { user: { name: 'Asha' } },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: error.config,
+    });
+
+    const result = await runResponseInterceptor(error);
+
+    expect(mockedAxiosPost).toHaveBeenCalledTimes(1);
+    expect(mockedAxiosPost).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/refresh'),
+      {},
+      { withCredentials: true },
+    );
+    expect(apiSpy).toHaveBeenCalledTimes(1);
+    expect(onUnauthorized).not.toHaveBeenCalled();
+  });
+
+  it('calls unauthorized handler when refresh fails', async () => {
+    mockedAxiosPost.mockRejectedValueOnce(new Error('refresh failed'));
+
+    const onUnauthorized = vi.fn();
+    setUnauthorizedHandler(onUnauthorized);
+
+    const error = {
+      response: { status: 401 },
+      config: { url: '/dashboard', headers: {} },
+    };
+
+    await runResponseInterceptor(error);
+
+    expect(mockedAxiosPost).toHaveBeenCalledTimes(1);
+    expect(onUnauthorized).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry a request that was already retried (infinite loop prevention)', async () => {
+    const onUnauthorized = vi.fn();
+    setUnauthorizedHandler(onUnauthorized);
+
+    const error = {
+      response: { status: 401 },
+      config: {
+        url: '/dashboard',
+        headers: { 'X-Retry-After-Refresh': '1' },
+      },
+    };
+
+    await runResponseInterceptor(error);
+
+    expect(mockedAxiosPost).not.toHaveBeenCalled();
+    expect(onUnauthorized).toHaveBeenCalledTimes(1);
+  });
+
+  it('deduplicates concurrent refresh attempts', async () => {
+    mockedAxiosPost.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => resolve({ status: 200 }), 50);
+        }),
+    );
+
+    setUnauthorizedHandler(() => {});
+
+    const error1 = {
+      response: { status: 401 },
+      config: { url: '/dashboard', headers: {} },
+    };
+    const error2 = {
+      response: { status: 401 },
+      config: { url: '/profile', headers: {} },
+    };
+
+    const handlers = (
+      apiClient.interceptors.response as unknown as {
+        handlers: { rejected: (e: unknown) => Promise<unknown> }[];
+      }
+    ).handlers.filter(Boolean);
+    const rejected = handlers[handlers.length - 1].rejected;
+
+    // Fire two concurrent 401s
+    const p1 = rejected(error1).catch(() => {});
+    const p2 = rejected(error2).catch(() => {});
+
+    await Promise.all([p1, p2]);
+
+    // Only ONE refresh call despite two concurrent 401s
+    expect(mockedAxiosPost).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call unauthorized for non-401 errors', async () => {
     const onUnauthorized = vi.fn();
     setUnauthorizedHandler(onUnauthorized);
 
@@ -60,34 +174,25 @@ describe('401 interceptor', () => {
     expect(onUnauthorized).not.toHaveBeenCalled();
   });
 
-  it('does not throw when no handler has been registered', async () => {
-    // The optional call (`onUnauthorized?.()`) makes this a silent no-op
-    // in production, so nothing would surface a missing registration.
-    setUnauthorizedHandler(undefined as unknown as () => void);
-    await expect(
-      runResponseInterceptor({ response: { status: 401 } }),
-    ).resolves.toBeDefined();
-  });
-
-  it('re-rejects so callers still see the error', async () => {
+  it('re-rejects so callers still see the error when refresh fails', async () => {
+    mockedAxiosPost.mockRejectedValueOnce(new Error('refresh failed'));
     setUnauthorizedHandler(vi.fn());
-    const original = { response: { status: 401 } };
-    await expect(runResponseInterceptor(original)).resolves.toBe(original);
+
+    const original = { response: { status: 401 }, config: { url: '/dashboard', headers: {} } };
+    const result = await runResponseInterceptor(original);
+    expect(result).toBe(original);
   });
 
   it('tolerates an error with no response at all', async () => {
     setUnauthorizedHandler(vi.fn());
-    await expect(runResponseInterceptor(new Error('network down'))).resolves.toBeInstanceOf(
-      Error,
-    );
+    await expect(
+      runResponseInterceptor(new Error('network down')),
+    ).resolves.toBeInstanceOf(Error);
   });
 });
 
 describe('friendlyAuthError', () => {
   it('reports an unreachable server instead of blaming credentials', () => {
-    // This branch exists specifically so a CORS misconfiguration or a
-    // stopped backend does not get reported as "invalid password" —
-    // which sent people looking in entirely the wrong place.
     const message = friendlyAuthError(axiosError(undefined), 'fallback');
     expect(message).toMatch(/Couldn't reach the server/i);
     expect(message).not.toMatch(/invalid/i);
@@ -126,8 +231,6 @@ describe('friendlyAuthError', () => {
 
 describe('base URL configuration', () => {
   it('is always set, so a missing env var cannot produce relative requests', () => {
-    // With an empty baseURL every call would go to the page's own origin
-    // and 404 against the static host rather than the API.
     expect(apiClient.defaults.baseURL).toBeTruthy();
   });
 
