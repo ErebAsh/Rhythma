@@ -232,6 +232,36 @@ def test_export_includes_free_text_notes_and_symptoms(seeded_user):
     assert log["symptoms"] == ["cramps", "headache"]
 
 
+def test_export_includes_assistant_conversation_messages(seeded_user):
+    """Chat history that contains personal health context must be included
+    in the export (issue #325)."""
+    bundle = build_export_bundle(USER_ID)
+    convo = bundle["assistant_conversation"]
+    assert convo["message_count"] == 2
+    messages = convo["messages"]
+    assert len(messages) == 2
+    assert messages[0]["role"] == "user"
+    assert "cramps" in messages[0]["content"]
+    assert messages[1]["role"] == "model"
+    assert "Cramps" in messages[1]["content"]
+
+
+def test_deletion_removes_chat_history_and_user_confirms(seeded_user):
+    """Full deletion flow must remove chat history so the user can confirm
+    it is gone (issue #325)."""
+    # Verify conversation exists before deletion
+    before = build_export_bundle(USER_ID)
+    assert before["assistant_conversation"]["message_count"] == 2
+
+    # Delete
+    delete_account(USER_ID)
+
+    # Verify conversation is gone
+    after = build_export_bundle(USER_ID)
+    assert after["assistant_conversation"]["message_count"] == 0
+    assert after["assistant_conversation"]["messages"] == []
+
+
 def test_export_excludes_the_password_hash(seeded_user):
     bundle = build_export_bundle(USER_ID)
     assert "password" not in bundle["profile"]
