@@ -118,6 +118,13 @@ class ReportService {
           pw.Text(
             'Recent Stress Level: ${dashboard['recentStressLevel'] ?? 'N/A'}',
           ),
+          pw.SizedBox(height: 24),
+          pw.Divider(),
+          pw.SizedBox(height: 8),
+          pw.Text(
+            'This report is an estimate based on self-logged data and is not a medical diagnosis. Please consult a qualified healthcare professional for medical advice.',
+            style: pw.TextStyle(fontSize: 9, color: PdfColors.grey700),
+          ),
         ],
       ),
     );
