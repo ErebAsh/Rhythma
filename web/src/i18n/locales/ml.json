@@ -35,8 +35,8 @@
     "nextPeriod": "Next period in",
     "days": "days",
     "fertileWindow": "Fertile window + High energy",
-    "mhs": "MHS",
-    "cvi": "CVI",
+    "avgCycle": "Avg Cycle",
+    "bleeding": "Bleeding",
     "sleep": "Sleep",
     "assistantTitle": "AI Assistant",
     "assistantSubtitle": "Your personal health companion",
@@ -113,7 +113,9 @@
     "fatigue": "Fatigue",
     "nausea": "Nausea",
     "acne": "Acne",
-    "backPain": "Back Pain"
+    "backPain": "Back Pain",
+    "loadFailed": "Couldn't load your logs for this month.",
+    "retry": "Try again"
   },
   "assistant": {
     "title": "AI Assistant",
@@ -132,33 +134,38 @@
   },
   "insights": {
     "title": "Insights",
-    "subtitle": "Your health at a glance",
-    "notEnoughData": "Log a few cycles to unlock personalized insights.",
-    "mhsLabel": "MENTAL HEALTH SCORE",
-    "cviLabel": "CVI",
-    "mhsDelta": "Score based on your recent cycles",
-    "regular": "Regular",
-    "irregular": "Irregular",
-    "variability": "Variability",
-    "avgCycle": "Avg cycle",
-    "sleep": "Sleep",
-    "stress": "Stress",
-    "low": "Low",
-    "moderate": "Moderate",
-    "high": "High",
-    "stabilizing": "Your cycle is stabilizing",
-    "moderateTrend": "Your cycle shows moderate variation",
-    "healthy": "Healthy",
-    "trendLabel": "Cycle length trend",
-    "notEnoughTrendData": "Log at least two cycles to see your trend",
-    "symptomsLabel": "Symptom patterns",
-    "noSymptomsYet": "No symptoms logged yet",
-    "exportReport": "Export Health Report",
-    "exportSubtitle": "Generate your health summary as a PDF",
-    "wellness": "Wellness recommendations",
-    "rec1": "Stay hydrated and get plenty of rest during your period.",
-    "rec2": "Try gentle exercise like walking or yoga to ease cramps.",
-    "rec3": "Track your sleep — aim for 7-9 hours per night.",
+    "subtitle": "Patterns from your own logged data",
+    "notEnoughData": "Log a few more cycles to unlock your full insights.",
+    "cycleStatsLabel": "Cycle stats",
+    "avgCycleLength": "Avg cycle length",
+    "cyclesAnalyzed": "Cycles analyzed",
+    "consistencyLabel": "Cycle consistency",
+    "consistency": {
+      "unknown": {
+        "pill": "Not enough data",
+        "description": "Log a couple more cycles to see how consistent your cycle length has been."
+      },
+      "consistent": {
+        "pill": "Consistent",
+        "description": "Your cycle length has stayed within a few days across your recent cycles."
+      },
+      "slightly_variable": {
+        "pill": "Slightly variable",
+        "description": "Your cycle length has varied a bit across your recent cycles."
+      },
+      "variable": {
+        "pill": "Variable",
+        "description": "Your cycle length has varied noticeably across your recent cycles."
+      }
+    },
+    "observationsLabel": "What your logs show",
+    "noObservations": "Nothing stands out in your recent logs — everything looks consistent with your own patterns.",
+    "severity": {
+      "info": "Info",
+      "attention": "Worth noting",
+      "seek_care": "Consider medical advice"
+    },
+    "disclaimer": "These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.",
     "loadError": "Couldn't load your insights."
   },
   "profile": {
@@ -170,7 +177,7 @@
     "ovulation": "Ovulation Phase",
     "luteal": "Luteal Phase",
     "avgCycleLength": "Avg cycle length",
-    "avgMhs": "Avg mental health score",
+    "avgBleeding": "Avg bleeding",
     "cycleVariability": "Cycle variability",
     "lastCycleLength": "Last cycle length",
     "editInfo": "Edit Info",
@@ -291,7 +298,15 @@
     "revokedMsg": "Access revoked.",
     "empty": "You haven't shared your data with anyone yet.",
     "grantedOn": "Shared since {{date}}",
-    "loadError": "Couldn't load your sharing settings."
+    "loadError": "Couldn't load your sharing settings.",
+    "accessLogTitle": "Who has viewed your data",
+    "accessLogSubtitle": "A record of every time a provider opened your records. Rhythma never stores a copy of what they saw.",
+    "accessLogEmpty": "No provider has viewed your data yet.",
+    "viewedFullRecord": "Opened your full record",
+    "viewedSummaryCard": "Saw your summary card",
+    "neverViewed": "Has not viewed your data yet",
+    "viewedSummary": "Viewed {{count}} times · last on {{date}}",
+    "unknownProvider": "A provider who has since closed their account"
   },
   "errors": {
     "boundaryTitle": "ഈ സ്ക്രീനിൽ എന്തോ കുഴപ്പം സംഭവിച്ചു",

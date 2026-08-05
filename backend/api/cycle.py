@@ -1,32 +1,109 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from core.auth import get_current_user
-from pydantic import BaseModel, Field
-from datetime import date
+from pydantic import BaseModel, Field, field_validator, model_validator
+from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 
+from core.cycle_validation import (
+    FLOW_INTENSITIES,
+    MOODS,
+    loggable_values,
+    normalize_choice,
+    normalize_notes,
+    normalize_symptoms,
+    validate_end_date,
+    validate_sleep_hours,
+    validate_start_date,
+    validate_stress_level,
+)
 from services.firestore_service import CycleService, UserService
 from services.prediction_service import DEFAULT_FORECAST_HORIZON, predict
 
 
-class CycleLog(BaseModel):
+class _LoggableFields(BaseModel):
+    """The fields a cycle log carries, and the rules they obey (issue #347).
+
+    Shared by ``CycleLog`` and ``CycleLogUpdate`` because the POST and the
+    PUT write to the same document and had the same gap. Keeping the
+    validators in one base is what stops a rule being added to one route
+    and forgotten on the other — the failure mode ``core/password_policy``
+    was written to avoid on register-vs-reset.
+
+    The rules themselves live in ``core/cycle_validation``; these are only
+    the hooks that attach them. Validators raise ``ValueError``, which
+    Pydantic reports through the standard 422 envelope with the offending
+    field's location attached, so a client is told *which* field it got
+    wrong rather than being handed a bare rejection.
+    """
+
+    end_date: Optional[date] = None
+    flow_intensity: Optional[str] = None
+    mood: Optional[str] = None
+    symptoms: Optional[List[str]] = None
+    sleep_hours: Optional[float] = None
+    stress_level: Optional[int] = None
+    notes: Optional[str] = None
+
+    @field_validator("flow_intensity")
+    @classmethod
+    def _check_flow(cls, value):
+        return normalize_choice(value, FLOW_INTENSITIES, "flow_intensity")
+
+    @field_validator("mood")
+    @classmethod
+    def _check_mood(cls, value):
+        return normalize_choice(value, MOODS, "mood")
+
+    @field_validator("symptoms")
+    @classmethod
+    def _check_symptoms(cls, value):
+        return normalize_symptoms(value)
+
+    @field_validator("sleep_hours")
+    @classmethod
+    def _check_sleep(cls, value):
+        return validate_sleep_hours(value)
+
+    @field_validator("stress_level")
+    @classmethod
+    def _check_stress(cls, value):
+        return validate_stress_level(value)
+
+    @field_validator("notes")
+    @classmethod
+    def _check_notes(cls, value):
+        return normalize_notes(value)
+
+
+class CycleLog(_LoggableFields):
     start_date: date
-    end_date: Optional[date] = None
-    flow_intensity: Optional[str] = None
-    mood: Optional[str] = None
-    symptoms: Optional[List[str]] = None
-    sleep_hours: Optional[float] = None
-    stress_level: Optional[int] = None
-    notes: Optional[str] = None
+
+    @field_validator("start_date")
+    @classmethod
+    def _check_start(cls, value):
+        return validate_start_date(value)
+
+    @model_validator(mode="after")
+    def _check_range(self):
+        # Cross-field, so it cannot be a field validator: an inverted range
+        # is a property of the pair, not of either date on its own.
+        validate_end_date(self.start_date, self.end_date)
+        return self
 
 
-class CycleLogUpdate(BaseModel):
-    end_date: Optional[date] = None
-    flow_intensity: Optional[str] = None
-    mood: Optional[str] = None
-    symptoms: Optional[List[str]] = None
-    sleep_hours: Optional[float] = None
-    stress_level: Optional[int] = None
-    notes: Optional[str] = None
+class CycleLogUpdate(_LoggableFields):
+    """A partial update to an existing log.
+
+    ``end_date`` is bounded on its own here — there is no ``start_date`` in
+    the payload to compare it against, since the route addresses an
+    existing document by id. It is still checked against the *stored*
+    start date in :func:`update_cycle_log`, where that value is available.
+    """
+
+    @field_validator("end_date")
+    @classmethod
+    def _check_end_alone(cls, value):
+        return validate_end_date(None, value)
 
 
 class CycleLogResponse(BaseModel):
@@ -164,6 +241,48 @@ class PredictionResponse(BaseModel):
 
 
 router = APIRouter(tags=["Cycle Tracking"])
+
+
+def _as_date(value: Any) -> Optional[date]:
+    """Firestore hands dates back as ``datetime``; the validators want ``date``.
+
+    Mirrors ``scoring_service.as_date``. Not imported from there because
+    that module is the scoring pipeline and this is a route concern, and a
+    route reaching into the scoring service for a date cast would be the
+    kind of dependency that makes the scoring service hard to change.
+    """
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    return None
+
+
+@router.get(
+    "/loggable-values",
+    summary="The values this server accepts in a cycle log",
+    description=(
+        "The flow intensities, moods and symptom suggestions a client may "
+        "offer, and the bounds on the numeric and free-text fields.\n\n"
+        "Served so the options a user is shown come from the same place as "
+        "the rules she is judged against, rather than being retyped in each "
+        "client and going stale — the same reasoning behind "
+        "`GET /auth/password-requirements`.\n\n"
+        "`symptomsAreOpenEnded` is true: `knownSymptoms` is the suggested "
+        "chip set, not a closed list, and a symptom outside it is accepted "
+        "so long as it is within the length and count limits."
+    ),
+)
+async def get_loggable_values(current_user: dict = Depends(get_current_user)):
+    """Authenticated only because every other route on this router is.
+
+    Nothing here is sensitive — it is the same information the clients
+    already hardcode — but an unauthenticated hole in an otherwise
+    authenticated router is the sort of thing that gets copied.
+    """
+    return loggable_values()
 
 
 @router.post(
@@ -346,6 +465,22 @@ async def update_cycle_log(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No fields provided for update"
         )
+
+    # The schema bounded `end_date` on its own, but "is this end date before
+    # the start date?" needs the start date, which is not in the payload —
+    # this route addresses an existing document by id. Read it and finish
+    # the check here, so an update cannot produce a log the POST route
+    # would have refused to create.
+    if "end_date" in fields:
+        existing = CycleService.get_log(user_id, log_id)
+        stored_start = _as_date(existing.get("start_date"))
+        try:
+            validate_end_date(stored_start, fields["end_date"])
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=422,
+                detail=str(exc),
+            ) from exc
 
     CycleService.update_log(user_id, log_id, fields)
     return {

@@ -126,7 +126,7 @@ export function ProfilePage() {
 
       <section className="mini-stats">
         <MiniStat label={t('profile.avgCycleLength')} value={profile?.cycle_length != null ? `${profile.cycle_length} ${t('profile.days')}` : dashboard?.cycle.total != null ? `${dashboard.cycle.total} ${t('profile.days')}` : '—'} />
-        <MiniStat label={t('profile.avgMhs')} value={dashboard?.insights.mhs != null ? String(Math.round(dashboard.insights.mhs)) : '—'} />
+        <MiniStat label={t('profile.avgBleeding')} value={dashboard?.insights.averageBleedingDuration != null ? `${dashboard.insights.averageBleedingDuration} ${t('profile.days')}` : '—'} />
         <MiniStat label={t('profile.cycleVariability')} value={variability == null ? '—' : `±${variability}`} />
         <MiniStat label={t('profile.lastCycleLength')} value={lastCycle != null ? `${lastCycle} ${t('profile.days')}` : '—'} />
       </section>

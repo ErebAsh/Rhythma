@@ -71,7 +71,20 @@ from core.rate_limits import (  # noqa: E402
     client_ip,
 )
 from core.auth import get_password_hash  # noqa: E402
+from services.firestore_service import MockFirestoreClient  # noqa: E402
 from services.rate_limit_service import RateLimitService  # noqa: E402
+
+# ─── Patch db to use in-memory mock ──────────────────────────────────────
+# The firebase_admin MagicMock may cause initialize_firebase() to set `db`
+# to a plain MagicMock that doesn't persist data.  Replace both references
+# with a single MockFirestoreClient so rate-limit buckets survive within a
+# test but are cleared between tests by _clean_state.
+import services.firestore_service as _fs_mod
+import services.rate_limit_service as _rl_mod
+
+_mock_db = MockFirestoreClient()
+_fs_mod.db = _mock_db
+_rl_mod.db = _mock_db
 
 client = TestClient(app)
 
@@ -84,7 +97,7 @@ def _clean_state():
     """Every test starts with empty buckets and no cookies."""
     def _reset():
         client.cookies.clear()
-        RateLimitService.clear_all()
+        _mock_db._collections.clear()
 
     _reset()
     yield

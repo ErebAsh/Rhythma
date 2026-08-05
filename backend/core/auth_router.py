@@ -13,6 +13,7 @@ from core.auth import (
     generate_verification_token,
     verify_email_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
+    OTP_SESSION_EXPIRE_MINUTES,
     REFRESH_TOKEN_EXPIRE_DAYS,
     COOKIE_NAME,
     REFRESH_COOKIE_NAME,
@@ -95,17 +96,50 @@ def get_client_ip(request: Request) -> str:
     """
     return client_ip(request)
 
-def _set_auth_cookie(response: Response, token: str):
+def _set_auth_cookie(response: Response, token: str, max_age_seconds: int | None = None):
     response.set_cookie(
         key=COOKIE_NAME,
         value=token,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        max_age=max_age_seconds or (ACCESS_TOKEN_EXPIRE_MINUTES * 60),
         httponly=True,
         secure=COOKIE_SECURE,
         samesite=COOKIE_SAMESITE,
         domain=COOKIE_DOMAIN,
         path="/",  # Cookie is valid for all paths
     )
+
+
+def _set_refresh_cookie(response: Response, token: str):
+    """Write the refresh cookie with this deployment's cookie settings.
+
+    Extracted because ``api/provider.py`` had its own copy of this block,
+    which is how the two login routes came to disagree about everything
+    *else* they do. Cookie flags are a security setting that must not
+    depend on which route issued the session, so there is now one place
+    that decides them.
+    """
+    response.set_cookie(
+        key=REFRESH_COOKIE_NAME,
+        value=token,
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 86400,
+        httponly=True,
+        secure=COOKIE_SECURE,
+        samesite=COOKIE_SAMESITE,
+        domain=COOKIE_DOMAIN,
+        path="/",
+    )
+
+
+def normalize_email(email: str) -> str:
+    """Casefold and strip an address before it is used as a key.
+
+    Addresses arrive from a form, so ``Doc@Clinic.in `` and
+    ``doc@clinic.in`` are the same person typing the same thing. Without a
+    single normalisation point they become two accounts in ``users`` and,
+    worse, two separate rate-limit buckets — which hands an attacker a
+    fresh login budget per capitalisation of the same address.
+    """
+    return (email or "").strip().lower()
 
 # ─── Endpoints ──────────────────────────────────────────────────────────────
 
@@ -153,8 +187,9 @@ async def firebase_login(request: Request, response: Response, data: FirebaseLog
             user_id = UserService.create_user(user_data)
             user = UserService.get_user_by_id(user_id)
             
-        # Issue internal JWT
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        # Issue internal JWT — OTP sessions use a long-lived token (10 years)
+        # so the app never re-prompts for login on a verified device.
+        access_token_expires = timedelta(minutes=OTP_SESSION_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": user["id"]}, expires_delta=access_token_expires
         )
@@ -413,16 +448,7 @@ async def login(data: LoginRequest, request: Request, response: Response):
     refresh_token = create_refresh_token(user["id"])
 
     _set_auth_cookie(response, access_token)
-    response.set_cookie(
-        key=REFRESH_COOKIE_NAME,
-        value=refresh_token,
-        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 86400,
-        httponly=True,
-        secure=COOKIE_SECURE,
-        samesite=COOKIE_SAMESITE,
-        domain=COOKIE_DOMAIN,
-        path="/",
-    )
+    _set_refresh_cookie(response, refresh_token)
 
     return {
         "access_token": access_token,

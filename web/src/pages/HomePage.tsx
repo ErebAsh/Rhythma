@@ -21,6 +21,7 @@ const QUICK_TILES: QuickTileDef[] = [
     labelKey: 'home.flow',
     emoji: '💧',
     options: [
+      { value: 'none', labelKey: 'quickLog.none' },
       { value: 'light', labelKey: 'quickLog.light' },
       { value: 'medium', labelKey: 'quickLog.medium' },
       { value: 'heavy', labelKey: 'quickLog.heavy' },
@@ -148,12 +149,12 @@ export function HomePage() {
 
         <div className="stat-row">
           <div className="stat-cell">
-            <span className="stat-label">{t('home.mhs')}</span>
-            <span className="stat-value">{insights?.mhs == null ? '—' : Math.round(insights.mhs)}</span>
+            <span className="stat-label">{t('home.avgCycle')}</span>
+            <span className="stat-value">{insights?.averageCycleLength == null ? '—' : insights.averageCycleLength}</span>
           </div>
           <div className="stat-cell">
-            <span className="stat-label">{t('home.cvi')}</span>
-            <span className="stat-value">{insights?.cvi ?? '—'}</span>
+            <span className="stat-label">{t('home.bleeding')}</span>
+            <span className="stat-value">{insights?.averageBleedingDuration == null ? '—' : `${insights.averageBleedingDuration}d`}</span>
           </div>
           <div className="stat-cell">
             <span className="stat-label">{t('home.sleep')}</span>
@@ -161,6 +162,14 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      <Link to="/cycle" className="glass-card cycle-nav-card">
+        <div>
+          <p className="card-label">{t('cycle.title')}</p>
+          <p className="insight-title">{t('home.todaysLog')}</p>
+        </div>
+        <span className="chevron">›</span>
+      </Link>
 
       <Link to="/assistant" className="gradient-banner">
         <div>
