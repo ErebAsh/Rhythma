@@ -647,6 +647,43 @@ def describe_consistency(analysis: CycleAnalysis) -> str:
     return CONSISTENCY_VARIABLE
 
 
+def describe_consistency_text(analysis: CycleAnalysis) -> str:
+    """Plain-language description of cycle consistency from real variability data.
+
+    Returns a sentence that references the user's actual cycle lengths and
+    variability, not a numeric score or risk label.  At least three distinct
+    templates exist so different users see different wording based on their
+    data.
+    """
+    if len(analysis.cycles) < MIN_CYCLES_FOR_ANALYSIS:
+        return "Not enough cycle data yet to describe your patterns."
+
+    gaps = analysis.gaps
+    if not gaps:
+        return "Not enough cycle data yet to describe your patterns."
+
+    spread = max(gaps) - min(gaps)
+    count = len(gaps)
+    avg = round(sum(gaps) / count)
+
+    if spread <= CONSISTENT_SPREAD_DAYS:
+        return (
+            f"Your recent cycles have been fairly consistent, "
+            f"averaging about {avg} days."
+        )
+
+    if spread <= SLIGHTLY_VARIABLE_SPREAD_DAYS:
+        return (
+            f"Your cycle length has varied by about {spread} days "
+            f"over the last {count} cycles."
+        )
+
+    return (
+        f"Your cycle length has become more variable recently, "
+        f"ranging from {min(gaps)} to {max(gaps)} days."
+    )
+
+
 def evaluate(
     logs: Sequence[Dict[str, Any]],
     profile: Optional[Dict[str, Any]] = None,
@@ -685,6 +722,7 @@ def get_user_observations(
         "observations": [o.to_dict() for o in observations],
         "topObservation": highest.to_dict() if highest else None,
         "cycleConsistency": describe_consistency(analysis),
+        "cycleConsistencyDescription": describe_consistency_text(analysis),
         "averageCycleLength": analysis.average_cycle_length if analysis.gaps else None,
         "analyzedCycleCount": len(analysis.cycles),
         "disclaimer": DISCLAIMER_TEXT,
@@ -709,6 +747,7 @@ __all__ = [
     "Observation",
     "build_analysis",
     "describe_consistency",
+    "describe_consistency_text",
     "evaluate",
     "get_user_observations",
     "sort_observations",

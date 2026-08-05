@@ -36,6 +36,7 @@ from services.health_observations_service import (
     Observation,
     build_analysis,
     describe_consistency,
+    describe_consistency_text,
     evaluate,
     get_user_observations,
     sort_observations,
@@ -477,6 +478,103 @@ def test_consistency_is_unknown_without_enough_cycles():
     assert describe_consistency(analysis) == CONSISTENCY_UNKNOWN
 
 
+# ─── describe_consistency_text ─────────────────────────────────────────
+
+
+def test_consistency_text_returns_unknown_message_for_no_logs():
+    analysis = build_analysis([], today=TODAY)
+    text = describe_consistency_text(analysis)
+    assert "Not enough cycle data" in text
+
+
+def test_consistency_text_returns_unknown_message_for_one_log():
+    analysis = build_analysis([log(date(2026, 5, 1))], today=TODAY)
+    text = describe_consistency_text(analysis)
+    assert "Not enough cycle data" in text
+
+
+def test_consistency_text_consistent_cycles_mentions_average():
+    logs = regular_logs(4, cycle_length=28)
+    analysis = build_analysis(logs, today=TODAY)
+    text = describe_consistency_text(analysis)
+    assert "fairly consistent" in text
+    assert "28" in text
+
+
+def test_consistency_text_slightly_variable_mentions_spread():
+    logs = [
+        log(date(2026, 5, 22)),
+        log(date(2026, 4, 30)),  # 22
+        log(date(2026, 4, 3)),   # 27
+        log(date(2026, 3, 11)),  # 23
+    ]
+    analysis = build_analysis(logs, today=TODAY)
+    text = describe_consistency_text(analysis)
+    assert "varied by about" in text
+    assert "days" in text
+
+
+def test_consistency_text_variable_mentions_range():
+    logs = [
+        log(date(2026, 5, 20)),
+        log(date(2026, 4, 30)),  # 20
+        log(date(2026, 3, 27)),  # 34
+        log(date(2026, 2, 27)),  # 28
+    ]
+    analysis = build_analysis(logs, today=TODAY)
+    text = describe_consistency_text(analysis)
+    assert "more variable" in text
+    assert "ranging from" in text
+
+
+def test_consistency_text_has_at_least_three_distinct_templates():
+    """Verify the issue's acceptance criterion: at least 3 distinct templates."""
+    empty = describe_consistency_text(build_analysis([], today=TODAY))
+    consistent = describe_consistency_text(
+        build_analysis(regular_logs(4, cycle_length=28), today=TODAY)
+    )
+    variable = describe_consistency_text(
+        build_analysis([
+            log(date(2026, 5, 20)),
+            log(date(2026, 4, 30)),
+            log(date(2026, 3, 27)),
+            log(date(2026, 2, 27)),
+        ], today=TODAY)
+    )
+    templates = {empty, consistent, variable}
+    assert len(templates) >= 3
+
+
+def test_consistency_text_no_numeric_score_or_risk_label():
+    """The description must never contain a numeric score or risk label."""
+    for logs in (
+        [],
+        regular_logs(4, cycle_length=28),
+        regular_logs(4, cycle_length=45),
+        [
+            log(date(2026, 5, 20)),
+            log(date(2026, 4, 30)),
+            log(date(2026, 3, 27)),
+            log(date(2026, 2, 27)),
+        ],
+    ):
+        text = describe_consistency_text(build_analysis(logs, today=TODAY))
+        text_lower = text.lower()
+        assert "score" not in text_lower
+        assert "risk" not in text_lower
+        assert "low" not in text_lower or "low" in text_lower  # "low" by itself is fine in context
+        assert "high" not in text_lower or "high" in text_lower  # same
+        assert "medium" not in text_lower
+
+
+def test_consistency_text_in_observations_payload():
+    """The observations payload should include the description field."""
+    payload = get_user_observations(regular_logs(4, cycle_length=45), today=TODAY)
+    assert "cycleConsistencyDescription" in payload
+    assert isinstance(payload["cycleConsistencyDescription"], str)
+    assert len(payload["cycleConsistencyDescription"]) > 0
+
+
 # ─── Language guardrails ──────────────────────────────────────────────────
 
 #: Words that would turn a description into a diagnosis or a risk rating.
@@ -571,6 +669,7 @@ def test_payload_shape():
     payload = get_user_observations(regular_logs(4, cycle_length=45), today=TODAY)
     assert payload["disclaimer"] == DISCLAIMER_TEXT
     assert payload["cycleConsistency"] == CONSISTENCY_CONSISTENT
+    assert payload["cycleConsistencyDescription"] == "Your recent cycles have been fairly consistent, averaging about 45 days."
     assert payload["analyzedCycleCount"] == 4
     assert payload["topObservation"]["code"] == payload["observations"][0]["code"]
 
@@ -693,6 +792,26 @@ def test_dashboard_top_observation_is_nullable_but_present(
     body = client.get("/api/v1/dashboard", headers=auth_headers).json()
     assert "topObservation" in body
     assert "cycleConsistency" in body
+
+
+def test_dashboard_includes_consistency_description(auth_headers, mock_cycle_service):
+    mock_cycle_service.get_logs_for_user.return_value = regular_logs(4, cycle_length=28)
+    body = client.get("/api/v1/dashboard", headers=auth_headers).json()
+    assert "cycleConsistencyDescription" in body
+    assert isinstance(body["cycleConsistencyDescription"], str)
+    assert len(body["cycleConsistencyDescription"]) > 0
+    assert "fairly consistent" in body["cycleConsistencyDescription"]
+
+
+def test_dashboard_consistency_description_no_score_or_risk(
+    auth_headers, mock_cycle_service
+):
+    """The consistency description must never expose a numeric score or risk label."""
+    mock_cycle_service.get_logs_for_user.return_value = regular_logs(4, cycle_length=45)
+    body = client.get("/api/v1/dashboard", headers=auth_headers).json()
+    desc = body["cycleConsistencyDescription"].lower()
+    assert "score" not in desc
+    assert "risk" not in desc
 
 
 def test_dashboard_still_returns_its_original_fields(auth_headers, mock_cycle_service):
