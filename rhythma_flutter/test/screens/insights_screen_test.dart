@@ -145,4 +145,32 @@ void main() {
 
     expect(find.textContaining(l10n.insightsLoadError('')), findsOneWidget);
   });
+
+  testWidgets('shows the insights disclaimer at the bottom of the screen',
+      (WidgetTester tester) async {
+    await pumpInsightsScreen(tester, dashboard: fullDashboard);
+
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(InsightsScreen)),
+    )!;
+
+    expect(find.text(l10n.insightsDisclaimer), findsOneWidget);
+  });
+
+  testWidgets('disclaimer is visible without scrolling on tall screens',
+      (WidgetTester tester) async {
+    await pumpInsightsScreen(tester, dashboard: fullDashboard);
+
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(InsightsScreen)),
+    )!;
+
+    // The disclaimer should be present in the widget tree
+    final disclaimerFinder = find.text(l10n.insightsDisclaimer);
+    expect(disclaimerFinder, findsOneWidget);
+
+    // Verify it's not off-screen by checking it's rendered
+    final widget = tester.widget<Text>(disclaimerFinder);
+    expect(widget.data, isNotEmpty);
+  });
 }

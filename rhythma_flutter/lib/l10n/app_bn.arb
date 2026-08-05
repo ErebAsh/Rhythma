@@ -325,5 +325,6 @@
   "deleteAccount": "অ্যাকাউন্ট মুছুন",
   "deleteAccountConfirmationTitle": "অ্যাকাউন্ট মুছবেন?",
   "deleteAccountConfirmationDesc": "এই ক্রিয়াটি স্থায়ী এবং পূর্বাবস্থায় ফিরিয়ে আনা যাবে না। আপনার সমস্ত ডেটা মুছে ফেলা হবে।",
-  "accountDeletedSuccess": "অ্যাকাউন্ট সফলভাবে মুছে ফেলা হয়েছে।"
+  "accountDeletedSuccess": "অ্যাকাউন্ট সফলভাবে মুছে ফেলা হয়েছে।",
+  "insightsDisclaimer": "These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional."
 }

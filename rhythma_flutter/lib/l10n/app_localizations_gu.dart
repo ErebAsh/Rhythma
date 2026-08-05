@@ -911,4 +911,7 @@ class AppLocalizationsGu extends AppLocalizations {
 
   @override
   String get langGujarati => 'ગુજરાતી (Gujarati)';
+
+  @override
+  String get insightsDisclaimer => 'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.';
 }
