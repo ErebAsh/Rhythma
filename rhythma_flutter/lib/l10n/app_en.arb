@@ -329,5 +329,6 @@
   "deleteAccountConfirmationTitle": "Delete Account?",
   "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
   "accountDeletedSuccess": "Account deleted successfully.",
-  "langGujarati": "ગુજરાતી (Gujarati)"
+  "langGujarati": "ગુજરાતી (Gujarati)",
+  "insightsDisclaimer": "These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional."
 }

@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-const fetchCycleHistory = vi.fn();
+const fetchCycleHistoryRange = vi.fn();
 const fetchProfile = vi.fn();
 const submitCycleLog = vi.fn();
 const deleteCycleLog = vi.fn();
 
 vi.mock('../api/endpoints', () => ({
-  fetchCycleHistory: (...args: unknown[]) => fetchCycleHistory(...args),
+  fetchCycleHistoryRange: (...args: unknown[]) => fetchCycleHistoryRange(...args),
   fetchProfile: (...args: unknown[]) => fetchProfile(...args),
   submitCycleLog: (...args: unknown[]) => submitCycleLog(...args),
   deleteCycleLog: (...args: unknown[]) => deleteCycleLog(...args),
@@ -37,7 +37,7 @@ import { renderWithProviders } from '../test/utils';
 
 beforeEach(() => {
   vi.clearAllMocks();
-  fetchCycleHistory.mockResolvedValue([]);
+  fetchCycleHistoryRange.mockResolvedValue([]);
   fetchProfile.mockResolvedValue({ last_period: null });
 });
 
@@ -46,16 +46,16 @@ describe('CyclePage loading and data fetch', () => {
     renderWithProviders(<CyclePage />);
 
     await waitFor(() => {
-      expect(fetchCycleHistory).toHaveBeenCalledTimes(1);
+      expect(fetchCycleHistoryRange).toHaveBeenCalledTimes(1);
     });
     expect(fetchProfile).toHaveBeenCalledTimes(1);
   });
 
-  it('passes 365 as the history limit', async () => {
+  it('calls fetchCycleHistoryRange with userId and date range', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
-    expect(fetchCycleHistory).toHaveBeenCalledWith('u1', 365);
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
+    expect(fetchCycleHistoryRange).toHaveBeenCalledWith('u1', expect.any(String), expect.any(String));
   });
 
   it('tolerates a profile fetch failure', async () => {
@@ -63,7 +63,7 @@ describe('CyclePage loading and data fetch', () => {
 
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     expect(screen.queryByText(/fail|error/i)).not.toBeInTheDocument();
   });
 });
@@ -72,7 +72,7 @@ describe('CyclePage calendar', () => {
   it('renders the current month and year', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     const now = new Date();
     const monthYear = now.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
     expect(screen.getByText(monthYear)).toBeInTheDocument();
@@ -81,7 +81,7 @@ describe('CyclePage calendar', () => {
   it('renders weekday headers including two S entries', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     const sElements = screen.getAllByText('S');
     expect(sElements.length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText('M')).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('CyclePage calendar', () => {
   it('navigates to the previous month', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     const prevBtn = screen.getByRole('button', { name: /previous month/i });
     await userEvent.click(prevBtn);
 
@@ -105,7 +105,7 @@ describe('CyclePage calendar', () => {
   it('navigates to the next month', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     const nextBtn = screen.getByRole('button', { name: /next month/i });
     await userEvent.click(nextBtn);
 
@@ -118,7 +118,7 @@ describe('CyclePage calendar', () => {
   it('has a Today button that resets to the current month', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
 
     const prevBtn = screen.getByRole('button', { name: /previous month/i });
     await userEvent.click(prevBtn);
@@ -137,14 +137,14 @@ describe('CyclePage logging form', () => {
   it('renders the log heading with the selected date', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     expect(screen.getByText(/log for/i)).toBeInTheDocument();
   });
 
   it('renders all five log rows: flow, mood, energy, sleep, symptoms', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     expect(screen.getByText(/flow/i)).toBeInTheDocument();
     expect(screen.getByText(/mood/i)).toBeInTheDocument();
     expect(screen.getByText(/energy/i)).toBeInTheDocument();
@@ -155,7 +155,7 @@ describe('CyclePage logging form', () => {
   it('renders chip options for flow', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     expect(screen.getByRole('button', { name: /light/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /medium/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /heavy/i })).toBeInTheDocument();
@@ -164,7 +164,7 @@ describe('CyclePage logging form', () => {
   it('enables the save button when a selection is made', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     const saveBtn = screen.getByRole('button', { name: /save log/i });
     expect(saveBtn).toBeDisabled();
 
@@ -177,7 +177,7 @@ describe('CyclePage logging form', () => {
 
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     await userEvent.click(screen.getByRole('button', { name: /light/i }));
     await userEvent.click(screen.getByRole('button', { name: /save log/i }));
 
@@ -192,7 +192,7 @@ describe('CyclePage logging form', () => {
 
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     await userEvent.click(screen.getByRole('button', { name: /8h/i }));
     await userEvent.click(screen.getByRole('button', { name: /save log/i }));
 
@@ -205,7 +205,7 @@ describe('CyclePage logging form', () => {
 
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     await userEvent.click(screen.getByRole('button', { name: /high/i }));
     await userEvent.click(screen.getByRole('button', { name: /save log/i }));
 
@@ -218,7 +218,7 @@ describe('CyclePage logging form', () => {
 
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     await userEvent.click(screen.getByRole('button', { name: /cramps/i }));
     await userEvent.click(screen.getByRole('button', { name: /headache/i }));
     await userEvent.click(screen.getByRole('button', { name: /save log/i }));
@@ -231,7 +231,7 @@ describe('CyclePage logging form', () => {
   it('deselects a chip when clicked again', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     await userEvent.click(screen.getByRole('button', { name: /light/i }));
     await userEvent.click(screen.getByRole('button', { name: /light/i }));
 
@@ -246,11 +246,11 @@ describe('CyclePage save and delete', () => {
 
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalledTimes(1));
     await userEvent.click(screen.getByRole('button', { name: /light/i }));
     await userEvent.click(screen.getByRole('button', { name: /save log/i }));
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalledTimes(2));
   });
 
   it('shows success text briefly after saving', async () => {
@@ -258,14 +258,14 @@ describe('CyclePage save and delete', () => {
 
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     await userEvent.click(screen.getByRole('button', { name: /light/i }));
     await userEvent.click(screen.getByRole('button', { name: /save log/i }));
 
     await waitFor(() => expect(submitCycleLog).toHaveBeenCalled());
     // The success message appears and then may be cleared by reload;
     // just verify the save was submitted and history re-fetched.
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalledTimes(2));
   });
 
   it('shows an error message when save fails', async () => {
@@ -273,7 +273,7 @@ describe('CyclePage save and delete', () => {
 
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     await userEvent.click(screen.getByRole('button', { name: /light/i }));
     await userEvent.click(screen.getByRole('button', { name: /save log/i }));
 
@@ -287,13 +287,13 @@ describe('CyclePage save and delete', () => {
     const today = new Date();
     const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-    fetchCycleHistory.mockResolvedValue([
+    fetchCycleHistoryRange.mockResolvedValue([
       { id: 'log-1', start_date: iso, flow_intensity: 'light' },
     ]);
 
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     // Today is auto-selected and has a log, so delete button should appear.
     expect(screen.getByRole('button', { name: /delete log/i })).toBeInTheDocument();
   });
@@ -301,18 +301,18 @@ describe('CyclePage save and delete', () => {
   it('does not show delete button when no log exists for the selected day', async () => {
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     expect(screen.queryByRole('button', { name: /delete log/i })).not.toBeInTheDocument();
   });
 });
 
 describe('CyclePage error states', () => {
   it('handles history fetch failure gracefully', async () => {
-    fetchCycleHistory.mockRejectedValue(new Error('500'));
+    fetchCycleHistoryRange.mockRejectedValue(new Error('500'));
 
     renderWithProviders(<CyclePage />);
 
-    await waitFor(() => expect(fetchCycleHistory).toHaveBeenCalled());
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
   });
 });

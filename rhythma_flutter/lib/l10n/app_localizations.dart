@@ -1845,6 +1845,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'ગુજરાતી (Gujarati)'**
   String get langGujarati;
+
+  /// No description provided for @insightsDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.'**
+  String get insightsDisclaimer;
 }
 
 class _AppLocalizationsDelegate

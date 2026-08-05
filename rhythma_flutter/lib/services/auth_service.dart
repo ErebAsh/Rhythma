@@ -19,6 +19,12 @@ class AuthService {
       final token = response.data['access_token'] as String;
       await SecureStorage.saveToken(token);
 
+      // Save refresh token if present (now returned by backend)
+      final refreshToken = response.data['refresh_token'] as String?;
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        await SecureStorage.saveRefreshToken(refreshToken);
+      }
+
       // Scope local (profile/chat history/cycle log) storage to this
       // account so multiple accounts on the same device don't share data.
       try {
@@ -102,7 +108,7 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    await SecureStorage.deleteToken();
+    await SecureStorage.clearAuth();
     // Clears which account is "active" locally — does not delete that
     // account's cached data, so it's still there if they log back in.
     await LocalStorageService.setCurrentUserId(null);
@@ -114,7 +120,7 @@ class AuthService {
     } catch (_) {
       // Best effort deletion on the server, but we must delete locally regardless
     }
-    await SecureStorage.deleteToken();
+    await SecureStorage.clearAuth();
     await LocalStorageService.deleteCurrentUserData();
   }
 
