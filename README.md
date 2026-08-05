@@ -304,6 +304,8 @@ Legend: ✅ **Done** (real, working, no mocks) · 🟡 **Partial / Needs Attenti
 | PR template enforcing source citations for health content | ❌ Not Implemented |
 | Issue templates / CODEOWNERS | ❌ Not Implemented |
 
+**Backend deployment**: If a live backend is available, add it here once deployed (e.g. `https://api.rhythma.example`). See [docs/deploy_backend.md](docs/deploy_backend.md) for a minimal deployment guide.
+
 **Nothing else is deployed yet.** The FastAPI backend, the `web/` React app, and the Flutter app all currently need to be run locally — see [Installation](#installation). The backend needs a host (Render/Railway free tier is the likely candidate), `web/` can then point at that live backend and deploy to Vercel the same way `landing-page/` does, and Flutter can ship two ways — a downloadable APK attached to GitHub Releases for anyone to sideload, and/or a `flutter build web` deploy (Flutter already has a `web/` platform target committed) to get a browser-testable build of the actual app, distinct from the React `web/` folder.
 
 > This table is maintained by contributors alongside their PRs — see [CONTRIBUTING.md → Documentation Guidelines](CONTRIBUTING.md#documentation-guidelines). A PR that implements something listed here as ❌ or 🟡 should update the relevant row in the same PR.
