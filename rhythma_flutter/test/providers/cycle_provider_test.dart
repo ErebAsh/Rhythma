@@ -99,9 +99,9 @@ void main() {
       // last_period is seeded as 2026-01-28 in setUp.
       expect(provider.phaseColor(DateTime(2026, 1, 28)), RhythmaColors.rose); // day 1
       expect(
-          provider.phaseColor(DateTime(2026, 2, 9)), RhythmaColors.primary); // day 13
+          provider.phaseColor(DateTime(2026, 2, 9)), RhythmaColors.teal); // day 13 — ovulation phase
       expect(
-          provider.phaseColor(DateTime(2026, 2, 12)), RhythmaColors.teal); // day 16
+          provider.phaseColor(DateTime(2026, 2, 12)), RhythmaColors.coral); // day 16 — luteal phase
       expect(
           provider.phaseColor(DateTime(2026, 2, 18)), RhythmaColors.coral); // day 22
     });

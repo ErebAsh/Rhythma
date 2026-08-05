@@ -13,6 +13,7 @@ from core.auth import (
     generate_verification_token,
     verify_email_token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
+    OTP_SESSION_EXPIRE_MINUTES,
     REFRESH_TOKEN_EXPIRE_DAYS,
     COOKIE_NAME,
     REFRESH_COOKIE_NAME,
@@ -95,11 +96,11 @@ def get_client_ip(request: Request) -> str:
     """
     return client_ip(request)
 
-def _set_auth_cookie(response: Response, token: str):
+def _set_auth_cookie(response: Response, token: str, max_age_seconds: int | None = None):
     response.set_cookie(
         key=COOKIE_NAME,
         value=token,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        max_age=max_age_seconds or (ACCESS_TOKEN_EXPIRE_MINUTES * 60),
         httponly=True,
         secure=COOKIE_SECURE,
         samesite=COOKIE_SAMESITE,
@@ -186,13 +187,14 @@ async def firebase_login(request: Request, response: Response, data: FirebaseLog
             user_id = UserService.create_user(user_data)
             user = UserService.get_user_by_id(user_id)
             
-        # Issue internal JWT
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        # Issue internal JWT — OTP sessions use a long-lived token (10 years)
+        # so the app never re-prompts for login on a verified device.
+        access_token_expires = timedelta(minutes=OTP_SESSION_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": user["id"]}, expires_delta=access_token_expires
         )
         
-        _set_auth_cookie(response, access_token)
+        _set_auth_cookie(response, access_token, max_age_seconds=OTP_SESSION_EXPIRE_MINUTES * 60)
         
         # Web clients rely on the HttpOnly cookie for security and do not need the token in the body.
         # Flutter/Mobile clients still need the token in the response body.
