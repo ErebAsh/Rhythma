@@ -9,6 +9,7 @@ from services.firestore_service import UserService
 from services.health_observations_service import (
     build_analysis,
     describe_consistency,
+    describe_consistency_text,
     evaluate,
     top_observation,
 )
@@ -133,6 +134,10 @@ class DashboardResponse(BaseModel):
     #: variable / unknown), per menstrual_insights_guidelines.md's summary
     #: card guidance — a word, not a score.
     cycleConsistency: str = "unknown"
+    #: Plain-language description of cycle consistency derived from actual
+    #: variability data.  References cycle lengths and spread, not a
+    #: numeric score or risk label.
+    cycleConsistencyDescription: str = ""
     #: "When is my next period?" — the overdue-aware prediction summary.
     #: Additive and nullable so clients written before this field existed
     #: keep working.
@@ -212,7 +217,9 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
     # object; both are pure functions over the same list.
     observations = evaluate(logs)
     highest = top_observation(observations)
-    consistency = describe_consistency(build_analysis(logs))
+    analysis = build_analysis(logs)
+    consistency = describe_consistency(analysis)
+    consistency_text = describe_consistency_text(analysis)
 
     # The prediction summary reuses the same logs (and the profile already
     # fetched for scoring) so the Home screen needs no extra read. It is the
@@ -247,5 +254,6 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "recentStressLevel": recent_stress_level,
         "topObservation": highest.to_dict() if highest else None,
         "cycleConsistency": consistency,
+        "cycleConsistencyDescription": consistency_text,
         "prediction": prediction,
     }
