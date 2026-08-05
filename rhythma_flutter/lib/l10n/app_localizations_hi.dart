@@ -97,6 +97,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get homeHighEnergy => 'उच्च ऊर्जा';
 
   @override
+  String get homeFertileWindowDisclaimer =>
+      'यह आपके लॉग किए गए डेटा पर आधारित एक अनुमान है, चिकित्सीय या गर्भनिरोधक सलाह नहीं।';
+
+  @override
   String get homeAiTitle => 'रिद्मा एआई';
 
   @override

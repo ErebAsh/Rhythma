@@ -97,6 +97,10 @@ class AppLocalizationsGu extends AppLocalizations {
   String get homeHighEnergy => 'ઊંચી ઊર્જા';
 
   @override
+  String get homeFertileWindowDisclaimer =>
+      'આ તમારા લોગ કરેલા ડેટા પર આધારિત એક અંદાજ છે, તબીબી અથવા ગર્ભનિરોધક સલાહ નથી.';
+
+  @override
   String get homeAiTitle => 'RHYTHMA AI';
 
   @override

@@ -97,6 +97,10 @@ class AppLocalizationsMl extends AppLocalizations {
   String get homeHighEnergy => 'ഉയർന്ന ഊർജ്ജസ്വലത';
 
   @override
+  String get homeFertileWindowDisclaimer =>
+      'ഇത് നിങ്ങൾ രേഖപ്പെടുത്തിയ ഡാറ്റയെ അടിസ്ഥാനമാക്കിയുള്ള ഒരു കണക്കാക്കൽ മാത്രമാണ്, ഇത് വൈദ്യോപദേശമോ ഗർഭനിരോധന ഉപദേശമോ അല്ല.';
+
+  @override
   String get homeAiTitle => 'RHYTHMA AI';
 
   @override

@@ -97,6 +97,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get homeHighEnergy => 'উচ্চ শক্তি';
 
   @override
+  String get homeFertileWindowDisclaimer =>
+      'এটি আপনার লগ করা ডেটার উপর ভিত্তি করে একটি অনুমান মাত্র, চিকিৎসা বা গর্ভনিরোধক পরামর্শ নয়।';
+
+  @override
   String get homeAiTitle => 'RHYTHMA AI';
 
   @override

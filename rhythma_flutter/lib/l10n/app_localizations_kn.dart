@@ -97,6 +97,10 @@ class AppLocalizationsKn extends AppLocalizations {
   String get homeHighEnergy => 'ಹೆಚ್ಚಿನ ಶಕ್ತಿ';
 
   @override
+  String get homeFertileWindowDisclaimer =>
+      'ಇದು ನೀವು ದಾಖಲಿಸಿದ ಡೇಟಾ ಆಧಾರಿತ ಅಂದಾಜು ಮಾತ್ರ, ವೈದ್ಯಕೀಯ ಅಥವಾ ಗರ್ಭನಿರೋಧಕ ಸಲಹೆ ಅಲ್ಲ.';
+
+  @override
   String get homeAiTitle => 'RHYTHMA AI';
 
   @override

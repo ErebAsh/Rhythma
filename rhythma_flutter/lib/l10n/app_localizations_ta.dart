@@ -96,6 +96,10 @@ class AppLocalizationsTa extends AppLocalizations {
   String get homeHighEnergy => 'அதிக ஆற்றல்';
 
   @override
+  String get homeFertileWindowDisclaimer =>
+      'இது உங்கள் பதிவு செய்யப்பட்ட தரவின் அடிப்படையிலான மதிப்பீடு மட்டுமே, மருத்துவ அல்லது கருத்தடை ஆலோசனை அல்ல.';
+
+  @override
   String get homeAiTitle => 'ரித்மா ஏஐ (Rhythma AI)';
 
   @override

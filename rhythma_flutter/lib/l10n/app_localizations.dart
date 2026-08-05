@@ -286,6 +286,12 @@ abstract class AppLocalizations {
   /// **'High energy'**
   String get homeHighEnergy;
 
+  /// No description provided for @homeFertileWindowDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This is an estimate based on your logged data, not medical or contraceptive advice.'**
+  String get homeFertileWindowDisclaimer;
+
   /// No description provided for @homeAiTitle.
   ///
   /// In en, this message translates to:

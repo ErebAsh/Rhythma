@@ -97,6 +97,10 @@ class AppLocalizationsTe extends AppLocalizations {
   String get homeHighEnergy => 'అధిక శక్తి';
 
   @override
+  String get homeFertileWindowDisclaimer =>
+      'ఇది మీరు నమోదు చేసిన డేటా ఆధారంగా ఒక అంచనా మాత్రమే, వైద్య లేదా గర్భనిరోధక సలహా కాదు.';
+
+  @override
   String get homeAiTitle => 'రిథ్మా ఏఐ (Rhythma AI)';
 
   @override

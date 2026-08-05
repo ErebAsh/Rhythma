@@ -97,6 +97,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeHighEnergy => 'High energy';
 
   @override
+  String get homeFertileWindowDisclaimer =>
+      'This is an estimate based on your logged data, not medical or contraceptive advice.';
+
+  @override
   String get homeAiTitle => 'RHYTHMA AI';
 
   @override

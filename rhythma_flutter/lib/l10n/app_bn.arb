@@ -32,6 +32,7 @@
   "homeDaysLabel": "দিন",
   "homeFertileWindow": "উর্বর সময় · ",
   "homeHighEnergy": "উচ্চ শক্তি",
+  "homeFertileWindowDisclaimer": "এটি আপনার লগ করা ডেটার উপর ভিত্তি করে একটি অনুমান মাত্র, চিকিৎসা বা গর্ভনিরোধক পরামর্শ নয়।",
   "homeAiTitle": "RHYTHMA AI",
   "homeAiSubtitle": "আপনার শরীর সম্পর্কে আমাকে কিছু জিজ্ঞাসা করুন,\nআপনার ভাষায়।",
   "homeAiPrompt": "আমার পিরিয়ড অনিয়মিত কেন?",

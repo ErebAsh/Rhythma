@@ -32,6 +32,7 @@
   "homeDaysLabel": "days",
   "homeFertileWindow": "Fertile window · ",
   "homeHighEnergy": "High energy",
+  "homeFertileWindowDisclaimer": "This is an estimate based on your logged data, not medical or contraceptive advice.",
   "homeAiTitle": "RHYTHMA AI",
   "homeAiSubtitle": "Ask me anything about your body,\nin your language.",
   "homeAiPrompt": "Why are my periods irregular?",
