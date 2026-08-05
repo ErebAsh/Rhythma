@@ -397,6 +397,10 @@ class AppLocalizationsTe extends AppLocalizations {
   String get insightsRec3 => 'అండోత్సర్గం వారంలో 2.5L నీరు త్రాగండి';
 
   @override
+  String get insightsDisclaimer =>
+      'ఈ అంతర్దృష్టులు మీరు నమోదు చేసిన సమాచారంపై ఆధారపడి ఉంటాయి మరియు వ్యక్తిగత ట్రాకింగ్ కోసం మాత్రమే ఉద్దేశించబడ్డాయి. ఇది వైద్య నిర్ధారణ కాదు మరియు అర్హత కలిగిన వైద్య నిపుణుల సలహాకు ప్రత్యామ్నాయం కాదు.';
+
+  @override
   String get profileTitle => 'ప్రొఫైల్';
 
   @override

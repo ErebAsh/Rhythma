@@ -395,6 +395,10 @@ class AppLocalizationsGu extends AppLocalizations {
   String get insightsRec3 => 'ઓવ્યુલેશન અઠવાડિયા દરમિયાન 2.5L પાણી પીઓ';
 
   @override
+  String get insightsDisclaimer =>
+      'આ માહિતી તમે લોગ કરેલા ડેટા પર આધારિત છે અને ફક્ત વ્યક્તિગત ટ્રેકિંગ માટે છે. આ તબીબી નિદાન નથી અને લાયક તબીબી વ્યાવસાયિકની સલાહનો વિકલ્પ નથી.';
+
+  @override
   String get profileTitle => 'પ્રોફાઇલ';
 
   @override

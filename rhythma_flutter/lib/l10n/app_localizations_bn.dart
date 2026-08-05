@@ -399,6 +399,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get insightsRec3 => 'ডিম্বস্ফোটন সপ্তাহে 2.5L হাইড্রেট করুন';
 
   @override
+  String get insightsDisclaimer =>
+      'এই তথ্যগুলি আপনার লগ করা ডেটার উপর ভিত্তি করে এবং শুধুমাত্র ব্যক্তিগত ট্র্যাকিংয়ের জন্য। এটি চিকিৎসা নির্ণয় নয় এবং যোগ্য স্বাস্থ্যসেবা পেশাদারের পরামর্শের বিকল্প নয়।';
+
+  @override
   String get profileTitle => 'প্রোফাইল';
 
   @override

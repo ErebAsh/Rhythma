@@ -399,6 +399,10 @@ class AppLocalizationsMl extends AppLocalizations {
   String get insightsRec3 => 'അണ്ഡോത്പാദന ആഴ്ചയിൽ 2.5 ലിറ്റർ വെള്ളം കുടിക്കുക';
 
   @override
+  String get insightsDisclaimer =>
+      'ഈ ഉൾക്കാഴ്ചകൾ നിങ്ങൾ രേഖപ്പെടുത്തിയ വിവരങ്ങളെ അടിസ്ഥാനമാക്കിയുള്ളതാണ്, വ്യക്തിഗത ട്രാക്കിംഗിന് മാത്രം ഉദ്ദേശിച്ചുള്ളതാണ്. ഇത് വൈദ്യ രോഗനിർണയമല്ല, യോഗ്യതയുള്ള വൈദ്യ വിദഗ്ധന്റെ ഉപദേശത്തിന് പകരമല്ല.';
+
+  @override
   String get profileTitle => 'പ്രൊഫൈൽ';
 
   @override

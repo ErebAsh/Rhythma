@@ -396,6 +396,10 @@ class AppLocalizationsKn extends AppLocalizations {
   String get insightsRec3 => 'ಅಂಡೋತ್ಪತ್ತಿಯ ವಾರದಲ್ಲಿ 2.5L ನೀರು ಕುಡಿಯಿರಿ';
 
   @override
+  String get insightsDisclaimer =>
+      'ಈ ಒಳನೋಟಗಳು ನೀವು ದಾಖಲಿಸಿದ ಮಾಹಿತಿಯ ಆಧಾರದ ಮೇಲೆ ಇವೆ ಮತ್ತು ವೈಯಕ್ತಿಕ ಟ್ರ್ಯಾಕಿಂಗ್‌ಗಾಗಿ ಮಾತ್ರ. ಇದು ವೈದ್ಯಕೀಯ ರೋಗನಿರ್ಣಯವಲ್ಲ ಮತ್ತು ಅರ್ಹ ವೈದ್ಯಕೀಯ ವೃತ್ತಿಪರರ ಸಲಹೆಗೆ ಬದಲಿಯಲ್ಲ.';
+
+  @override
   String get profileTitle => 'ಪ್ರೊಫೈಲ್';
 
   @override

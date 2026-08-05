@@ -850,6 +850,12 @@ abstract class AppLocalizations {
   /// **'Hydrate 2.5L during ovulation week'**
   String get insightsRec3;
 
+  /// No description provided for @insightsDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.'**
+  String get insightsDisclaimer;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:

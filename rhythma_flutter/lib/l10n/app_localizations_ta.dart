@@ -398,6 +398,10 @@ class AppLocalizationsTa extends AppLocalizations {
       'அண்டவிடுப்பின் வாரத்தில் 2.5L தண்ணீர் குடிக்கவும்';
 
   @override
+  String get insightsDisclaimer =>
+      'இந்த நுண்ணறிவுகள் நீங்கள் பதிவு செய்த தரவை அடிப்படையாகக் கொண்டவை, தனிப்பட்ட கண்காணிப்புக்காக மட்டுமே. இது மருத்துவ நோயறிதல் அல்ல, தகுதி வாய்ந்த மருத்துவ நிபுணரின் ஆலோசனைக்கு மாற்றாக இல்லை.';
+
+  @override
   String get profileTitle => 'சுயவிவரம்';
 
   @override

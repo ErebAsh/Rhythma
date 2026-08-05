@@ -397,6 +397,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get insightsRec3 => 'ओव्यूलेशन सप्ताह के दौरान 2.5L पानी पिएं';
 
   @override
+  String get insightsDisclaimer =>
+      'ये जानकारियाँ आपके द्वारा दर्ज किए गए डेटा पर आधारित हैं और केवल व्यक्तिगत ट्रैकिंग के लिए हैं। यह चिकित्सीय निदान नहीं है और किसी योग्य स्वास्थ्य विशेषज्ञ की सलाह का विकल्प नहीं है।';
+
+  @override
   String get profileTitle => 'प्रोफ़ाइल';
 
   @override

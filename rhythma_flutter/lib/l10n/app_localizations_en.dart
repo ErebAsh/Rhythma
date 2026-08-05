@@ -394,6 +394,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightsRec3 => 'Hydrate 2.5L during ovulation week';
 
   @override
+  String get insightsDisclaimer =>
+      'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override
