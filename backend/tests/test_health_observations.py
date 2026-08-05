@@ -431,6 +431,108 @@ def test_short_sleep_trend_quiet_at_six_hours():
     assert find(evaluate(logs, today=TODAY), "short_sleep_trend") is None
 
 
+# ─── severe_pain_pattern ───────────────────────────────────────────────
+
+
+def test_severe_pain_pattern_fires_on_three_of_four_cycles():
+    logs = [
+        log(date(2026, 5, 1), symptoms=["cramps", "headache"]),
+        log(date(2026, 4, 1), symptoms=["back pain"]),
+        log(date(2026, 3, 1), symptoms=["cramps"]),
+        log(date(2026, 2, 1), symptoms=["bloating"]),
+    ]
+    observation = find(evaluate(logs, today=TODAY), "severe_pain_pattern")
+    assert observation is not None
+    assert observation.severity == SEVERITY_SEEK_CARE
+    assert observation.evidence["pain_cycles"] == 3
+    assert observation.evidence["window"] == 4
+
+
+def test_severe_pain_pattern_does_not_fire_on_two_of_four():
+    logs = [
+        log(date(2026, 5, 1), symptoms=["cramps"]),
+        log(date(2026, 4, 1), symptoms=["headache"]),
+        log(date(2026, 3, 1), symptoms=["cramps"]),
+        log(date(2026, 2, 1), symptoms=["bloating"]),
+    ]
+    assert find(evaluate(logs, today=TODAY), "severe_pain_pattern") is None
+
+
+def test_severe_pain_pattern_needs_four_cycles():
+    """Fewer than 4 cycles means the window is incomplete."""
+    logs = [
+        log(date(2026, 5, 1), symptoms=["cramps"]),
+        log(date(2026, 4, 1), symptoms=["cramps"]),
+        log(date(2026, 3, 1), symptoms=["cramps"]),
+    ]
+    assert find(evaluate(logs, today=TODAY), "severe_pain_pattern") is None
+
+
+def test_severe_pain_pattern_ignores_non_pain_symptoms():
+    logs = [
+        log(date(2026, 5, 1), symptoms=["headache", "bloating", "nausea"]),
+        log(date(2026, 4, 1), symptoms=["headache", "bloating"]),
+        log(date(2026, 3, 1), symptoms=["headache", "acne"]),
+        log(date(2026, 2, 1), symptoms=["bloating"]),
+    ]
+    assert find(evaluate(logs, today=TODAY), "severe_pain_pattern") is None
+
+
+# ─── repeated_heavy_flow_concern ────────────────────────────────────────
+
+
+def test_repeated_heavy_flow_concern_fires():
+    logs = [
+        log(date(2026, 5, 1), flow="heavy"),
+        log(date(2026, 4, 1), flow="medium"),
+        log(date(2026, 3, 1), flow="Heavy"),
+    ]
+    observation = find(evaluate(logs, today=TODAY), "repeated_heavy_flow_concern")
+    assert observation is not None
+    assert observation.severity == SEVERITY_SEEK_CARE
+    assert observation.evidence["heavy_cycles"] == 2
+
+
+def test_repeated_heavy_flow_concern_does_not_fire_on_single_heavy():
+    logs = [
+        log(date(2026, 5, 1), flow="heavy"),
+        log(date(2026, 4, 1), flow="light"),
+        log(date(2026, 3, 1), flow="medium"),
+    ]
+    assert find(evaluate(logs, today=TODAY), "repeated_heavy_flow_concern") is None
+
+
+# ─── frequent_bleeding_pattern ──────────────────────────────────────────
+
+
+def test_frequent_bleeding_pattern_fires_on_two_consecutive_short():
+    logs = [
+        log(date(2026, 5, 20)),
+        log(date(2026, 5, 5)),   # 15-day gap
+        log(date(2026, 4, 20)),  # 15-day gap
+        log(date(2026, 4, 1)),
+    ]
+    observation = find(evaluate(logs, today=TODAY), "frequent_bleeding_pattern")
+    assert observation is not None
+    assert observation.severity == SEVERITY_SEEK_CARE
+    assert observation.evidence["consecutive_short_cycles"] >= 2
+
+
+def test_frequent_bleeding_pattern_does_not_fire_on_single_short():
+    logs = [
+        log(date(2026, 5, 20)),
+        log(date(2026, 5, 1)),   # 19-day gap
+        log(date(2026, 4, 3)),   # 28-day gap (breaks the streak)
+        log(date(2026, 3, 6)),
+    ]
+    assert find(evaluate(logs, today=TODAY), "frequent_bleeding_pattern") is None
+
+
+def test_frequent_bleeding_pattern_needs_two_gaps():
+    logs = [log(date(2026, 5, 1)), log(date(2026, 4, 10))]
+    assert find(evaluate(logs, today=TODAY), "frequent_bleeding_pattern") is None
+
+
 # ─── Ordering and consistency ─────────────────────────────────────────────
 
 
@@ -520,6 +622,20 @@ def _all_user_facing_copy():
                 symptoms=["cramps"], stress=5, sleep=5.0),
             log(date(2026, 2, 20), end=date(2026, 2, 25), flow="light",
                 symptoms=["cramps"], stress=4, sleep=5.5),
+        ],
+        # 4 cycles with pain symptoms in 3 of them (triggers severe_pain_pattern)
+        [
+            log(date(2026, 5, 1), symptoms=["cramps", "headache"]),
+            log(date(2026, 4, 1), symptoms=["back pain"]),
+            log(date(2026, 3, 1), symptoms=["cramps"]),
+            log(date(2026, 2, 1), symptoms=["bloating"]),
+        ],
+        # 3 consecutive short cycles (triggers frequent_bleeding_pattern)
+        [
+            log(date(2026, 5, 20)),
+            log(date(2026, 5, 5)),   # 15-day gap
+            log(date(2026, 4, 20)),  # 15-day gap
+            log(date(2026, 4, 5)),   # 15-day gap
         ],
         regular_logs(3, last_start=TODAY - timedelta(days=140)),
         regular_logs(4, last_start=TODAY - timedelta(days=40)),

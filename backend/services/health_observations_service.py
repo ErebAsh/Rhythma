@@ -101,6 +101,31 @@ PERIOD_LATE_DAYS = 7
 #: Minimum observations needed before any cycle-length rule can fire.
 MIN_CYCLES_FOR_ANALYSIS = 2
 
+# ─── Concerning-symptom thresholds ──────────────────────────────────────
+#
+# Rules in this group detect symptom patterns that warrant a plain
+# recommendation to consult a healthcare professional.  They follow the
+# same "simple, directly traceable to logged data" principle as every
+# other rule — no model inference, no diagnosis.
+
+#: Symptoms that signal pain when logged repeatedly.  Chosen from the
+#: app's current symptom set; "severe pain" as a distinct chip does not
+#: yet exist, so we treat frequent pain-related logging as the closest
+#: available signal.
+PAIN_SYMPTOMS = frozenset({"cramps", "back pain"})
+
+#: How many of the last N cycles must contain a pain symptom before the
+#: severe-pain rule fires.  3 out of 4 is a clear repeated pattern.
+SEVERE_PAIN_MIN_OCCURRENCES = 3
+SEVERE_PAIN_WINDOW = 4
+
+#: Gap between consecutive period starts that is short enough to suggest
+#: frequent bleeding.  Cycles shorter than this threshold on their own
+#: are already caught by the short-cycle rule; this rule looks for TWO
+#: consecutive short gaps, which is a different signal.
+FREQUENT_BLEEDING_MAX_GAP_DAYS = 21
+FREQUENT_BLEEDING_MIN_CONSECUTIVE = 2
+
 #: Localization key for the disclaimer the guidelines require on every
 #: insights surface. The English fallback below is the exact wording from
 #: menstrual_insights_guidelines.md.
@@ -603,6 +628,132 @@ def rule_short_sleep_trend(analysis: CycleAnalysis) -> Optional[Observation]:
     )
 
 
+# ─── Concerning-symptom rules ──────────────────────────────────────────
+#
+# These rules detect symptom patterns that warrant a plain recommendation
+# to see a healthcare professional.  They follow the same interface as
+# every other rule: ``CycleAnalysis`` in, ``Observation`` or ``None`` out.
+# The severity is ``seek_care`` because the guidelines' Concerning
+# Symptoms section says the app should recommend seeking medical advice
+# for these patterns — not scoring them, not naming a condition.
+
+
+def rule_severe_pain_pattern(analysis: CycleAnalysis) -> Optional[Observation]:
+    """Repeated pain symptoms across recent cycles.
+
+    The guidelines name "severe pain" as a Concerning Symptom.  The app
+    does not yet offer a "severe pain" chip, so we treat frequent logging
+    of pain-related symptoms (cramps, back pain) as the closest available
+    signal: if 3 or more of the last 4 cycles include a pain symptom, the
+    pattern is worth flagging.
+    """
+    window = analysis.cycles[:SEVERE_PAIN_WINDOW]
+    if len(window) < SEVERE_PAIN_WINDOW:
+        return None
+    pain_cycles = [
+        c for c in window
+        if any(s in PAIN_SYMPTOMS for s in c.symptoms)
+    ]
+    if len(pain_cycles) < SEVERE_PAIN_MIN_OCCURRENCES:
+        return None
+    return Observation(
+        code="severe_pain_pattern",
+        severity=SEVERITY_SEEK_CARE,
+        title="Pain symptoms logged repeatedly",
+        body=(
+            f"You logged pain-related symptoms in {len(pain_cycles)} of your "
+            f"last {len(window)} cycles. If you are experiencing severe or "
+            "persistent pain, please consult a qualified healthcare "
+            "professional."
+        ),
+        evidence={
+            "pain_cycles": len(pain_cycles),
+            "window": len(window),
+            "start_dates": [c.start_date.isoformat() for c in pain_cycles],
+            "symptoms_seen": sorted(
+                set(
+                    s
+                    for c in pain_cycles
+                    for s in c.symptoms
+                    if s in PAIN_SYMPTOMS
+                )
+            ),
+        },
+        priority=15,
+    )
+
+
+def rule_repeated_heavy_flow_seek_care(analysis: CycleAnalysis) -> Optional[Observation]:
+    """Very heavy bleeding repeated across recent cycles.
+
+    The guidelines name "very heavy bleeding" as a Concerning Symptom.
+    The existing ``rule_repeated_heavy_flow`` fires at ``attention``
+    severity when heavy flow is logged 2+ times in 3 cycles.  This rule
+    upgrades the same pattern to ``seek_care`` when it persists, so the
+    user sees a clear recommendation to talk to a professional rather
+    than just a note.
+    """
+    window = analysis.cycles[:HEAVY_FLOW_WINDOW]
+    heavy = [c for c in window if c.flow_intensity == "heavy"]
+    if len(heavy) < HEAVY_FLOW_MIN_OCCURRENCES:
+        return None
+    return Observation(
+        code="repeated_heavy_flow_concern",
+        severity=SEVERITY_SEEK_CARE,
+        title="Heavy bleeding may require medical attention",
+        body=(
+            f"You described your flow as heavy in {len(heavy)} of your last "
+            f"{len(window)} logged cycles. Very heavy or prolonged bleeding "
+            "can sometimes be a sign that needs checking. "
+            "Please consult a qualified healthcare professional."
+        ),
+        evidence={
+            "heavy_cycles": len(heavy),
+            "window": len(window),
+            "start_dates": [c.start_date.isoformat() for c in heavy],
+        },
+        priority=25,
+    )
+
+
+def rule_frequent_bleeding_pattern(analysis: CycleAnalysis) -> Optional[Observation]:
+    """Two or more consecutive short cycles suggest frequent bleeding.
+
+    A single short cycle is caught by ``rule_short_cycle_observed``; this
+    rule looks for consecutive short gaps, which is a different signal
+    that may warrant medical attention.
+    """
+    if len(analysis.gaps) < FREQUENT_BLEEDING_MIN_CONSECUTIVE:
+        return None
+    consecutive_short = 0
+    for gap in analysis.gaps:
+        if gap < FREQUENT_BLEEDING_MAX_GAP_DAYS:
+            consecutive_short += 1
+        else:
+            consecutive_short = 0
+        if consecutive_short >= FREQUENT_BLEEDING_MIN_CONSECUTIVE:
+            break
+    if consecutive_short < FREQUENT_BLEEDING_MIN_CONSECUTIVE:
+        return None
+    return Observation(
+        code="frequent_bleeding_pattern",
+        severity=SEVERITY_SEEK_CARE,
+        title="Cycles have been shorter than usual recently",
+        body=(
+            f"Your last {consecutive_short} cycles have been shorter than "
+            f"{FREQUENT_BLEEDING_MAX_GAP_DAYS} days. Frequent or closely "
+            "spaced periods can sometimes need medical attention. "
+            "Please consult a qualified healthcare professional."
+        ),
+        evidence={
+            "consecutive_short_cycles": consecutive_short,
+            "threshold_days": FREQUENT_BLEEDING_MAX_GAP_DAYS,
+            "recent_gaps": analysis.gaps[:consecutive_short],
+        },
+        priority=35,
+    )
+
+
 #: Evaluation order. Ordering here does not decide what the client shows —
 #: `sort_observations` does that from severity and priority — but keeping
 #: it stable makes the returned list predictable and diffable in tests.
@@ -610,6 +761,9 @@ RULES = (
     rule_insufficient_data,
     rule_no_recent_period_logged,
     rule_prolonged_bleeding,
+    rule_severe_pain_pattern,
+    rule_repeated_heavy_flow_seek_care,
+    rule_frequent_bleeding_pattern,
     rule_repeated_heavy_flow,
     rule_short_cycle_observed,
     rule_long_cycle_observed,
@@ -699,6 +853,7 @@ __all__ = [
     "CONSISTENCY_VARIABLE",
     "DISCLAIMER_KEY",
     "DISCLAIMER_TEXT",
+    "PAIN_SYMPTOMS",
     "RULES",
     "SEVERITY_ATTENTION",
     "SEVERITY_INFO",
