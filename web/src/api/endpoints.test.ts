@@ -31,6 +31,7 @@ import {
   sendChatMessage,
   sendSmsSummary,
   submitCycleLog,
+  MAX_HISTORY_PAGE,
 } from './endpoints';
 import { dashboardFixture, observationsFixture } from '../test/utils';
 
