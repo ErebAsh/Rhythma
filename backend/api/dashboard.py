@@ -147,6 +147,13 @@ class DashboardResponse(BaseModel):
 router = APIRouter(tags=["Dashboard"])
 
 
+class TrendsResponse(BaseModel):
+    sleep: Optional[str] = None
+    stress: Optional[str] = None
+    symptoms: Dict[str, str] = Field(default_factory=dict)
+    notEnoughData: bool = False
+
+
 @router.get(
     "/dashboard",
     response_model=DashboardResponse,
@@ -257,3 +264,76 @@ async def get_dashboard(current_user: dict = Depends(get_current_user)):
         "cycleConsistencyDescription": consistency_text,
         "prediction": prediction,
     }
+
+
+@router.get(
+    "/dashboard/trends",
+    response_model=TrendsResponse,
+    summary="Get simple trends for sleep, stress and symptoms",
+    description=(
+        "Compare the most-recent logged period with the immediately prior "
+        "period and return plain-language trend statements for sleep, "
+        "stress and symptom frequencies. Returns `notEnoughData=true` "
+        "when insufficient history exists."
+    ),
+)
+async def get_trends(current_user: dict = Depends(get_current_user)):
+    user_id = current_user["id"]
+    # Reuse the same scoring_service-backed logs the dashboard uses.
+    from services.scoring_service import CycleService
+
+    logs = CycleService.get_logs_for_user(user_id)
+    if not logs or len(logs) < 2:
+        return TrendsResponse(notEnoughData=True)
+
+    # Most recent and previous period logs
+    recent = logs[0]
+    prev = logs[1]
+
+    def avg(values):
+        vals = [v for v in values if v is not None]
+        return round(sum(vals) / len(vals), 1) if vals else None
+
+    # Sleep
+    sleep_recent = recent.get("sleep_hours")
+    sleep_prev = prev.get("sleep_hours")
+    sleep_stmt = None
+    if sleep_recent is not None and sleep_prev is not None:
+        if sleep_recent > sleep_prev:
+            sleep_stmt = f"Average sleep has increased ({sleep_prev}h → {sleep_recent}h)."
+        elif sleep_recent < sleep_prev:
+            sleep_stmt = f"Average sleep has decreased ({sleep_prev}h → {sleep_recent}h)."
+        else:
+            sleep_stmt = f"Average sleep is unchanged ({sleep_recent}h)."
+
+    # Stress
+    stress_recent = recent.get("stress_level")
+    stress_prev = prev.get("stress_level")
+    stress_stmt = None
+    if stress_recent is not None and stress_prev is not None:
+        if stress_recent > stress_prev:
+            stress_stmt = f"Reported stress has increased ({stress_prev} → {stress_recent})."
+        elif stress_recent < stress_prev:
+            stress_stmt = f"Reported stress has decreased ({stress_prev} → {stress_recent})."
+        else:
+            stress_stmt = f"Reported stress is unchanged ({stress_recent})."
+
+    # Symptoms: compare frequency presence between periods for canonical symptoms
+    canonical_symptoms = ["cramps", "headache", "bloating", "acne"]
+    symptoms_result = {}
+    for s in canonical_symptoms:
+        recent_has = s in (recent.get("symptoms") or [])
+        prev_has = s in (prev.get("symptoms") or [])
+        if recent_has and not prev_has:
+            symptoms_result[s] = "Occurred this period but not the previous one."
+        elif not recent_has and prev_has:
+            symptoms_result[s] = "Occurred last period but not this one."
+        elif recent_has and prev_has:
+            symptoms_result[s] = "Occurred in both periods."
+
+    return TrendsResponse(
+        sleep=sleep_stmt,
+        stress=stress_stmt,
+        symptoms=symptoms_result,
+        notEnoughData=False,
+    )
