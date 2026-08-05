@@ -97,6 +97,10 @@ class AppLocalizationsGu extends AppLocalizations {
   String get homeHighEnergy => 'ઊંચી ઊર્જા';
 
   @override
+  String get homeFertileWindowDisclaimer =>
+      'આ તમારા લોગ કરેલા ડેટા પર આધારિત એક અંદાજ છે, તબીબી અથવા ગર્ભનિરોધક સલાહ નથી.';
+
+  @override
   String get homeAiTitle => 'RHYTHMA AI';
 
   @override
@@ -336,6 +340,10 @@ class AppLocalizationsGu extends AppLocalizations {
   String get assistantSug5 => 'મારા પીરિયડ્સ અનિયમિત છે — શું આ સામાન્ય છે?';
 
   @override
+  String get assistantDisclaimer =>
+      'આ સહાયક ફક્ત સામાન્ય આરોગ્ય માહિતી પ્રદાન કરે છે અને તે વ્યાવસાયિક તબીબી સલાહનો વિકલ્પ નથી.';
+
+  @override
   String get insightsTitle => 'સ્વાસ્થ્ય અંતર્દૃષ્ટિ';
 
   @override
@@ -385,6 +393,10 @@ class AppLocalizationsGu extends AppLocalizations {
 
   @override
   String get insightsRec3 => 'ઓવ્યુલેશન અઠવાડિયા દરમિયાન 2.5L પાણી પીઓ';
+
+  @override
+  String get insightsDisclaimer =>
+      'આ માહિતી તમે લોગ કરેલા ડેટા પર આધારિત છે અને ફક્ત વ્યક્તિગત ટ્રેકિંગ માટે છે. આ તબીબી નિદાન નથી અને લાયક તબીબી વ્યાવસાયિકની સલાહનો વિકલ્પ નથી.';
 
   @override
   String get profileTitle => 'પ્રોફાઇલ';

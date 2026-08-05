@@ -287,6 +287,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                               ),
+                              const SizedBox(height: 4),
+                              Text(
+                                l10n.homeFertileWindowDisclaimer,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: RhythmaColors.mutedFg,
+                                ),
+                              ),
                             ],
                           ),
                         ),

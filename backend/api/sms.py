@@ -45,6 +45,10 @@ def generate_cycle_sms_summary(user_id: str) -> str:
         next_period_days = max(avg_cycle_length - cycle_day, 0)
 
     summary = f"Rhythma Summary: Cycle Day {cycle_day}/{avg_cycle_length}. Next period expected in ~{next_period_days} days."
+    disclaimer = " Estimate only, not medical/contraceptive advice."
+    combined = summary + disclaimer
+    if len(combined) <= 160:
+        return combined
     return summary[:160]
 
 

@@ -55,6 +55,7 @@
     "nextPeriod": "Next period in",
     "days": "days",
     "fertileWindow": "Fertile window + High energy",
+    "fertileWindowDisclaimer": "This is an estimate based on your logged data, not medical or contraceptive advice.",
     "avgCycle": "Avg Cycle",
     "bleeding": "Bleeding",
     "sleep": "Sleep",

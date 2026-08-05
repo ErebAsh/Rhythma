@@ -97,6 +97,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeHighEnergy => 'High energy';
 
   @override
+  String get homeFertileWindowDisclaimer =>
+      'This is an estimate based on your logged data, not medical or contraceptive advice.';
+
+  @override
   String get homeAiTitle => 'RHYTHMA AI';
 
   @override
@@ -335,6 +339,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assistantSug5 => 'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?';
 
   @override
+  String get assistantDisclaimer =>
+      'This assistant provides general wellness information only and is not a substitute for professional medical advice.';
+
+  @override
   String get insightsTitle => 'Health Insights';
 
   @override
@@ -384,6 +392,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get insightsRec3 => 'Hydrate 2.5L during ovulation week';
+
+  @override
+  String get insightsDisclaimer =>
+      'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.';
 
   @override
   String get profileTitle => 'Profile';

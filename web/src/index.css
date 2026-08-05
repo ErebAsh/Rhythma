@@ -467,6 +467,12 @@ p {
   font-weight: 600;
 }
 
+.fertile-window-disclaimer {
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+  color: var(--text);
+}
+
 .stat-row {
   display: flex;
   gap: 0.75rem;

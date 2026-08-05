@@ -286,6 +286,12 @@ abstract class AppLocalizations {
   /// **'High energy'**
   String get homeHighEnergy;
 
+  /// No description provided for @homeFertileWindowDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This is an estimate based on your logged data, not medical or contraceptive advice.'**
+  String get homeFertileWindowDisclaimer;
+
   /// No description provided for @homeAiTitle.
   ///
   /// In en, this message translates to:
@@ -736,6 +742,12 @@ abstract class AppLocalizations {
   /// **'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?'**
   String get assistantSug5;
 
+  /// No description provided for @assistantDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This assistant provides general wellness information only and is not a substitute for professional medical advice.'**
+  String get assistantDisclaimer;
+
   /// No description provided for @insightsTitle.
   ///
   /// In en, this message translates to:
@@ -837,6 +849,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hydrate 2.5L during ovulation week'**
   String get insightsRec3;
+
+  /// No description provided for @insightsDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.'**
+  String get insightsDisclaimer;
 
   /// No description provided for @profileTitle.
   ///
