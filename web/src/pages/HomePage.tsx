@@ -144,6 +144,7 @@ export function HomePage() {
             <p className="cycle-next-number">{nextPeriod == null ? '—' : nextPeriod}</p>
             <p className="card-sub">{t('home.days')}</p>
             <p className="fertile-window">{t('home.fertileWindow')}</p>
+            <p className="fertile-window-disclaimer">{t('home.fertileWindowDisclaimer')}</p>
           </div>
         </div>
 

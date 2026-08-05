@@ -71,6 +71,15 @@ describe('HomePage with data', () => {
     expect(await screen.findByText(/12/)).toBeInTheDocument();
   });
 
+  it('shows the fertile window disclaimer', async () => {
+    fetchDashboard.mockResolvedValue(dashboardFixture());
+
+    renderWithProviders(<HomePage />);
+
+    await waitFor(() => expect(fetchDashboard).toHaveBeenCalled());
+    expect(await screen.findByText(/not medical or contraceptive advice/i)).toBeInTheDocument();
+  });
+
   it('handles a brand-new account with no cycle data', async () => {
     // Every numeric field is nullable in DashboardResponse; a component
     // that assumes otherwise crashes on the very first session.
