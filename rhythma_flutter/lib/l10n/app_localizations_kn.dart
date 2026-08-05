@@ -339,6 +339,10 @@ class AppLocalizationsKn extends AppLocalizations {
   String get assistantSug5 => 'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?';
 
   @override
+  String get assistantDisclaimer =>
+      'ಈ ಸಹಾಯಕ ಸಾಮಾನ್ಯ ಆರೋಗ್ಯ ಮಾಹಿತಿಯನ್ನು ಮಾತ್ರ ಒದಗಿಸುತ್ತದೆ ಮತ್ತು ವೃತ್ತಿಪರ ವೈದ್ಯಕೀಯ ಸಲಹೆಗೆ ಬದಲಿಯಲ್ಲ.';
+
+  @override
   String get insightsTitle => 'ಆರೋಗ್ಯ ಒಳನೋಟಗಳು';
 
   @override

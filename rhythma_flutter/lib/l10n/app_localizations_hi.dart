@@ -341,6 +341,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get assistantSug5 => 'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?';
 
   @override
+  String get assistantDisclaimer =>
+      'यह सहायक केवल सामान्य स्वास्थ्य जानकारी प्रदान करता है और यह पेशेवर चिकित्सीय सलाह का विकल्प नहीं है।';
+
+  @override
   String get insightsTitle => 'स्वास्थ्य अंतर्दृष्टि';
 
   @override

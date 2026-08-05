@@ -340,6 +340,10 @@ class AppLocalizationsGu extends AppLocalizations {
   String get assistantSug5 => 'મારા પીરિયડ્સ અનિયમિત છે — શું આ સામાન્ય છે?';
 
   @override
+  String get assistantDisclaimer =>
+      'આ સહાયક ફક્ત સામાન્ય આરોગ્ય માહિતી પ્રદાન કરે છે અને તે વ્યાવસાયિક તબીબી સલાહનો વિકલ્પ નથી.';
+
+  @override
   String get insightsTitle => 'સ્વાસ્થ્ય અંતર્દૃષ્ટિ';
 
   @override

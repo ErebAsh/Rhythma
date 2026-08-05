@@ -341,6 +341,10 @@ class AppLocalizationsTe extends AppLocalizations {
   String get assistantSug5 => 'నా రుతుక్రమం క్రమం తప్పింది — ఇది సాధారణమేనా?';
 
   @override
+  String get assistantDisclaimer =>
+      'ఈ సహాయకుడు సాధారణ ఆరోగ్య సమాచారాన్ని మాత్రమే అందిస్తుంది మరియు వృత్తిపరమైన వైద్య సలహాకు ప్రత్యామ్నాయం కాదు.';
+
+  @override
   String get insightsTitle => 'ఆరోగ్య అంతర్దృష్టులు';
 
   @override

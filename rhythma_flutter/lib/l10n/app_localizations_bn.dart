@@ -342,6 +342,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get assistantSug5 => 'আমার পিরিয়ড অনিয়মিত - এটি কি স্বাভাবিক?';
 
   @override
+  String get assistantDisclaimer =>
+      'এই সহায়ক শুধুমাত্র সাধারণ স্বাস্থ্য তথ্য প্রদান করে এবং এটি পেশাদার চিকিৎসা পরামর্শের বিকল্প নয়।';
+
+  @override
   String get insightsTitle => 'স্বাস্থ্য অন্তর্দৃষ্টি';
 
   @override

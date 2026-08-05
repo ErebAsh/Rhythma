@@ -340,6 +340,10 @@ class AppLocalizationsTa extends AppLocalizations {
   String get assistantSug5 => 'என் மாதவிடாய் ஒழுங்கற்றது — இது இயல்பானதா?';
 
   @override
+  String get assistantDisclaimer =>
+      'இந்த உதவியாளர் பொதுவான ஆரோக்கிய தகவலை மட்டுமே வழங்குகிறது, தொழில்முறை மருத்துவ ஆலோசனைக்கு மாற்றாக இல்லை.';
+
+  @override
   String get insightsTitle => 'சுகாதார நுண்ணறிவு';
 
   @override

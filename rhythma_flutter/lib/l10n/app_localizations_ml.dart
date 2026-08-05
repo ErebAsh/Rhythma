@@ -342,6 +342,10 @@ class AppLocalizationsMl extends AppLocalizations {
   String get assistantSug5 => 'എന്റെ ആർത്തവം ക്രമരഹിതമാണ് — ഇത് സാധാരണമാണോ?';
 
   @override
+  String get assistantDisclaimer =>
+      'ഈ അസിസ്റ്റന്റ് പൊതുവായ ആരോഗ്യ വിവരങ്ങൾ മാത്രമേ നൽകുന്നുള്ളൂ, ഇത് പ്രൊഫഷണൽ വൈദ്യോപദേശത്തിന് പകരമല്ല.';
+
+  @override
   String get insightsTitle => 'ആരോഗ്യ വിവരങ്ങൾ';
 
   @override

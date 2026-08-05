@@ -742,6 +742,12 @@ abstract class AppLocalizations {
   /// **'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?'**
   String get assistantSug5;
 
+  /// No description provided for @assistantDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This assistant provides general wellness information only and is not a substitute for professional medical advice.'**
+  String get assistantDisclaimer;
+
   /// No description provided for @insightsTitle.
   ///
   /// In en, this message translates to:
