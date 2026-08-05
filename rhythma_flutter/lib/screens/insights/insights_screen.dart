@@ -504,6 +504,21 @@ const SizedBox(height: 14),
                   padding: const EdgeInsets.only(bottom: 8),
                   child: r,
                 )),
+
+            const SizedBox(height: 24),
+
+            // Disclaimer
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                l10n.insightsDisclaimer,
+                style: TextStyle(
+                  fontSize: 11,
+                  height: 1.5,
+                  color: RhythmaColors.mutedFg,
+                ),
+              ),
+            ),
           ],
         ),
       ),
