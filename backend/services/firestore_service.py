@@ -14,6 +14,11 @@ from google.api_core.exceptions import FailedPrecondition  # for missing index d
 # into a response body the client renders. See core/errors.py and issue #268.
 from core.errors import upstream_error
 
+# The one definition of "are these two addresses the same person?". Applied
+# in this module, not only at the routes, so a lookup cannot be performed
+# with a form of the address the write path would never have stored (#380).
+from core.email_identity import normalize_email
+
 # ─── Mock Firestore Client for Local Development ──────────────────────────
 class MockDocumentReference:
     def __init__(self, doc_id, data, collection):
@@ -251,9 +256,20 @@ initialize_firebase()
 class UserService:
     @staticmethod
     def create_user(user_data: Dict[str, Any]) -> str:
-        """Create a new user document in Firestore."""
+        """Create a new user document in Firestore.
+
+        The email is canonicalised here rather than only at the routes.
+        Three call sites create users today — ``/auth/register``,
+        ``/provider/register`` and the Firebase phone flow — and before
+        #380 only one of them normalised, which is how the same person
+        could hold two accounts differing by a capital letter. Doing it at
+        the single write path means a fourth call site added later cannot
+        reintroduce that.
+        """
         try:
             now = datetime.now(timezone.utc)
+            if user_data.get("email") is not None:
+                user_data["email"] = normalize_email(user_data["email"])
             user_data["created_at"] = now
             user_data["updated_at"] = now
             doc_ref = db.collection("users").add(user_data)
@@ -275,14 +291,46 @@ class UserService:
             raise upstream_error("Loading your profile", e)
 
     @staticmethod
+    def _first_user_where(field: str, value: Any) -> Optional[Dict[str, Any]]:
+        """The first user matching one equality filter, or ``None``."""
+        for user in db.collection("users").where(field, "==", value).limit(1).stream():
+            data = user.to_dict()
+            data["id"] = user.id
+            return data
+        return None
+
+    @staticmethod
     def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
-        """Fetch a user by email."""
+        """Fetch a user by email, regardless of how it was capitalised.
+
+        Two queries, not one, and the second only runs on a miss.
+
+        The canonical form is tried first: everything written since #380
+        is stored lower-cased, so this is the single query that answers
+        virtually every call. The fallback exists for documents created
+        *before* that — ``Sana@Example.com`` is sitting in ``users``
+        exactly as it was typed, and a query for the lower-cased form
+        will never find it. Firestore's ``==`` is byte-exact and it has no
+        case-insensitive operator, so the alternative to a second query is
+        an offline backfill that must complete before the fix can ship.
+
+        The cost is one extra read on a miss — which, for a login, is
+        already the slow path — and it disappears on its own as accounts
+        are re-created or a backfill is run. It is deliberately *not* a
+        collection scan: only the exact string the caller supplied is
+        tried, so a legacy row is found when the user types the address
+        the way she originally did, and nothing here degrades with the
+        size of the user table.
+        """
         try:
-            users = db.collection("users").where("email", "==", email).limit(1).stream()
-            for user in users:
-                data = user.to_dict()
-                data["id"] = user.id
-                return data
+            normalized = normalize_email(email)
+            user = UserService._first_user_where("email", normalized)
+            if user is not None:
+                return user
+
+            raw = (email or "").strip()
+            if raw and raw != normalized:
+                return UserService._first_user_where("email", raw)
             return None
         except Exception as e:
             raise upstream_error("Loading your profile", e)
@@ -315,8 +363,16 @@ class UserService:
 
     @staticmethod
     def update_user(user_id: str, update_data: Dict[str, Any]) -> bool:
-        """Update a user document and set updated_at."""
+        """Update a user document and set updated_at.
+
+        An ``email`` in the payload goes through the same canonicalisation
+        ``create_user`` applies, so a profile edit cannot put a row back
+        into the mixed-case state the lookup fallback above exists to
+        cope with.
+        """
         try:
+            if update_data.get("email") is not None:
+                update_data["email"] = normalize_email(update_data["email"])
             update_data["updated_at"] = datetime.now(timezone.utc)
             doc_ref = db.collection("users").document(user_id)
             doc_ref.update(update_data)

@@ -28,6 +28,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response,
 from pydantic import BaseModel, EmailStr, Field
 
 from core import auth_router as auth_router_module
+from core.email_identity import normalize_email
 from core.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     create_access_token,
@@ -138,7 +139,7 @@ async def register_provider(data: RegisterProviderRequest, request: Request):
     enforce_rate_limit(REGISTER_IP, auth_router_module.get_client_ip(request))
     enforce_rate_limit(PROVIDER_REGISTER_IP, auth_router_module.get_client_ip(request))
 
-    email = auth_router_module.normalize_email(data.email)
+    email = normalize_email(data.email)
     username = _clean(data.username)
 
     # Raises WeakPasswordError (422, code `weak_password`) listing every
@@ -146,7 +147,11 @@ async def register_provider(data: RegisterProviderRequest, request: Request):
     # password built out of the account's own identifiers.
     enforce_password_policy(data.password, email=email, username=username)
 
-    existing = UserService.get_user_by_email(email)
+    # The raw address, not the canonical one: `get_user_by_email`
+    # normalises internally, and passing the string as typed additionally
+    # lets it match an account created before #380 under a different
+    # capitalisation. Only what is *stored* below is canonicalised.
+    existing = UserService.get_user_by_email(data.email)
     if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -196,12 +201,14 @@ async def login_provider(
     checked before the lookup, so an unknown address is throttled exactly
     like a known one and the limit is not itself an enumeration signal.
     """
-    email = auth_router_module.normalize_email(data.email)
+    email = normalize_email(data.email)
 
     enforce_rate_limit(LOGIN_IP, auth_router_module.get_client_ip(request))
     enforce_rate_limit(LOGIN_ACCOUNT, email)
 
-    user = UserService.get_user_by_email(email)
+    # Raw for the lookup, canonical for the rate-limit bucket above —
+    # see the note in `register_provider`.
+    user = UserService.get_user_by_email(data.email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -279,15 +286,16 @@ async def grant_consent(
 ):
     """A patient grants a provider access to her shared data.
 
-    The address is normalised the same way registration normalises it, so
-    a patient who types her doctor's address with different capitalisation
-    than he did still finds him rather than getting "no provider found".
+    The address goes through untouched: ``ConsentService.grant`` looks the
+    provider up with ``UserService.get_user_by_email``, which canonicalises
+    on its own *and* falls back to the exact string when no canonical row
+    matches. So a patient who types her doctor's address with different
+    capitalisation than he registered with still finds him rather than
+    getting "no provider found" — including when his account predates
+    #380 and is stored mixed-case.
     """
     _require_role(current_user, "patient")
-    return ConsentService.grant(
-        current_user["id"],
-        auth_router_module.normalize_email(data.provider_email),
-    )
+    return ConsentService.grant(current_user["id"], data.provider_email)
 
 
 @router.get("/consents")
