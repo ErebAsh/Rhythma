@@ -15,6 +15,39 @@ from google.api_core.exceptions import FailedPrecondition  # for missing index d
 from core.errors import upstream_error
 
 # ─── Mock Firestore Client for Local Development ──────────────────────────
+#
+# Every backend test runs against this (`initialize_firebase()` falls back
+# to it with no credentials, which is the CI configuration), so a place
+# where it is *more permissive* than the client it stands in for is a place
+# where a test can pass for the wrong reason. Issue #384 covers three:
+#
+#   - `MockDocumentReference.set` was defined twice. The second won, and it
+#     stored the caller's dict by reference — so mutating a payload after
+#     writing it silently rewrote the "stored" document, and two documents
+#     written from one dict were the same object.
+#   - `MockCollectionReference.order_by` and `.limit` accepted their
+#     arguments and discarded them, returning an unordered, unlimited
+#     result set rather than raising.
+#   - `MockDocumentReference.update` no-op'd on a missing document, where
+#     real Firestore raises `NotFound`.
+#
+# The rule below is that the mock may be *narrower* than Firestore — it
+# implements the operators this codebase uses and refuses the rest loudly —
+# but never looser.
+
+
+class MockNotFound(Exception):
+    """What ``update`` on a missing document raises.
+
+    Real Firestore raises ``google.api_core.exceptions.NotFound``. The
+    real class is not used here because constructing one pulls in
+    ``google.api_core``'s error hierarchy for what is a local test double,
+    and because callers should be catching ``Exception`` around a write
+    anyway — the point is that the write *fails* rather than silently
+    reporting success on a document that does not exist.
+    """
+
+
 class MockDocumentReference:
     def __init__(self, doc_id, data, collection):
         self.id = doc_id
@@ -29,18 +62,34 @@ class MockDocumentReference:
         return self.data.copy() if self.data is not None else None
 
     def update(self, update_data):
-        if self.data:
-            self.data.update(update_data)
-            self.collection.store[self.id] = self.data
-            
-    def set(self, document_data):
-        self.data = document_data.copy()
-        self.collection.store[self.id] = self.data
-        self.exists = True
+        """Merge fields into an existing document.
 
-    def set(self, set_data):
-        self.collection.store[self.id] = set_data
-        self.data = set_data
+        Raises when the document does not exist, as Firestore's ``update``
+        does. It used to return silently, so ``UserService.update_user``
+        on a deleted account "succeeded" under test and would have raised
+        in production — precisely the asymmetry a test double exists to
+        prevent.
+        """
+        if not self.exists or self.data is None:
+            raise MockNotFound(
+                f"No document to update: {self.collection.name}/{self.id}"
+            )
+        merged = dict(self.data)
+        merged.update(_copy_document(update_data))
+        self.data = merged
+        self.collection.store[self.id] = merged
+
+    def set(self, document_data):
+        """Replace the document, storing a copy.
+
+        The copy is the point. Firestore serialises on write, so the
+        stored document is not the caller's object; the surviving
+        duplicate of this method stored the dict by reference, which made
+        a later mutation of that dict an invisible write.
+        """
+        stored = _copy_document(document_data)
+        self.collection.store[self.id] = stored
+        self.data = stored
         self.exists = True
 
     def delete(self):
@@ -48,6 +97,20 @@ class MockDocumentReference:
             del self.collection.store[self.id]
         self.data = None
         self.exists = False
+
+
+def _copy_document(data):
+    """A shallow copy of a document payload, for storing or returning.
+
+    Shallow, not deep. Firestore's own round trip rebuilds every value,
+    so a deep copy would be the more faithful choice — but the documents
+    here carry ``datetime`` values and the occasional list, a deep copy on
+    every read would be a real cost in a suite of ~900 tests, and the
+    failure this guards against is rebinding or mutating the *top-level*
+    dict. A test that mutates a nested list in place is not a pattern
+    anything in this codebase uses.
+    """
+    return dict(data) if data is not None else None
 
 def _mock_order_key(value):
     """Sort key for ``order_by`` in the mock query.
@@ -81,6 +144,21 @@ _MOCK_OPERATORS = {
 
 
 class MockQuery:
+    """One step of a query chain.
+
+    Every builder returns a *new* ``MockQuery`` rather than mutating and
+    returning ``self``, which is how Firestore's own query objects behave:
+
+        base = collection.where("user_id", "==", uid)
+        page = base.limit(20)
+        head = base.limit(1)
+
+    ``page`` and ``head`` are two queries there. With builders that
+    mutated in place they were one object, and the second call silently
+    rewrote the first — a shared-base-query pattern that reads perfectly
+    fine and would quietly return the wrong page.
+    """
+
     def __init__(self, documents):
         # documents is a list of MockDocumentReference
         self._documents = documents
@@ -89,19 +167,31 @@ class MockQuery:
         self._limit_count = None
         self._offset_count = 0
 
+    def _derive(self, documents=None):
+        """A copy of this query, optionally over a narrower document set."""
+        clone = MockQuery(self._documents if documents is None else documents)
+        clone._order_by_field = self._order_by_field
+        clone._order_by_direction = self._order_by_direction
+        clone._limit_count = self._limit_count
+        clone._offset_count = self._offset_count
+        return clone
+
     def limit(self, count):
-        self._limit_count = count
-        return self
+        clone = self._derive()
+        clone._limit_count = count
+        return clone
 
     def offset(self, count):
         """Skip the first ``count`` results, as Firestore's offset does."""
-        self._offset_count = count
-        return self
+        clone = self._derive()
+        clone._offset_count = count
+        return clone
 
     def order_by(self, field, direction=None):
-        self._order_by_field = field
-        self._order_by_direction = direction or firestore.Query.ASCENDING
-        return self
+        clone = self._derive()
+        clone._order_by_field = field
+        clone._order_by_direction = direction or firestore.Query.ASCENDING
+        return clone
 
     def where(self, field, op, value):
         """Narrow an existing query further.
@@ -114,13 +204,10 @@ class MockQuery:
         if compare is None:
             raise NotImplementedError(f"MockQuery does not support the {op!r} operator")
 
-        filtered = [doc for doc in self._documents if compare(doc.data.get(field), value)]
-        narrowed = MockQuery(filtered)
-        narrowed._order_by_field = self._order_by_field
-        narrowed._order_by_direction = self._order_by_direction
-        narrowed._limit_count = self._limit_count
-        narrowed._offset_count = self._offset_count
-        return narrowed
+        filtered = [
+            doc for doc in self._documents if compare((doc.data or {}).get(field), value)
+        ]
+        return self._derive(filtered)
 
     def stream(self):
         # Start with the filtered documents
@@ -130,7 +217,7 @@ class MockQuery:
         if self._order_by_field:
             reverse = (self._order_by_direction == firestore.Query.DESCENDING)
             docs.sort(
-                key=lambda doc: _mock_order_key(doc.data.get(self._order_by_field)),
+                key=lambda doc: _mock_order_key((doc.data or {}).get(self._order_by_field)),
                 reverse=reverse
             )
 
@@ -177,32 +264,60 @@ class MockCollectionReference:
         next_id = self.db._counters.get(self.name, 0) + 1
         self.db._counters[self.name] = next_id
         doc_id = f"mock-doc-id-{next_id}"
-        self.store[doc_id] = document_data
-        return (None, MockDocumentReference(doc_id, document_data, self))
+        # Stored as a copy, for the same reason `set` copies: what is
+        # written must not stay tied to the caller's dict.
+        stored = _copy_document(document_data)
+        self.store[doc_id] = stored
+        return (None, MockDocumentReference(doc_id, stored, self))
 
     def document(self, doc_id):
         data = self.store.get(doc_id)
         return MockDocumentReference(doc_id, data, self)
 
+    def _all_documents(self):
+        """Every document in this collection, as references."""
+        return [
+            MockDocumentReference(doc_id, data, self)
+            for doc_id, data in list(self.store.items())
+        ]
+
+    def stream(self):
+        """Every document, unfiltered — as ``CollectionReference.stream`` does.
+
+        This did not exist, so ``data_privacy_service`` and
+        ``access_log_service`` each carry a fallback that reaches past the
+        public API into the mock's private ``store`` dict:
+
+            store = getattr(collection, "store", None)
+
+        Production code should not have to know a test double's internals
+        to work. Those fallbacks are now dead paths kept only for safety;
+        they can be deleted once nothing else stands in for Firestore.
+        """
+        yield from self._all_documents()
+
     def where(self, field, op, value):
-        compare = _MOCK_OPERATORS.get(op)
-        if compare is None:
-            raise NotImplementedError(
-                f"MockCollectionReference does not support the {op!r} operator"
-            )
+        return MockQuery(self._all_documents()).where(field, op, value)
 
-        filtered = []
-        for doc_id, data in self.store.items():
-            if compare(data.get(field), value):
-                filtered.append(MockDocumentReference(doc_id, data, self))
-        return MockQuery(filtered)
+    # `order_by`, `limit` and `offset` used to be no-ops on the collection
+    # that returned `self`, accepting their arguments and discarding them.
+    # The comment above them said they were "not called directly on
+    # collection", which was an assumption the code did not enforce — and a
+    # caller who did reach them got an unordered, unlimited result set and
+    # no error, so a test asserting "the newest entry is first" would have
+    # passed on insertion order and failed against real Firestore.
+    #
+    # They now build the same `MockQuery` that `where` does, so a chain
+    # behaves identically whether or not it starts with a filter.
 
-    # These are not called directly on collection; they are chained after where
     def order_by(self, field, direction=None):
-        return self
+        return MockQuery(self._all_documents()).order_by(field, direction)
 
     def limit(self, count):
-        return self
+        return MockQuery(self._all_documents()).limit(count)
+
+    def offset(self, count):
+        return MockQuery(self._all_documents()).offset(count)
 
 class MockFirestoreClient:
     def __init__(self):
