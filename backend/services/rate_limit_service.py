@@ -21,11 +21,21 @@ class RateLimitService:
         doc_ref = RateLimitService._document(key)
         doc = doc_ref.get()
 
-        timestamps = []
-
+        raw_timestamps = []
         if doc.exists:
             data = doc.to_dict() or {}
-            timestamps = data.get("timestamps", [])
+            raw_timestamps = data.get("timestamps", [])
+
+        timestamps = []
+        for t in raw_timestamps:
+            if isinstance(t, str):
+                try:
+                    dt = datetime.fromisoformat(t)
+                    timestamps.append(dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc))
+                except Exception:
+                    pass
+            elif isinstance(t, datetime):
+                timestamps.append(t if t.tzinfo else t.replace(tzinfo=timezone.utc))
 
         timestamps = [
             t for t in timestamps
@@ -44,26 +54,6 @@ class RateLimitService:
         timestamps.append(now)
         doc_ref.set({"timestamps": timestamps})
         return None
-
-    @staticmethod
-    def reset(key: str) -> None:
-        """Forget every recorded attempt for one key.
-
-        Used after an attempt succeeds — a correct password proves the
-        caller is not the thing the limit exists to stop, so the failures
-        that preceded it should not count against her next login.
-
-        Deliberately tolerant of a missing document: "there was nothing to
-        reset" and "the reset worked" are the same outcome to every caller,
-        and a delete on a key that was never written is not an error.
-        """
-        try:
-            RateLimitService._document(key).delete()
-        except Exception:
-            # A rate-limit bucket failing to clear must never turn a
-            # successful login into a 500. Worst case the user keeps the
-            # attempts she already had until the window slides.
-            pass
 
     @staticmethod
     def clear_all():
