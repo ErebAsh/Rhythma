@@ -124,9 +124,23 @@ def _clean_state():
 class _FakeUserStore:
     """The smallest user store both routes can be driven against.
 
-    Keyed on the *normalised* address, because that is the behaviour under
-    test: a store that matched case-insensitively on its own would hide a
-    missing ``normalize_email`` call in the route.
+    Keyed on the *normalised* address, and canonicalising on both read and
+    write, because that is what the real ``UserService`` does since #380.
+
+    It did not always. This fake used to match byte-exactly, on the
+    reasoning that "a store that matched case-insensitively on its own
+    would hide a missing ``normalize_email`` call in the route" — correct
+    while the routes were the only place canonicalisation happened. It
+    stopped being correct when #380 moved that responsibility down into
+    ``UserService.create_user`` / ``get_user_by_email``, precisely so that
+    no route could forget it. A fake that is stricter than the thing it
+    stands in for does not test the routes harder; it fails on behaviour
+    the real store handles.
+
+    The route-level assertions below are unchanged, and they are what
+    actually pins the behaviour down: a case-variant registration is still
+    a 409, a case-variant login still succeeds. Those pass or fail on what
+    a caller sees, not on which layer performed the fold.
     """
 
     def __init__(self):
@@ -136,9 +150,10 @@ class _FakeUserStore:
     def seed(self, email, password, role="provider", **extra):
         user_id = f"seeded-{role}-{self.next_id}"
         self.next_id += 1
-        self.users[email] = {
+        key = normalize_email(email)
+        self.users[key] = {
             "id": user_id,
-            "email": email,
+            "email": key,
             "password": get_password_hash(password),
             "email_verified": True,
             "role": role,
@@ -147,7 +162,7 @@ class _FakeUserStore:
         return user_id
 
     def get_user_by_email(self, email):
-        found = self.users.get(email)
+        found = self.users.get(normalize_email(email))
         return dict(found) if found else None
 
     def get_user_by_id(self, user_id):
@@ -159,7 +174,8 @@ class _FakeUserStore:
     def create_user(self, data):
         user_id = f"created-{self.next_id}"
         self.next_id += 1
-        self.users[data["email"]] = {**data, "id": user_id}
+        key = normalize_email(data.get("email"))
+        self.users[key] = {**data, "email": key, "id": user_id}
         return user_id
 
     def update_user(self, user_id, updates):

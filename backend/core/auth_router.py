@@ -21,6 +21,7 @@ from core.auth import (
     get_password_hash,
     verify_password,
 )
+from core.email_identity import normalize_email
 from core.password_policy import enforce_password_policy, requirements as password_requirements
 from core.rate_limits import (
     EMAIL_VERIFY_IP,
@@ -130,16 +131,16 @@ def _set_refresh_cookie(response: Response, token: str):
     )
 
 
-def normalize_email(email: str) -> str:
-    """Casefold and strip an address before it is used as a key.
-
-    Addresses arrive from a form, so ``Doc@Clinic.in `` and
-    ``doc@clinic.in`` are the same person typing the same thing. Without a
-    single normalisation point they become two accounts in ``users`` and,
-    worse, two separate rate-limit buckets — which hands an attacker a
-    fresh login budget per capitalisation of the same address.
-    """
-    return (email or "").strip().lower()
+# ``normalize_email`` is re-exported rather than defined here. It used to
+# live in this module with a docstring explaining exactly why addresses must
+# have one canonical form — and no route in this module called it, so the
+# provider flow in ``api/provider.py`` (its only caller) normalised while
+# every patient route did not. It now lives in ``core/email_identity``,
+# below both routers and below ``services/firestore_service``, which is
+# what lets the lookup itself normalise rather than trusting each caller to
+# remember. The name stays importable from here because ``api/provider.py``
+# reaches for it as ``auth_router_module.normalize_email``.
+__all__ = ["router", "normalize_email", "get_client_ip"]
 
 # ─── Endpoints ──────────────────────────────────────────────────────────────
 
@@ -366,15 +367,27 @@ async def register(data: RegisterRequest, request: Request):
     # caller likes.
     enforce_rate_limit(REGISTER_IP, get_client_ip(request))
 
+    # One canonical form from here down. Without it `sana@example.com` and
+    # `Sana@Example.com` both pass the existence check below and become two
+    # accounts holding two separate cycle histories, and which one she
+    # reaches at login depends on how her keyboard capitalised the field.
+    email = normalize_email(data.email)
+
     # Then the password, also before the lookup, so a weak password is
     # rejected on its own terms rather than the response depending on
     # whether the address happened to be taken as well.
     enforce_password_policy(
         data.password,
-        email=data.email,
+        email=email,
         username=data.username,
     )
 
+    # The *raw* address goes to the lookup, deliberately. It canonicalises
+    # internally, so the normalised form is found either way; passing the
+    # string as typed additionally lets it match a document written before
+    # #380, which is stored with whatever capitalisation the user used
+    # then. Only the value written below is canonicalised — see
+    # `UserService.get_user_by_email`.
     user = UserService.get_user_by_email(data.email)
     if user:
         raise HTTPException(
@@ -384,7 +397,7 @@ async def register(data: RegisterRequest, request: Request):
 
     password_hash = get_password_hash(data.password)
     user_data = {
-        "email": data.email,
+        "email": email,
         "password": password_hash,
         "email_verified": False,
     }
@@ -401,12 +414,12 @@ async def register(data: RegisterRequest, request: Request):
             detail="Registration failed"
         )
 
-    verification_token = generate_verification_token(data.email)
-    logger.info(f"Email verification token for {data.email}: {verification_token}")
+    verification_token = generate_verification_token(email)
+    logger.info(f"Email verification token for {email}: {verification_token}")
 
     return {
         "id": user_id,
-        "email": data.email,
+        "email": email,
         "email_verified": False,
         "message": "Registration successful. Please verify your email."
     }
@@ -419,9 +432,19 @@ async def login(data: LoginRequest, request: Request, response: Response):
     # correctly on attempt 4 walks away with no record of the first three;
     # counting only known accounts would make the limit itself an
     # enumeration signal, since unknown emails would never be throttled.
-    enforce_rate_limit(LOGIN_IP, get_client_ip(request))
-    enforce_rate_limit(LOGIN_ACCOUNT, data.email)
+    # Normalised before either key is used. The per-account bucket was
+    # already case-insensitive — `RateLimitPolicy.key_for` lower-cases
+    # before hashing — but doing it here too means the address the limiter
+    # meters and the address the lookup uses are literally the same value,
+    # rather than two independent lower-casings that could drift.
+    email = normalize_email(data.email)
 
+    enforce_rate_limit(LOGIN_IP, get_client_ip(request))
+    enforce_rate_limit(LOGIN_ACCOUNT, email)
+
+    # Raw here, canonical for the bucket above: the lookup normalises on
+    # its own, and the string as typed is what lets it also find an
+    # account created before #380 under a different capitalisation.
     user = UserService.get_user_by_email(data.email)
     if not user:
         raise HTTPException(
@@ -439,7 +462,7 @@ async def login(data: LoginRequest, request: Request, response: Response):
     # Correct password: forget this account's recent attempts, so the three
     # typos that preceded it don't leave her one mistake from a lockout.
     # The per-IP bucket is deliberately left alone — see rate_limits.clear.
-    clear_rate_limit(LOGIN_ACCOUNT, data.email)
+    clear_rate_limit(LOGIN_ACCOUNT, email)
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -533,15 +556,22 @@ async def forgot_password(data: ForgotPasswordRequest, request: Request):
     # per-IP so it cannot be pointed at many. Both run before the lookup so
     # the throttle behaves identically for addresses that do and don't
     # exist — otherwise it undoes the deliberately identical response below.
+    email = normalize_email(data.email)
+
     enforce_rate_limit(PASSWORD_RESET_REQUEST_IP, get_client_ip(request))
-    enforce_rate_limit(PASSWORD_RESET_REQUEST_ACCOUNT, data.email)
+    enforce_rate_limit(PASSWORD_RESET_REQUEST_ACCOUNT, email)
 
     user = UserService.get_user_by_email(data.email)
     if not user:
         return {"message": "If an account with that email exists, a reset link has been sent."}
 
-    reset_token = generate_reset_token(data.email)
-    logger.info(f"Password reset token for {data.email}: {reset_token}")
+    # Filed under the canonical address, and `reset-password` looks it up
+    # the same way. Keyed on the raw string, a token requested as
+    # `Sana@Example.com` and submitted as `sana@example.com` came back
+    # "invalid or expired" when it was neither — and the message sent the
+    # user looking for the wrong problem.
+    reset_token = generate_reset_token(email)
+    logger.info(f"Password reset token for {email}: {reset_token}")
 
     return {"message": "If an account with that email exists, a reset link has been sent."}
 
@@ -552,7 +582,9 @@ async def reset_password(data: ResetPasswordRequest, request: Request):
     # account, so this is the tightest of the auth policies.
     enforce_rate_limit(PASSWORD_RESET_CONFIRM_IP, get_client_ip(request))
 
-    if not verify_reset_token(data.email, data.token):
+    email = normalize_email(data.email)
+
+    if not verify_reset_token(email, data.token):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired reset token"
@@ -571,7 +603,7 @@ async def reset_password(data: ResetPasswordRequest, request: Request):
     # already past both.
     enforce_password_policy(
         data.new_password,
-        email=data.email,
+        email=email,
         username=user.get("username"),
     )
 
@@ -589,7 +621,9 @@ async def reset_password(data: ResetPasswordRequest, request: Request):
 async def verify_email(data: VerifyEmailRequest, request: Request):
     enforce_rate_limit(EMAIL_VERIFY_IP, get_client_ip(request))
 
-    if not verify_email_token(data.email, data.token):
+    email = normalize_email(data.email)
+
+    if not verify_email_token(email, data.token):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired verification token"
@@ -610,8 +644,10 @@ async def verify_email(data: VerifyEmailRequest, request: Request):
 async def resend_verification(data: ForgotPasswordRequest, request: Request):
     # Same shape as forgot-password: this one also sends mail to an address
     # supplied by whoever called it.
+    email = normalize_email(data.email)
+
     enforce_rate_limit(EMAIL_VERIFY_IP, get_client_ip(request))
-    enforce_rate_limit(VERIFICATION_RESEND_ACCOUNT, data.email)
+    enforce_rate_limit(VERIFICATION_RESEND_ACCOUNT, email)
 
     user = UserService.get_user_by_email(data.email)
     if not user:
@@ -620,7 +656,7 @@ async def resend_verification(data: ForgotPasswordRequest, request: Request):
     if user.get("email_verified"):
         return {"message": "Email is already verified."}
 
-    new_token = generate_verification_token(data.email)
-    logger.info(f"New verification token for {data.email}: {new_token}")
+    new_token = generate_verification_token(email)
+    logger.info(f"New verification token for {email}: {new_token}")
 
     return {"message": "If an account with that email exists, a verification email has been sent."}

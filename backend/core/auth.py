@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict
+from core.email_identity import normalize_email
 from services.firestore_service import UserService
 
 # --- Configuration ---
@@ -30,10 +31,27 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/firebase-login", aut
 # --- In-memory Stores ---
 # Refresh tokens: token_hash -> {"user_id": str, "expires_at": datetime}
 refresh_token_store: Dict[str, dict] = {}
-# Reset tokens: email -> {"token_hash": str, "expires_at": datetime}
+# Reset tokens: normalized email -> {"token_hash": str, "expires_at": datetime}
 reset_token_store: Dict[str, dict] = {}
-# Verification tokens: email -> {"token_hash": str, "expires_at": datetime}
+# Verification tokens: normalized email -> {"token_hash": str, "expires_at": datetime}
 verification_token_store: Dict[str, dict] = {}
+
+
+def _email_key(email: str) -> str:
+    """The dict key an emailed token is filed under.
+
+    Applied on the way in *and* on the way out, so the two can never
+    disagree. Keying on the raw string meant a token requested as
+    ``Sana@Example.com`` and submitted as ``sana@example.com`` was a
+    lookup miss, reported as "Invalid or expired reset token" — a message
+    that is wrong on both counts and sends the user to look for a problem
+    that isn't there. Mail clients and password managers routinely
+    lower-case a typed address between those two steps (issue #380).
+
+    Normalising here rather than only at the routes means a future caller
+    that reaches these functions directly cannot reintroduce the split.
+    """
+    return normalize_email(email)
 
 # --- Password Functions ---
 def get_password_hash(password: str) -> str:
@@ -86,41 +104,45 @@ def revoke_all_user_refresh_tokens(user_id: str):
         refresh_token_store.pop(h, None)
 
 def generate_reset_token(email: str) -> str:
+    key = _email_key(email)
     token = secrets.token_urlsafe(32)
     token_hash = _hash_token(token)
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
-    reset_token_store[email] = {"token_hash": token_hash, "expires_at": expires_at}
+    reset_token_store[key] = {"token_hash": token_hash, "expires_at": expires_at}
     return token
 
 def verify_reset_token(email: str, token: str) -> bool:
-    entry = reset_token_store.get(email)
+    key = _email_key(email)
+    entry = reset_token_store.get(key)
     if not entry:
         return False
     if datetime.now(timezone.utc) > entry["expires_at"]:
-        reset_token_store.pop(email, None)
+        reset_token_store.pop(key, None)
         return False
     if entry["token_hash"] != _hash_token(token):
         return False
-    reset_token_store.pop(email, None)
+    reset_token_store.pop(key, None)
     return True
 
 def generate_verification_token(email: str) -> str:
+    key = _email_key(email)
     token = secrets.token_urlsafe(32)
     token_hash = _hash_token(token)
     expires_at = datetime.now(timezone.utc) + timedelta(hours=VERIFY_TOKEN_EXPIRE_HOURS)
-    verification_token_store[email] = {"token_hash": token_hash, "expires_at": expires_at}
+    verification_token_store[key] = {"token_hash": token_hash, "expires_at": expires_at}
     return token
 
 def verify_email_token(email: str, token: str) -> bool:
-    entry = verification_token_store.get(email)
+    key = _email_key(email)
+    entry = verification_token_store.get(key)
     if not entry:
         return False
     if datetime.now(timezone.utc) > entry["expires_at"]:
-        verification_token_store.pop(email, None)
+        verification_token_store.pop(key, None)
         return False
     if entry["token_hash"] != _hash_token(token):
         return False
-    verification_token_store.pop(email, None)
+    verification_token_store.pop(key, None)
     return True
 
 # --- Token Verification ---
