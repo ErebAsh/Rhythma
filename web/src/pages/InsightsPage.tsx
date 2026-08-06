@@ -53,13 +53,25 @@ export function InsightsPage() {
     return <div className="centered-loader">{t('common.loading')}</div>;
   }
 
-  const observations = data?.observations ?? [];
-  const isInsufficient = observations.some((o) => o.code === 'insufficient_data');
-  const displayObservations = observations.filter((o) => o.code !== 'insufficient_data');
-  const consistency = data?.cycleConsistency ?? 'unknown';
-  const avgCycleLength = data?.averageCycleLength ?? null;
-  const analyzedCount = data?.analyzedCycleCount ?? 0;
-  const disclaimerKey = data?.disclaimerKey || 'insights.disclaimer';
+  const totalCycleDays = data?.cycle?.total;
+  const variability =
+    lengths.length >= 2 && totalCycleDays != null && totalCycleDays > 0
+      ? Math.round(
+          lengths.reduce((acc, l) => acc + (l - totalCycleDays) ** 2, 0) / lengths.length,
+        )
+      : null;
+  const isHealthy = variability != null && variability <= 3;
+  const mhs = data?.insights.mhs ?? null;
+  const cvi = data?.insights.cvi ?? null;
+  const sleep = data?.insights.sleepHours ?? null;
+  const stress = stressLabel(data?.recentStressLevel ?? null, t);
+  const symptoms = data?.symptomFrequency ?? {};
+  const hasSymptoms = Object.keys(symptoms).length > 0;
+  const hasEnough = data?.hasEnoughDataForInsights ?? false;
+
+  const recs: { key: string; color: string }[] = [{ key: 'insights.rec1', color: '#E07AAD' }];
+  if (sleep && parseFloat(sleep) < 7) recs.push({ key: 'insights.rec2', color: '#AA3BFF' });
+  if ((data?.recentStressLevel ?? 0) >= 4) recs.push({ key: 'insights.rec3', color: '#52B3B0' });
 
   return (
     <div className="page">
