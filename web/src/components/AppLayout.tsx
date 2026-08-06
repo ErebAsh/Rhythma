@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/useAuth';
 
 interface NavLinkDef {
   to: string;
@@ -14,6 +14,7 @@ const LINKS: NavLinkDef[] = [
   { to: '/assistant', key: 'nav.assistant' },
   { to: '/insights', key: 'nav.insights' },
   { to: '/profile', key: 'nav.profile' },
+  { to: '/sharing', key: 'nav.sharing' },
   { to: '/settings', key: 'nav.settings' },
 ];
 

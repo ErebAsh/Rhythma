@@ -24,6 +24,7 @@
   "homeDaysLabel": "दिन",
   "homeFertileWindow": "उपजाऊ अवधि · ",
   "homeHighEnergy": "उच्च ऊर्जा",
+  "homeFertileWindowDisclaimer": "यह आपके लॉग किए गए डेटा पर आधारित एक अनुमान है, चिकित्सीय या गर्भनिरोधक सलाह नहीं।",
   "homeAiTitle": "रिद्मा एआई",
   "homeAiSubtitle": "अपने शरीर से जुड़ा कोई भी प्रश्न अपनी भाषा में मुझसे पूछें।",
   "homeAiPrompt": "मेरे मासिक धर्म अनियमित क्यों हैं?",
@@ -80,6 +81,7 @@
   "assistantSug3": "क्या 35 दिन का चक्र सामान्य है?",
   "assistantSug4": "पीएमएस में मदद करने वाले खाद्य पदार्थ",
   "assistantSug5": "मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?",
+  "assistantDisclaimer": "यह सहायक केवल सामान्य स्वास्थ्य जानकारी प्रदान करता है और यह पेशेवर चिकित्सीय सलाह का विकल्प नहीं है।",
   "insightsTitle": "स्वास्थ्य अंतर्दृष्टि",
   "insightsSubtitle": "पिछले 90 दिन",
   "insightsMhsLabel": "मासिक धर्म स्वास्थ्य स्कोर",
@@ -97,6 +99,7 @@
   "insightsRec1": "मासिक धर्म शुरू होने के करीब आयरन युक्त खाद्य पदार्थ शामिल करें",
   "insightsRec2": "ल्यूटियल चरण के दिनों में 10 मिनट का योग आज़माएं",
   "insightsRec3": "ओव्यूलेशन सप्ताह के दौरान 2.5L पानी पिएं",
+  "insightsDisclaimer": "ये जानकारियाँ आपके द्वारा दर्ज किए गए डेटा पर आधारित हैं और केवल व्यक्तिगत ट्रैकिंग के लिए हैं। यह चिकित्सीय निदान नहीं है और किसी योग्य स्वास्थ्य विशेषज्ञ की सलाह का विकल्प नहीं है।",
   "profileTitle": "प्रोफ़ाइल",
   "profileYearsOld": "वर्ष",
   "profileCycleDay": "चक्र का दिन",
@@ -281,5 +284,6 @@
   "deleteAccount": "Delete Account",
   "deleteAccountConfirmationTitle": "Delete Account?",
   "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
-  "accountDeletedSuccess": "Account deleted successfully."
+  "accountDeletedSuccess": "Account deleted successfully.",
+  "insightsDisclaimer": "These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional."
 }
