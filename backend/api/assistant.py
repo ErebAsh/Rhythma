@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field, field_validator
 from core.auth import get_current_user
 from services.firestore_service import AssistantConversationService
 from services.medical_knowledge_service import MedicalKnowledgeService
+from services.rate_limit_service import RateLimitService
 
 logger = logging.getLogger(__name__)
 
@@ -20,32 +21,8 @@ logger = logging.getLogger(__name__)
 #: ungrounded responses if the dataset is unavailable.
 medical_knowledge_service = MedicalKnowledgeService()
 
-# ─── Rate Limiter (in-memory, resets on restart) ──────────────────────────
-_assistant_rate_history = {}
-
 ASSISTANT_RATE_LIMIT = int(os.getenv("ASSISTANT_RATE_LIMIT", "10"))
 ASSISTANT_RATE_WINDOW = int(os.getenv("ASSISTANT_RATE_WINDOW", "60"))
-
-
-def is_rate_limited(user_id: str) -> Optional[int]:
-    now = datetime.now(timezone.utc)
-    if user_id in _assistant_rate_history:
-        _assistant_rate_history[user_id] = [
-            t for t in _assistant_rate_history[user_id]
-            if now - t < timedelta(seconds=ASSISTANT_RATE_WINDOW)
-        ]
-        if not _assistant_rate_history[user_id]:
-            del _assistant_rate_history[user_id]
-
-    if user_id in _assistant_rate_history and len(_assistant_rate_history[user_id]) >= ASSISTANT_RATE_LIMIT:
-        oldest = _assistant_rate_history[user_id][0]
-        remaining = int((oldest + timedelta(seconds=ASSISTANT_RATE_WINDOW) - now).total_seconds())
-        return max(remaining, 1)
-
-    if user_id not in _assistant_rate_history:
-        _assistant_rate_history[user_id] = []
-    _assistant_rate_history[user_id].append(now)
-    return None
 
 
 # ─── Supported languages ──────────────────────────────────────────────────
@@ -250,8 +227,12 @@ async def chat(
 
     user_id = current_user.get("id")
 
-    # Rate limit check
-    remaining = is_rate_limited(user_id)
+    # Rate limit check (use Firestore-backed shared RateLimitService)
+    remaining = RateLimitService.is_rate_limited(
+        key=f"assistant:{user_id}",
+        limit=ASSISTANT_RATE_LIMIT,
+        window_seconds=ASSISTANT_RATE_WINDOW,
+    )
     if remaining is not None:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
