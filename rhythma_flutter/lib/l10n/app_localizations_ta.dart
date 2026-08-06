@@ -78,9 +78,6 @@ class AppLocalizationsTa extends AppLocalizations {
   String get langMarathi => 'मराठी (Marathi)';
 
   @override
-  String get langGujarati => 'ગુજરાતી (Gujarati)';
-
-  @override
   String get homeGreeting => 'வணக்கம்';
 
   @override
@@ -97,6 +94,10 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get homeHighEnergy => 'அதிக ஆற்றல்';
+
+  @override
+  String get homeFertileWindowDisclaimer =>
+      'இது உங்கள் பதிவு செய்யப்பட்ட தரவின் அடிப்படையிலான மதிப்பீடு மட்டுமே, மருத்துவ அல்லது கருத்தடை ஆலோசனை அல்ல.';
 
   @override
   String get homeAiTitle => 'ரித்மா ஏஐ (Rhythma AI)';
@@ -339,6 +340,10 @@ class AppLocalizationsTa extends AppLocalizations {
   String get assistantSug5 => 'என் மாதவிடாய் ஒழுங்கற்றது — இது இயல்பானதா?';
 
   @override
+  String get assistantDisclaimer =>
+      'இந்த உதவியாளர் பொதுவான ஆரோக்கிய தகவலை மட்டுமே வழங்குகிறது, தொழில்முறை மருத்துவ ஆலோசனைக்கு மாற்றாக இல்லை.';
+
+  @override
   String get insightsTitle => 'சுகாதார நுண்ணறிவு';
 
   @override
@@ -391,6 +396,10 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get insightsRec3 =>
       'அண்டவிடுப்பின் வாரத்தில் 2.5L தண்ணீர் குடிக்கவும்';
+
+  @override
+  String get insightsDisclaimer =>
+      'இந்த நுண்ணறிவுகள் நீங்கள் பதிவு செய்த தரவை அடிப்படையாகக் கொண்டவை, தனிப்பட்ட கண்காணிப்புக்காக மட்டுமே. இது மருத்துவ நோயறிதல் அல்ல, தகுதி வாய்ந்த மருத்துவ நிபுணரின் ஆலோசனைக்கு மாற்றாக இல்லை.';
 
   @override
   String get profileTitle => 'சுயவிவரம்';
@@ -925,4 +934,10 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get accountDeletedSuccess => 'Account deleted successfully.';
+
+  @override
+  String get langGujarati => 'ગુજરાતી (Gujarati)';
+
+  @override
+  String get insightsDisclaimer => 'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.';
 }

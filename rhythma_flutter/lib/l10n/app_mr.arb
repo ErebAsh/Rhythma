@@ -24,6 +24,7 @@
   "homeDaysLabel": "दिवस",
   "homeFertileWindow": "सुपीक काळ · ",
   "homeHighEnergy": "उच्च ऊर्जा",
+  "homeFertileWindowDisclaimer": "हा तुमच्या नोंदवलेल्या माहितीवर आधारित अंदाज आहे, वैद्यकीय किंवा गर्भनिरोधक सल्ला नाही.",
   "homeAiTitle": "रिद्मा एआय",
   "homeAiSubtitle": "मला तुमच्या शरीराबद्दल काहीही विचारा,\nतुमच्या भाषेत.",
   "homeAiPrompt": "माझी पाळी अनियमित का आहे?",
@@ -73,6 +74,7 @@
   "assistantSug3": "35 दिवसांचे चक्र सामान्य आहे का?",
   "assistantSug4": "पीएमएसमध्ये उपयुक्त आहार",
   "assistantSug5": "माझे पीरियड्स अनियमित आहेत — हे सामान्य आहे का?",
+  "assistantDisclaimer": "हा सहाय्यक फक्त सामान्य आरोग्य माहिती देतो आणि तो व्यावसायिक वैद्यकीय सल्ल्याचा पर्याय नाही.",
   "insightsTitle": "आरोग्य अंतर्दृष्टी",
   "insightsSubtitle": "मागील 90 दिवस",
   "insightsMhsLabel": "मासिक पाळी आरोग्य स्कोअर",
@@ -90,6 +92,7 @@
   "insightsRec1": "पाळी सुरू होण्यापूर्वी लोहयुक्त पदार्थ घ्या",
   "insightsRec2": "ल्युटियल टप्प्यात 10 मिनिटे योग करा",
   "insightsRec3": "ओव्हुलेशनच्या आठवड्यात 2.5L पाणी प्या",
+  "insightsDisclaimer": "ही माहिती तुम्ही नोंदवलेल्या डेटावर आधारित आहे आणि केवळ वैयक्तिक ट्रॅकिंगसाठी आहे. हे वैद्यकीय निदान नाही आणि पात्र आरोग्य तज्ञाच्या सल्ल्याचा पर्याय नाही.",
   "profileTitle": "प्रोफाइल",
   "profileYearsOld": "वर्षांची",
   "profileCycleDay": "चक्राचा दिवस",
@@ -274,5 +277,6 @@
   "deleteAccount": "Delete Account",
   "deleteAccountConfirmationTitle": "Delete Account?",
   "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
-  "accountDeletedSuccess": "Account deleted successfully."
+  "accountDeletedSuccess": "Account deleted successfully.",
+  "insightsDisclaimer": "These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional."
 }

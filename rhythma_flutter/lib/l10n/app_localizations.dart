@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_bn.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_gu.dart';
 import 'app_localizations_hi.dart';
@@ -100,6 +101,7 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('bn'),
     Locale('en'),
     Locale('gu'),
     Locale('hi'),
@@ -248,12 +250,6 @@ abstract class AppLocalizations {
   /// **'मराठी (Marathi)'**
   String get langMarathi;
 
-  /// No description provided for @langGujarati.
-  ///
-  /// In en, this message translates to:
-  /// **'ગુજરાતી (Gujarati)'**
-  String get langGujarati;
-
   /// No description provided for @homeGreeting.
   ///
   /// In en, this message translates to:
@@ -289,6 +285,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'High energy'**
   String get homeHighEnergy;
+
+  /// No description provided for @homeFertileWindowDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This is an estimate based on your logged data, not medical or contraceptive advice.'**
+  String get homeFertileWindowDisclaimer;
 
   /// No description provided for @homeAiTitle.
   ///
@@ -740,6 +742,12 @@ abstract class AppLocalizations {
   /// **'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?'**
   String get assistantSug5;
 
+  /// No description provided for @assistantDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This assistant provides general wellness information only and is not a substitute for professional medical advice.'**
+  String get assistantDisclaimer;
+
   /// No description provided for @insightsTitle.
   ///
   /// In en, this message translates to:
@@ -841,6 +849,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hydrate 2.5L during ovulation week'**
   String get insightsRec3;
+
+  /// No description provided for @insightsDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.'**
+  String get insightsDisclaimer;
 
   /// No description provided for @profileTitle.
   ///
@@ -1825,6 +1839,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account deleted successfully.'**
   String get accountDeletedSuccess;
+
+  /// No description provided for @langGujarati.
+  ///
+  /// In en, this message translates to:
+  /// **'ગુજરાતી (Gujarati)'**
+  String get langGujarati;
+
+  /// No description provided for @insightsDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.'**
+  String get insightsDisclaimer;
 }
 
 class _AppLocalizationsDelegate
@@ -1838,6 +1864,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) => <String>[
+        'bn',
         'en',
         'gu',
         'hi',
@@ -1855,6 +1882,8 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'bn':
+      return AppLocalizationsBn();
     case 'en':
       return AppLocalizationsEn();
     case 'gu':

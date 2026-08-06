@@ -79,9 +79,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get langMarathi => 'मराठी (Marathi)';
 
   @override
-  String get langGujarati => 'ગુજરાતી (Gujarati)';
-
-  @override
   String get homeGreeting => 'नमस्ते';
 
   @override
@@ -98,6 +95,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get homeHighEnergy => 'उच्च ऊर्जा';
+
+  @override
+  String get homeFertileWindowDisclaimer =>
+      'यह आपके लॉग किए गए डेटा पर आधारित एक अनुमान है, चिकित्सीय या गर्भनिरोधक सलाह नहीं।';
 
   @override
   String get homeAiTitle => 'रिद्मा एआई';
@@ -340,6 +341,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get assistantSug5 => 'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?';
 
   @override
+  String get assistantDisclaimer =>
+      'यह सहायक केवल सामान्य स्वास्थ्य जानकारी प्रदान करता है और यह पेशेवर चिकित्सीय सलाह का विकल्प नहीं है।';
+
+  @override
   String get insightsTitle => 'स्वास्थ्य अंतर्दृष्टि';
 
   @override
@@ -390,6 +395,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get insightsRec3 => 'ओव्यूलेशन सप्ताह के दौरान 2.5L पानी पिएं';
+
+  @override
+  String get insightsDisclaimer =>
+      'ये जानकारियाँ आपके द्वारा दर्ज किए गए डेटा पर आधारित हैं और केवल व्यक्तिगत ट्रैकिंग के लिए हैं। यह चिकित्सीय निदान नहीं है और किसी योग्य स्वास्थ्य विशेषज्ञ की सलाह का विकल्प नहीं है।';
 
   @override
   String get profileTitle => 'प्रोफ़ाइल';
@@ -916,4 +925,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get accountDeletedSuccess => 'Account deleted successfully.';
+
+  @override
+  String get langGujarati => 'ગુજરાતી (Gujarati)';
+
+  @override
+  String get insightsDisclaimer => 'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.';
 }
