@@ -9,11 +9,6 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String insightsScoreValue(int i) {
-  return '$i';
-  }
-
-  @override
   String get appTitle => 'Rhythma';
 
   @override
@@ -69,6 +64,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectLanguage => 'Select Language';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
   String get homeGreeting => 'Namaste';
 
   @override
@@ -85,6 +95,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeHighEnergy => 'High energy';
+
+  @override
+  String get homeFertileWindowDisclaimer =>
+      'This is an estimate based on your logged data, not medical or contraceptive advice.';
 
   @override
   String get homeAiTitle => 'RHYTHMA AI';
@@ -147,11 +161,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeRetry => 'Retry';
 
   @override
+  String get homeMhs => 'MHS';
+
+  @override
+  String get homeCvi => 'CVI';
+
+  @override
+  String get homeSleep => 'Sleep';
+
+  @override
   String get homeComingSoon => 'Coming Soon';
 
   @override
   String homeUnderDevelopment(String topic) {
     return '$topic is currently under development.';
+  }
+
+  @override
+  String get homeErrorNetwork =>
+      'Please check your internet connection and try again.';
+
+  @override
+  String get homeErrorAuth => 'Your session has expired. Please log in again.';
+
+  @override
+  String get homeErrorServer =>
+      'Something went wrong on our end. Please try again later.';
+
+  @override
+  String get homeErrorGeneric => 'Unable to load data. Please try again.';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return 'Log $label';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label logged: $value';
   }
 
   @override
@@ -162,6 +209,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cycleTrackerTitle => 'Cycle Tracker';
+
+  @override
+  String get cycleToday => 'Today';
 
   @override
   String get cyclePhasePeriod => 'Period';
@@ -269,8 +319,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assistantInputHint => 'Ask anything about your health...';
 
   @override
-  String get assistantWelcome =>
-      'Hi Aarya 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.';
+  String assistantWelcome(String name) {
+    return 'Hi $name 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.';
+  }
 
   @override
   String get assistantSug1 => 'Why are my periods irregular?';
@@ -286,6 +337,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assistantSug5 => 'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?';
+
+  @override
+  String get assistantDisclaimer =>
+      'This assistant provides general wellness information only and is not a substitute for professional medical advice.';
 
   @override
   String get insightsTitle => 'Health Insights';
@@ -339,6 +394,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightsRec3 => 'Hydrate 2.5L during ovulation week';
 
   @override
+  String get insightsDisclaimer =>
+      'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override
@@ -390,6 +449,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileSaveChanges => 'Save Changes';
 
   @override
+  String get profileNameEmptyError => 'Please enter a valid name';
+
+  @override
   String get profileAddContact => 'Add Contact';
 
   @override
@@ -409,6 +471,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileNoContacts => 'No emergency contacts set up yet.';
+
+  @override
+  String get profileAgeInvalidError => 'Please enter a valid age';
+
+  @override
+  String get profileCycleInvalidError => 'Please enter a valid cycle length';
+
+  @override
+  String get profilePhoneInvalidError => 'Please enter a valid phone number';
+
+  @override
+  String get contactNameRequiredError => 'Contact name is required';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get onboardingAvatarOption => 'Avatar Option';
 
   @override
   String get navHome => 'Home';
@@ -437,6 +520,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsEmailError =>
       'Could not open email app. Please email us at support@rhythma.com';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
 
   @override
   String get onboardingPrivacyNote =>
@@ -522,6 +618,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingPhoneLabel => 'Phone Number (optional)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'City (optional)';
 
   @override
@@ -563,13 +662,132 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please enter a valid weight (20–300 kg)';
 
   @override
-  String get onboardingPhoneInvalid => 'Please enter a valid phone number';
+  String get onboardingPhoneInvalid =>
+      'Use international format, e.g. +919876543210';
+
+  @override
+  String get onboardingAgeRequired => 'Please enter your age or select a range';
+
+  @override
+  String get onboardingHeightRequired =>
+      'Please enter your height or select a range';
+
+  @override
+  String get onboardingWeightRequired =>
+      'Please enter your weight or select a range';
+
+  @override
+  String get onboardingNotSure => 'Not sure';
+
+  @override
+  String get onboardingApproximate => 'Approximate';
+
+  @override
+  String get onboardingAgeHint => 'Enter your age';
+
+  @override
+  String get onboardingAgeUnit => 'years';
+
+  @override
+  String get onboardingHeightHint => 'Enter your height';
+
+  @override
+  String get onboardingHeightUnit => 'cm';
+
+  @override
+  String get onboardingWeightHint => 'Enter your weight';
+
+  @override
+  String get onboardingWeightUnit => 'kg';
+
+  @override
+  String get onboardingRangeUnder18 => 'Under 18';
+
+  @override
+  String get onboardingRange18to25 => '18–25';
+
+  @override
+  String get onboardingRange26to35 => '26–35';
+
+  @override
+  String get onboardingRange36to50 => '36–50';
+
+  @override
+  String get onboardingRange51to65 => '51–65';
+
+  @override
+  String get onboardingRangeOver65 => 'Over 65';
+
+  @override
+  String get onboardingRangeUnder150 => 'Under 150 cm';
+
+  @override
+  String get onboardingRange150to160 => '150–160 cm';
+
+  @override
+  String get onboardingRange161to170 => '161–170 cm';
+
+  @override
+  String get onboardingRange171to180 => '171–180 cm';
+
+  @override
+  String get onboardingRangeOver180 => 'Over 180 cm';
+
+  @override
+  String get onboardingRangeUnder50kg => 'Under 50 kg';
+
+  @override
+  String get onboardingRange50to65kg => '50–65 kg';
+
+  @override
+  String get onboardingRange66to80kg => '66–80 kg';
+
+  @override
+  String get onboardingRange81to100kg => '81–100 kg';
+
+  @override
+  String get onboardingRangeOver100kg => 'Over 100 kg';
 
   @override
   String get onboardingTapToSelectDate => 'Tap to select date';
 
   @override
   String get onboardingDays => 'days';
+
+  @override
+  String get onboardingApproximateLabel => 'When was your last period?';
+
+  @override
+  String get onboardingApproximateLessWeek => 'Less than a week ago';
+
+  @override
+  String get onboardingApproximate1to2Weeks => '1–2 weeks ago';
+
+  @override
+  String get onboardingApproximate3to4Weeks => '3–4 weeks ago';
+
+  @override
+  String get onboardingApproximateMoreMonth => 'More than a month ago';
+
+  @override
+  String get onboardingPickExactDate => 'Pick exact date instead';
+
+  @override
+  String get onboardingLastPeriodRequired =>
+      'Please select when your last period started';
+
+  @override
+  String get nudgeCompleteProfileTitle => 'Want more accurate predictions?';
+
+  @override
+  String get nudgeCompleteProfileBody =>
+      'Add the exact start date of your last period to improve cycle predictions.';
+
+  @override
+  String get nudgeCompleteProfileAction => 'Update';
+
+  @override
+  String get nudgeCompleteProfileDismiss => 'Maybe later';
 
   @override
   String get smsScreenTitle => 'SMS Summaries';
@@ -666,4 +884,47 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get insightsNotEnoughTrendData =>
       'Log at least two cycles to see your trend here.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'Message input';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'Type your question here';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'Send message';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'Sends your message to the assistant';
+
+  @override
+  String get assistantAccessibilityTyping => 'Assistant is typing';
+
+  @override
+  String get languageSelectionError =>
+      'Unable to save language. Please try again.';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountConfirmationDesc =>
+      'This action is permanent and cannot be undone. All your data will be wiped.';
+
+  @override
+  String get accountDeletedSuccess => 'Account deleted successfully.';
+
+  @override
+  String get langGujarati => 'ગુજરાતી (Gujarati)';
+
+  @override
+  String get insightsDisclaimer => 'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.';
 }

@@ -1,7 +1,9 @@
 {
   "@@locale": "en",
   "appTitle": "Rhythma",
-  "@appTitle": { "description": "The title of the application" },
+  "@appTitle": {
+    "description": "The title of the application"
+  },
   "settingsTitle": "Settings",
   "appPreferences": "App Preferences",
   "languagePreferences": "Language Preferences",
@@ -19,12 +21,18 @@
   "cancel": "Cancel",
   "loggedOutSuccess": "Logged out successfully",
   "selectLanguage": "Select Language",
+  "langEnglish": "English",
+  "langHindi": "हिन्दी (Hindi)",
+  "langTamil": "தமிழ் (Tamil)",
+  "langTelugu": "తెలుగు (Telugu)",
+  "langMarathi": "मराठी (Marathi)",
   "homeGreeting": "Namaste",
   "homePhaseDesc": "Day 14 · Ovulation phase",
   "homeNextPeriod": "NEXT PERIOD IN",
   "homeDaysLabel": "days",
   "homeFertileWindow": "Fertile window · ",
   "homeHighEnergy": "High energy",
+  "homeFertileWindowDisclaimer": "This is an estimate based on your logged data, not medical or contraceptive advice.",
   "homeAiTitle": "RHYTHMA AI",
   "homeAiSubtitle": "Ask me anything about your body,\nin your language.",
   "homeAiPrompt": "Why are my periods irregular?",
@@ -44,12 +52,45 @@
   "homeArticle": "ARTICLE",
   "homeFailedLoad": "Failed to load dashboard",
   "homeRetry": "Retry",
+  "homeMhs": "MHS",
+  "homeCvi": "CVI",
+  "homeSleep": "Sleep",
   "homeComingSoon": "Coming Soon",
   "homeUnderDevelopment": "{topic} is currently under development.",
-  "@homeUnderDevelopment": { "placeholders": { "topic": { "type": "String" } } },
+  "@homeUnderDevelopment": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "homeErrorNetwork": "Please check your internet connection and try again.",
+  "homeErrorAuth": "Your session has expired. Please log in again.",
+  "homeErrorServer": "Something went wrong on our end. Please try again later.",
+  "homeErrorGeneric": "Unable to load data. Please try again.",
+  "homeQuickLogTitle": "Log {label}",
+  "@homeQuickLogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "homeQuickLogSaved": "{label} logged: {value}",
+  "@homeQuickLogSaved": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "homePrivacySecurity": "Privacy & Security",
   "homeOk": "OK",
   "cycleTrackerTitle": "Cycle Tracker",
+  "cycleToday": "Today",
   "cyclePhasePeriod": "Period",
   "cyclePhaseFollicular": "Follicular",
   "cyclePhaseOvulation": "Ovulation",
@@ -85,12 +126,20 @@
   "assistantTitle": "Rhythma Assistant",
   "assistantSubtitle": "Your private health companion",
   "assistantInputHint": "Ask anything about your health...",
-  "assistantWelcome": "Hi Aarya 🌸 I'm Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.",
+  "assistantWelcome": "Hi {name} 🌸 I'm Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.",
+  "@assistantWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assistantSug1": "Why are my periods irregular?",
   "assistantSug2": "What causes severe cramps?",
   "assistantSug3": "Is a 35-day cycle normal?",
   "assistantSug4": "Foods that help with PMS",
   "assistantSug5": "मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?",
+  "assistantDisclaimer": "This assistant provides general wellness information only and is not a substitute for professional medical advice.",
   "insightsTitle": "Health Insights",
   "insightsSubtitle": "Last 90 days",
   "insightsMhsLabel": "MENSTRUAL HEALTH SCORE",
@@ -108,6 +157,7 @@
   "insightsRec1": "Add iron-rich foods near period start",
   "insightsRec2": "Try 10-minute yoga on luteal-phase days",
   "insightsRec3": "Hydrate 2.5L during ovulation week",
+  "insightsDisclaimer": "These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.",
   "profileTitle": "Profile",
   "profileYearsOld": "years old",
   "profileCycleDay": "Cycle Day",
@@ -125,6 +175,7 @@
   "profileAge": "Age",
   "profileAvgCycleDays": "Average Cycle Length (Days)",
   "profileSaveChanges": "Save Changes",
+  "profileNameEmptyError": "Please enter a valid name",
   "profileAddContact": "Add Contact",
   "profileEditContact": "Edit Contact",
   "profilePhone": "Phone",
@@ -132,6 +183,13 @@
   "profileEmergencyContactsTitle": "Emergency Contacts",
   "profileAddNew": "Add New",
   "profileNoContacts": "No emergency contacts set up yet.",
+  "profileAgeInvalidError": "Please enter a valid age",
+  "profileCycleInvalidError": "Please enter a valid cycle length",
+  "profilePhoneInvalidError": "Please enter a valid phone number",
+  "contactNameRequiredError": "Contact name is required",
+  "edit": "Edit",
+  "delete": "Delete",
+  "onboardingAvatarOption": "Avatar Option",
   "navHome": "Home",
   "navCycle": "Cycle",
   "navAsk": "Ask",
@@ -141,6 +199,10 @@
   "settingsContactUs": "Contact Us / Report Bug",
   "settingsContactDesc": "Send an email to our support team",
   "settingsEmailError": "Could not open email app. Please email us at support@rhythma.com",
+  "settingsData": "Data",
+  "settingsExportData": "Export My Data",
+  "settingsExportDataDesc": "Download your profile, contacts, and cycle logs as JSON",
+  "settingsExportSuccess": "Data exported successfully",
   "onboardingPrivacyNote": "Your information stays on your device. We never share your data without your permission.",
   "onboardingNext": "Next",
   "onboardingBack": "Back",
@@ -167,6 +229,7 @@
   "onboardingStep4Title": "A Little More (Optional)",
   "onboardingStep4Subtitle": "Helps us suggest region-specific wellness tips",
   "onboardingPhoneLabel": "Phone Number (optional)",
+  "onboardingPhoneHint": "e.g. +919876543210",
   "onboardingCityLabel": "City (optional)",
   "onboardingStateLabel": "State / PIN Code (optional)",
   "onboardingStep5Title": "Stay in the loop",
@@ -179,9 +242,47 @@
   "onboardingAgeInvalid": "Please enter a valid age (10–120)",
   "onboardingHeightInvalid": "Please enter a valid height (50–250 cm)",
   "onboardingWeightInvalid": "Please enter a valid weight (20–300 kg)",
-  "onboardingPhoneInvalid": "Please enter a valid phone number",
+  "onboardingPhoneInvalid": "Use international format, e.g. +919876543210",
+  "onboardingAgeRequired": "Please enter your age or select a range",
+  "onboardingHeightRequired": "Please enter your height or select a range",
+  "onboardingWeightRequired": "Please enter your weight or select a range",
+  "onboardingNotSure": "Not sure",
+  "onboardingApproximate": "Approximate",
+  "onboardingAgeHint": "Enter your age",
+  "onboardingAgeUnit": "years",
+  "onboardingHeightHint": "Enter your height",
+  "onboardingHeightUnit": "cm",
+  "onboardingWeightHint": "Enter your weight",
+  "onboardingWeightUnit": "kg",
+  "onboardingRangeUnder18": "Under 18",
+  "onboardingRange18to25": "18–25",
+  "onboardingRange26to35": "26–35",
+  "onboardingRange36to50": "36–50",
+  "onboardingRange51to65": "51–65",
+  "onboardingRangeOver65": "Over 65",
+  "onboardingRangeUnder150": "Under 150 cm",
+  "onboardingRange150to160": "150–160 cm",
+  "onboardingRange161to170": "161–170 cm",
+  "onboardingRange171to180": "171–180 cm",
+  "onboardingRangeOver180": "Over 180 cm",
+  "onboardingRangeUnder50kg": "Under 50 kg",
+  "onboardingRange50to65kg": "50–65 kg",
+  "onboardingRange66to80kg": "66–80 kg",
+  "onboardingRange81to100kg": "81–100 kg",
+  "onboardingRangeOver100kg": "Over 100 kg",
   "onboardingTapToSelectDate": "Tap to select date",
   "onboardingDays": "days",
+  "onboardingApproximateLabel": "When was your last period?",
+  "onboardingApproximateLessWeek": "Less than a week ago",
+  "onboardingApproximate1to2Weeks": "1–2 weeks ago",
+  "onboardingApproximate3to4Weeks": "3–4 weeks ago",
+  "onboardingApproximateMoreMonth": "More than a month ago",
+  "onboardingPickExactDate": "Pick exact date instead",
+  "onboardingLastPeriodRequired": "Please select when your last period started",
+  "nudgeCompleteProfileTitle": "Want more accurate predictions?",
+  "nudgeCompleteProfileBody": "Add the exact start date of your last period to improve cycle predictions.",
+  "nudgeCompleteProfileAction": "Update",
+  "nudgeCompleteProfileDismiss": "Maybe later",
   "smsScreenTitle": "SMS Summaries",
   "smsScreenSubtitle": "Stay informed even without the app",
   "smsInfoCardTitle": "Weekly Health Summary",
@@ -207,8 +308,27 @@
   "smsLoadError": "Couldn't load your SMS settings. Pull to refresh or try again.",
   "smsSummaryMessage": "🌸 Rhythma Health Summary\nThis is your on-demand summary from Rhythma.\nOpen the app for your latest cycle insights.\nReply STOP to unsubscribe.",
   "insightsLoadError": "Couldn't load your insights: {error}",
-  "@insightsLoadError": { "placeholders": { "error": { "type": "String" } } },
+  "@insightsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "insightsNotEnoughData": "Log a few more cycles on the Cycle tab to unlock your full health insights.",
   "insightsNoSymptomsYet": "No symptoms logged yet — log some on the Cycle tab to see patterns here.",
-  "insightsNotEnoughTrendData": "Log at least two cycles to see your trend here."
+  "insightsNotEnoughTrendData": "Log at least two cycles to see your trend here.",
+  "assistantAccessibilitySuggestedPrompt": "Suggested prompt",
+  "assistantAccessibilityMessageInput": "Message input",
+  "assistantAccessibilityMessageInputHint": "Type your question here",
+  "assistantAccessibilitySendMessage": "Send message",
+  "assistantAccessibilitySendMessageHint": "Sends your message to the assistant",
+  "assistantAccessibilityTyping": "Assistant is typing",
+  "languageSelectionError": "Unable to save language. Please try again.",
+  "deleteAccount": "Delete Account",
+  "deleteAccountConfirmationTitle": "Delete Account?",
+  "deleteAccountConfirmationDesc": "This action is permanent and cannot be undone. All your data will be wiped.",
+  "accountDeletedSuccess": "Account deleted successfully.",
+  "langGujarati": "ગુજરાતી (Gujarati)",
+  "insightsDisclaimer": "These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional."
 }
