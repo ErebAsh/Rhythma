@@ -1,3 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -5,9 +9,8 @@ import '../../l10n/app_localizations.dart';
 import '../../config/theme.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/local_storage_service.dart';
-import '../../services/profile_service.dart';
 import '../../providers/profile_provider.dart';
-import '../../components/approximate_field.dart';
+import 'package:flutter/semantics.dart';
 
 /// The 5-step offline-first onboarding flow.
 /// On completion, writes all collected data to LocalStorageService and
@@ -48,17 +51,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   String? _heightError;
   String? _weightError;
 
-  // Step 2 – "Not sure" toggle state
-  bool _ageIsEstimated = false;
-  String? _ageSelectedRange;
-  bool _heightIsEstimated = false;
-  String? _heightSelectedRange;
-  bool _weightIsEstimated = false;
-  String? _weightSelectedRange;
-
   // Step 3 – Menstrual Profile
   DateTime? _lastPeriodDate;
-  bool _isLastPeriodApproximate = false;
   int _cycleLength = 28;
   int _periodDuration = 5;
   bool _isRegular = true;
@@ -76,41 +70,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   late AnimationController _pageAnimController;
   late Animation<double> _pageFade;
-
-  // E.164 format: leading '+' followed by 1-15 digits.
-  static final _e164 = RegExp(r'^\+[1-9]\d{1,14}$');
-
-  List<ApproxRange> _buildAgeRanges(AppLocalizations l) => [
-        const ApproxRange(key: 'under_18', label: 'Under 18', midpoint: 16),
-        const ApproxRange(key: '18_25', label: '18-25', midpoint: 21.5),
-        const ApproxRange(key: '26_35', label: '26-35', midpoint: 30.5),
-        const ApproxRange(key: '36_45', label: '36-45', midpoint: 40.5),
-        const ApproxRange(key: '46_plus', label: '46+', midpoint: 55),
-      ];
-
-  List<ApproxRange> _buildHeightRanges(AppLocalizations l) => [
-        const ApproxRange(key: 'under_150', label: 'Under 150 cm', midpoint: 145),
-        const ApproxRange(key: '150_160', label: '150-160 cm', midpoint: 155),
-        const ApproxRange(key: '160_170', label: '160-170 cm', midpoint: 165),
-        const ApproxRange(key: '170_180', label: '170-180 cm', midpoint: 175),
-        const ApproxRange(key: '180_plus', label: '180+ cm', midpoint: 185),
-      ];
-
-  List<ApproxRange> _buildWeightRanges(AppLocalizations l) => [
-        const ApproxRange(key: 'under_50', label: 'Under 50 kg', midpoint: 45),
-        const ApproxRange(key: '50_60', label: '50-60 kg', midpoint: 55),
-        const ApproxRange(key: '60_70', label: '60-70 kg', midpoint: 65),
-        const ApproxRange(key: '70_80', label: '70-80 kg', midpoint: 75),
-        const ApproxRange(key: '80_plus', label: '80+ kg', midpoint: 90),
-      ];
-
-  double? _getMidpoint(List<ApproxRange> ranges, String? selectedKey) {
-    if (selectedKey == null) return null;
-    for (final r in ranges) {
-      if (r.key == selectedKey) return r.midpoint;
-    }
-    return null;
-  }
 
   @override
   void initState() {
@@ -152,6 +111,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     {'code': 'mr', 'label': 'मराठी'},
   ];
   
+  bool? get selected => null;
 
   // ── Navigation ────────────────────────────────────────────────────────────
 
@@ -172,77 +132,30 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         setState(() => _nameError = l.onboardingNameRequired);
         valid = false;
       }
-
-      // Age – required
-      if (_ageIsEstimated) {
-        if (_ageSelectedRange == null) {
-          setState(() => _ageError = l.onboardingAgeRequired);
-          valid = false;
-        }
-      } else {
-        if (_ageController.text.trim().isEmpty) {
-          setState(() => _ageError = l.onboardingAgeRequired);
-          valid = false;
-        } else {
-          final age = int.tryParse(_ageController.text);
-          if (age == null || age < 1 || age > 120) {
-            setState(() => _ageError = l.onboardingAgeInvalid);
-            valid = false;
-          }
-        }
+      final age = int.tryParse(_ageController.text);
+      if (_ageController.text.isNotEmpty &&
+          (age == null || age < 10 || age > 120)) {
+        setState(() => _ageError = l.onboardingAgeInvalid);
+        valid = false;
       }
-
-      // Height – required
-      if (_heightIsEstimated) {
-        if (_heightSelectedRange == null) {
-          setState(() => _heightError = l.onboardingHeightRequired);
-          valid = false;
-        }
-      } else {
-        if (_heightController.text.trim().isEmpty) {
-          setState(() => _heightError = l.onboardingHeightRequired);
-          valid = false;
-        } else {
-          final h = double.tryParse(_heightController.text);
-          if (h == null || h < 50 || h > 250) {
-            setState(() => _heightError = l.onboardingHeightInvalid);
-            valid = false;
-          }
-        }
+      final h = double.tryParse(_heightController.text);
+      if (_heightController.text.isNotEmpty &&
+          (h == null || h < 50 || h > 250)) {
+        setState(() => _heightError = l.onboardingHeightInvalid);
+        valid = false;
       }
-
-      // Weight – required
-      if (_weightIsEstimated) {
-        if (_weightSelectedRange == null) {
-          setState(() => _weightError = l.onboardingWeightRequired);
-          valid = false;
-        }
-      } else {
-        if (_weightController.text.trim().isEmpty) {
-          setState(() => _weightError = l.onboardingWeightRequired);
-          valid = false;
-        } else {
-          final w = double.tryParse(_weightController.text);
-          if (w == null || w < 20 || w > 300) {
-            setState(() => _weightError = l.onboardingWeightInvalid);
-            valid = false;
-          }
-        }
+      final w = double.tryParse(_weightController.text);
+      if (_weightController.text.isNotEmpty &&
+          (w == null || w < 20 || w > 300)) {
+        setState(() => _weightError = l.onboardingWeightInvalid);
+        valid = false;
       }
-
       return valid;
     }
 
-    if (_currentPage == 2) {
-      if (_lastPeriodDate == null) {
-        return false;
-      }
-      return true;
-    }
-
     if (_currentPage == 3) {
-      final phone = _phoneController.text.trim();
-      if (phone.isNotEmpty && !_e164.hasMatch(phone)) {
+      final digitsOnly = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      if (_phoneController.text.trim().isNotEmpty && (digitsOnly.length < 7 || digitsOnly.length > 15)) {
         setState(() => _phoneError = l.onboardingPhoneInvalid);
         return false;
       }
@@ -278,6 +191,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       );
       if (!mounted) return;
       setState(() => _currentPage++);
+
+      // ignore: deprecated_member_use
+      SemanticsService.announce(
+        'Step ${_currentPage + 1} of $_totalPages',
+         Directionality.of(context),
+      );
+
       _pageAnimController.forward();
     } else {
       await _saveAndComplete();
@@ -294,12 +214,17 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       );
       if (!mounted) return;
       setState(() => _currentPage--);
-      _pageAnimController.forward();
+
+      SemanticsService.announce(
+        'Step ${_currentPage + 1} of $_totalPages',
+        Directionality.of(context),
+     );
+
+     _pageAnimController.forward();
     }
   }
 
   Future<void> _saveAndComplete() async {
-    final l = AppLocalizations.of(context)!;
     final profile = <String, dynamic>{
       'name': _nameController.text.trim().isEmpty
           ? 'User'
@@ -309,32 +234,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     };
     final age = int.tryParse(_ageController.text);
     if (age != null) profile['age'] = age;
-    profile['age_is_estimated'] = _ageIsEstimated;
-    if (_ageIsEstimated) {
-      final midpoint = _getMidpoint(_buildAgeRanges(l), _ageSelectedRange);
-      if (midpoint != null) profile['age'] = midpoint;
-    }
     final h = double.tryParse(_heightController.text);
     if (h != null) profile['height_cm'] = h;
-    profile['height_is_estimated'] = _heightIsEstimated;
-    if (_heightIsEstimated) {
-      final midpoint = _getMidpoint(_buildHeightRanges(l), _heightSelectedRange);
-      if (midpoint != null) profile['height_cm'] = midpoint;
-    }
     final w = double.tryParse(_weightController.text);
     if (w != null) profile['weight_kg'] = w;
-    profile['weight_is_estimated'] = _weightIsEstimated;
-    if (_weightIsEstimated) {
-      final midpoint = _getMidpoint(_buildWeightRanges(l), _weightSelectedRange);
-      if (midpoint != null) profile['weight_kg'] = midpoint;
-    }
     if (_lastPeriodDate != null) {
       profile['last_period'] =
           _lastPeriodDate!.toIso8601String().split('T').first;
-      profile['last_period_is_approximate'] = _isLastPeriodApproximate;
     }
-    profile['onboarding_completed_at'] =
-        DateTime.now().toIso8601String().split('T').first;
     profile['cycle_length'] = _cycleLength;
     profile['period_duration'] = _periodDuration;
     profile['cycle_regular'] = _isRegular;
@@ -347,15 +254,24 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     profile['notifications_enabled'] = _notificationsEnabled;
 
     // 1. Persist locally first — data is never lost even if backend is down.
-    await context.read<ProfileProvider>().mergeProfileWithSync(profile);
+    await context.read<ProfileProvider>().saveProfile(profile);
 
-    // 2. Sync to backend — best-effort, never blocks the user.
-    ProfileService.patchProfile(profile);
+    // 2. Sync to backend is optional for now. The app uses local storage as
+    // the source of truth. A background sync can be added later.
+    // (Previously this called ProfileService.patchProfile, which was removed.)
 
     // 3. Mark onboarding done for this user account.
     await LocalStorageService.setOnboardingCompleted(true);
 
-    widget.onComplete();
+    if (!mounted) return;
+
+    SemanticsService.sendAnnouncement(
+       'Onboarding complete' as FlutterView,
+     Directionality.of(context).name,
+     Assertiveness.polite as TextDirection,
+    );
+
+  widget.onComplete();
   }
 
   // ── UI ────────────────────────────────────────────────────────────────────
@@ -395,30 +311,37 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  Widget _buildProgressBar() {
-    return Padding(
+ Widget _buildProgressBar() {
+  return Semantics(
+    label: 'Onboarding progress',
+    value: 'Step ${_currentPage + 1} of $_totalPages',
+    readOnly: true,
+    child: Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-      child: Row(
-        children: List.generate(_totalPages, (i) {
-          final active = i <= _currentPage;
-          return Expanded(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              height: 4,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2),
-                color: active
-                    ? RhythmaColors.primary
-                    : RhythmaColors.primary.withValues(alpha: 0.2),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
+      child: ExcludeSemantics(
+        child: Row(
+          children: List.generate(_totalPages, (i) {
+            final active = i <= _currentPage;
 
+            return Expanded(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                height: 4,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  color: active
+                      ? RhythmaColors.primary
+                      : RhythmaColors.primary.withValues(alpha: 0.2),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    ),
+  );
+}
   Widget _buildNavBar(AppLocalizations l) {
     final isLast = _currentPage == _totalPages - 1;
     return Padding(
@@ -615,136 +538,39 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: 14),
-          ApproximateField(
-            label: l.onboardingAgeLabel,
-            hint: l.onboardingAgeHint,
-            unit: l.onboardingAgeUnit,
-            ranges: _buildAgeRanges(l),
+          _buildTextField(
             controller: _ageController,
-            isEstimated: _ageIsEstimated,
-            onEstimatedChanged: (v) => setState(() {
-              _ageIsEstimated = v;
-              _ageError = null;
-            }),
-            selectedRange: _ageSelectedRange,
-            onRangeChanged: (v) => setState(() {
-              _ageSelectedRange = v;
-              _ageError = null;
-            }),
+            label: l.onboardingAgeLabel,
             error: _ageError,
-            minValue: 1,
-            maxValue: 120,
-            toggleLabel: l.onboardingNotSure,
-            approximateLabel: l.onboardingApproximate,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: 14),
-          // Height & Weight: side-by-side in exact mode; vertical when
-          // either enters approximate mode to avoid overflow on small screens.
-          if (_heightIsEstimated || _weightIsEstimated) ...[
-            ApproximateField(
-              label: l.onboardingHeightLabel,
-              hint: l.onboardingHeightHint,
-              unit: l.onboardingHeightUnit,
-              ranges: _buildHeightRanges(l),
-              controller: _heightController,
-              isEstimated: _heightIsEstimated,
-              onEstimatedChanged: (v) => setState(() {
-                _heightIsEstimated = v;
-                _heightError = null;
-              }),
-              selectedRange: _heightSelectedRange,
-              onRangeChanged: (v) => setState(() {
-                _heightSelectedRange = v;
-                _heightError = null;
-              }),
-              error: _heightError,
-              isDecimal: true,
-              minValue: 50,
-              maxValue: 250,
-              toggleLabel: l.onboardingNotSure,
-              approximateLabel: l.onboardingApproximate,
-            ),
-            const SizedBox(height: 14),
-            ApproximateField(
-              label: l.onboardingWeightLabel,
-              hint: l.onboardingWeightHint,
-              unit: l.onboardingWeightUnit,
-              ranges: _buildWeightRanges(l),
-              controller: _weightController,
-              isEstimated: _weightIsEstimated,
-              onEstimatedChanged: (v) => setState(() {
-                _weightIsEstimated = v;
-                _weightError = null;
-              }),
-              selectedRange: _weightSelectedRange,
-              onRangeChanged: (v) => setState(() {
-                _weightSelectedRange = v;
-                _weightError = null;
-              }),
-              error: _weightError,
-              isDecimal: true,
-              minValue: 20,
-              maxValue: 300,
-              toggleLabel: l.onboardingNotSure,
-              approximateLabel: l.onboardingApproximate,
-            ),
-          ] else ...[
-            Row(
-              children: [
-                Expanded(
-                  child: ApproximateField(
-                    label: l.onboardingHeightLabel,
-                    hint: l.onboardingHeightHint,
-                    unit: l.onboardingHeightUnit,
-                    ranges: _buildHeightRanges(l),
-                    controller: _heightController,
-                    isEstimated: _heightIsEstimated,
-                    onEstimatedChanged: (v) => setState(() {
-                      _heightIsEstimated = v;
-                      _heightError = null;
-                    }),
-                    selectedRange: _heightSelectedRange,
-                    onRangeChanged: (v) => setState(() {
-                      _heightSelectedRange = v;
-                      _heightError = null;
-                    }),
-                    error: _heightError,
-                    isDecimal: true,
-                    minValue: 50,
-                    maxValue: 250,
-                    toggleLabel: l.onboardingNotSure,
-                    approximateLabel: l.onboardingApproximate,
-                  ),
+          Row(
+            children: [
+              Expanded(
+                child: _buildTextField(
+                  controller: _heightController,
+                  label: l.onboardingHeightLabel,
+                  error: _heightError,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.next,
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: ApproximateField(
-                    label: l.onboardingWeightLabel,
-                    hint: l.onboardingWeightHint,
-                    unit: l.onboardingWeightUnit,
-                    ranges: _buildWeightRanges(l),
-                    controller: _weightController,
-                    isEstimated: _weightIsEstimated,
-                    onEstimatedChanged: (v) => setState(() {
-                      _weightIsEstimated = v;
-                      _weightError = null;
-                    }),
-                    selectedRange: _weightSelectedRange,
-                    onRangeChanged: (v) => setState(() {
-                      _weightSelectedRange = v;
-                      _weightError = null;
-                    }),
-                    error: _weightError,
-                    isDecimal: true,
-                    minValue: 20,
-                    maxValue: 300,
-                    toggleLabel: l.onboardingNotSure,
-                    approximateLabel: l.onboardingApproximate,
-                  ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: _buildTextField(
+                  controller: _weightController,
+                  label: l.onboardingWeightLabel,
+                  error: _weightError,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.done,
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -760,73 +586,70 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep3Title, l.onboardingStep3Subtitle),
           const SizedBox(height: 28),
-          Text(
-  l.onboardingLastPeriodLabel,
-  style: TextStyle(
-    fontSize: 14,
-    color: RhythmaColors.mutedFg,
-  ),
-),
+          Text(l.onboardingLastPeriodLabel,
+              style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _lastPeriodDate ??
+                    DateTime.now().subtract(const Duration(days: 14)),
+                firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                lastDate: DateTime.now(),
+                builder: (context, child) {
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: isDark
+                          ? ColorScheme.dark(
+                              primary: RhythmaColors.primary,
+                              onPrimary: RhythmaColors.primaryFg,
+                              surface: RhythmaColors.surface,
+                              onSurface: RhythmaColors.foreground,
+                            )
+                          : ColorScheme.light(
+                              primary: RhythmaColors.primary,
+                              onPrimary: RhythmaColors.primaryFg,
+                              surface: RhythmaColors.surface,
+                              onSurface: RhythmaColors.foreground,
+                            ),
+                    ),
+                    child: child!,
+                  );
+                },
+              );
+              if (picked != null) setState(() => _lastPeriodDate = picked);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: RhythmaColors.surface,
 
-const SizedBox(height: 4),
-
-Text(
-  'Choose the first day of your last period.',
-  style: TextStyle(
-    fontSize: 12,
-    color: RhythmaColors.mutedFg,
-  ),
-),
-
-const SizedBox(height: 8),
-
-Semantics(
-  label: 'Last period date',
-  hint: 'Double tap to open calendar and select a date',
-  button: true,
-  child: GestureDetector(
-    onTap: () async {
-      final picked = await showDatePicker(
-        context: context,
-        initialDate: _lastPeriodDate ??
-            DateTime.now().subtract(const Duration(days: 14)),
-        firstDate: DateTime.now().subtract(const Duration(days: 365)),
-        lastDate: DateTime.now(),
-      );
-
-      if (picked != null) {
-        setState(() => _lastPeriodDate = picked);
-      }
-    },
-    child: Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: RhythmaColors.surface,
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.calendar_today_rounded,
-            color: RhythmaColors.primary,
-            size: 20,
+                border: Border.all(color: RhythmaColors.primary.withValues(alpha: 0.3)),
+             ),
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today_rounded,
+                      color: RhythmaColors.primary, size: 20),
+                  const SizedBox(width: 12),
+                  Text(
+                    _lastPeriodDate == null
+                        ? l.onboardingTapToSelectDate
+                        : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
+                    style: TextStyle(
+                      color: _lastPeriodDate == null
+                          ? RhythmaColors.mutedFg
+                          : RhythmaColors.foreground,
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(width: 12),
-          Text(
-            _lastPeriodDate == null
-                ? l.onboardingTapToSelectDate
-                : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
-          ),
-        ],
-      ),
-    ),
-  ),
-),
-
-                
           const SizedBox(height: 24),
           _buildSliderField(
             label: l.onboardingCycleLengthLabel,
@@ -880,7 +703,6 @@ Semantics(
           _buildTextField(
             controller: _phoneController,
             label: l.onboardingPhoneLabel,
-            hint: l.onboardingPhoneHint,
             error: _phoneError,
             keyboardType: TextInputType.phone,
             textInputAction: TextInputAction.next,
@@ -905,57 +727,26 @@ Semantics(
   // ── Step 5 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep5(AppLocalizations l) {
-  return SingleChildScrollView(
-    padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepHeader(
-          l.onboardingStep5Title,
-          l.onboardingStep5Subtitle,
-        ),
-        const SizedBox(height: 36),
-
-        _buildSwitchTile(
-          icon: '📅',
-          title: l.onboardingEnableNotifications,
-          subtitle: l.onboardingNotificationsDesc,
-          value: _notificationsEnabled,
-          onChanged: (v) =>
-              setState(() => _notificationsEnabled = v),
-        ),
-
-        const SizedBox(height: 20),
-
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: RhythmaColors.primary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildStepHeader(l.onboardingStep5Title, l.onboardingStep5Subtitle),
+          const SizedBox(height: 36),
+          _buildSwitchTile(
+            icon: '📅',
+            title: l.onboardingEnableNotifications,
+            subtitle: l.onboardingNotificationsDesc,
+            value: _notificationsEnabled,
+            onChanged: (v) => setState(() => _notificationsEnabled = v),
           ),
-          child: Text(
-            'We use your cycle information to provide predictions and reminders. Your information stays private, and you can change these settings later.',
-            style: TextStyle(
-              fontSize: 13,
-              color: RhythmaColors.mutedFg,
-              height: 1.5,
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 32),
-
-        Semantics(
-          label: 'Data consent',
-          hint: 'Double tap to agree to data usage',
-          checked: _dataConsent,
-          child: GestureDetector(
+          const SizedBox(height: 32),
+          GestureDetector(
             onTap: () {
               setState(() {
                 _dataConsent = !_dataConsent;
-                if (_dataConsent) {
-                  _consentError = null;
-                }
+                if (_dataConsent) _consentError = null;
               });
             },
             child: Row(
@@ -978,20 +769,13 @@ Semantics(
                     ),
                   ),
                   child: _dataConsent
-                      ? const Icon(
-                          Icons.check,
-                          size: 16,
-                          color: Colors.white,
-                        )
+                      ? const Icon(Icons.check, size: 16, color: Colors.white)
                       : null,
                 ),
-
                 const SizedBox(width: 12),
-
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         l.onboardingDataConsentLabel,
@@ -1001,15 +785,12 @@ Semantics(
                           height: 1.4,
                         ),
                       ),
-
                       if (_consentError != null) ...[
                         const SizedBox(height: 4),
                         Text(
                           _consentError!,
                           style: const TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 12,
-                          ),
+                              color: Colors.redAccent, fontSize: 12),
                         ),
                       ],
                     ],
@@ -1018,12 +799,10 @@ Semantics(
               ],
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-  
+        ],
+      ),
+    );
+  }
 
   // ── Shared helpers ────────────────────────────────────────────────────────
 
@@ -1216,19 +995,13 @@ Semantics(
               ],
             ),
           ),
-         
-          Semantics(
-            label: 'Cycle reminders',
-            hint: 'Turn reminders on or off',
-            child: Switch(
-             value: value,
-             onChanged: onChanged,
-             activeThumbColor: RhythmaColors.primary,
-            ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeThumbColor: RhythmaColors.primary,
           ),
         ],
       ),
     );
-   }
   }
-
+}
