@@ -1,4 +1,8 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+// `AxiosHeaders` is a value — it is constructed below. The other two are
+// types only, and `verbatimModuleSyntax` is on in tsconfig, so importing a
+// type through a value import is a build error (TS1484).
+import axios, { AxiosHeaders } from 'axios';
+import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1';
 
@@ -140,15 +144,25 @@ apiClient.interceptors.response.use(
     }
 
     // Retry the original request once with the new cookies (auto-sent).
-    const retryConfig: InternalAxiosRequestConfig = {
-      ...config,
-      headers: {
-        ...config?.headers,
-        'X-Retry-After-Refresh': '1',
-      } as Record<string, string>,
-    };
+    //
+    // The marker goes on a real `AxiosHeaders`, not a plain object cast to
+    // one. `InternalAxiosRequestConfig.headers` is an `AxiosHeaders`, which
+    // carries `set`/`get`/`has` and a normalized key map; a bare
+    // `Record<string, string>` satisfies none of that, and the `as` was
+    // asserting a lie the compiler correctly refused (TS2322). Downstream
+    // axios internals call methods on this object.
+    const headers = AxiosHeaders.from(config?.headers);
+    headers.set('X-Retry-After-Refresh', '1');
 
-    return apiClient(retryConfig);
+    const retryConfig = {
+      ...config,
+      headers,
+    } as InternalAxiosRequestConfig;
+
+    // `apiClient.request(...)` rather than `apiClient(...)`. They run the
+    // same code — the instance *is* a bound `request` — but only the named
+    // form is a property lookup, so it is the one a caller can observe.
+    return apiClient.request(retryConfig);
   },
 );
 

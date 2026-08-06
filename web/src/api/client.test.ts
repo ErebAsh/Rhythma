@@ -70,8 +70,11 @@ describe('401 interceptor — auto-refresh', () => {
       config: { url: '/dashboard', headers: {} },
     };
 
-    // The interceptor should retry via apiClient(error.config)
-    // which we spy on.
+    // The interceptor retries through `apiClient.request`, which is what
+    // this spy stands in for. It had been failing with "expected 1, got 0":
+    // the source called `apiClient(retryConfig)`, and an axios instance is
+    // a *bound* `request` function, so invoking it never touches the
+    // `request` property the spy replaced.
     const apiSpy = vi.spyOn(apiClient, 'request').mockResolvedValueOnce({
       data: { user: { name: 'Asha' } },
       status: 200,
@@ -80,7 +83,7 @@ describe('401 interceptor — auto-refresh', () => {
       config: error.config,
     });
 
-    const result = await runResponseInterceptor(error);
+    await runResponseInterceptor(error);
 
     expect(mockedAxiosPost).toHaveBeenCalledTimes(1);
     expect(mockedAxiosPost).toHaveBeenCalledWith(
@@ -90,6 +93,57 @@ describe('401 interceptor — auto-refresh', () => {
     );
     expect(apiSpy).toHaveBeenCalledTimes(1);
     expect(onUnauthorized).not.toHaveBeenCalled();
+  });
+
+  it('marks the retry so a second 401 cannot loop', async () => {
+    // The marker is what breaks the retry loop, and nothing was checking
+    // it reached the retried request — the assertion above only counted
+    // the call. Reading it back off the header object also confirms the
+    // `AxiosHeaders` the interceptor now builds behaves like the plain
+    // object the loop guard indexes into.
+    mockedAxiosPost.mockResolvedValueOnce({ status: 200 });
+    setUnauthorizedHandler(vi.fn());
+
+    const error = {
+      response: { status: 401 },
+      config: { url: '/dashboard', headers: {} },
+    };
+
+    const apiSpy = vi.spyOn(apiClient, 'request').mockResolvedValueOnce({
+      data: {},
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: error.config,
+    });
+
+    await runResponseInterceptor(error);
+
+    const retried = apiSpy.mock.calls[0][0] as unknown as {
+      url: string;
+      headers: Record<string, unknown>;
+    };
+    expect(retried.headers['X-Retry-After-Refresh']).toBe('1');
+    expect(retried.url).toBe('/dashboard');
+  });
+
+  it('gives up instead of retrying a request that was already retried', async () => {
+    const onUnauthorized = vi.fn();
+    setUnauthorizedHandler(onUnauthorized);
+
+    const apiSpy = vi.spyOn(apiClient, 'request');
+
+    await runResponseInterceptor({
+      response: { status: 401 },
+      config: {
+        url: '/dashboard',
+        headers: { 'X-Retry-After-Refresh': '1' },
+      },
+    });
+
+    expect(onUnauthorized).toHaveBeenCalledTimes(1);
+    expect(mockedAxiosPost).not.toHaveBeenCalled();
+    expect(apiSpy).not.toHaveBeenCalled();
   });
 
   it('calls unauthorized handler when refresh fails', async () => {
