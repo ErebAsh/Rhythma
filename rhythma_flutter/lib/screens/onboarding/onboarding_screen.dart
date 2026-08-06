@@ -1,3 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +10,7 @@ import '../../config/theme.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/local_storage_service.dart';
 import '../../providers/profile_provider.dart';
+import 'package:flutter/semantics.dart';
 
 /// The 5-step offline-first onboarding flow.
 /// On completion, writes all collected data to LocalStorageService and
@@ -186,6 +191,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       );
       if (!mounted) return;
       setState(() => _currentPage++);
+
+      // ignore: deprecated_member_use
+      SemanticsService.announce(
+        'Step ${_currentPage + 1} of $_totalPages',
+         Directionality.of(context),
+      );
+
       _pageAnimController.forward();
     } else {
       await _saveAndComplete();
@@ -202,7 +214,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       );
       if (!mounted) return;
       setState(() => _currentPage--);
-      _pageAnimController.forward();
+
+      SemanticsService.announce(
+        'Step ${_currentPage + 1} of $_totalPages',
+        Directionality.of(context),
+     );
+
+     _pageAnimController.forward();
     }
   }
 
@@ -245,7 +263,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     // 3. Mark onboarding done for this user account.
     await LocalStorageService.setOnboardingCompleted(true);
 
-    widget.onComplete();
+    if (!mounted) return;
+
+    SemanticsService.sendAnnouncement(
+       'Onboarding complete' as FlutterView,
+     Directionality.of(context).name,
+     Assertiveness.polite as TextDirection,
+    );
+
+  widget.onComplete();
   }
 
   // ── UI ────────────────────────────────────────────────────────────────────
@@ -285,30 +311,37 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  Widget _buildProgressBar() {
-    return Padding(
+ Widget _buildProgressBar() {
+  return Semantics(
+    label: 'Onboarding progress',
+    value: 'Step ${_currentPage + 1} of $_totalPages',
+    readOnly: true,
+    child: Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-      child: Row(
-        children: List.generate(_totalPages, (i) {
-          final active = i <= _currentPage;
-          return Expanded(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              height: 4,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2),
-                color: active
-                    ? RhythmaColors.primary
-                    : RhythmaColors.primary.withValues(alpha: 0.2),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
+      child: ExcludeSemantics(
+        child: Row(
+          children: List.generate(_totalPages, (i) {
+            final active = i <= _currentPage;
 
+            return Expanded(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                height: 4,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  color: active
+                      ? RhythmaColors.primary
+                      : RhythmaColors.primary.withValues(alpha: 0.2),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    ),
+  );
+}
   Widget _buildNavBar(AppLocalizations l) {
     final isLast = _currentPage == _totalPages - 1;
     return Padding(
