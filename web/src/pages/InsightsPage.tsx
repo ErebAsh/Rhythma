@@ -43,11 +43,11 @@ export function InsightsPage() {
     return <div className="centered-loader">{t('common.loading')}</div>;
   }
 
-  const lengths = data?.cycleHistory.map((p) => p.cycle_length) ?? [];
+  const totalCycleDays = data?.cycle?.total;
   const variability =
-    lengths.length >= 2
+    lengths.length >= 2 && totalCycleDays != null && totalCycleDays > 0
       ? Math.round(
-          lengths.reduce((acc, l) => acc + (l - (data?.cycle.total ?? 0)) ** 2, 0) / lengths.length,
+          lengths.reduce((acc, l) => acc + (l - totalCycleDays) ** 2, 0) / lengths.length,
         )
       : null;
   const isHealthy = variability != null && variability <= 3;
