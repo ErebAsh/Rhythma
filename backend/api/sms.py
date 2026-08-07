@@ -31,7 +31,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from core.auth import get_current_user
 from services.firestore_service import UserService
 from services.rate_limit_service import RateLimitService
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from typing import Any, Dict, Optional
 import os
 import re
@@ -158,12 +158,6 @@ class SMSSettings(BaseModel):
     @property
     def normalized_phone(self) -> Optional[str]:
         return self.phoneNumber.strip() if self.phoneNumber else None
-
-    @field_validator("phoneNumber")
-    def validate_phone_number(cls, v: Optional[str]) -> Optional[str]:
-        if v and v.strip() and not re.match(PHONE_PATTERN, v.strip()):
-            raise ValueError("Phone number must be in E.164 format, e.g. +919876543210.")
-        return v
 
 
 class SMSSettingsResponse(BaseModel):
