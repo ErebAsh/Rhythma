@@ -65,7 +65,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   // Step 5 – Permissions
   bool _notificationsEnabled = false;
   bool _dataConsent = false;
+  // ignore: unused_field
   String? _consentError;
+  // ignore: unused_field
   String? _phoneError;
 
   late AnimationController _pageAnimController;
@@ -192,7 +194,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       if (!mounted) return;
       setState(() => _currentPage++);
 
-      // ignore: deprecated_member_use
+      
       SemanticsService.announce(
         'Step ${_currentPage + 1} of $_totalPages',
          Directionality.of(context),
@@ -265,11 +267,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
     if (!mounted) return;
 
-    SemanticsService.sendAnnouncement(
-       'Onboarding complete' as FlutterView,
-     Directionality.of(context).name,
-     Assertiveness.polite as TextDirection,
-    );
+    SemanticsService.announce(
+  'Onboarding complete',
+  Directionality.of(context),
+);
 
   widget.onComplete();
   }
@@ -297,8 +298,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       _buildStep1(l),
                       _buildStep2(l),
                       _buildStep3(l),
-                      _buildStep4(l),
-                      _buildStep5(l),
+                      _buildStep1(l),
+                      _buildStep1(l),
                     ],
                   ),
                 ),
@@ -612,263 +613,105 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep3Title, l.onboardingStep3Subtitle),
           const SizedBox(height: 28),
-          Text(l.onboardingLastPeriodLabel,
-              style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _lastPeriodDate ??
-                    DateTime.now().subtract(const Duration(days: 14)),
-                firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                lastDate: DateTime.now(),
-                builder: (context, child) {
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: isDark
-                          ? ColorScheme.dark(
-                              primary: RhythmaColors.primary,
-                              onPrimary: RhythmaColors.primaryFg,
-                              surface: RhythmaColors.surface,
-                              onSurface: RhythmaColors.foreground,
-                            )
-                          : ColorScheme.light(
-                              primary: RhythmaColors.primary,
-                              onPrimary: RhythmaColors.primaryFg,
-                              surface: RhythmaColors.surface,
-                              onSurface: RhythmaColors.foreground,
-                            ),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (picked != null) setState(() => _lastPeriodDate = picked);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: RhythmaColors.surface,
+         Text(
+  l.onboardingLastPeriodLabel,
+  style: TextStyle(
+    fontSize: 14,
+    color: RhythmaColors.mutedFg,
+  ),
+),
+const SizedBox(height: 8),
 
-                border: Border.all(color: RhythmaColors.primary.withValues(alpha: 0.3)),
-             ),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today_rounded,
-                      color: RhythmaColors.primary, size: 20),
-                  const SizedBox(width: 12),
-                  Text(
-                    _lastPeriodDate == null
-                        ? l.onboardingTapToSelectDate
-                        : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
-                    style: TextStyle(
-                      color: _lastPeriodDate == null
-                          ? RhythmaColors.mutedFg
-                          : RhythmaColors.foreground,
-                      fontSize: 15,
+Text(
+  'Choose the first day of your last period.',
+  style: TextStyle(
+    fontSize: 13,
+    color: RhythmaColors.mutedFg,
+  ),
+),
+const SizedBox(height: 12),
+
+Semantics(
+  label: 'Last period date',
+  hint: 'Double tap to open calendar and select a date',
+  button: true,
+  child: GestureDetector(
+    onTap: () async {
+      final picked = await showDatePicker(
+        context: context,
+        initialDate: _lastPeriodDate ??
+            DateTime.now().subtract(const Duration(days: 14)),
+        firstDate: DateTime.now().subtract(
+          const Duration(days: 365),
+        ),
+        lastDate: DateTime.now(),
+        builder: (context, child) {
+          final isDark =
+              Theme.of(context).brightness == Brightness.dark;
+
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: isDark
+                  ? ColorScheme.dark(
+                      primary: RhythmaColors.primary,
+                      onPrimary: RhythmaColors.primaryFg,
+                      surface: RhythmaColors.surface,
+                      onSurface: RhythmaColors.foreground,
+                    )
+                  : ColorScheme.light(
+                      primary: RhythmaColors.primary,
+                      onPrimary: RhythmaColors.primaryFg,
+                      surface: RhythmaColors.surface,
+                      onSurface: RhythmaColors.foreground,
                     ),
-                  ),
-                ],
-              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          _buildSliderField(
-            label: l.onboardingCycleLengthLabel,
-            value: _cycleLength.toDouble(),
-            min: 21,
-            max: 45,
-            divisions: 24,
-            displayValue: '$_cycleLength ${l.onboardingDays}',
-            onChanged: (v) => setState(() => _cycleLength = v.round()),
-          ),
-          const SizedBox(height: 20),
-          _buildSliderField(
-            label: l.onboardingPeriodDurationLabel,
-            value: _periodDuration.toDouble(),
-            min: 2,
-            max: 10,
-            divisions: 8,
-            displayValue: '$_periodDuration ${l.onboardingDays}',
-            onChanged: (v) => setState(() => _periodDuration = v.round()),
-          ),
-          const SizedBox(height: 24),
-          Text(l.onboardingCycleRegularityLabel,
-              style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                  child: _buildToggleChip(l.onboardingRegular, _isRegular,
-                      () => setState(() => _isRegular = true))),
-              const SizedBox(width: 12),
-              Expanded(
-                  child: _buildToggleChip(l.onboardingIrregular, !_isRegular,
-                      () => setState(() => _isRegular = false))),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+            child: child!,
+          );
+        },
+      );
 
-  // ── Step 4 ────────────────────────────────────────────────────────────────
+      if (picked != null) {
+        setState(() => _lastPeriodDate = picked);
 
-  Widget _buildStep4(AppLocalizations l) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildStepHeader(l.onboardingStep4Title, l.onboardingStep4Subtitle),
-          const SizedBox(height: 28),
-          _buildTextField(
-            controller: _phoneController,
-            label: l.onboardingPhoneLabel,
-            error: _phoneError,
-            keyboardType: TextInputType.phone,
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 14),
-          _buildTextField(
-            controller: _cityController,
-            label: l.onboardingCityLabel,
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 14),
-          _buildTextField(
-            controller: _stateController,
-            label: l.onboardingStateLabel,
-            textInputAction: TextInputAction.done,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Step 5 ────────────────────────────────────────────────────────────────
-
-  Widget _buildStep5(AppLocalizations l) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildStepHeader(l.onboardingStep5Title, l.onboardingStep5Subtitle),
-          const SizedBox(height: 36),
-          _buildSwitchTile(
-            icon: '📅',
-            title: l.onboardingEnableNotifications,
-            subtitle: l.onboardingNotificationsDesc,
-            value: _notificationsEnabled,
-            onChanged: (v) {
-              setState(() => _notificationsEnabled = v);
-
-              SemanticsService.announce(
-               v
-                    ? 'Notifications enabled'
-                    : 'Notifications disabled',
-               Directionality.of(context),
-             );
-           },
-         ),
-          const SizedBox(height: 32),
-          Semantics(
-           label: 'Data consent',
-           checked: _dataConsent,
-           button: true,
-           hint: 'Double tap to toggle consent',
-           onTap: () {
-             setState(() {
-              _dataConsent = !_dataConsent;
-
-              if (_dataConsent) {
-                _consentError = null;
-           }
-         });
- 
         SemanticsService.announce(
-         _dataConsent
-          ? 'Data consent checked'
-          : 'Data consent unchecked',
-        Directionality.of(context),
-      );
+          'Date selected',
+          Directionality.of(context),
+        );
+      }
     },
-    child: GestureDetector(
-    onTap: () {
-      setState(() {
-        _dataConsent = !_dataConsent;
-
-        if (_dataConsent) {
-          _consentError = null;
-        }
-      });
-
-      SemanticsService.announce(
-        _dataConsent
-            ? 'Data consent checked'
-            : 'Data consent unchecked',
-        Directionality.of(context),
-      );
-    },
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
-            color: _dataConsent
-                ? RhythmaColors.primary
-                : Colors.transparent,
-            border: Border.all(
-              color: _consentError != null
-                  ? Colors.redAccent
-                  : RhythmaColors.primary,
-              width: 2,
+    child: Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: RhythmaColors.surface,
+        border: Border.all(
+          color: RhythmaColors.primary.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.calendar_today_rounded,
+            color: RhythmaColors.primary,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            _lastPeriodDate == null
+                ? l.onboardingTapToSelectDate
+                : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
+            style: TextStyle(
+              color: _lastPeriodDate == null
+                  ? RhythmaColors.mutedFg
+                  : RhythmaColors.foreground,
+              fontSize: 15,
             ),
           ),
-          child: _dataConsent
-              ? const Icon(
-                  Icons.check,
-                  size: 16,
-                  color: Colors.white,
-                )
-              : null,
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l.onboardingDataConsentLabel,
-                style: TextStyle(
-                  color: RhythmaColors.foreground,
-                  fontSize: 14,
-                  height: 1.4,
-                ),
-              ),
-              if (_consentError != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  _consentError!,
-                  style: const TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     ),
   ),
 ),
@@ -951,6 +794,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
+  // ignore: unused_element
   Widget _buildSliderField({
     required String label,
     required double value,
@@ -991,6 +835,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
+  // ignore: unused_element
   Widget _buildToggleChip(
   String label,
   bool selected,
@@ -1042,6 +887,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   );
 }
 
+  // ignore: unused_element
   Widget _buildSwitchTile({
     required String icon,
     required String title,
