@@ -765,67 +765,114 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             title: l.onboardingEnableNotifications,
             subtitle: l.onboardingNotificationsDesc,
             value: _notificationsEnabled,
-            onChanged: (v) => setState(() => _notificationsEnabled = v),
-          ),
+            onChanged: (v) {
+              setState(() => _notificationsEnabled = v);
+
+              SemanticsService.announce(
+               v
+                    ? 'Notifications enabled'
+                    : 'Notifications disabled',
+               Directionality.of(context),
+             );
+           },
+         ),
           const SizedBox(height: 32),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _dataConsent = !_dataConsent;
-                if (_dataConsent) _consentError = null;
-              });
-            },
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    color: _dataConsent
-                        ? RhythmaColors.primary
-                        : Colors.transparent,
-                    border: Border.all(
-                      color: _consentError != null
-                          ? Colors.redAccent
-                          : RhythmaColors.primary,
-                      width: 2,
-                    ),
-                  ),
-                  child: _dataConsent
-                      ? const Icon(Icons.check, size: 16, color: Colors.white)
-                      : null,
+          Semantics(
+           label: 'Data consent',
+           checked: _dataConsent,
+           button: true,
+           hint: 'Double tap to toggle consent',
+           onTap: () {
+             setState(() {
+              _dataConsent = !_dataConsent;
+
+              if (_dataConsent) {
+                _consentError = null;
+           }
+         });
+ 
+        SemanticsService.announce(
+         _dataConsent
+          ? 'Data consent checked'
+          : 'Data consent unchecked',
+        Directionality.of(context),
+      );
+    },
+    child: GestureDetector(
+    onTap: () {
+      setState(() {
+        _dataConsent = !_dataConsent;
+
+        if (_dataConsent) {
+          _consentError = null;
+        }
+      });
+
+      SemanticsService.announce(
+        _dataConsent
+            ? 'Data consent checked'
+            : 'Data consent unchecked',
+        Directionality.of(context),
+      );
+    },
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(6),
+            color: _dataConsent
+                ? RhythmaColors.primary
+                : Colors.transparent,
+            border: Border.all(
+              color: _consentError != null
+                  ? Colors.redAccent
+                  : RhythmaColors.primary,
+              width: 2,
+            ),
+          ),
+          child: _dataConsent
+              ? const Icon(
+                  Icons.check,
+                  size: 16,
+                  color: Colors.white,
+                )
+              : null,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.onboardingDataConsentLabel,
+                style: TextStyle(
+                  color: RhythmaColors.foreground,
+                  fontSize: 14,
+                  height: 1.4,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.onboardingDataConsentLabel,
-                        style: TextStyle(
-                          color: RhythmaColors.foreground,
-                          fontSize: 14,
-                          height: 1.4,
-                        ),
-                      ),
-                      if (_consentError != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          _consentError!,
-                          style: const TextStyle(
-                              color: Colors.redAccent, fontSize: 12),
-                        ),
-                      ],
-                    ],
+              ),
+              if (_consentError != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  _consentError!,
+                  style: const TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 12,
                   ),
                 ),
               ],
-            ),
+            ],
           ),
-        ],
+        ),
+      ],
+    ),
+  ),
+),
+        ]
       ),
     );
   }
@@ -1041,10 +1088,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               ],
             ),
           ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: RhythmaColors.primary,
+          Semantics(
+           label: title,
+           toggled: value,
+           child: Switch(
+           value: value,
+           onChanged: onChanged,
+           activeThumbColor: RhythmaColors.primary,
+           ),
           ),
         ],
       ),
