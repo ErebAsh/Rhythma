@@ -402,12 +402,24 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           ...List.generate(_languages.length, (i) {
             final lang = _languages[i];
             final selected = lang['code'] == _selectedLanguage;
-            return GestureDetector(
+           return Semantics(
+             label: '${lang['label']} language',
+             selected: selected,
+             button: true,
+             hint: 'Double tap to select language',
+             child: GestureDetector(
               onTap: () {
-                setState(() => _selectedLanguage = lang['code']!);
-                context.read<LocaleProvider>().setLocale(Locale(lang['code']!));
-              },
-              child: AnimatedContainer(
+               setState(() => _selectedLanguage = lang['code']!);
+
+             SemanticsService.announce(
+              '${lang['label']} selected',
+              Directionality.of(context),
+            );
+
+      context.read<LocaleProvider>()
+          .setLocale(Locale(lang['code']!));
+    },
+    child: AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 margin: const EdgeInsets.only(bottom: 12),
                 padding:
@@ -443,6 +455,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   ],
                 ),
               ),
+             ),
             );
           }),
           const SizedBox(height: 24),
@@ -498,9 +511,21 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               itemBuilder: (_, i) {
                 final avatarPath = OnboardingScreen.avatars[i];
                 final selected = _selectedAvatar == avatarPath;
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedAvatar = avatarPath),
-                  child: AnimatedContainer(
+               return Semantics(
+                 label: 'Avatar ${i + 1}',
+                 selected: selected,
+                 button: true,
+                 hint: 'Double tap to select avatar',
+                 child: GestureDetector(
+                  onTap: () {
+                   setState(() => _selectedAvatar = avatarPath);
+
+                   SemanticsService.announce(
+                    'Avatar ${i + 1} selected',
+                    Directionality.of(context),
+             );
+           },
+          child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     margin: const EdgeInsets.only(right: 12),
                     width: 60,
@@ -525,6 +550,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       ),
                     ),
                   ),
+                 ),
                 );
               },
             ),
@@ -918,19 +944,36 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  Widget _buildToggleChip(String label, bool selected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
+  Widget _buildToggleChip(
+  String label,
+  bool selected,
+  VoidCallback onTap,
+) {
+  return Semantics(
+    label: label,
+    selected: selected,
+    button: true,
+    hint: 'Double tap to select',
+    child: GestureDetector(
+      onTap: () {
+        onTap();
+
+        SemanticsService.announce(
+          '$label selected',
+          Directionality.of(context),
+        );
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-            color: selected
-          ? RhythmaColors.primary.withValues(alpha: 0.15)
-             : RhythmaColors.surface,
+          color: selected
+              ? RhythmaColors.primary.withValues(alpha: 0.15)
+              : RhythmaColors.surface,
           border: Border.all(
-            color: selected ? RhythmaColors.primary : Colors.transparent,
+            color:
+                selected ? RhythmaColors.primary : Colors.transparent,
             width: 2,
           ),
         ),
@@ -938,16 +981,19 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           child: Text(
             label,
             style: TextStyle(
-              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-              color:
-                  selected ? RhythmaColors.primary : RhythmaColors.foreground,
+              fontWeight:
+                  selected ? FontWeight.bold : FontWeight.w500,
+              color: selected
+                  ? RhythmaColors.primary
+                  : RhythmaColors.foreground,
               fontSize: 15,
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSwitchTile({
     required String icon,
