@@ -31,7 +31,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from core.auth import get_current_user
 from services.firestore_service import UserService
 from services.rate_limit_service import RateLimitService
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Any, Dict, Optional
 import os
 import re
