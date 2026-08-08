@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/useAuth';
 import { sendChatMessage, type ChatMessage } from '../api/endpoints';
+import { toAssistantLanguage } from '../lib/language';
 
 interface UiMessage {
   role: 'user' | 'model';
@@ -88,7 +89,15 @@ export function AssistantPage() {
       .map((m) => ({ role: m.role, content: m.content }));
 
     try {
-      const result = await sendChatMessage(trimmed, i18n.language, history);
+      // `i18n.language` is a UI tag — it can be `en-US` from the browser
+      // detector, or `bn`, which the web app supports and the assistant
+      // does not. The backend validates this field now, so it has to be
+      // a code the assistant actually serves.
+      const result = await sendChatMessage(
+        trimmed,
+        toAssistantLanguage(i18n.language),
+        history,
+      );
       const withReply: UiMessage[] = [...next, { role: 'model', content: result.response }];
       setMessages(withReply);
       localStorage.setItem(HISTORY_KEY, JSON.stringify(withReply));
@@ -118,7 +127,22 @@ export function AssistantPage() {
           <h1>{t('assistant.title')}</h1>
           <p className="card-sub">{t('assistant.subtitle')}</p>
         </div>
-        <span className="language-badge">{i18n.language.toUpperCase()}</span>
+        <select
+          className="language-select"
+          value={i18n.language.slice(0, 2)}
+          onChange={(e) => void i18n.changeLanguage(e.target.value)}
+          aria-label="Select AI Assistant Language"
+        >
+          <option value="en">English (EN)</option>
+          <option value="hi">Hindi (हिन्दी)</option>
+          <option value="mr">Marathi (मराठी)</option>
+          <option value="ta">Tamil (தமிழ்)</option>
+          <option value="te">Telugu (తెలుగు)</option>
+          <option value="kn">Kannada (ಕನ್ನಡ)</option>
+          <option value="ml">Malayalam (മലയാളം)</option>
+          <option value="gu">Gujarati (ગુજરાતી)</option>
+          <option value="bn">Bengali (বাংলা)</option>
+        </select>
       </header>
 
       <div className="chat-list" ref={listRef}>

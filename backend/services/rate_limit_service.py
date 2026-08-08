@@ -21,11 +21,21 @@ class RateLimitService:
         doc_ref = RateLimitService._document(key)
         doc = doc_ref.get()
 
-        timestamps = []
-
+        raw_timestamps = []
         if doc.exists:
             data = doc.to_dict() or {}
-            timestamps = data.get("timestamps", [])
+            raw_timestamps = data.get("timestamps", [])
+
+        timestamps = []
+        for t in raw_timestamps:
+            if isinstance(t, str):
+                try:
+                    dt = datetime.fromisoformat(t)
+                    timestamps.append(dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc))
+                except Exception:
+                    pass
+            elif isinstance(t, datetime):
+                timestamps.append(t if t.tzinfo else t.replace(tzinfo=timezone.utc))
 
         timestamps = [
             t for t in timestamps
@@ -40,10 +50,6 @@ class RateLimitService:
 
             doc_ref.set({"timestamps": timestamps})
             return max(remaining, 1)
-
-        timestamps.append(now)
-        doc_ref.set({"timestamps": timestamps})
-        return None
 
         timestamps.append(now)
         doc_ref.set({"timestamps": timestamps})

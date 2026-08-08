@@ -70,20 +70,38 @@ class CycleProvider extends ChangeNotifier {
     return date.difference(startDate).inDays + 1;
   }
 
-  // Phase logic
+  int get _periodDuration {
+    final val = LocalStorageService.getProfile()?['period_duration'];
+    return (val is num) ? val.toInt() : 5;
+  }
+
+  int get _cycleLength {
+    final val = LocalStorageService.getProfile()?['cycle_length'];
+    return (val is num) ? val.toInt() : 28;
+  }
+
+  // Dynamic phase logic scaling to user's actual cycle length and period duration
   String phase(DateTime date, AppLocalizations l10n) {
     final day = _getCycleDay(date);
-    if (day <= 5) return l10n.cyclePhasePeriod;
-    if (day <= 13) return l10n.cyclePhaseFollicular;
-    if (day <= 16) return l10n.cyclePhaseOvulation;
+    final periodEnd = _periodDuration;
+    final follicularEnd = (_cycleLength / 2).floor() - 2;
+    final ovulationEnd = (_cycleLength / 2).floor() + 1;
+
+    if (day <= periodEnd) return l10n.cyclePhasePeriod;
+    if (day <= follicularEnd) return l10n.cyclePhaseFollicular;
+    if (day <= ovulationEnd) return l10n.cyclePhaseOvulation;
     return l10n.cyclePhaseLuteal;
   }
 
   Color phaseColor(DateTime date) {
     final day = _getCycleDay(date);
-    if (day <= 5) return RhythmaColors.rose;
-    if (day <= 13) return RhythmaColors.primary;
-    if (day <= 16) return RhythmaColors.teal;
+    final periodEnd = _periodDuration;
+    final follicularEnd = (_cycleLength / 2).floor() - 2;
+    final ovulationEnd = (_cycleLength / 2).floor() + 1;
+
+    if (day <= periodEnd) return RhythmaColors.rose;
+    if (day <= follicularEnd) return RhythmaColors.primary;
+    if (day <= ovulationEnd) return RhythmaColors.teal;
     return RhythmaColors.coral;
   }
 }
