@@ -53,25 +53,32 @@ export function InsightsPage() {
     return <div className="centered-loader">{t('common.loading')}</div>;
   }
 
-  const totalCycleDays = data?.cycle?.total;
-  const variability =
-    lengths.length >= 2 && totalCycleDays != null && totalCycleDays > 0
-      ? Math.round(
-          lengths.reduce((acc, l) => acc + (l - totalCycleDays) ** 2, 0) / lengths.length,
-        )
-      : null;
-  const isHealthy = variability != null && variability <= 3;
-  const mhs = data?.insights.mhs ?? null;
-  const cvi = data?.insights.cvi ?? null;
-  const sleep = data?.insights.sleepHours ?? null;
-  const stress = stressLabel(data?.recentStressLevel ?? null, t);
-  const symptoms = data?.symptomFrequency ?? {};
-  const hasSymptoms = Object.keys(symptoms).length > 0;
-  const hasEnough = data?.hasEnoughDataForInsights ?? false;
+  // Everything the page renders comes straight off the observations
+  // response. There is no derived score here on purpose (#320): the block
+  // that used to sit in this spot computed MHS, CVI and a cycle
+  // "variability" figure from fields this endpoint does not return, and
+  // rendered none of them.
+  const observations = data?.observations ?? [];
 
-  const recs: { key: string; color: string }[] = [{ key: 'insights.rec1', color: '#E07AAD' }];
-  if (sleep && parseFloat(sleep) < 7) recs.push({ key: 'insights.rec2', color: '#AA3BFF' });
-  if ((data?.recentStressLevel ?? 0) >= 4) recs.push({ key: 'insights.rec3', color: '#52B3B0' });
+  // `insufficient_data` is a signal, not a card. When the backend emits it
+  // the user has too few logged cycles for any pattern to mean anything,
+  // so the page shows one "keep logging" note instead of an observation
+  // list — showing both would be telling her there is nothing to say and
+  // then saying something.
+  const isInsufficient = observations.some(
+    (observation) => observation.code === 'insufficient_data',
+  );
+  const displayObservations = observations.filter(
+    (observation) => observation.code !== 'insufficient_data',
+  );
+
+  const avgCycleLength = data?.averageCycleLength ?? null;
+  const analyzedCount = data?.analyzedCycleCount ?? 0;
+  const consistency: CycleConsistency = data?.cycleConsistency ?? 'unknown';
+  // #306 requires the disclaimer on every insights surface, so it falls
+  // back to the generic key rather than rendering nothing when the
+  // response omits one.
+  const disclaimerKey = data?.disclaimerKey ?? 'insights.disclaimer';
 
   return (
     <div className="page">
