@@ -36,6 +36,7 @@ from core.auth_router import router as auth_router
 from core.errors import register_exception_handlers
 from core.middleware import RequestContextMiddleware
 from core.request_context import REQUEST_ID_HEADER
+from core.security_headers import SecurityHeadersMiddleware
 from services.health_check_service import build_info, run_checks
 
 from utils.logger import logger
@@ -113,6 +114,13 @@ else:
 # it — CORS preflight (OPTIONS) is then answered without generating an access
 # log line, while every real request still gets an id before any handler runs.
 app.add_middleware(RequestContextMiddleware)
+
+# Security headers sit between the two (#405): inside CORS, so a preflight is
+# still answered by CORSMiddleware without being decorated — the browser reads
+# a preflight response itself and never renders it — and outside the request
+# context middleware, so the headers land on the error envelope too. Every
+# response, including a 500, passes through here.
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

@@ -46,6 +46,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from core.logging_config import redact
 from core.request_context import REQUEST_ID_HEADER, get_request_id
+from core.security_headers import secure_response
 from utils.logger import logger
 
 # ─── Application errors ───────────────────────────────────────────────────
@@ -335,7 +336,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
         exception_type=type(exc).__name__,
     ).opt(exception=exc).error("Unhandled exception")
 
-    return _response(
+    response = _response(
         status.HTTP_500_INTERNAL_SERVER_ERROR,
         build_error_body(
             code="internal_error",
@@ -343,6 +344,15 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
             detail=GENERIC_INTERNAL_MESSAGE,
         ),
     )
+
+    # This is the one response in the app that the security-headers
+    # middleware cannot see (#405). Starlette hands the bare-``Exception``
+    # handler to ``ServerErrorMiddleware``, which wraps the entire
+    # ``add_middleware`` stack, so this response is built above that
+    # middleware and never passes through its send wrapper. Applying the
+    # policy here makes "every response carries the headers" actually true,
+    # instead of true for every response except the riskiest one.
+    return secure_response(response, request)
 
 
 def register_exception_handlers(app: FastAPI) -> None:
