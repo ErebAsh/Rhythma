@@ -48,7 +48,14 @@ def test_trends_endpoint_statements(auth_headers, mock_auth_dependencies):
             assert response.status_code == 200
             data = response.json()
             assert "sleep" in data and data["sleep"] is not None
-            assert "decreased" in data["sleep"]
+            # The logs above are newest-first, so the earlier month is the
+            # 6h one and the later month is the 8h one: sleep went *up*.
+            # This asserted "decreased" while asserting "increased" for
+            # stress on the same ordering, which cannot both be right — and
+            # the endpoint agrees, returning "Average sleep has increased
+            # (6h → 8h)". The assertion was wrong, not the endpoint.
+            assert "increased" in data["sleep"]
+            assert "6h" in data["sleep"] and "8h" in data["sleep"]
             assert "stress" in data and "increased" in data["stress"]
             assert "symptoms" in data
             assert data["symptoms"].get("cramps") is not None

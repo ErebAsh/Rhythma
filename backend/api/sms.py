@@ -159,11 +159,19 @@ class SMSSettings(BaseModel):
     def normalized_phone(self) -> Optional[str]:
         return self.phoneNumber.strip() if self.phoneNumber else None
 
-    @field_validator("phoneNumber")
-    def validate_phone_number(cls, v: Optional[str]) -> Optional[str]:
-        if v and v.strip() and not re.match(PHONE_PATTERN, v.strip()):
-            raise ValueError("Phone number must be in E.164 format, e.g. +919876543210.")
-        return v
+    # No field validator on `phoneNumber` on purpose. `save_sms_settings`
+    # already checks the E.164 pattern and answers 400, and its sibling
+    # condition — "enabled with no number" — answers 400 too. A field
+    # validator here would move one of those two to Pydantic's 422 and
+    # leave the other at 400, so the same screen would get two different
+    # status codes for two spellings of the same mistake.
+    #
+    # One was added in edc6517 and did exactly that, but the symbol was
+    # never imported, so `api/sms.py` raised NameError at import, `main.py`
+    # could not build the app, and all 27 backend test modules failed to
+    # collect. It had therefore never run. Removed rather than repaired,
+    # because the validation it performs is already there six lines into
+    # the route.
 
 
 class SMSSettingsResponse(BaseModel):
