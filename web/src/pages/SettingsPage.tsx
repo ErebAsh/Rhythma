@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
 import { deleteAccount, fetchSupportedLanguages, patchProfile, type SupportedLanguage } from '../api/endpoints';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 const FALLBACK_LANGUAGES: SupportedLanguage[] = [
   { code: 'en', name: 'English' },
@@ -25,6 +26,7 @@ const LANGUAGE_KEY: Record<string, string> = {
 };
 
 export function SettingsPage() {
+  useDocumentMeta('meta.settings.title', 'meta.settings.description');
   const { t, i18n } = useTranslation();
   const { logout } = useAuth();
   const navigate = useNavigate();

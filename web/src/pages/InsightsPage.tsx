@@ -7,6 +7,7 @@ import {
   type Observation,
   type ObservationsResponse,
 } from '../api/endpoints';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 // No MHS/CVI score here — this page is built entirely against the factual
 // /insights/{user_id}/observations endpoint (issue #320). Every number and
@@ -26,6 +27,7 @@ const CONSISTENCY_STYLE: Record<CycleConsistency, string> = {
 };
 
 export function InsightsPage() {
+  useDocumentMeta('meta.insights.title', 'meta.insights.description');
   const { t } = useTranslation();
   const { user } = useAuth();
   const [data, setData] = useState<ObservationsResponse | null>(null);

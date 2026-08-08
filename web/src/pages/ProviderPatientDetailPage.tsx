@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { fetchProviderPatientDetail, type ProviderPatientDetail } from '../api/endpoints';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
@@ -11,6 +12,7 @@ function formatDate(value: string | null | undefined): string {
 }
 
 export function ProviderPatientDetailPage() {
+  useDocumentMeta('meta.providerPatient.title', 'meta.providerPatient.description');
   const { patientId } = useParams<{ patientId: string }>();
   const { t } = useTranslation();
 

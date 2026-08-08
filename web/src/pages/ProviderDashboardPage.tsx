@@ -6,6 +6,7 @@ import {
   fetchProviderPatientPage,
   type ProviderPatientSummary,
 } from '../api/endpoints';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 /** Matches the server default in `provider_service.DEFAULT_PATIENTS_PAGE`. */
 const PAGE_SIZE = 20;
@@ -18,6 +19,7 @@ function formatDate(value: string | null | undefined): string {
 }
 
 export function ProviderDashboardPage() {
+  useDocumentMeta('meta.providerDashboard.title', 'meta.providerDashboard.description');
   const { t } = useTranslation();
 
   const [name, setName] = useState('');

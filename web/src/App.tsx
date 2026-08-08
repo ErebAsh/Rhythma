@@ -22,11 +22,18 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { RouteErrorBoundary } from './components/ErrorBoundary';
 import { CustomCursor } from './components/CustomCursor';
 import { ScrollToTopButton } from './components/ScrollToTopButton';
+import { DocumentLanguage } from './lib/useDocumentMeta';
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        {/* Keeps <html lang> and <html dir> pointed at the active locale
+            (#407). Rendered once here rather than per page: it is a
+            property of the app, not of a route, and a screen reader picks
+            its speech synthesizer from that attribute — pinned to "en" it
+            read Devanagari and Tamil in an English voice. */}
+        <DocumentLanguage />
         <CustomCursor />
         <ScrollToTopButton />
 

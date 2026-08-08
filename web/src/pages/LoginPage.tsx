@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
 import { friendlyAuthError } from '../api/client';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 export function LoginPage() {
+  useDocumentMeta('meta.login.title', 'meta.login.description');
   const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();

@@ -5,6 +5,7 @@ import { useAuth } from '../auth/useAuth';
 import { fetchDashboard, submitCycleLog, type CycleLogInput, type DashboardData } from '../api/endpoints';
 import { ScoreRing } from '../components/charts';
 import { toISODate } from '../lib/dates';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 type QuickField = 'flow_intensity' | 'mood' | 'sleep_hours' | 'stress_level';
 
@@ -63,6 +64,7 @@ const QUICK_TILES: QuickTileDef[] = [
 ];
 
 export function HomePage() {
+  useDocumentMeta('meta.home.title', 'meta.home.description');
   const { t } = useTranslation();
   const { user } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
