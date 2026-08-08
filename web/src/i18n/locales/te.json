@@ -260,6 +260,7 @@
     "cvi": "CVI",
     "cyclesLogged": "{{count}} cycles",
     "viewPatient": "View patient",
+    "loadMore": "Load more patients",
     "loadError": "Couldn't load your patients."
   },
   "providerPatient": {

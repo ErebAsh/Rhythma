@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { fetchProviderProfile, fetchProviderPatients, type ProviderPatientSummary } from '../api/endpoints';
+import {
+  fetchProviderProfile,
+  fetchProviderPatientPage,
+  type ProviderPatientSummary,
+} from '../api/endpoints';
+
+/** Matches the server default in `provider_service.DEFAULT_PATIENTS_PAGE`. */
+const PAGE_SIZE = 20;
 
 function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
@@ -15,6 +22,8 @@ export function ProviderDashboardPage() {
 
   const [name, setName] = useState('');
   const [patients, setPatients] = useState<ProviderPatientSummary[]>([]);
+  const [nextOffset, setNextOffset] = useState<number | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -22,13 +31,14 @@ export function ProviderDashboardPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [profile, list] = await Promise.all([
+        const [profile, page] = await Promise.all([
           fetchProviderProfile(),
-          fetchProviderPatients(),
+          fetchProviderPatientPage(PAGE_SIZE, 0),
         ]);
         if (cancelled) return;
         setName(profile.full_name || profile.username || profile.email);
-        setPatients(list);
+        setPatients(page.patients);
+        setNextOffset(page.page?.hasMore ? page.page.nextOffset : null);
       } catch {
         if (!cancelled) setError(t('providerDashboard.loadError'));
       } finally {
@@ -39,6 +49,24 @@ export function ProviderDashboardPage() {
       cancelled = true;
     };
   }, [t]);
+
+  async function loadMore() {
+    if (nextOffset === null || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const page = await fetchProviderPatientPage(PAGE_SIZE, nextOffset);
+      // Appended rather than replaced, and `nextOffset` comes from the
+      // server's envelope rather than being computed here — the server is
+      // the only party that knows whether the page it just sent was short
+      // because the roster ended or because a consent was revoked mid-scroll.
+      setPatients((current) => [...current, ...page.patients]);
+      setNextOffset(page.page?.hasMore ? page.page.nextOffset : null);
+    } catch {
+      setError(t('providerDashboard.loadError'));
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   return (
     <div className="page">
@@ -91,6 +119,12 @@ export function ProviderDashboardPage() {
           </div>
         ))}
       </div>
+
+      {nextOffset !== null && (
+        <button type="button" onClick={loadMore} disabled={loadingMore}>
+          {loadingMore ? t('common.loading') : t('providerDashboard.loadMore')}
+        </button>
+      )}
     </div>
   );
 }

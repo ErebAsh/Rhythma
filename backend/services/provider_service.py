@@ -14,7 +14,7 @@ collections a deletion cascade must cover explicitly enumerated.
 """
 
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import HTTPException, status
 
@@ -23,6 +23,19 @@ from services.firestore_service import UserService
 from services.scoring_service import get_user_scores
 
 CONSENTS_COLLECTION = "consents"
+
+#: Paging bounds for the two provider list endpoints (#406), following the
+#: contract #331 set for cycle history and ``access_log_service`` copied.
+#:
+#: The ceiling matters more on ``/patients`` than on an ordinary list.
+#: Building one summary costs a profile read, a scoring pass over that
+#: patient's cycle logs, *and* an access-log write, so the page size is a
+#: multiplier on three kinds of work rather than only on response bytes.
+MAX_PATIENTS_PAGE = 100
+DEFAULT_PATIENTS_PAGE = 20
+
+MAX_CONSENTS_PAGE = 100
+DEFAULT_CONSENTS_PAGE = 20
 
 #: Profile fields a provider may see once consent is active. Deliberately
 #: excludes phone, email, password and any other identity/contact data the
@@ -54,6 +67,32 @@ def _db():
 def _consent_doc_id(patient_id: str, provider_id: str) -> str:
     """Deterministic id so a grant is an upsert, not a duplicate."""
     return f"{patient_id}::{provider_id}"
+
+
+def _sort_key(consent: Dict[str, Any]):
+    """Newest first, with a stable tiebreak.
+
+    ``created_at`` is a ``datetime`` on documents this codebase wrote, but
+    a Firestore round trip can hand back a string, and an older document
+    may not carry the field at all. Comparing those against each other
+    raises ``TypeError`` mid-sort, so everything is coerced to a string
+    first — ISO-8601 sorts correctly as text, which is the property that
+    makes this safe rather than merely convenient.
+
+    The document id is the tiebreak. Two consents created in the same
+    instant would otherwise be free to swap places between requests, and a
+    page boundary that moves is a row the caller either sees twice or
+    never sees at all.
+    """
+    created = consent.get("created_at")
+    if isinstance(created, datetime):
+        created = created.isoformat()
+    return (str(created or ""), str(consent.get("id") or ""))
+
+
+def _sorted_consents(consents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """A total, stable order — the precondition for paging to mean anything."""
+    return sorted(consents, key=_sort_key, reverse=True)
 
 
 def _provider_display_name(provider_id: str) -> Optional[str]:
@@ -117,7 +156,12 @@ class ConsentService:
 
     @staticmethod
     def list_for_patient(patient_id: str) -> List[Dict[str, Any]]:
-        """Every consent a patient has created, including revoked ones."""
+        """Every consent a patient has created, including revoked ones.
+
+        Kept unpaged because callers inside the service layer want the
+        whole relationship set — ``list_page_for_patient`` is the one the
+        HTTP endpoint uses.
+        """
         consents: List[Dict[str, Any]] = []
         for doc in (
             _db().collection(CONSENTS_COLLECTION)
@@ -127,7 +171,30 @@ class ConsentService:
             data = doc.to_dict()
             data["id"] = doc.id
             consents.append(data)
-        return consents
+        return _sorted_consents(consents)
+
+    @staticmethod
+    def list_page_for_patient(
+        patient_id: str,
+        *,
+        limit: int = DEFAULT_CONSENTS_PAGE,
+        offset: int = 0,
+    ) -> Tuple[List[Dict[str, Any]], bool]:
+        """One page of a patient's consents, plus whether more exist.
+
+        Returns ``(consents, has_more)``. ``has_more`` comes from slicing
+        one past the page rather than from a count query, matching the
+        contract ``CycleService.get_logs_page`` set in #331 — paging costs
+        no extra round trip.
+
+        Sorted newest-first before slicing. Without an explicit order a
+        page boundary is meaningless: Firestore makes no ordering promise
+        on an unordered query, so ``offset=20`` could return rows the
+        caller already saw at ``offset=0`` and skip others entirely.
+        """
+        consents = ConsentService.list_for_patient(patient_id)
+        window = consents[offset : offset + limit + 1]
+        return window[:limit], len(window) > limit
 
     @staticmethod
     def revoke(patient_id: str, consent_id: str) -> Dict[str, Any]:
@@ -175,7 +242,7 @@ class ConsentService:
                 continue
             data["id"] = doc.id
             consents.append(data)
-        return consents
+        return _sorted_consents(consents)
 
 
 class ProviderService:
@@ -183,17 +250,58 @@ class ProviderService:
 
     @staticmethod
     def patient_summaries(provider_id: str) -> List[Dict[str, Any]]:
-        """One lightweight card per sharing patient for the dashboard.
+        """Every sharing patient. Prefer :meth:`patient_summaries_page`.
 
-        Recorded per patient rather than once per request (issue #350).
-        The record answers "was my data looked at?", and that question is
-        asked by each patient about herself — a single "the provider
-        opened her dashboard" row would be unattributable to any of them.
+        Retained so service-layer callers and existing tests keep working.
+        The HTTP endpoint no longer uses it, because the work here grows
+        without a ceiling — see the page method for what that costs.
+        """
+        summaries, _ = ProviderService.patient_summaries_page(
+            provider_id, limit=None
+        )
+        return summaries
+
+    @staticmethod
+    def patient_summaries_page(
+        provider_id: str,
+        *,
+        limit: Optional[int] = DEFAULT_PATIENTS_PAGE,
+        offset: int = 0,
+    ) -> Tuple[List[Dict[str, Any]], bool]:
+        """One page of dashboard cards, plus whether more exist.
+
+        Returns ``(summaries, has_more)``, the same shape
+        ``access_log_service.list_for_patient`` returns.
+
+        The slice happens on the *consents* — before the fan-out — and that
+        is the whole point of this method rather than a nicety of where the
+        code sits. Each summary costs a profile read, a scoring pass over
+        that patient's cycle logs, and an access-log write. Fetching every
+        consent and slicing the finished summaries would trim the response
+        body and leave all three of those running for the entire roster,
+        which is the expensive half of #406.
+
+        A consequence worth being deliberate about: the access-log rows
+        (#350) are written only for the patients on this page. That is more
+        truthful than what it replaces — the provider genuinely did not
+        look at page four — and it means a patient's "your data was viewed"
+        history stops counting views that never happened.
+
+        ``limit=None`` disables paging, for the whole-roster callers that
+        predate this.
         """
         summaries: List[Dict[str, Any]] = []
         provider_name = _provider_display_name(provider_id)
 
-        for consent in ConsentService.list_active_for_provider(provider_id):
+        consents = ConsentService.list_active_for_provider(provider_id)
+        if limit is None:
+            window, has_more = consents, False
+        else:
+            window = consents[offset : offset + limit + 1]
+            has_more = len(window) > limit
+            window = window[:limit]
+
+        for consent in window:
             patient = UserService.get_user_by_id(consent["patient_id"])
             if not patient:
                 continue
@@ -223,7 +331,7 @@ class ProviderService:
                     "hasEnoughDataForInsights": scores["has_enough_data_for_insights"],
                 }
             )
-        return summaries
+        return summaries, has_more
 
     @staticmethod
     def patient_detail(provider_id: str, patient_id: str) -> Dict[str, Any]:
