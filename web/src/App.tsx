@@ -23,6 +23,8 @@ import { RouteErrorBoundary } from './components/ErrorBoundary';
 import { CustomCursor } from './components/CustomCursor';
 import { ScrollToTopButton } from './components/ScrollToTopButton';
 import { DocumentLanguage } from './lib/useDocumentMeta';
+import { SkipToContent } from './components/SkipToContent';
+import { RouteAnnouncer } from './components/RouteAnnouncer';
 
 export default function App() {
   return (
@@ -34,6 +36,18 @@ export default function App() {
             its speech synthesizer from that attribute — pinned to "en" it
             read Devanagari and Tamil in an English voice. */}
         <DocumentLanguage />
+
+        {/* First in the tree so it is the first thing Tab reaches from the
+            address bar — a skip link that is not first skips nothing
+            (#409). */}
+        <SkipToContent />
+
+        {/* Announces the new page and moves focus into <main> on every
+            navigation. A client-side route change fires no load event, so
+            without this the DOM swaps and assistive technology is told
+            nothing at all. */}
+        <RouteAnnouncer />
+
         <CustomCursor />
         <ScrollToTopButton />
 

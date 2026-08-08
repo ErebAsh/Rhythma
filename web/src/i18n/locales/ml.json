@@ -62,6 +62,11 @@
       "description": "Register as a healthcare provider on Rhythma."
     }
   },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "scrollToTop": "Scroll to top",
+    "navigatedTo": "{{page}} page"
+  },
   "auth": {
     "loginTitle": "Rhythma-യിൽ ലോഗിൻ ചെയ്യുക",
     "registerTitle": "നിങ്ങളുടെ അക്കൗണ്ട് സൃഷ്ടിക്കുക",
