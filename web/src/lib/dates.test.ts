@@ -7,6 +7,7 @@ import {
   daysBetween,
   isSameDay,
   endOfMonth,
+  lutealLengthFor,
   monthWindow,
   parseISODate,
   phaseFor,
@@ -146,29 +147,61 @@ describe('cycleDayFor', () => {
 });
 
 describe('phaseFor', () => {
+  // Boundaries are now derived the way `prediction_service.phase_for`
+  // derives them: ovulation sits at `cycleLength - lutealLength`, and the
+  // ovulation phase spans one day either side of it. For a 28-day cycle
+  // that is day 14, so days 13–15. The previous fixed 5/13/16 ladder did
+  // not vary with cycle length at all, which put ovulation a day late on
+  // a 28-day cycle and about a week early on a 35-day one.
   it.each([
     ['2026-05-01', 'period'],
     ['2026-05-05', 'period'],
     ['2026-05-06', 'follicular'],
-    ['2026-05-13', 'follicular'],
+    ['2026-05-12', 'follicular'],
+    ['2026-05-13', 'ovulation'],
     ['2026-05-14', 'ovulation'],
-    ['2026-05-16', 'ovulation'],
-    ['2026-05-17', 'luteal'],
-  ])('maps %s to %s', (iso, expected) => {
+    ['2026-05-15', 'ovulation'],
+    ['2026-05-16', 'luteal'],
+    ['2026-05-28', 'luteal'],
+  ])('maps %s to %s on a 28-day cycle', (iso, expected) => {
     expect(phaseFor(parseISODate(iso), '2026-05-01')).toBe(expected);
   });
 
   it('has a colour for every phase', () => {
-    for (const phase of ['period', 'follicular', 'ovulation', 'luteal'] as const) {
+    for (const phase of ['period', 'follicular', 'ovulation', 'luteal', 'late'] as const) {
       expect(PHASE_COLORS[phase]).toMatch(/^#[0-9A-Fa-f]{6}$/);
     }
   });
 
-  it('keeps reporting luteal well past a normal cycle length', () => {
-    // Documents current behaviour rather than endorsing it: the day count
-    // is not wrapped by cycle length, so a stale last_period pins the user
-    // in luteal indefinitely. Same shortcoming as the Flutter provider.
-    expect(phaseFor(parseISODate('2026-07-15'), '2026-05-01')).toBe('luteal');
+  it('says a cycle is running long instead of reporting luteal forever', () => {
+    // This used to return 'luteal', and the test that asserted it said so
+    // outright — "documents current behaviour rather than endorsing it".
+    // A stale last period pinned the user in a phase that had stopped
+    // being true weeks earlier. "Running long" is both honest and
+    // actionable, because the action is to log the period.
+    expect(phaseFor(parseISODate('2026-07-15'), '2026-05-01')).toBe('late');
+  });
+
+  it('moves ovulation later on a longer cycle', () => {
+    // Day 21 of a 35-day cycle: 35 − 14 = 21. On the old fixed ladder
+    // that day was already deep into the luteal phase.
+    expect(phaseFor(parseISODate('2026-05-21'), '2026-05-01', 35)).toBe('ovulation');
+    expect(phaseFor(parseISODate('2026-05-14'), '2026-05-01', 35)).toBe('follicular');
+  });
+
+  it('shortens the luteal phase rather than ovulating on day 7', () => {
+    // A flat 14-day luteal phase on a 21-day cycle would place ovulation
+    // on day 7, which is not plausible. The floor is 10, so day 11.
+    expect(lutealLengthFor(21)).toBe(10);
+    expect(phaseFor(parseISODate('2026-05-11'), '2026-05-01', 21)).toBe('ovulation');
+  });
+
+  it('respects a bleed longer than the default five days', () => {
+    expect(phaseFor(parseISODate('2026-05-07'), '2026-05-01', 28, 7)).toBe('period');
+  });
+
+  it('falls back to a 28-day cycle when the length is unusable', () => {
+    expect(phaseFor(parseISODate('2026-05-14'), '2026-05-01', 0)).toBe('ovulation');
   });
 });
 

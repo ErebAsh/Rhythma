@@ -318,5 +318,35 @@
     "requestId": "Reference",
     "notFoundTitle": "This page doesn't exist",
     "notFoundBody": "The link may be out of date, or the address may have a typo."
+  },
+  "prediction": {
+    "outlookLabel": "साइकिल पूर्वानुमान",
+    "cycleDay": "साइकिल दिन",
+    "estimatedLength": "अनुमानित लंबाई",
+    "overdueLabel": "पीरियड देर से है",
+    "daysLate": "{{count}} दिन देर",
+    "dueToday": "आज अपेक्षित",
+    "range": "{{from}} और {{to}} के बीच",
+    "ovulation": "ओव्यूलेशन लगभग {{date}} को अनुमानित",
+    "fertileWindow": "फर्टाइल विंडो {{from}} – {{to}} (अनुमान, गर्भनिरोधक नहीं)",
+    "upcoming": "आगे अपेक्षित",
+    "phase": {
+      "period": "पीरियड",
+      "follicular": "फॉलिक्युलर",
+      "ovulation": "ओव्यूलेशन",
+      "luteal": "ल्यूटियल",
+      "late": "सामान्य से लंबा",
+      "unknown": "पर्याप्त डेटा नहीं"
+    },
+    "confidence": {
+      "high": "उच्च विश्वास",
+      "medium": "मध्यम विश्वास",
+      "low": "कम विश्वास"
+    },
+    "source": {
+      "logged_history": "आपके दर्ज साइकिलों पर आधारित",
+      "declared_cycle_length": "आपके द्वारा दी गई साइकिल लंबाई पर आधारित",
+      "population_default": "सामान्य 28-दिन की साइकिल पर आधारित — इसे अपना बनाने के लिए एक पीरियड दर्ज करें"
+    }
   }
 }

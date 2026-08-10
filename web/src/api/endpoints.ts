@@ -28,6 +28,99 @@ export interface SymptomFrequency {
   acne: number;
 }
 
+// ─── Predictions (issue #419) ──────────────────────────────────────────────
+//
+// `backend/services/prediction_service.py` was written for #272 to replace
+// the three lines that used to answer "when is my next period?":
+//
+//     next_period_days = max(avg_cycle_length - cycle_day, 0)
+//
+// The clamp at zero is the part that matters — it makes "due today" and
+// "five days late" the same number, and being late is *the* signal a
+// tracker exists to surface. `/dashboard` has returned a `prediction`
+// object alongside the legacy `cycle` block since then; the web client
+// simply did not declare it, so the field was parsed and dropped, and Home
+// went on rendering the clamped estimate.
+
+/** Where the cycle-length estimate came from, worst case last. */
+export type EstimateSource = 'logged_history' | 'declared_cycle_length' | 'population_default';
+
+export type PredictionConfidence = 'high' | 'medium' | 'low';
+
+/**
+ * The phases the server computes, scaled to the user's own cycle length.
+ *
+ * `late` is distinct from `luteal` on purpose: a fixed day-5/13/16 ladder
+ * reports "luteal" forever once the count runs past 16, so a stale last
+ * period pins someone in a phase that stopped being true weeks ago.
+ */
+export type CyclePhase =
+  | 'period'
+  | 'follicular'
+  | 'ovulation'
+  | 'luteal'
+  | 'late'
+  | 'unknown';
+
+export interface PredictedRange {
+  earliest: string | null;
+  latest: string | null;
+}
+
+export interface FertileWindow {
+  start: string | null;
+  end: string | null;
+  isEstimate: boolean;
+  notForContraception: boolean;
+}
+
+/**
+ * The compact prediction `/dashboard` embeds (`dashboard_summary()`).
+ *
+ * `daysUntilNextPeriod` goes negative when a period is late. Anything
+ * rendering it must handle that rather than clamping it back.
+ */
+export interface DashboardPrediction {
+  nextPeriodDate: string | null;
+  daysUntilNextPeriod: number | null;
+  isOverdue: boolean;
+  daysOverdue: number;
+  phase: CyclePhase;
+  confidence: PredictionConfidence;
+  estimateSource: EstimateSource;
+  predictedRange: PredictedRange;
+  fertileWindow: FertileWindow;
+}
+
+/** How the cycle length was estimated, and how much spread it sits on. */
+export interface CycleLengthEstimate {
+  days: number;
+  source: EstimateSource;
+  confidence: PredictionConfidence;
+  sampleSize: number;
+  spreadDays: number;
+  excludedCycleLengths: number[];
+}
+
+/** The full `GET /cycle/predictions` response (`Prediction.to_dict()`). */
+export interface PredictionResponse {
+  today: string;
+  cycleLength: CycleLengthEstimate;
+  lastPeriodStart: string | null;
+  currentCycleDay: number | null;
+  phase: CyclePhase;
+  nextPeriodDate: string | null;
+  daysUntilNextPeriod: number | null;
+  isOverdue: boolean;
+  daysOverdue: number;
+  predictedRange: PredictedRange;
+  ovulation: { date: string | null; isEstimate: boolean };
+  fertileWindow: FertileWindow;
+  upcomingPeriods: string[];
+  confidence: PredictionConfidence;
+  disclaimer: string;
+}
+
 export interface DashboardData {
   user: { name: string };
   cycle: DashboardCycle;
@@ -37,10 +130,29 @@ export interface DashboardData {
   cycleHistory: CycleHistoryPoint[];
   symptomFrequency: SymptomFrequency | Record<string, never>;
   recentStressLevel: number | null;
+  /**
+   * Optional so a backend that predates #272 still renders — the Home
+   * screen falls back to `cycle.nextPeriodDays` when this is absent
+   * rather than showing nothing.
+   */
+  prediction?: DashboardPrediction | null;
 }
 
 export async function fetchDashboard(): Promise<DashboardData> {
   const response = await apiClient.get<DashboardData>('/dashboard');
+  return response.data;
+}
+
+/**
+ * The full prediction, including ovulation and the multi-cycle forecast.
+ *
+ * Operates on the authenticated user — the route takes no path id — so
+ * there is no user id to pass and no cross-user check to get wrong.
+ */
+export async function fetchPredictions(horizon?: number): Promise<PredictionResponse> {
+  const response = await apiClient.get<PredictionResponse>('/cycle/predictions', {
+    params: horizon ? { horizon } : undefined,
+  });
   return response.data;
 }
 

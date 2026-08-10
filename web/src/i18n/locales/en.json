@@ -318,5 +318,35 @@
     "requestId": "Reference",
     "notFoundTitle": "This page doesn't exist",
     "notFoundBody": "The link may be out of date, or the address may have a typo."
+  },
+  "prediction": {
+    "outlookLabel": "Cycle outlook",
+    "cycleDay": "Cycle day",
+    "estimatedLength": "Est. length",
+    "overdueLabel": "Period is late",
+    "daysLate": "{{count}} days late",
+    "dueToday": "expected today",
+    "range": "Between {{from}} and {{to}}",
+    "ovulation": "Ovulation estimated around {{date}}",
+    "fertileWindow": "Fertile window {{from}} – {{to}} (estimate, not contraception)",
+    "upcoming": "Also expected",
+    "phase": {
+      "period": "Period",
+      "follicular": "Follicular",
+      "ovulation": "Ovulation",
+      "luteal": "Luteal",
+      "late": "Running long",
+      "unknown": "Not enough data"
+    },
+    "confidence": {
+      "high": "High confidence",
+      "medium": "Medium confidence",
+      "low": "Low confidence"
+    },
+    "source": {
+      "logged_history": "Based on your logged cycles",
+      "declared_cycle_length": "Based on the cycle length you entered",
+      "population_default": "Based on a typical 28-day cycle — log a period to make this yours"
+    }
   }
 }
