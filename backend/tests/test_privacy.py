@@ -326,10 +326,21 @@ def test_token_is_single_use():
 
 
 def test_token_expires():
+    from services import token_store
+
     token, _ = issue_deletion_token(USER_ID)
-    privacy._deletion_tokens[USER_ID]["expires_at"] = datetime.now(
-        timezone.utc
-    ) - timedelta(seconds=1)
+
+    # Backdating the stored expiry beats sleeping for the TTL. Written
+    # through the store rather than by mutating a dict in place, since
+    # #417 moved these out of process memory.
+    doc_id = token_store.document_id(token_store.KIND_ACCOUNT_DELETION, USER_ID)
+    collection = fs.db.collection(token_store.TOKENS_COLLECTION)
+    stored = collection.document(doc_id).get().to_dict()
+    stored["expires_at"] = (
+        datetime.now(timezone.utc) - timedelta(seconds=1)
+    ).isoformat()
+    collection.document(doc_id).set(stored)
+
     assert verify_deletion_token(USER_ID, token) is False
 
 
