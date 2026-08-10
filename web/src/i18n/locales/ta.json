@@ -131,7 +131,9 @@
     "suggest5": "How do I track my ovulation?",
     "errorPrefix": "Error",
     "disclaimer": "Please consult a healthcare professional for medical advice.",
-    "rateLimited": "You're sending messages too quickly. Please wait a moment."
+    "rateLimited": "You're sending messages too quickly. Please wait a moment.",
+    "storedOnDevice": "இந்த உரையாடல் இந்தச் சாதனத்தில் மட்டுமே வைக்கப்படுகிறது, வெளியேறும்போது அழிக்கப்படும்.",
+    "clearConversation": "உரையாடலை அழி"
   },
   "insights": {
     "title": "Insights",

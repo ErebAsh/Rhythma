@@ -29,6 +29,15 @@ Object.defineProperty(window, 'matchMedia', {
 
 window.scrollTo = vi.fn();
 
+// jsdom implements `window.scrollTo` but not the element-level one, and
+// the Assistant screen scrolls its own message list to the bottom on every
+// render. Without this, mounting that page throws
+// "listRef.current?.scrollTo is not a function" before a single assertion
+// runs — a failure about the environment, not about the component.
+if (!Element.prototype.scrollTo) {
+  Element.prototype.scrollTo = vi.fn();
+}
+
 if (!window.ResizeObserver) {
   window.ResizeObserver = class {
     observe() {}

@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient, setUnauthorizedHandler } from '../api/client';
+import { clearAllHistories, clearLegacyHistory } from '../lib/chatHistory';
 import { AuthContext, type User } from './auth-context';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -14,9 +15,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setUnauthorizedHandler(() => {
       setUser(null);
+      // A 401 ends the session as surely as pressing Log out does, and it
+      // is the *more* likely of the two to be followed by someone else
+      // using the browser — an expired session is what a user walks away
+      // from (#420).
+      clearAllHistories();
       navigate('/login', { replace: true });
     });
   }, [navigate]);
+
+  // The single shared `rhythma_chat_history` key every account used to
+  // write to. There is no way to tell whose conversation it holds, which
+  // is the whole problem with it, so it goes on first load whether or not
+  // anyone is signed in.
+  useEffect(() => {
+    clearLegacyHistory();
+  }, []);
 
   // On load, confirm any stored token is genuinely still valid by calling
   // /auth/me (not just checking that it exists) — same approach as the
@@ -99,6 +113,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Ignore errors on logout
     } finally {
       setUser(null);
+      // Here rather than in the Assistant screen, so it happens whichever
+      // screen the user logged out from — and in the `finally`, so a
+      // failed request to the server does not leave a health conversation
+      // on a shared computer (#420).
+      clearAllHistories();
       navigate(redirectTo, { replace: true });
     }
   };

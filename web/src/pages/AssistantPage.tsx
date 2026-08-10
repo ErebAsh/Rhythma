@@ -1,27 +1,16 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
 import { sendChatMessage, type ChatMessage } from '../api/endpoints';
+import {
+  clearHistory,
+  loadHistory,
+  saveHistory,
+  type StoredMessage,
+} from '../lib/chatHistory';
 import { toAssistantLanguage } from '../lib/language';
 
-interface UiMessage {
-  role: 'user' | 'model';
-  content: string;
-  isError?: boolean;
-}
-
-const HISTORY_KEY = 'rhythma_chat_history';
-
-function loadHistory(): UiMessage[] {
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as UiMessage[];
-    return parsed.filter((m) => m && m.content && typeof m.content === 'string');
-  } catch {
-    return [];
-  }
-}
+type UiMessage = StoredMessage;
 
 function formatMessage(content: string): ReactNode {
   // Render the small markdown subset the Flutter app supports: **bold**
@@ -60,15 +49,37 @@ export function AssistantPage() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
 
+  const userId = user?.id;
+
+  const greeting = useCallback(
+    (): UiMessage => ({
+      role: 'model',
+      content: t('assistant.welcome', { name: user?.username ?? 'User' }),
+    }),
+    [t, user?.username],
+  );
+
+  // Seeded from *this account's* transcript. The initializer runs once,
+  // before the id is necessarily known, so the effect below re-seeds when
+  // it arrives — and, crucially, when it changes: mounting with A's
+  // messages and then having B sign in is the exact sequence that used to
+  // show one user another's conversation.
   const [messages, setMessages] = useState<UiMessage[]>(() => {
-    const saved = loadHistory();
-    if (saved.length > 0) return saved;
-    const name = user?.username ?? 'User';
-    return [{ role: 'model', content: t('assistant.welcome', { name }) }];
+    const saved = loadHistory(userId);
+    return saved.length > 0 ? saved : [greeting()];
   });
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const saved = loadHistory(userId);
+    setMessages(saved.length > 0 ? saved : [greeting()]);
+    // `greeting` is intentionally out of the dependency list: it changes
+    // whenever the language does, and re-seeding the transcript on a
+    // language switch would discard the conversation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
@@ -100,14 +111,14 @@ export function AssistantPage() {
       );
       const withReply: UiMessage[] = [...next, { role: 'model', content: result.response }];
       setMessages(withReply);
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(withReply));
+      saveHistory(userId, withReply);
     } catch (error) {
       const withError: UiMessage[] = [
         ...next,
         { role: 'model', content: `${t('assistant.errorPrefix')}: ${friendlyError(error, t)}`, isError: true },
       ];
       setMessages(withError);
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(withError));
+      saveHistory(userId, withError);
     } finally {
       setTyping(false);
     }
@@ -118,7 +129,15 @@ export function AssistantPage() {
     void send(input);
   };
 
+  const clearConversation = () => {
+    clearHistory(userId);
+    setMessages([greeting()]);
+  };
+
   const showSuggestions = messages.filter((m) => !m.isError).length <= 1;
+  // Only offered once there is something to clear — a button that does
+  // nothing is worse than no button.
+  const canClear = messages.some((m) => m.role === 'user');
 
   return (
     <div className="assistant-page page">
@@ -191,6 +210,18 @@ export function AssistantPage() {
           {t('assistant.send')}
         </button>
       </form>
+
+      {/* Said out loud, because it was not obvious and it is the kind of
+          thing someone on a shared computer needs to know before she
+          types a question about her body (#420). */}
+      <div className="assistant-privacy">
+        <p className="disclaimer">{t('assistant.storedOnDevice')}</p>
+        {canClear ? (
+          <button type="button" className="ghost-btn" onClick={clearConversation}>
+            {t('assistant.clearConversation')}
+          </button>
+        ) : null}
+      </div>
 
       <p className="disclaimer">{t('assistant.disclaimer')}</p>
     </div>
