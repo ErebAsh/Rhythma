@@ -37,7 +37,6 @@ from api.bot import router as bot_router
 from core.errors import register_exception_handlers
 from core.middleware import RequestContextMiddleware
 from core.request_context import REQUEST_ID_HEADER
-from services import token_store
 from services.health_check_service import build_info, run_checks
 
 from utils.logger import logger
@@ -80,6 +79,14 @@ async def lifespan(app: FastAPI):
     # startup keeps the collection bounded without needing a scheduled
     # job, and it is cheap: the rows it walks are the ones already past
     # their expiry.
+    #
+    # Imported here rather than at module level. `main.py`'s import block
+    # is where every feature branch adds its one line, so they collide on
+    # merge over nothing but adjacency; this is the only place in the
+    # module that uses the store, and `api/sms.py` already imports its
+    # client the same way.
+    from services import token_store
+
     try:
         removed = token_store.purge_expired()
         if removed:
