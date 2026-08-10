@@ -40,6 +40,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from services import access_log_service
+from services import chat_link_service
 from services import firestore_service as _firestore
 from services.firestore_service import UserService
 from utils.logger import logger
@@ -53,7 +54,9 @@ from utils.logger import logger
 #: 1.1 — added `provider_access_log` (issue #350). A minor bump because the
 #: change is purely additive: every 1.0 key is still present and unchanged,
 #: so a consumer written against 1.0 keeps working.
-EXPORT_SCHEMA_VERSION = "1.1"
+#:
+#: 1.2 — added `chat_links` (issue #416), additive for the same reason.
+EXPORT_SCHEMA_VERSION = "1.2"
 
 #: Every collection that can hold something attributable to a user. This is
 #: the single list that both the summary and the purge walk — a new
@@ -73,6 +76,13 @@ CONSENTS_COLLECTION = "consents"
 #: precisely what that other collection exists for.
 ACCESS_LOG_COLLECTION = "access_log"
 
+#: Chat links bind a Telegram chat or a WhatsApp number to this account
+#: (issue #416). A link holds no health data, but it is the mapping that
+#: makes a messaging identity *become* this person, so an erasure that
+#: left it behind would leave the bot still recognising her number after
+#: the account it points at is gone.
+CHAT_LINKS_COLLECTION = chat_link_service.CHAT_LINKS_COLLECTION
+
 USER_DATA_COLLECTIONS: Tuple[str, ...] = (
     USERS_COLLECTION,
     CYCLE_LOGS_COLLECTION,
@@ -80,6 +90,7 @@ USER_DATA_COLLECTIONS: Tuple[str, ...] = (
     RATE_LIMITS_COLLECTION,
     CONSENTS_COLLECTION,
     ACCESS_LOG_COLLECTION,
+    CHAT_LINKS_COLLECTION,
 )
 
 #: Collection holding deletion audit records. Deliberately *not* in
@@ -289,6 +300,7 @@ def build_data_summary(user_id: str) -> Dict[str, Any]:
     rate_limit_ids = _rate_limit_doc_ids(user_id)
     consent_ids = _consent_doc_ids(user_id)
     access_count = access_log_service.count_for_patient(user_id)
+    chat_links = chat_link_service.links_for_user(user_id)
 
     identity_fields = sorted(
         field
@@ -364,13 +376,28 @@ def build_data_summary(user_id: str) -> Dict[str, Any]:
                     "of the data itself. Kept until you delete your account."
                 ),
             },
+            {
+                "key": "chat_links",
+                "label": "Connected chat accounts",
+                "recordCount": len(chat_links),
+                "storedFields": (
+                    ["channel", "chat_id", "linked_at"] if chat_links else []
+                ),
+                "collection": CHAT_LINKS_COLLECTION,
+                "retentionNote": (
+                    "Which Telegram chats or WhatsApp numbers can ask the "
+                    "bot about your cycle. Kept until you disconnect them "
+                    "or delete your account."
+                ),
+            },
         ],
         "totalRecords": (1 if user else 0)
         + len(cycle_logs)
         + (1 if message_count else 0)
         + len(rate_limit_ids)
         + len(consent_ids)
-        + access_count,
+        + access_count
+        + len(chat_links),
     }
 
 
@@ -437,6 +464,8 @@ def build_export_bundle(user_id: str) -> Dict[str, Any]:
         user_id, limit=access_log_service.count_for_patient(user_id) or 1
     )
 
+    chat_links = chat_link_service.links_for_user(user_id)
+
     return {
         "schema_version": EXPORT_SCHEMA_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -450,6 +479,17 @@ def build_export_bundle(user_id: str) -> Dict[str, Any]:
         "provider_access_log": {
             "entry_count": len(access_log),
             "entries": access_log,
+        },
+        "chat_links": {
+            "link_count": len(chat_links),
+            "links": [
+                {
+                    "channel": link.get("channel"),
+                    "chat_id": link.get("chat_id"),
+                    "linked_at": _serialize(link.get("linked_at")),
+                }
+                for link in chat_links
+            ],
         },
         "sms_settings": {
             "enabled": bool(user.get("sms_enabled", False)),
@@ -582,6 +622,15 @@ def purge_user_data(user_id: str) -> Dict[str, int]:
     for doc_id in access_log_service.doc_ids_for_user(user_id):
         if _delete_doc(ACCESS_LOG_COLLECTION, doc_id):
             counts[ACCESS_LOG_COLLECTION] += 1
+
+    # Connected chats, plus any link code still outstanding (issue #416).
+    # The codes are not counted: they are unredeemed credentials with a
+    # few minutes to live, not records of anything, and reporting them as
+    # "data deleted" would inflate the receipt with noise.
+    for link in chat_link_service.links_for_user(user_id):
+        if _delete_doc(CHAT_LINKS_COLLECTION, link["id"]):
+            counts[CHAT_LINKS_COLLECTION] += 1
+    chat_link_service.revoke_codes_for(user_id)
 
     # Firebase Auth identity, before the user document is gone — the phone
     # number needed to look it up lives there.

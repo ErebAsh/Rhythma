@@ -187,6 +187,34 @@ VERIFICATION_RESEND_ACCOUNT = RateLimitPolicy(
     message="A verification email was already sent. Please try again in {seconds} seconds.",
 )
 
+# The chat webhooks are the only routes in the API a stranger can reach
+# without credentials of any kind, and each delivery costs a signature
+# check and at least one Firestore read. Generous enough that a busy bot
+# is never throttled — Telegram delivers one update per message, and a
+# single deployment's traffic arrives from a handful of Telegram and
+# Twilio egress addresses — and low enough that an unauthenticated flood
+# stops being free.
+BOT_WEBHOOK_IP = RateLimitPolicy(
+    name="bot_webhook_ip",
+    default_limit=60,
+    default_window=60,
+    message="Too many webhook deliveries. Please retry in {seconds} seconds.",
+)
+
+# A link code is a bearer credential for one account, so the budget is
+# per account rather than per address: several users behind one clinic's
+# NAT must not share a ceiling. Five an hour is well past what connecting
+# a phone takes, and far short of what walking the code space would need.
+BOT_LINK_CODE_ACCOUNT = RateLimitPolicy(
+    name="bot_link_code_account",
+    default_limit=5,
+    default_window=3600,
+    message=(
+        "Too many connection codes requested. Please try again in "
+        "{seconds} seconds."
+    ),
+)
+
 # Refresh is called by a legitimate client roughly once per access-token
 # lifetime, but a client with a clock problem or a retry loop can call it
 # far more often, so the ceiling is generous rather than tight.
