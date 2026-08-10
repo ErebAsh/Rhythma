@@ -316,6 +316,62 @@ p {
   width: 100%;
 }
 
+/* ── Prediction (issue #419) ──────────────────────────────────────────── */
+
+.prediction-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* The overdue count is the one number on this screen that has to read
+   differently from the others — it is a state, not a countdown. */
+.cycle-next-number.is-overdue,
+.stat-value.is-overdue {
+  color: #c0392b;
+}
+
+.prediction-date {
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0.2rem 0 0;
+}
+
+.prediction-range {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.prediction-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0.2rem;
+}
+
+.prediction-source {
+  font-size: 0.78rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.status-pill.phase-late,
+.status-pill.phase-unknown,
+.status-pill.confidence-low {
+  background: color-mix(in srgb, #8E8E93 18%, transparent);
+  color: #6b6b70;
+}
+
+.status-pill.confidence-high {
+  background: color-mix(in srgb, #52B3B0 18%, transparent);
+  color: #3d8a87;
+}
+
+.outlook-card {
+  margin-bottom: 0.9rem;
+}
+
 .icon-btn {
   background: transparent;
   border: 1px solid var(--border);
@@ -1404,60 +1460,4 @@ p {
     flex-direction: column;
     align-items: flex-start;
   }
-}
-
-/* ── Prediction (issue #419) ──────────────────────────────────────────── */
-
-.prediction-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-/* The overdue count is the one number on this screen that has to read
-   differently from the others — it is a state, not a countdown. */
-.cycle-next-number.is-overdue,
-.stat-value.is-overdue {
-  color: #c0392b;
-}
-
-.prediction-date {
-  font-weight: 600;
-  color: var(--text-h);
-  margin: 0.2rem 0 0;
-}
-
-.prediction-range {
-  font-size: 0.8rem;
-  opacity: 0.75;
-  margin: 0;
-}
-
-.prediction-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin: 0.4rem 0 0.2rem;
-}
-
-.prediction-source {
-  font-size: 0.78rem;
-  opacity: 0.7;
-  margin: 0;
-}
-
-.status-pill.phase-late,
-.status-pill.phase-unknown,
-.status-pill.confidence-low {
-  background: color-mix(in srgb, #8E8E93 18%, transparent);
-  color: #6b6b70;
-}
-
-.status-pill.confidence-high {
-  background: color-mix(in srgb, #52B3B0 18%, transparent);
-  color: #3d8a87;
-}
-
-.outlook-card {
-  margin-bottom: 0.9rem;
 }
