@@ -1128,6 +1128,85 @@ p {
   cursor: default;
 }
 
+/* ── Data & privacy (issue #418) ──────────────────────────────────────── */
+
+.data-category-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.data-category {
+  border-top: 1px solid color-mix(in srgb, var(--text-h) 10%, transparent);
+  padding-top: 0.6rem;
+}
+
+.data-category-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.data-category-label {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.data-category-count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* The field list can be long — every column of a cycle log — and it is
+   reference material rather than something to read through, so it is set
+   smaller and allowed to wrap rather than pushed into its own scroller. */
+.data-category-fields {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.danger-zone {
+  border-color: color-mix(in srgb, #c0392b 30%, transparent);
+}
+
+.warning-text {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+.deletion-impact {
+  margin: 0.5rem 0;
+  padding-left: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.confirm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.75rem 0;
+  font-weight: 600;
+}
+
+.text-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--accent);
+}
+
 .avatar-picker {
   display: flex;
   gap: 0.6rem;
@@ -1404,83 +1483,4 @@ p {
     flex-direction: column;
     align-items: flex-start;
   }
-}
-
-/* ── Data & privacy (issue #418) ──────────────────────────────────────── */
-
-.data-category-list {
-  list-style: none;
-  margin: 0.75rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.data-category {
-  border-top: 1px solid color-mix(in srgb, var(--text-h) 10%, transparent);
-  padding-top: 0.6rem;
-}
-
-.data-category-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.data-category-label {
-  font-weight: 600;
-  color: var(--text-h);
-}
-
-.data-category-count {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-
-/* The field list can be long — every column of a cycle log — and it is
-   reference material rather than something to read through, so it is set
-   smaller and allowed to wrap rather than pushed into its own scroller. */
-.data-category-fields {
-  font-size: 0.8rem;
-  opacity: 0.7;
-  margin: 0.25rem 0 0;
-  overflow-wrap: anywhere;
-}
-
-.export-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-top: 0.75rem;
-}
-
-.danger-zone {
-  border-color: color-mix(in srgb, #c0392b 30%, transparent);
-}
-
-.warning-text {
-  color: #c0392b;
-  font-weight: 600;
-}
-
-.deletion-impact {
-  margin: 0.5rem 0;
-  padding-left: 1.1rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.confirm-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  margin: 0.75rem 0;
-  font-weight: 600;
-}
-
-.text-link {
-  display: inline-block;
-  margin-top: 0.5rem;
-  color: var(--accent);
 }
