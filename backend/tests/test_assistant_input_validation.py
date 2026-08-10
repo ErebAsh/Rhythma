@@ -71,7 +71,7 @@ from api.assistant import (  # noqa: E402
 from core.auth import get_current_user  # noqa: E402
 import services.firestore_service as fs  # noqa: E402
 from services.firestore_service import MockFirestoreClient  # noqa: E402
-from services.rate_limit_service import RateLimitService  # noqa: E402
+import services.rate_limit_service as _rl_mod  # noqa: E402
 
 if not isinstance(fs.db, MockFirestoreClient):
     fs.db = MockFirestoreClient()
@@ -92,34 +92,21 @@ def _isolate():
     # The route prefers persisted history over the client's, so the
     # conversation store has to be empty for the client-history cases to
     # exercise anything.
-    # #327 moved the assistant's limiter off its own in-memory dict and
-    # onto RateLimitService, so the explicit `_assistant_rate_history`
-    # clears that used to sit here refer to an attribute that no longer
-    # exists.
-    #
-    # Clearing `fs.db._collections` is not a substitute, and the reason is
-    # worth spelling out because the symptom is confusing: this module
-    # rebinds `fs.db` at import when it finds a non-mock client (line 75),
-    # but `services.rate_limit_service` did `from services.firestore_service
-    # import db` at *its* import, so it keeps a reference to whichever
-    # client existed then. After a rebind the two names point at different
-    # objects, and emptying one leaves the limiter reading the other.
-    #
-    # That is why the module passes in isolation — no rebind happens — and
-    # fails in a full run once some earlier module has swapped `fs.db`: the
-    # rate-limit window survives between tests, the eleventh chat in the
-    # file trips ASSISTANT_RATE_LIMIT, and every test expecting a 200 after
-    # that point gets a 429 instead. Going through the service clears the
-    # store the service actually reads.
-    RateLimitService.clear_all()
     fs.db._collections = {}
+    # RateLimitService may hold a different db reference (replaced by
+    # test_auth_rate_limits); clear it too so assistant rate limits reset.
+    if hasattr(_rl_mod.db, "_collections"):
+        _rl_mod.db._collections = {}
+    assistant._assistant_rate_history.clear()
     RecordingGemini.prompts = []
     # `genai` was bound at import; point it at the recorder for this module.
     assistant.genai = _recording
     yield
     app.dependency_overrides.clear()
-    RateLimitService.clear_all()
+    assistant._assistant_rate_history.clear()
     fs.db._collections = {}
+    if hasattr(_rl_mod.db, "_collections"):
+        _rl_mod.db._collections = {}
 
 
 def chat(**payload):
