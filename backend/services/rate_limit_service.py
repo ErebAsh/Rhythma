@@ -57,25 +57,15 @@ class RateLimitService:
 
     @staticmethod
     def reset(key: str) -> None:
-        """Drop one key's window, so the next request starts from zero.
+        """Remove the rate-limit entry for a single key.
 
-        ``clear_all`` empties the whole collection, which is fine for a
-        test fixture but wrong for the case this exists for: clearing a
-        single user's counter — after a successful login, say — without
-        also clearing everybody else's. ``test_firestore_mock`` has been
-        calling this since the mock gained real ``delete`` support; the
-        method itself was never written, which is why that module and
-        twenty others have been failing at runtime.
-
-        Deleting the document rather than writing an empty list keeps the
-        collection from filling up with tombstones, and ``is_rate_limited``
-        already treats a missing document as an empty window.
+        Called after a successful login so a user who mistypes her password
+        is not left one attempt away from a lockout.
         """
         try:
-            RateLimitService._document(key).delete()
+            doc_ref = RateLimitService._document(key)
+            doc_ref.delete()
         except Exception:
-            # A rate-limit reset is never worth failing a request over. The
-            # worst case is that the caller keeps its existing window.
             pass
 
     @staticmethod
