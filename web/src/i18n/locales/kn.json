@@ -229,7 +229,9 @@
     "suggest5": "How do I track my ovulation?",
     "errorPrefix": "Error",
     "disclaimer": "Please consult a healthcare professional for medical advice.",
-    "rateLimited": "You're sending messages too quickly. Please wait a moment."
+    "rateLimited": "You're sending messages too quickly. Please wait a moment.",
+    "storedOnDevice": "ಈ ಸಂಭಾಷಣೆ ಈ ಸಾಧನದಲ್ಲೇ ಇರಿಸಲಾಗುತ್ತದೆ ಮತ್ತು ಲಾಗ್ ಔಟ್ ಮಾಡಿದಾಗ ಅಳಿಸಲಾಗುತ್ತದೆ.",
+    "clearConversation": "ಸಂಭಾಷಣೆಯನ್ನು ಅಳಿಸಿ"
   },
   "insights": {
     "title": "Insights",

@@ -1540,3 +1540,20 @@ p {
     align-items: flex-start;
   }
 }
+
+/* ── Assistant transcript privacy (issue #420) ────────────────────────── */
+
+.assistant-privacy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.4rem;
+}
+
+.assistant-privacy .disclaimer {
+  margin: 0;
+  flex: 1;
+  min-width: 12rem;
+}
