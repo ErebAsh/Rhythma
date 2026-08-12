@@ -41,6 +41,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from services import access_log_service
 from services import firestore_service as _firestore
+from services import token_store
 from services.firestore_service import UserService
 from utils.logger import logger
 
@@ -103,11 +104,14 @@ EXPORT_EXCLUDED_USER_FIELDS = frozenset({"password", "password_hash"})
 #: short enough that a token left in a log or a proxy cache is inert.
 DELETION_TOKEN_TTL_SECONDS = 300
 
-#: user_id -> {"token_hash": str, "expires_at": datetime}
-#: In-memory, matching how core.auth stores reset/verification tokens. A
-#: multi-process deployment will need this moved to Firestore alongside
-#: those — noted here rather than silently inheriting the limitation.
-_deletion_tokens: Dict[str, Dict[str, Any]] = {}
+#: Deletion confirmations live in the shared token store alongside
+#: refresh, reset and verification tokens (issue #417). They used to be a
+#: module-level dict here, with a note saying a multi-process deployment
+#: would need them moved — this is that move. A confirmation minted on
+#: one worker and submitted to another now resolves, which it did not
+#: before: the second step of the deletion flow simply failed, at random,
+#: on any deployment running more than one process.
+_deletion_tokens = token_store.TokenNamespace(token_store.KIND_ACCOUNT_DELETION)
 
 #: Columns of the flattened CSV export. Fixed and ordered so the file is
 #: diffable and importable, rather than varying with whatever keys the
@@ -512,35 +516,35 @@ def issue_deletion_token(user_id: str) -> Tuple[str, int]:
     CSRF-style repeat of a previously observed request.
     """
     token = secrets.token_urlsafe(32)
-    _deletion_tokens[user_id] = {
-        "token_hash": _hash_token(token),
-        "expires_at": datetime.now(timezone.utc)
-        + timedelta(seconds=DELETION_TOKEN_TTL_SECONDS),
-    }
+    token_store.put(
+        token_store.KIND_ACCOUNT_DELETION,
+        user_id,
+        {"token_hash": _hash_token(token), "user_id": user_id},
+        timedelta(seconds=DELETION_TOKEN_TTL_SECONDS),
+    )
     return token, DELETION_TOKEN_TTL_SECONDS
 
 
 def verify_deletion_token(user_id: str, token: str) -> bool:
     """Check and consume a confirmation token.
 
-    Consumed on *any* outcome for a matching entry, so a leaked or
-    replayed token is good at most once.
+    Consumed on a *match*, so a leaked or replayed token is good at most
+    once. A mismatch is not consumed: burning the real token on a wrong
+    guess would let anyone who can post one bad value cancel a deletion
+    the user is halfway through.
     """
-    entry = _deletion_tokens.get(user_id)
+    entry = token_store.get(token_store.KIND_ACCOUNT_DELETION, user_id)
     if not entry:
         return False
-    if datetime.now(timezone.utc) > entry["expires_at"]:
-        _deletion_tokens.pop(user_id, None)
+    if not secrets.compare_digest(entry.get("token_hash", ""), _hash_token(token)):
         return False
-    if not secrets.compare_digest(entry["token_hash"], _hash_token(token)):
-        return False
-    _deletion_tokens.pop(user_id, None)
+    token_store.delete(token_store.KIND_ACCOUNT_DELETION, user_id)
     return True
 
 
 def clear_deletion_tokens() -> None:
-    """Test hook, mirroring core.auth's in-memory stores."""
-    _deletion_tokens.clear()
+    """Test hook, mirroring core.auth's token namespaces."""
+    token_store.clear(token_store.KIND_ACCOUNT_DELETION)
 
 
 def purge_user_data(user_id: str) -> Dict[str, int]:
@@ -633,6 +637,14 @@ def _write_audit_record(user_id: str, counts: Dict[str, int]) -> None:
 
 def delete_account(user_id: str) -> Dict[str, Any]:
     """Full erasure: purge every collection, revoke sessions, audit it."""
+    # Read before the purge: reset and verification tokens are filed under
+    # the account's email address, and after the user document is gone
+    # there is nothing left to look that address up from. Without this
+    # they would sit in the store until natural expiry — a live
+    # password-reset token for an account that no longer exists.
+    account = UserService.get_user_by_id(user_id) or {}
+    account_email = account.get("email")
+
     counts = purge_user_data(user_id)
 
     # Revoke refresh tokens *after* the purge: a token that survived a
@@ -644,6 +656,14 @@ def delete_account(user_id: str) -> Dict[str, Any]:
 
     revoke_all_user_refresh_tokens(user_id)
     clear_deletion_tokens_for(user_id)
+
+    if account_email:
+        from core.email_identity import normalize_email
+
+        email_key = normalize_email(account_email)
+        token_store.delete(token_store.KIND_PASSWORD_RESET, email_key)
+        token_store.delete(token_store.KIND_EMAIL_VERIFICATION, email_key)
+
     _write_audit_record(user_id, counts)
 
     return {
@@ -654,7 +674,7 @@ def delete_account(user_id: str) -> Dict[str, Any]:
 
 
 def clear_deletion_tokens_for(user_id: str) -> None:
-    _deletion_tokens.pop(user_id, None)
+    token_store.delete(token_store.KIND_ACCOUNT_DELETION, user_id)
 
 
 def deletion_record_for(user_id: str) -> Optional[Dict[str, Any]]:

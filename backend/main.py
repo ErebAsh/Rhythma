@@ -74,6 +74,27 @@ async def lifespan(app: FastAPI):
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning(f"Startup health check could not run: {exc}")
 
+    # Expired auth tokens are dropped when they are read, and a token
+    # nobody presents again is never read — so before #417 moved these
+    # out of process memory the store only ever grew. One sweep at
+    # startup keeps the collection bounded without needing a scheduled
+    # job, and it is cheap: the rows it walks are the ones already past
+    # their expiry.
+    #
+    # Imported here rather than at module level. `main.py`'s import block
+    # is where every feature branch adds its one line, so they collide on
+    # merge over nothing but adjacency; this is the only place in the
+    # module that uses the store, and `api/sms.py` already imports its
+    # client the same way.
+    from services import token_store
+
+    try:
+        removed = token_store.purge_expired()
+        if removed:
+            logger.info(f"Swept {removed} expired auth token(s) at startup.")
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning(f"Could not sweep expired auth tokens: {exc}")
+
     yield
     logger.info("Rhythma backend shutting down.")
 

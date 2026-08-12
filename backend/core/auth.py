@@ -8,6 +8,7 @@ import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict
 from core.email_identity import normalize_email
+from services import token_store
 from services.firestore_service import UserService
 
 # --- Configuration ---
@@ -28,13 +29,26 @@ REFRESH_COOKIE_NAME = "rhythma_refresh_token"
 # header - a web client may still have a valid session cookie.
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/firebase-login", auto_error=False)
 
-# --- In-memory Stores ---
-# Refresh tokens: token_hash -> {"user_id": str, "expires_at": datetime}
-refresh_token_store: Dict[str, dict] = {}
-# Reset tokens: normalized email -> {"token_hash": str, "expires_at": datetime}
-reset_token_store: Dict[str, dict] = {}
-# Verification tokens: normalized email -> {"token_hash": str, "expires_at": datetime}
-verification_token_store: Dict[str, dict] = {}
+# --- Token Stores ---
+#
+# These three were plain module-level dicts, which meant a refresh token
+# existed only inside the process that minted it (issue #417). A restart
+# emptied them and signed every user out; a second worker never saw the
+# first worker's tokens, so sessions and reset links worked or failed
+# depending on which process the load balancer picked; and
+# `revoke_all_user_refresh_tokens` — which `logout-all` and the account
+# deletion cascade both depend on — cleared one process's memory and left
+# the rest valid.
+#
+# They are now views over the shared, persistent store in
+# `services/token_store.py`. The names are kept because the test suite
+# reaches into them directly, and because everything they were used for
+# still works; see `TokenNamespace` for why that is a view and not a copy.
+refresh_token_store = token_store.TokenNamespace(token_store.KIND_REFRESH)
+reset_token_store = token_store.TokenNamespace(token_store.KIND_PASSWORD_RESET)
+verification_token_store = token_store.TokenNamespace(
+    token_store.KIND_EMAIL_VERIFICATION
+)
 
 
 def _email_key(email: str) -> str:
@@ -78,71 +92,85 @@ def _hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 def create_refresh_token(user_id: str) -> str:
+    """Mint a refresh token and record it where every worker can see it.
+
+    The row is keyed by the token's hash and carries the ``user_id``, so
+    ``revoke_all_user_refresh_tokens`` can find every session for an
+    account instead of only the ones this process happens to remember.
+    """
     token = secrets.token_urlsafe(48)
-    token_hash = _hash_token(token)
-    expires_at = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    refresh_token_store[token_hash] = {"user_id": user_id, "expires_at": expires_at}
+    token_store.put(
+        token_store.KIND_REFRESH,
+        token,
+        {"user_id": user_id},
+        timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
+    )
     return token
 
 def verify_refresh_token(token: str) -> Optional[str]:
-    token_hash = _hash_token(token)
-    entry = refresh_token_store.get(token_hash)
+    entry = token_store.get(token_store.KIND_REFRESH, token)
     if not entry:
         return None
-    if datetime.now(timezone.utc) > entry["expires_at"]:
-        refresh_token_store.pop(token_hash, None)
-        return None
-    return entry["user_id"]
+    return entry.get("user_id")
 
 def revoke_refresh_token(token: str):
-    token_hash = _hash_token(token)
-    refresh_token_store.pop(token_hash, None)
+    token_store.delete(token_store.KIND_REFRESH, token)
 
 def revoke_all_user_refresh_tokens(user_id: str):
-    to_remove = [h for h, e in refresh_token_store.items() if e["user_id"] == user_id]
-    for h in to_remove:
-        refresh_token_store.pop(h, None)
+    """End every session for one account, everywhere.
+
+    ``POST /auth/logout-all`` and the account-deletion cascade both rely
+    on this. While the store was a per-process dict it could only clear
+    the sessions held by whichever worker served the request, so the
+    deletion path reported success while other workers still held live
+    tokens for the account.
+    """
+    token_store.delete_for_user(token_store.KIND_REFRESH, user_id)
 
 def generate_reset_token(email: str) -> str:
-    key = _email_key(email)
     token = secrets.token_urlsafe(32)
-    token_hash = _hash_token(token)
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
-    reset_token_store[key] = {"token_hash": token_hash, "expires_at": expires_at}
+    # Keyed by address, so issuing a new link replaces the previous one
+    # rather than leaving both live.
+    token_store.put(
+        token_store.KIND_PASSWORD_RESET,
+        _email_key(email),
+        {"token_hash": _hash_token(token)},
+        timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES),
+    )
     return token
 
 def verify_reset_token(email: str, token: str) -> bool:
     key = _email_key(email)
-    entry = reset_token_store.get(key)
+    entry = token_store.get(token_store.KIND_PASSWORD_RESET, key)
     if not entry:
         return False
-    if datetime.now(timezone.utc) > entry["expires_at"]:
-        reset_token_store.pop(key, None)
+    if not secrets.compare_digest(entry.get("token_hash", ""), _hash_token(token)):
+        # Deliberately not consumed. A wrong guess must not burn the
+        # user's real link — otherwise anyone who can post one bad token
+        # to /reset-password can cancel a reset she is halfway through.
+        # Guessing is bounded by PASSWORD_RESET_CONFIRM_IP instead.
         return False
-    if entry["token_hash"] != _hash_token(token):
-        return False
-    reset_token_store.pop(key, None)
+    token_store.delete(token_store.KIND_PASSWORD_RESET, key)
     return True
 
 def generate_verification_token(email: str) -> str:
-    key = _email_key(email)
     token = secrets.token_urlsafe(32)
-    token_hash = _hash_token(token)
-    expires_at = datetime.now(timezone.utc) + timedelta(hours=VERIFY_TOKEN_EXPIRE_HOURS)
-    verification_token_store[key] = {"token_hash": token_hash, "expires_at": expires_at}
+    token_store.put(
+        token_store.KIND_EMAIL_VERIFICATION,
+        _email_key(email),
+        {"token_hash": _hash_token(token)},
+        timedelta(hours=VERIFY_TOKEN_EXPIRE_HOURS),
+    )
     return token
 
 def verify_email_token(email: str, token: str) -> bool:
     key = _email_key(email)
-    entry = verification_token_store.get(key)
+    entry = token_store.get(token_store.KIND_EMAIL_VERIFICATION, key)
     if not entry:
         return False
-    if datetime.now(timezone.utc) > entry["expires_at"]:
-        verification_token_store.pop(key, None)
+    if not secrets.compare_digest(entry.get("token_hash", ""), _hash_token(token)):
         return False
-    if entry["token_hash"] != _hash_token(token):
-        return False
-    verification_token_store.pop(key, None)
+    token_store.delete(token_store.KIND_EMAIL_VERIFICATION, key)
     return True
 
 # --- Token Verification ---
