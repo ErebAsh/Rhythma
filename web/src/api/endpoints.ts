@@ -471,8 +471,134 @@ export async function patchProfile(updates: ProfileUpdate): Promise<Profile> {
   return response.data;
 }
 
+/**
+ * @deprecated Use the two-step flow in the "Data & privacy" section below.
+ *
+ * `DELETE /auth/me` is the legacy erasure route. Its own docstring says to
+ * prefer `POST /privacy/delete-account`, which previews the impact before
+ * it confirms and reports per-collection counts. Kept only because a
+ * client somewhere may still be calling it.
+ */
 export async function deleteAccount() {
   await apiClient.delete('/auth/me');
+}
+
+// ─── Data & privacy (issue #418) ───────────────────────────────────────────
+//
+// The backend has had all of this since #270 and no client called any of
+// it: `grep -rn "privacy" web/src` returned nothing. Settings offered no
+// way to see what is stored and no way to download it, and its Delete
+// button went to the legacy route above with its failures swallowed.
+
+/** One row of the "what do you have on me" inventory. */
+export interface DataCategory {
+  key: string;
+  label: string;
+  recordCount: number;
+  storedFields: string[];
+  collection: string;
+  earliestEntry?: string | null;
+  latestEntry?: string | null;
+  retentionNote: string;
+}
+
+export interface DataSummary {
+  userId: string;
+  generatedAt: string;
+  categories: DataCategory[];
+  totalRecords: number;
+}
+
+/**
+ * Step one of deletion: what will be destroyed, and the token to confirm.
+ *
+ * `impact` is the same shape as `GET /privacy/summary`, so the preview a
+ * user is shown before confirming is built from the same counts as the
+ * inventory she was reading a moment earlier.
+ */
+export interface DeletionPreview {
+  confirmationToken: string;
+  expiresInSeconds: number;
+  impact: DataSummary;
+  warning: string;
+}
+
+export interface DeletionResult {
+  status: string;
+  deletedCounts: Record<string, number>;
+  totalDeleted: number;
+  deletedAt: string;
+  message: string;
+}
+
+export type ExportFormat = 'json' | 'csv';
+
+export interface ExportFile {
+  blob: Blob;
+  filename: string;
+}
+
+export async function fetchDataSummary(): Promise<DataSummary> {
+  const response = await apiClient.get<DataSummary>('/privacy/summary');
+  return response.data;
+}
+
+/**
+ * Filename from `Content-Disposition`, or a sensible fallback.
+ *
+ * The server names the file (`rhythma-data-export-2026-08-10.json`) and
+ * that name is the useful one — it carries the date the export was taken,
+ * which a user comparing two downloads a month apart needs. Parsed
+ * defensively because a proxy that strips the header must produce a
+ * download with an ordinary name rather than no download at all.
+ */
+export function exportFilename(disposition: unknown, format: ExportFormat): string {
+  if (typeof disposition === 'string') {
+    const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(disposition);
+    if (match?.[1]) return decodeURIComponent(match[1].trim());
+  }
+  return `rhythma-data-export.${format}`;
+}
+
+/**
+ * The export as a blob, with the name to save it under.
+ *
+ * Returned rather than downloaded here so the calling component decides
+ * when to touch the DOM — and so this is testable without stubbing
+ * `URL.createObjectURL`.
+ */
+export async function fetchDataExport(format: ExportFormat = 'json'): Promise<ExportFile> {
+  const response = await apiClient.get('/privacy/export', {
+    params: { format },
+    responseType: 'blob',
+  });
+
+  const headers = response.headers as unknown as Record<string, unknown>;
+  return {
+    blob: response.data as Blob,
+    filename: exportFilename(headers?.['content-disposition'], format),
+  };
+}
+
+/**
+ * Ask what deleting would destroy. Does not delete anything.
+ *
+ * The server answers 202 with a short-lived single-use token; nothing is
+ * removed until that token comes back through `confirmAccountDeletion`.
+ */
+export async function requestAccountDeletion(): Promise<DeletionPreview> {
+  const response = await apiClient.post<DeletionPreview>('/privacy/delete-account', {});
+  return response.data;
+}
+
+/** Irreversible. Only reachable with a token from the call above. */
+export async function confirmAccountDeletion(
+  confirmationToken: string,
+): Promise<DeletionResult> {
+  const response = await apiClient.post<DeletionResult>('/privacy/delete-account', {
+    confirmationToken,
+  });
+  return response.data;
 }
 
 // ─── Provider Dashboard & Data Sharing (issue #267) ────────────────────────

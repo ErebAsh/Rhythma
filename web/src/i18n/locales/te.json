@@ -291,6 +291,30 @@
     "cycleInvalid": "Cycle length must be between 15 and 45",
     "days": "days"
   },
+  "privacy": {
+    "title": "మీ డేటా",
+    "subtitle": "మీ ఖాతా గురించి Rhythma నిల్వ చేసే ప్రతిదీ, మరియు దానితో మీరు ఏమి చేయవచ్చు.",
+    "loadError": "మీ ఖాతా కోసం నిల్వ చేసిన సమాచారాన్ని లోడ్ చేయలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "storedLabel": "ఏమి నిల్వ చేయబడింది",
+    "storedTotal": "మొత్తం {{count}} రికార్డులు.",
+    "dateRange": "{{from}} నుండి {{to}} వరకు",
+    "fields": "ఫీల్డ్‌లు",
+    "exportLabel": "మీ డేటాను డౌన్‌లోడ్ చేయండి",
+    "exportBody": "సర్వర్‌లో ఉన్న ప్రతిదానికీ పూర్తి కాపీ. JSON ఫైల్ పూర్తి బండిల్; CSVలో మీ సైకిల్ లాగ్‌లు స్ప్రెడ్‌షీట్‌లు మరియు ఇతర ట్రాకర్లు చదవగల రూపంలో ఉంటాయి.",
+    "exportJson": "JSON డౌన్‌లోడ్ చేయండి",
+    "exportCsv": "CSV డౌన్‌లోడ్ చేయండి",
+    "exportReady": "{{filename}} గా సేవ్ చేయబడింది",
+    "exportError": "డౌన్‌లోడ్‌ను సిద్ధం చేయలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "deleteLabel": "మీ ఖాతాను తొలగించండి",
+    "deleteBody": "ఇది మీ సైకిల్ లాగ్‌లు, ప్రొఫైల్ మరియు అసిస్టెంట్ సంభాషణను శాశ్వతంగా తొలగిస్తుంది. దీన్ని తిరిగి పొందలేరు.",
+    "deleteStart": "నా ఖాతాను తొలగించు",
+    "deleteConfirm": "అన్నీ తొలగించు",
+    "deleteError": "మీ ఖాతా తొలగించబడలేదు. ఏదీ తీసివేయబడలేదు — దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "willDelete": "{{count}} × {{label}}",
+    "exportFirst": "కాపీ ఉంచుకోవాలనుకుంటే ముందుగా మీ డేటాను డౌన్‌లోడ్ చేయండి — ఇదే చివరి అవకాశం.",
+    "typeToConfirm": "నిర్ధారించడానికి {{word}} టైప్ చేయండి",
+    "backToSettings": "సెట్టింగ్‌లకు తిరిగి వెళ్లు"
+  },
   "settings": {
     "title": "Settings",
     "language": "Language",
@@ -308,7 +332,9 @@
     "telugu": "Telugu",
     "marathi": "Marathi",
     "kannada": "Kannada",
-    "malayalam": "Malayalam"
+    "malayalam": "Malayalam",
+    "dataPrivacy": "మీ డేటా",
+    "dataPrivacySubtitle": "ఏమి నిల్వ చేయబడిందో చూడండి, డౌన్‌లోడ్ చేయండి, లేదా మీ ఖాతాను తొలగించండి"
   },
   "sms": {
     "title": "SMS Summaries",

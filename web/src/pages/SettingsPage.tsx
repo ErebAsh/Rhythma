@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
-import { deleteAccount, fetchSupportedLanguages, patchProfile, type SupportedLanguage } from '../api/endpoints';
-import { useDocumentMeta } from '../lib/useDocumentMeta';
+import { fetchSupportedLanguages, patchProfile, type SupportedLanguage } from '../api/endpoints';
 
 const FALLBACK_LANGUAGES: SupportedLanguage[] = [
   { code: 'en', name: 'English' },
@@ -29,10 +28,8 @@ export function SettingsPage() {
   useDocumentMeta('meta.settings.title', 'meta.settings.description');
   const { t, i18n } = useTranslation();
   const { logout } = useAuth();
-  const navigate = useNavigate();
 
   const [languages, setLanguages] = useState<SupportedLanguage[]>(FALLBACK_LANGUAGES);
-  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchSupportedLanguages().then(setLanguages).catch(() => undefined);
@@ -42,19 +39,6 @@ export function SettingsPage() {
     await i18n.changeLanguage(code);
     // Best-effort sync so the preference follows the user across devices.
     patchProfile({ language: code }).catch(() => undefined);
-  };
-
-  const handleDelete = async () => {
-    if (!window.confirm(t('settings.deleteAccount'))) return;
-    setDeleting(true);
-    try {
-      await deleteAccount();
-    } catch {
-      // Best-effort: the account is still signed out locally below.
-    } finally {
-      await logout();
-      navigate('/login', { replace: true });
-    }
   };
 
   return (
@@ -102,6 +86,15 @@ export function SettingsPage() {
           <span className="chevron">›</span>
         </Link>
 
+        <Link to="/settings/data" className="menu-item glass-card">
+          <span>🔒</span>
+          <div className="menu-item-body">
+            <span>{t('settings.dataPrivacy')}</span>
+            <span className="card-sub">{t('settings.dataPrivacySubtitle')}</span>
+          </div>
+          <span className="chevron">›</span>
+        </Link>
+
         <a href="mailto:support@rhythma.com" className="menu-item glass-card">
           <span>💬</span>
           <div className="menu-item-body">
@@ -117,11 +110,19 @@ export function SettingsPage() {
           <span>{t('settings.logOut')}</span>
           <span className="chevron">›</span>
         </button>
-        <button type="button" className="menu-item glass-card danger" disabled={deleting} onClick={() => void handleDelete()}>
+        {/* A link, not a button that deletes.
+            This used to call `DELETE /auth/me` behind a `window.confirm`
+            whose message was the button's own label, with the error
+            swallowed and a `finally` that logged the user out either way —
+            so a failed deletion was indistinguishable from a successful
+            one. Deleting now happens on its own screen, where the user is
+            shown what will be destroyed before she confirms it, and where
+            a failure is reported instead of hidden (issue #418). */}
+        <Link to="/settings/data" className="menu-item glass-card danger">
           <span>🗑️</span>
           <span>{t('settings.deleteAccount')}</span>
           <span className="chevron">›</span>
-        </button>
+        </Link>
       </section>
     </div>
   );

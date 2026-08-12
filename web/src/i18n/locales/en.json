@@ -291,6 +291,30 @@
     "cycleInvalid": "Cycle length must be between 15 and 45",
     "days": "days"
   },
+  "privacy": {
+    "title": "Your data",
+    "subtitle": "Everything Rhythma stores about your account, and what you can do with it.",
+    "loadError": "Could not load what is stored for your account. Please try again.",
+    "storedLabel": "What is stored",
+    "storedTotal": "{{count}} records in total.",
+    "dateRange": "From {{from}} to {{to}}",
+    "fields": "Fields",
+    "exportLabel": "Download your data",
+    "exportBody": "A complete copy of everything on the server. The JSON file is the full bundle; the CSV holds your cycle logs in a form spreadsheets and other trackers can read.",
+    "exportJson": "Download JSON",
+    "exportCsv": "Download CSV",
+    "exportReady": "Saved as {{filename}}",
+    "exportError": "The download could not be prepared. Please try again.",
+    "deleteLabel": "Delete your account",
+    "deleteBody": "This permanently removes your cycle logs, profile and assistant conversation. It cannot be undone.",
+    "deleteStart": "Delete my account",
+    "deleteConfirm": "Delete everything",
+    "deleteError": "Your account was not deleted. Nothing has been removed — please try again.",
+    "willDelete": "{{count}} × {{label}}",
+    "exportFirst": "Download your data first if you want to keep a copy — this is your last chance to.",
+    "typeToConfirm": "Type {{word}} to confirm",
+    "backToSettings": "Back to settings"
+  },
   "settings": {
     "title": "Settings",
     "language": "Language",
@@ -308,7 +332,9 @@
     "telugu": "Telugu",
     "marathi": "Marathi",
     "kannada": "Kannada",
-    "malayalam": "Malayalam"
+    "malayalam": "Malayalam",
+    "dataPrivacy": "Your data",
+    "dataPrivacySubtitle": "See what is stored, download it, or delete your account"
   },
   "sms": {
     "title": "SMS Summaries",

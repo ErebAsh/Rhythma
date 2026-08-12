@@ -16,6 +16,7 @@ import { AssistantPage } from './pages/AssistantPage';
 import { InsightsPage } from './pages/InsightsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
+import { DataPrivacyPage } from './pages/DataPrivacyPage';
 import { SharingPage } from './pages/SharingPage';
 import { SmsPage } from './pages/SmsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -73,6 +74,7 @@ export default function App() {
               <Route path="/insights" element={<InsightsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/settings/data" element={<DataPrivacyPage />} />
               <Route path="/sharing" element={<SharingPage />} />
               <Route path="/sms" element={<SmsPage />} />
             </Route>

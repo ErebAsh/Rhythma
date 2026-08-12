@@ -291,6 +291,30 @@
     "cycleInvalid": "Cycle length must be between 15 and 45",
     "days": "days"
   },
+  "privacy": {
+    "title": "तुमचा डेटा",
+    "subtitle": "तुमच्या खात्याबद्दल Rhythma जे काही साठवते ते सर्व, आणि तुम्ही त्याचे काय करू शकता.",
+    "loadError": "तुमच्या खात्यासाठी साठवलेली माहिती लोड होऊ शकली नाही. कृपया पुन्हा प्रयत्न करा.",
+    "storedLabel": "काय साठवले आहे",
+    "storedTotal": "एकूण {{count}} नोंदी.",
+    "dateRange": "{{from}} ते {{to}}",
+    "fields": "फील्ड",
+    "exportLabel": "तुमचा डेटा डाउनलोड करा",
+    "exportBody": "सर्व्हरवरील सर्व गोष्टींची संपूर्ण प्रत. JSON फाइल संपूर्ण बंडल आहे; CSV मध्ये तुमच्या सायकल नोंदी अशा स्वरूपात आहेत ज्या स्प्रेडशीट आणि इतर ट्रॅकर वाचू शकतात.",
+    "exportJson": "JSON डाउनलोड करा",
+    "exportCsv": "CSV डाउनलोड करा",
+    "exportReady": "{{filename}} म्हणून जतन केले",
+    "exportError": "डाउनलोड तयार होऊ शकला नाही. कृपया पुन्हा प्रयत्न करा.",
+    "deleteLabel": "तुमचे खाते हटवा",
+    "deleteBody": "यामुळे तुमच्या सायकल नोंदी, प्रोफाइल आणि सहाय्यक संभाषण कायमचे काढून टाकले जाईल. हे पूर्ववत करता येणार नाही.",
+    "deleteStart": "माझे खाते हटवा",
+    "deleteConfirm": "सर्व काही हटवा",
+    "deleteError": "तुमचे खाते हटवले गेले नाही. काहीही काढून टाकलेले नाही — कृपया पुन्हा प्रयत्न करा.",
+    "willDelete": "{{count}} × {{label}}",
+    "exportFirst": "प्रत ठेवायची असल्यास आधी तुमचा डेटा डाउनलोड करा — ही शेवटची संधी आहे.",
+    "typeToConfirm": "पुष्टीसाठी {{word}} टाइप करा",
+    "backToSettings": "सेटिंग्जकडे परत जा"
+  },
   "settings": {
     "title": "Settings",
     "language": "Language",
@@ -308,7 +332,9 @@
     "telugu": "Telugu",
     "marathi": "Marathi",
     "kannada": "Kannada",
-    "malayalam": "Malayalam"
+    "malayalam": "Malayalam",
+    "dataPrivacy": "तुमचा डेटा",
+    "dataPrivacySubtitle": "काय साठवले आहे ते पहा, डाउनलोड करा, किंवा तुमचे खाते हटवा"
   },
   "sms": {
     "title": "SMS Summaries",
