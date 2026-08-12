@@ -407,6 +407,68 @@ def test_purge_covers_every_registered_collection(seeded_user):
     assert set(counts) == set(privacy.USER_DATA_COLLECTIONS)
 
 
+# ─── Connected chats (issue #416) ─────────────────────────────────────────
+
+
+def _link_a_chat(user_id=USER_ID, channel="telegram", chat_id="500100"):
+    from services import chat_link_service
+
+    code = chat_link_service.issue_link_code(user_id, channel)["code"]
+    assert chat_link_service.redeem_link_code(channel, chat_id, code) == user_id
+
+
+def test_summary_counts_connected_chats(seeded_user):
+    _link_a_chat()
+
+    by_key = {c["key"]: c for c in build_data_summary(USER_ID)["categories"]}
+
+    assert by_key["chat_links"]["recordCount"] == 1
+    assert "chat_id" in by_key["chat_links"]["storedFields"]
+
+
+def test_export_includes_connected_chats(seeded_user):
+    _link_a_chat()
+
+    bundle = build_export_bundle(USER_ID)
+
+    assert bundle["chat_links"]["link_count"] == 1
+    assert bundle["chat_links"]["links"][0]["chat_id"] == "500100"
+
+
+def test_deleting_the_account_disconnects_its_chats(seeded_user):
+    """A link outliving the account would leave the bot still recognising
+    a number whose account is gone."""
+    from services import chat_link_service
+
+    _link_a_chat()
+
+    counts = purge_user_data(USER_ID)
+
+    assert counts[privacy.CHAT_LINKS_COLLECTION] == 1
+    assert chat_link_service.resolve_user_id("telegram", "500100") is None
+
+
+def test_deleting_the_account_revokes_outstanding_link_codes(seeded_user):
+    from services import chat_link_service
+
+    code = chat_link_service.issue_link_code(USER_ID, "telegram")["code"]
+
+    purge_user_data(USER_ID)
+
+    assert chat_link_service.redeem_link_code("telegram", "500200", code) is None
+
+
+def test_another_users_chat_link_survives_the_purge(seeded_user):
+    from services import chat_link_service
+
+    _link_a_chat()
+    _link_a_chat(user_id=OTHER_USER_ID, chat_id="500300")
+
+    purge_user_data(USER_ID)
+
+    assert chat_link_service.resolve_user_id("telegram", "500300") == OTHER_USER_ID
+
+
 def test_delete_account_revokes_refresh_tokens(seeded_user):
     from core.auth import create_refresh_token, refresh_token_store, verify_refresh_token
 
