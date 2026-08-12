@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 /**
  * Shown for any URL the router doesn't recognize.
@@ -16,6 +17,7 @@ import { useTranslation } from 'react-i18next';
  * requested and a bug report can quote it.
  */
 export function NotFoundPage() {
+  useDocumentMeta('meta.notFound.title', 'meta.notFound.description');
   const { t } = useTranslation();
   const location = useLocation();
 

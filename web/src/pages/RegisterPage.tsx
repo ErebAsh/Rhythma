@@ -9,8 +9,10 @@ import {
   evaluatePassword,
   serverPasswordFailures,
 } from '../lib/password';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 export function RegisterPage() {
+  useDocumentMeta('meta.register.title', 'meta.register.description');
   const { t } = useTranslation();
   const { register } = useAuth();
   const navigate = useNavigate();

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
 import { fetchDashboard, fetchProfile, patchProfile, type DashboardData, type Profile } from '../api/endpoints';
 import { cycleSpread, formatSpread } from '../lib/cycleStats';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 const AVATAR_COLORS = ['#AA3BFF', '#E07AAD', '#52B3B0', '#E8946A', '#6A98E8', '#B3528A'];
 
@@ -16,6 +17,7 @@ function phasePill(day: number | null, t: (k: string) => string): string {
 }
 
 export function ProfilePage() {
+  useDocumentMeta('meta.profile.title', 'meta.profile.description');
   const { t } = useTranslation();
   const { user } = useAuth();
 

@@ -404,7 +404,15 @@ export interface AccessLogEntry {
  * cycle-history endpoint returns (#331); declared separately rather than
  * shared so the two can diverge without one silently changing the other.
  */
-export interface AccessLogPageInfo {
+/**
+ * The paging envelope every list endpoint returns.
+ *
+ * Named generically because four endpoints now share it — cycle history,
+ * the access log, and (as of #406) the provider patient and consent lists.
+ * `AccessLogPageInfo` remains as an alias so nothing that imports it has
+ * to change.
+ */
+export interface PageInfo {
   limit: number;
   offset: number;
   count: number;
@@ -412,9 +420,11 @@ export interface AccessLogPageInfo {
   nextOffset: number | null;
 }
 
+export type AccessLogPageInfo = PageInfo;
+
 export interface AccessLogPage {
   entries: AccessLogEntry[];
-  page: AccessLogPageInfo;
+  page: PageInfo;
 }
 
 export interface ProviderPatientSummary {
@@ -481,9 +491,49 @@ export async function grantConsent(providerEmail: string): Promise<Consent> {
   return response.data;
 }
 
+export interface ConsentPage {
+  consents: Consent[];
+  page: PageInfo;
+}
+
+/**
+ * One page of the patient's consents, newest first.
+ *
+ * The server bounds `limit` at 100 and defaults to 20 (#406). Asking for a
+ * page explicitly rather than relying on that default is what stops #349
+ * happening again — there, the client assumed a limit the server did not
+ * agree with, and the calendar silently rendered empty.
+ */
+export async function fetchConsentPage(limit = 20, offset = 0): Promise<ConsentPage> {
+  const response = await apiClient.get<ConsentPage>('/provider/consents', {
+    params: { limit, offset },
+  });
+  return response.data;
+}
+
+/**
+ * Every consent, by following the pages.
+ *
+ * The Sharing screen shows a patient the complete list of who can see her
+ * data — a truncated answer to that question is a wrong answer, so this
+ * walks to the end rather than showing the first page. The walk is bounded
+ * so a server that always reports `hasMore` cannot spin here forever.
+ */
 export async function fetchConsents(): Promise<Consent[]> {
-  const response = await apiClient.get<{ consents: Consent[] }>('/provider/consents');
-  return response.data.consents;
+  const PAGE_SIZE = 100;
+  const MAX_PAGES = 50;
+
+  const all: Consent[] = [];
+  let offset = 0;
+
+  for (let pages = 0; pages < MAX_PAGES; pages += 1) {
+    const page = await fetchConsentPage(PAGE_SIZE, offset);
+    all.push(...page.consents);
+    if (!page.page?.hasMore || page.page.nextOffset === null) break;
+    offset = page.page.nextOffset;
+  }
+
+  return all;
 }
 
 export async function revokeConsent(consentId: string): Promise<Consent> {
@@ -496,11 +546,33 @@ export async function fetchProviderProfile(): Promise<ProviderProfile> {
   return response.data;
 }
 
+export interface ProviderPatientPage {
+  patients: ProviderPatientSummary[];
+  page: PageInfo;
+}
+
+/**
+ * One page of the provider's consented patients, newest share first.
+ *
+ * Paged on the server since #406, and paged here rather than walked to the
+ * end on purpose: unlike the consent list, each row costs the backend a
+ * profile read, a scoring pass and an access-log write, so fetching every
+ * page would put the cost this endpoint was bounded to avoid straight back.
+ * The dashboard shows a page and offers "load more".
+ */
+export async function fetchProviderPatientPage(
+  limit = 20,
+  offset = 0,
+): Promise<ProviderPatientPage> {
+  const response = await apiClient.get<ProviderPatientPage>('/provider/patients', {
+    params: { limit, offset },
+  });
+  return response.data;
+}
+
 export async function fetchProviderPatients(): Promise<ProviderPatientSummary[]> {
-  const response = await apiClient.get<{ patients: ProviderPatientSummary[] }>(
-    '/provider/patients',
-  );
-  return response.data.patients;
+  const page = await fetchProviderPatientPage();
+  return page.patients;
 }
 
 /**

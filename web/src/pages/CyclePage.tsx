@@ -21,6 +21,7 @@ import {
   toISODate,
   type CyclePhase,
 } from '../lib/dates';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 interface OptionDef {
   value: string;
@@ -81,6 +82,7 @@ function phaseLabel(t: (k: string) => string, phase: CyclePhase): string {
 }
 
 export function CyclePage() {
+  useDocumentMeta('meta.cycle.title', 'meta.cycle.description');
   const { t } = useTranslation();
   const { user } = useAuth();
 

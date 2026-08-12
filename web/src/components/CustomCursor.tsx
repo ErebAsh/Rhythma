@@ -68,14 +68,19 @@ export function CustomCursor() {
 
   if (isTouchDevice) return null;
 
+  // Purely decorative — two divs that trail the pointer. Without
+  // `aria-hidden` a screen reader walks into them as unlabelled nodes in
+  // the middle of the page content (#409).
   return (
     <>
       <div
         ref={dotRef}
+        aria-hidden="true"
         className={`custom-cursor-dot ${isVisible ? 'is-visible' : ''} ${isClicking ? 'is-clicking' : ''}`}
       />
       <div
         ref={ringRef}
+        aria-hidden="true"
         className={`custom-cursor-ring ${isVisible ? 'is-visible' : ''} ${isPointer ? 'is-pointer' : ''} ${isClicking ? 'is-clicking' : ''}`}
       />
     </>
