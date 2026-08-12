@@ -4,10 +4,12 @@ import { useAuth } from '../auth/useAuth';
 import {
   deleteCycleLog,
   fetchCycleHistoryRange,
+  fetchPredictions,
   fetchProfile,
   submitCycleLog,
   type CycleLogEntry,
   type CycleLogInput,
+  type PredictionResponse,
 } from '../api/endpoints';
 import {
   addMonths,
@@ -15,12 +17,14 @@ import {
   formatMonthYear,
   isSameDay,
   monthWindow,
+  parseISODate,
   PHASE_COLORS,
   phaseFor,
   startOfMonth,
   toISODate,
   type CyclePhase,
 } from '../lib/dates';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 interface OptionDef {
   value: string;
@@ -81,6 +85,7 @@ function phaseLabel(t: (k: string) => string, phase: CyclePhase): string {
 }
 
 export function CyclePage() {
+  useDocumentMeta('meta.cycle.title', 'meta.cycle.description');
   const { t } = useTranslation();
   const { user } = useAuth();
 
@@ -89,6 +94,7 @@ export function CyclePage() {
   const [displayedMonth, setDisplayedMonth] = useState<Date>(startOfMonth(today));
   const [logs, setLogs] = useState<Map<string, CycleLogEntry>>(new Map());
   const [lastPeriod, setLastPeriod] = useState<string | null>(null);
+  const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -118,10 +124,16 @@ export function CyclePage() {
     if (!userId) return;
     setLoading(true);
     try {
-      const [history, profile] = await Promise.all([
+      // Predictions are fetched alongside the history and allowed to fail
+      // on their own. The calendar is this page's job; the outlook card is
+      // an addition to it, and losing the addition must not blank the
+      // month (#419).
+      const [history, profile, forecast] = await Promise.all([
         fetchCycleHistoryRange(userId, loadedWindow.start, loadedWindow.end),
         fetchProfile().catch(() => null),
+        fetchPredictions().catch(() => null),
       ]);
+      setPrediction(forecast);
       const map = new Map<string, CycleLogEntry>();
       for (const entry of history) {
         if (!entry.start_date) continue;
@@ -233,7 +245,17 @@ export function CyclePage() {
 
   const shiftMonth = (delta: number) => setDisplayedMonth((m) => addMonths(m, delta));
 
-  const selectedPhase = phaseFor(selectedDate, lastPeriod);
+  // The server's estimate, not a hardcoded 28. Falls through to the
+  // library default when there is no prediction, which is what the
+  // calendar did unconditionally before.
+  const estimatedCycleLength = prediction?.cycleLength?.days;
+
+  // `lastPeriodStart` from the prediction beats `last_period` from the
+  // profile: the profile field is what the user typed at onboarding and
+  // is never updated again, so once she has logged a period it is stale.
+  const anchorPeriod = prediction?.lastPeriodStart ?? lastPeriod;
+
+  const selectedPhase = phaseFor(selectedDate, anchorPeriod, estimatedCycleLength);
 
   const cells = useMemo(() => {
     const first = startOfMonth(displayedMonth);
@@ -266,6 +288,76 @@ export function CyclePage() {
         </p>
       ) : null}
 
+      {/* The outlook, from `GET /cycle/predictions` — an endpoint no
+          client had ever called (#419). Everything in it is computed
+          server-side from the same logs the calendar below renders. */}
+      {prediction ? (
+        <section className="glass-card outlook-card">
+          <div className="trend-heading">
+            <p className="card-label">{t('prediction.outlookLabel')}</p>
+            <span className={`status-pill phase-${prediction.phase}`}>
+              {t(`prediction.phase.${prediction.phase}`)}
+            </span>
+          </div>
+
+          <div className="stat-row">
+            <div className="stat-cell">
+              <span className="stat-label">{t('prediction.cycleDay')}</span>
+              <span className="stat-value">{prediction.currentCycleDay ?? '—'}</span>
+            </div>
+            <div className="stat-cell">
+              <span className="stat-label">
+                {prediction.isOverdue ? t('prediction.overdueLabel') : t('home.nextPeriod')}
+              </span>
+              <span className={`stat-value${prediction.isOverdue ? ' is-overdue' : ''}`}>
+                {prediction.isOverdue
+                  ? t('prediction.daysLate', { count: prediction.daysOverdue })
+                  : (prediction.daysUntilNextPeriod ?? '—')}
+              </span>
+            </div>
+            <div className="stat-cell">
+              <span className="stat-label">{t('prediction.estimatedLength')}</span>
+              <span className="stat-value">{prediction.cycleLength.days}</span>
+            </div>
+          </div>
+
+          <p className="prediction-source">
+            {t(`prediction.source.${prediction.cycleLength.source}`)} ·{' '}
+            {t(`prediction.confidence.${prediction.cycleLength.confidence}`)}
+          </p>
+
+          {prediction.ovulation?.date ? (
+            <p className="card-sub">
+              {t('prediction.ovulation', {
+                date: formatDayMonth(parseISODate(prediction.ovulation.date)),
+              })}
+            </p>
+          ) : null}
+
+          {prediction.fertileWindow?.start && prediction.fertileWindow?.end ? (
+            <p className="fertile-window">
+              {t('prediction.fertileWindow', {
+                from: formatDayMonth(parseISODate(prediction.fertileWindow.start)),
+                to: formatDayMonth(parseISODate(prediction.fertileWindow.end)),
+              })}
+            </p>
+          ) : null}
+
+          {prediction.upcomingPeriods?.length > 0 ? (
+            <p className="card-sub">
+              {t('prediction.upcoming')}:{' '}
+              {prediction.upcomingPeriods
+                .map((iso) => formatDayMonth(parseISODate(iso)))
+                .join(' · ')}
+            </p>
+          ) : null}
+
+          {/* The server's own wording. It is the sentence that has to be
+              right, so it is not paraphrased here. */}
+          <p className="fertile-window-disclaimer">{prediction.disclaimer}</p>
+        </section>
+      ) : null}
+
       <section className="glass-card calendar-card">
         <div className="calendar-toolbar">
           <div className="month-nav">
@@ -294,7 +386,7 @@ export function CyclePage() {
           {cells.map((date, i) => {
             if (!date) return <span key={i} className="day-cell empty" />;
             const iso = toISODate(date);
-            const phase = phaseFor(date, lastPeriod);
+            const phase = phaseFor(date, anchorPeriod, estimatedCycleLength);
             const isFuture = date > today;
             const isSelected = isSameDay(date, selectedDate);
             const isToday = isSameDay(date, today);

@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
 import { fetchDashboard, submitCycleLog, type CycleLogInput, type DashboardData } from '../api/endpoints';
 import { ScoreRing } from '../components/charts';
+import { PredictionCard } from '../components/PredictionCard';
 import { toISODate } from '../lib/dates';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 type QuickField = 'flow_intensity' | 'mood' | 'sleep_hours' | 'stress_level';
 
@@ -63,6 +65,7 @@ const QUICK_TILES: QuickTileDef[] = [
 ];
 
 export function HomePage() {
+  useDocumentMeta('meta.home.title', 'meta.home.description');
   const { t } = useTranslation();
   const { user } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
@@ -139,12 +142,12 @@ export function HomePage() {
       <section className="glass-card cycle-card">
         <div className="cycle-card-top">
           <ScoreRing value={total > 0 ? (day / total) * 100 : 0} size={120} label={t('home.cycleDay', { day, total })} />
+          {/* Was a single clamped number and a fixed "Fertile window +
+              High energy" string that showed on every cycle day whether
+              or not it was true. Both now come from the server's
+              `prediction` (#419). */}
           <div className="cycle-card-info">
-            <p className="card-label">{t('home.nextPeriod')}</p>
-            <p className="cycle-next-number">{nextPeriod == null ? '—' : nextPeriod}</p>
-            <p className="card-sub">{t('home.days')}</p>
-            <p className="fertile-window">{t('home.fertileWindow')}</p>
-            <p className="fertile-window-disclaimer">{t('home.fertileWindowDisclaimer')}</p>
+            <PredictionCard prediction={data?.prediction} fallbackDays={nextPeriod} />
           </div>
         </div>
 

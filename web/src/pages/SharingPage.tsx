@@ -8,6 +8,7 @@ import {
   type AccessLogEntry,
   type Consent,
 } from '../api/endpoints';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
@@ -44,6 +45,7 @@ function accessSummary(
 }
 
 export function SharingPage() {
+  useDocumentMeta('meta.sharing.title', 'meta.sharing.description');
   const { t } = useTranslation();
 
   const [consents, setConsents] = useState<Consent[]>([]);

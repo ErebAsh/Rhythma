@@ -37,6 +37,7 @@ from api.bot import router as bot_router
 from core.errors import register_exception_handlers
 from core.middleware import RequestContextMiddleware
 from core.request_context import REQUEST_ID_HEADER
+from core.security_headers import SecurityHeadersMiddleware
 from services.health_check_service import build_info, run_checks
 
 from utils.logger import logger
@@ -72,6 +73,27 @@ async def lifespan(app: FastAPI):
             )
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning(f"Startup health check could not run: {exc}")
+
+    # Expired auth tokens are dropped when they are read, and a token
+    # nobody presents again is never read — so before #417 moved these
+    # out of process memory the store only ever grew. One sweep at
+    # startup keeps the collection bounded without needing a scheduled
+    # job, and it is cheap: the rows it walks are the ones already past
+    # their expiry.
+    #
+    # Imported here rather than at module level. `main.py`'s import block
+    # is where every feature branch adds its one line, so they collide on
+    # merge over nothing but adjacency; this is the only place in the
+    # module that uses the store, and `api/sms.py` already imports its
+    # client the same way.
+    from services import token_store
+
+    try:
+        removed = token_store.purge_expired()
+        if removed:
+            logger.info(f"Swept {removed} expired auth token(s) at startup.")
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning(f"Could not sweep expired auth tokens: {exc}")
 
     yield
     logger.info("Rhythma backend shutting down.")
@@ -114,6 +136,13 @@ else:
 # it — CORS preflight (OPTIONS) is then answered without generating an access
 # log line, while every real request still gets an id before any handler runs.
 app.add_middleware(RequestContextMiddleware)
+
+# Security headers sit between the two (#405): inside CORS, so a preflight is
+# still answered by CORSMiddleware without being decorated — the browser reads
+# a preflight response itself and never renders it — and outside the request
+# context middleware, so the headers land on the error envelope too. Every
+# response, including a 500, passes through here.
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

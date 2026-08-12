@@ -64,7 +64,6 @@ def _ensure_firebase_mock():
     sys.modules["firebase_admin.auth"] = mock_firebase_auth
 
 from api.sms import sms_history
-from api.assistant import _assistant_rate_history
 from core.auth import refresh_token_store, reset_token_store, verification_token_store
 
 @pytest.fixture(autouse=True)
@@ -72,7 +71,6 @@ def clear_state():
     client.cookies.clear()
 
     sms_history.clear()
-    _assistant_rate_history.clear()
 
     refresh_token_store.clear()
     reset_token_store.clear()

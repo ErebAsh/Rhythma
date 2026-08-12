@@ -1,4 +1,72 @@
 {
+  "meta": {
+    "appName": "Rhythma",
+    "home": {
+      "title": "Rhythma",
+      "description": "Your cycle at a glance — where you are today, what's coming, and what your own logs show."
+    },
+    "cycle": {
+      "title": "Cycle",
+      "description": "Log today's period, flow, mood and symptoms, and browse your cycle calendar."
+    },
+    "assistant": {
+      "title": "Assistant",
+      "description": "Ask about periods, symptoms and reproductive health, and get answers grounded in sourced medical references."
+    },
+    "insights": {
+      "title": "Insights",
+      "description": "What your logged cycles actually show — average length, consistency, and patterns worth noticing."
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Your cycle details and personal information."
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Language, notifications and account preferences."
+    },
+    "sharing": {
+      "title": "Sharing",
+      "description": "Choose which healthcare providers can see your data, and see who has viewed it."
+    },
+    "sms": {
+      "title": "SMS summaries",
+      "description": "Get your cycle summary by text message, for when you are offline."
+    },
+    "login": {
+      "title": "Sign in",
+      "description": "Sign in to Rhythma."
+    },
+    "register": {
+      "title": "Create account",
+      "description": "Create your Rhythma account."
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "This page does not exist."
+    },
+    "providerDashboard": {
+      "title": "Patient dashboard",
+      "description": "Patients who have shared their data with you."
+    },
+    "providerPatient": {
+      "title": "Patient",
+      "description": "The cycle data this patient has shared with you."
+    },
+    "providerLogin": {
+      "title": "Provider sign in",
+      "description": "Sign in to the Rhythma provider dashboard."
+    },
+    "providerRegister": {
+      "title": "Provider registration",
+      "description": "Register as a healthcare provider on Rhythma."
+    }
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "scrollToTop": "Scroll to top",
+    "navigatedTo": "{{page}} page"
+  },
   "auth": {
     "loginTitle": "Log in to Rhythma",
     "registerTitle": "Create your account",
@@ -117,6 +185,36 @@
     "backPain": "Back Pain",
     "loadFailed": "Couldn't load your logs for this month.",
     "retry": "Try again"
+  },
+  "prediction": {
+    "outlookLabel": "சுழற்சி முன்னறிவிப்பு",
+    "cycleDay": "சுழற்சி நாள்",
+    "estimatedLength": "மதிப்பிட்ட நீளம்",
+    "overdueLabel": "மாதவிடாய் தாமதம்",
+    "daysLate": "{{count}} நாட்கள் தாமதம்",
+    "dueToday": "இன்று எதிர்பார்க்கப்படுகிறது",
+    "range": "{{from}} முதல் {{to}} வரை",
+    "ovulation": "கருமுட்டை வெளியீடு சுமார் {{date}} அன்று எதிர்பார்க்கப்படுகிறது",
+    "fertileWindow": "கருவுறு காலம் {{from}} – {{to}} (மதிப்பீடு, கருத்தடை அல்ல)",
+    "upcoming": "அடுத்து எதிர்பார்க்கப்படுவது",
+    "phase": {
+      "period": "மாதவிடாய்",
+      "follicular": "நுண்ணறை நிலை",
+      "ovulation": "கருமுட்டை வெளியீடு",
+      "luteal": "மஞ்சள் உடல் நிலை",
+      "late": "வழக்கத்தை விட நீளம்",
+      "unknown": "போதிய தரவு இல்லை"
+    },
+    "confidence": {
+      "high": "அதிக நம்பகத்தன்மை",
+      "medium": "நடுத்தர நம்பகத்தன்மை",
+      "low": "குறைந்த நம்பகத்தன்மை"
+    },
+    "source": {
+      "logged_history": "நீங்கள் பதிவு செய்த சுழற்சிகளின் அடிப்படையில்",
+      "declared_cycle_length": "நீங்கள் அளித்த சுழற்சி நீளத்தின் அடிப்படையில்",
+      "population_default": "வழக்கமான 28-நாள் சுழற்சியின் அடிப்படையில் — இதை உங்களுடையதாக்க ஒரு மாதவிடாயைப் பதிவு செய்யுங்கள்"
+    }
   },
   "assistant": {
     "title": "AI Assistant",
@@ -286,6 +384,7 @@
     "cvi": "CVI",
     "cyclesLogged": "{{count}} cycles",
     "viewPatient": "View patient",
+    "loadMore": "Load more patients",
     "loadError": "Couldn't load your patients."
   },
   "providerPatient": {

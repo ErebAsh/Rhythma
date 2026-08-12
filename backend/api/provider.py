@@ -48,7 +48,14 @@ from core.rate_limits import (
 )
 from services import access_log_service
 from services.firestore_service import UserService
-from services.provider_service import ConsentService, ProviderService
+from services.provider_service import (
+    DEFAULT_CONSENTS_PAGE,
+    DEFAULT_PATIENTS_PAGE,
+    MAX_CONSENTS_PAGE,
+    MAX_PATIENTS_PAGE,
+    ConsentService,
+    ProviderService,
+)
 
 router = APIRouter(tags=["Provider Dashboard"])
 
@@ -299,8 +306,17 @@ async def grant_consent(
 
 
 @router.get("/consents")
-async def list_consents(current_user: dict = Depends(get_current_user)):
-    """A patient lists everyone she has shared data with.
+async def list_consents(
+    limit: int = Query(
+        DEFAULT_CONSENTS_PAGE,
+        ge=1,
+        le=MAX_CONSENTS_PAGE,
+        description="How many consents to return (1-100).",
+    ),
+    offset: int = Query(0, ge=0, description="How many consents to skip."),
+    current_user: dict = Depends(get_current_user),
+):
+    """A patient lists everyone she has shared data with, newest first.
 
     Each consent carries ``viewCount`` and ``lastAccessedAt`` (issue
     #350). Folded in here rather than served separately so the Sharing
@@ -308,9 +324,16 @@ async def list_consents(current_user: dict = Depends(get_current_user)):
     without a second round trip — and because permission and use belong
     on the same row. Knowing who *could* look is only half of what a
     patient needs; knowing who *did* is the half that lets her act.
+
+    Paged the same way cycle history and the access log are (#331, #406).
+    The enrichment runs over the page rather than the whole list, so the
+    ``summary_for_patient`` join does not grow with a patient's history of
+    revoked consents.
     """
     _require_role(current_user, "patient")
-    consents = ConsentService.list_for_patient(current_user["id"])
+    consents, has_more = ConsentService.list_page_for_patient(
+        current_user["id"], limit=limit, offset=offset
+    )
     access = access_log_service.summary_for_patient(current_user["id"])
 
     for consent in consents:
@@ -318,7 +341,16 @@ async def list_consents(current_user: dict = Depends(get_current_user)):
         consent["viewCount"] = stats.get("viewCount", 0)
         consent["lastAccessedAt"] = stats.get("lastAccessedAt")
 
-    return {"consents": consents}
+    return {
+        "consents": consents,
+        "page": {
+            "limit": limit,
+            "offset": offset,
+            "count": len(consents),
+            "hasMore": has_more,
+            "nextOffset": offset + len(consents) if has_more else None,
+        },
+    }
 
 
 @router.get("/access-log")
@@ -373,10 +405,42 @@ async def revoke_consent(
 
 
 @router.get("/patients")
-async def list_patients(current_user: dict = Depends(get_current_user)):
-    """Providers see only patients with an active consent."""
+async def list_patients(
+    limit: int = Query(
+        DEFAULT_PATIENTS_PAGE,
+        ge=1,
+        le=MAX_PATIENTS_PAGE,
+        description="How many patients to return (1-100).",
+    ),
+    offset: int = Query(0, ge=0, description="How many patients to skip."),
+    current_user: dict = Depends(get_current_user),
+):
+    """Providers see only patients with an active consent, newest share first.
+
+    Paged (#406). This endpoint had no ceiling of any kind, and it is the
+    most expensive list in the API to serve: each card costs a profile
+    read, a scoring pass over that patient's cycle logs, and an access-log
+    write. A clinic-scale roster turned one dashboard render into hundreds
+    of Firestore operations, growing with every new consent.
+
+    The slice is applied to the consents before that fan-out begins, so
+    the cost of a page is the size of the page rather than the size of the
+    roster.
+    """
     _require_role(current_user, "provider")
-    return {"patients": ProviderService.patient_summaries(current_user["id"])}
+    patients, has_more = ProviderService.patient_summaries_page(
+        current_user["id"], limit=limit, offset=offset
+    )
+    return {
+        "patients": patients,
+        "page": {
+            "limit": limit,
+            "offset": offset,
+            "count": len(patients),
+            "hasMore": has_more,
+            "nextOffset": offset + len(patients) if has_more else None,
+        },
+    }
 
 
 @router.get("/patients/{patient_id}")

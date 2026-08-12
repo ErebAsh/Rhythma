@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
 import { sendChatMessage, type ChatMessage } from '../api/endpoints';
 import { toAssistantLanguage } from '../lib/language';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 interface UiMessage {
   role: 'user' | 'model';
@@ -57,6 +58,7 @@ function friendlyError(error: unknown, t: (k: string) => string): string {
 }
 
 export function AssistantPage() {
+  useDocumentMeta('meta.assistant.title', 'meta.assistant.description');
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
 

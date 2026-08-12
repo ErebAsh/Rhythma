@@ -1,15 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const fetchCycleHistoryRange = vi.fn();
 const fetchProfile = vi.fn();
+const fetchPredictions = vi.fn();
 const submitCycleLog = vi.fn();
 const deleteCycleLog = vi.fn();
 
 vi.mock('../api/endpoints', () => ({
   fetchCycleHistoryRange: (...args: unknown[]) => fetchCycleHistoryRange(...args),
   fetchProfile: (...args: unknown[]) => fetchProfile(...args),
+  fetchPredictions: (...args: unknown[]) => fetchPredictions(...args),
   submitCycleLog: (...args: unknown[]) => submitCycleLog(...args),
   deleteCycleLog: (...args: unknown[]) => deleteCycleLog(...args),
 }));
@@ -39,6 +41,9 @@ beforeEach(() => {
   vi.clearAllMocks();
   fetchCycleHistoryRange.mockResolvedValue([]);
   fetchProfile.mockResolvedValue({ last_period: null });
+  // Null by default: the outlook card is an addition, and every test
+  // written before it should still describe a page without one.
+  fetchPredictions.mockResolvedValue(null);
 });
 
 describe('CyclePage loading and data fetch', () => {
@@ -314,5 +319,96 @@ describe('CyclePage error states', () => {
 
     await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
     expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+  });
+});
+
+describe('cycle outlook (issue #419)', () => {
+  function forecast(overrides: Record<string, unknown> = {}) {
+    return {
+      today: '2026-05-13',
+      cycleLength: {
+        days: 30,
+        source: 'logged_history',
+        confidence: 'high',
+        sampleSize: 5,
+        spreadDays: 1.4,
+        excludedCycleLengths: [],
+      },
+      lastPeriodStart: '2026-05-01',
+      currentCycleDay: 13,
+      phase: 'ovulation',
+      nextPeriodDate: '2026-05-31',
+      daysUntilNextPeriod: 18,
+      isOverdue: false,
+      daysOverdue: 0,
+      predictedRange: { earliest: '2026-05-29', latest: '2026-06-02' },
+      ovulation: { date: '2026-05-17', isEstimate: true },
+      fertileWindow: {
+        start: '2026-05-12',
+        end: '2026-05-18',
+        isEstimate: true,
+        notForContraception: true,
+      },
+      upcomingPeriods: ['2026-05-31', '2026-06-30'],
+      confidence: 'high',
+      disclaimer:
+        'Predictions are estimates based on the dates you have logged. They are not a medical or contraceptive tool.',
+      ...overrides,
+    };
+  }
+
+  it('renders the outlook from GET /cycle/predictions', async () => {
+    fetchPredictions.mockResolvedValue(forecast());
+
+    renderWithProviders(<CyclePage />);
+
+    const outlook = (await screen.findByText(/cycle outlook/i)).closest('section');
+    expect(outlook).not.toBeNull();
+    // Scoped to the card: the calendar below renders day numbers too.
+    expect(within(outlook!).getByText('13')).toBeInTheDocument();
+    expect(within(outlook!).getByText('30')).toBeInTheDocument();
+  });
+
+  it('shows ovulation and the fertile window with dates', async () => {
+    fetchPredictions.mockResolvedValue(forecast());
+
+    renderWithProviders(<CyclePage />);
+
+    expect(await screen.findByText(/Ovulation estimated around/i)).toBeInTheDocument();
+    expect(screen.getByText(/Fertile window/i)).toBeInTheDocument();
+  });
+
+  it("uses the server's own disclaimer wording", async () => {
+    // It is the sentence that has to be right, so it is not paraphrased
+    // in the client.
+    fetchPredictions.mockResolvedValue(forecast());
+
+    renderWithProviders(<CyclePage />);
+
+    expect(
+      await screen.findByText(/not a medical or contraceptive tool/i),
+    ).toBeInTheDocument();
+  });
+
+  it('says a period is late instead of counting down to it', async () => {
+    fetchPredictions.mockResolvedValue(
+      forecast({ isOverdue: true, daysOverdue: 3, daysUntilNextPeriod: -3, phase: 'late' }),
+    );
+
+    renderWithProviders(<CyclePage />);
+
+    expect(await screen.findByText(/3 days late/i)).toBeInTheDocument();
+    expect(screen.getByText(/running long/i)).toBeInTheDocument();
+  });
+
+  it('still renders the calendar when the prediction call fails', async () => {
+    // The calendar is this page's job; the outlook is an addition to it.
+    fetchPredictions.mockRejectedValue(new Error('offline'));
+
+    renderWithProviders(<CyclePage />);
+
+    await waitFor(() => expect(fetchCycleHistoryRange).toHaveBeenCalled());
+    expect(screen.queryByText(/cycle outlook/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/couldn.t load/i)).not.toBeInTheDocument();
   });
 });

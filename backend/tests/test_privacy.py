@@ -326,10 +326,21 @@ def test_token_is_single_use():
 
 
 def test_token_expires():
+    from services import token_store
+
     token, _ = issue_deletion_token(USER_ID)
-    privacy._deletion_tokens[USER_ID]["expires_at"] = datetime.now(
-        timezone.utc
-    ) - timedelta(seconds=1)
+
+    # Backdating the stored expiry beats sleeping for the TTL. Written
+    # through the store rather than by mutating a dict in place, since
+    # #417 moved these out of process memory.
+    doc_id = token_store.document_id(token_store.KIND_ACCOUNT_DELETION, USER_ID)
+    collection = fs.db.collection(token_store.TOKENS_COLLECTION)
+    stored = collection.document(doc_id).get().to_dict()
+    stored["expires_at"] = (
+        datetime.now(timezone.utc) - timedelta(seconds=1)
+    ).isoformat()
+    collection.document(doc_id).set(stored)
+
     assert verify_deletion_token(USER_ID, token) is False
 
 
@@ -394,6 +405,68 @@ def test_purge_covers_every_registered_collection(seeded_user):
     never actually deleted."""
     counts = purge_user_data(USER_ID)
     assert set(counts) == set(privacy.USER_DATA_COLLECTIONS)
+
+
+# ─── Connected chats (issue #416) ─────────────────────────────────────────
+
+
+def _link_a_chat(user_id=USER_ID, channel="telegram", chat_id="500100"):
+    from services import chat_link_service
+
+    code = chat_link_service.issue_link_code(user_id, channel)["code"]
+    assert chat_link_service.redeem_link_code(channel, chat_id, code) == user_id
+
+
+def test_summary_counts_connected_chats(seeded_user):
+    _link_a_chat()
+
+    by_key = {c["key"]: c for c in build_data_summary(USER_ID)["categories"]}
+
+    assert by_key["chat_links"]["recordCount"] == 1
+    assert "chat_id" in by_key["chat_links"]["storedFields"]
+
+
+def test_export_includes_connected_chats(seeded_user):
+    _link_a_chat()
+
+    bundle = build_export_bundle(USER_ID)
+
+    assert bundle["chat_links"]["link_count"] == 1
+    assert bundle["chat_links"]["links"][0]["chat_id"] == "500100"
+
+
+def test_deleting_the_account_disconnects_its_chats(seeded_user):
+    """A link outliving the account would leave the bot still recognising
+    a number whose account is gone."""
+    from services import chat_link_service
+
+    _link_a_chat()
+
+    counts = purge_user_data(USER_ID)
+
+    assert counts[privacy.CHAT_LINKS_COLLECTION] == 1
+    assert chat_link_service.resolve_user_id("telegram", "500100") is None
+
+
+def test_deleting_the_account_revokes_outstanding_link_codes(seeded_user):
+    from services import chat_link_service
+
+    code = chat_link_service.issue_link_code(USER_ID, "telegram")["code"]
+
+    purge_user_data(USER_ID)
+
+    assert chat_link_service.redeem_link_code("telegram", "500200", code) is None
+
+
+def test_another_users_chat_link_survives_the_purge(seeded_user):
+    from services import chat_link_service
+
+    _link_a_chat()
+    _link_a_chat(user_id=OTHER_USER_ID, chat_id="500300")
+
+    purge_user_data(USER_ID)
+
+    assert chat_link_service.resolve_user_id("telegram", "500300") == OTHER_USER_ID
 
 
 def test_delete_account_revokes_refresh_tokens(seeded_user):

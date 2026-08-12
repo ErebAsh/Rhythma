@@ -15,6 +15,15 @@ import 'app_localizations_mr.dart';
 import 'app_localizations_ta.dart';
 import 'app_localizations_te.dart';
 
+import 'app_localizations_as.dart';
+import 'app_localizations_ks.dart';
+import 'app_localizations_mai.dart';
+import 'app_localizations_ne.dart';
+import 'app_localizations_or.dart';
+import 'app_localizations_sat.dart';
+import 'app_localizations_sd.dart';
+import 'app_localizations_ur.dart';
+
 // ignore_for_file: type=lint
 
 /// Callers can lookup localized strings with an instance of AppLocalizations
@@ -109,7 +118,15 @@ abstract class AppLocalizations {
     Locale('ml'),
     Locale('mr'),
     Locale('ta'),
-    Locale('te')
+    Locale('te'),
+    Locale('as'),
+    Locale('ks'),
+    Locale('mai'),
+    Locale('ne'),
+    Locale('or'),
+    Locale('sat'),
+    Locale('sd'),
+    Locale('ur')
   ];
 
   /// The title of the application
@@ -1968,7 +1985,15 @@ class _AppLocalizationsDelegate
         'ml',
         'mr',
         'ta',
-        'te'
+        'te',
+        'as',
+        'ks',
+        'mai',
+        'ne',
+        'or',
+        'sat',
+        'sd',
+        'ur'
       ].contains(locale.languageCode);
 
   @override
@@ -1996,6 +2021,22 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsTa();
     case 'te':
       return AppLocalizationsTe();
+    case 'as':
+      return AppLocalizationsAs();
+    case 'ks':
+      return AppLocalizationsKs();
+    case 'mai':
+      return AppLocalizationsMai();
+    case 'ne':
+      return AppLocalizationsNe();
+    case 'or':
+      return AppLocalizationsOr();
+    case 'sat':
+      return AppLocalizationsSat();
+    case 'sd':
+      return AppLocalizationsSd();
+    case 'ur':
+      return AppLocalizationsUr();
   }
 
   throw FlutterError(

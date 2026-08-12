@@ -40,7 +40,9 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from services import access_log_service
+from services import chat_link_service
 from services import firestore_service as _firestore
+from services import token_store
 from services.firestore_service import UserService
 from utils.logger import logger
 
@@ -53,7 +55,9 @@ from utils.logger import logger
 #: 1.1 — added `provider_access_log` (issue #350). A minor bump because the
 #: change is purely additive: every 1.0 key is still present and unchanged,
 #: so a consumer written against 1.0 keeps working.
-EXPORT_SCHEMA_VERSION = "1.1"
+#:
+#: 1.2 — added `chat_links` (issue #416), additive for the same reason.
+EXPORT_SCHEMA_VERSION = "1.2"
 
 #: Every collection that can hold something attributable to a user. This is
 #: the single list that both the summary and the purge walk — a new
@@ -73,6 +77,13 @@ CONSENTS_COLLECTION = "consents"
 #: precisely what that other collection exists for.
 ACCESS_LOG_COLLECTION = "access_log"
 
+#: Chat links bind a Telegram chat or a WhatsApp number to this account
+#: (issue #416). A link holds no health data, but it is the mapping that
+#: makes a messaging identity *become* this person, so an erasure that
+#: left it behind would leave the bot still recognising her number after
+#: the account it points at is gone.
+CHAT_LINKS_COLLECTION = chat_link_service.CHAT_LINKS_COLLECTION
+
 USER_DATA_COLLECTIONS: Tuple[str, ...] = (
     USERS_COLLECTION,
     CYCLE_LOGS_COLLECTION,
@@ -80,6 +91,7 @@ USER_DATA_COLLECTIONS: Tuple[str, ...] = (
     RATE_LIMITS_COLLECTION,
     CONSENTS_COLLECTION,
     ACCESS_LOG_COLLECTION,
+    CHAT_LINKS_COLLECTION,
 )
 
 #: Collection holding deletion audit records. Deliberately *not* in
@@ -103,11 +115,14 @@ EXPORT_EXCLUDED_USER_FIELDS = frozenset({"password", "password_hash"})
 #: short enough that a token left in a log or a proxy cache is inert.
 DELETION_TOKEN_TTL_SECONDS = 300
 
-#: user_id -> {"token_hash": str, "expires_at": datetime}
-#: In-memory, matching how core.auth stores reset/verification tokens. A
-#: multi-process deployment will need this moved to Firestore alongside
-#: those — noted here rather than silently inheriting the limitation.
-_deletion_tokens: Dict[str, Dict[str, Any]] = {}
+#: Deletion confirmations live in the shared token store alongside
+#: refresh, reset and verification tokens (issue #417). They used to be a
+#: module-level dict here, with a note saying a multi-process deployment
+#: would need them moved — this is that move. A confirmation minted on
+#: one worker and submitted to another now resolves, which it did not
+#: before: the second step of the deletion flow simply failed, at random,
+#: on any deployment running more than one process.
+_deletion_tokens = token_store.TokenNamespace(token_store.KIND_ACCOUNT_DELETION)
 
 #: Columns of the flattened CSV export. Fixed and ordered so the file is
 #: diffable and importable, rather than varying with whatever keys the
@@ -289,6 +304,7 @@ def build_data_summary(user_id: str) -> Dict[str, Any]:
     rate_limit_ids = _rate_limit_doc_ids(user_id)
     consent_ids = _consent_doc_ids(user_id)
     access_count = access_log_service.count_for_patient(user_id)
+    chat_links = chat_link_service.links_for_user(user_id)
 
     identity_fields = sorted(
         field
@@ -364,13 +380,28 @@ def build_data_summary(user_id: str) -> Dict[str, Any]:
                     "of the data itself. Kept until you delete your account."
                 ),
             },
+            {
+                "key": "chat_links",
+                "label": "Connected chat accounts",
+                "recordCount": len(chat_links),
+                "storedFields": (
+                    ["channel", "chat_id", "linked_at"] if chat_links else []
+                ),
+                "collection": CHAT_LINKS_COLLECTION,
+                "retentionNote": (
+                    "Which Telegram chats or WhatsApp numbers can ask the "
+                    "bot about your cycle. Kept until you disconnect them "
+                    "or delete your account."
+                ),
+            },
         ],
         "totalRecords": (1 if user else 0)
         + len(cycle_logs)
         + (1 if message_count else 0)
         + len(rate_limit_ids)
         + len(consent_ids)
-        + access_count,
+        + access_count
+        + len(chat_links),
     }
 
 
@@ -437,6 +468,8 @@ def build_export_bundle(user_id: str) -> Dict[str, Any]:
         user_id, limit=access_log_service.count_for_patient(user_id) or 1
     )
 
+    chat_links = chat_link_service.links_for_user(user_id)
+
     return {
         "schema_version": EXPORT_SCHEMA_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -450,6 +483,17 @@ def build_export_bundle(user_id: str) -> Dict[str, Any]:
         "provider_access_log": {
             "entry_count": len(access_log),
             "entries": access_log,
+        },
+        "chat_links": {
+            "link_count": len(chat_links),
+            "links": [
+                {
+                    "channel": link.get("channel"),
+                    "chat_id": link.get("chat_id"),
+                    "linked_at": _serialize(link.get("linked_at")),
+                }
+                for link in chat_links
+            ],
         },
         "sms_settings": {
             "enabled": bool(user.get("sms_enabled", False)),
@@ -512,35 +556,35 @@ def issue_deletion_token(user_id: str) -> Tuple[str, int]:
     CSRF-style repeat of a previously observed request.
     """
     token = secrets.token_urlsafe(32)
-    _deletion_tokens[user_id] = {
-        "token_hash": _hash_token(token),
-        "expires_at": datetime.now(timezone.utc)
-        + timedelta(seconds=DELETION_TOKEN_TTL_SECONDS),
-    }
+    token_store.put(
+        token_store.KIND_ACCOUNT_DELETION,
+        user_id,
+        {"token_hash": _hash_token(token), "user_id": user_id},
+        timedelta(seconds=DELETION_TOKEN_TTL_SECONDS),
+    )
     return token, DELETION_TOKEN_TTL_SECONDS
 
 
 def verify_deletion_token(user_id: str, token: str) -> bool:
     """Check and consume a confirmation token.
 
-    Consumed on *any* outcome for a matching entry, so a leaked or
-    replayed token is good at most once.
+    Consumed on a *match*, so a leaked or replayed token is good at most
+    once. A mismatch is not consumed: burning the real token on a wrong
+    guess would let anyone who can post one bad value cancel a deletion
+    the user is halfway through.
     """
-    entry = _deletion_tokens.get(user_id)
+    entry = token_store.get(token_store.KIND_ACCOUNT_DELETION, user_id)
     if not entry:
         return False
-    if datetime.now(timezone.utc) > entry["expires_at"]:
-        _deletion_tokens.pop(user_id, None)
+    if not secrets.compare_digest(entry.get("token_hash", ""), _hash_token(token)):
         return False
-    if not secrets.compare_digest(entry["token_hash"], _hash_token(token)):
-        return False
-    _deletion_tokens.pop(user_id, None)
+    token_store.delete(token_store.KIND_ACCOUNT_DELETION, user_id)
     return True
 
 
 def clear_deletion_tokens() -> None:
-    """Test hook, mirroring core.auth's in-memory stores."""
-    _deletion_tokens.clear()
+    """Test hook, mirroring core.auth's token namespaces."""
+    token_store.clear(token_store.KIND_ACCOUNT_DELETION)
 
 
 def purge_user_data(user_id: str) -> Dict[str, int]:
@@ -582,6 +626,15 @@ def purge_user_data(user_id: str) -> Dict[str, int]:
     for doc_id in access_log_service.doc_ids_for_user(user_id):
         if _delete_doc(ACCESS_LOG_COLLECTION, doc_id):
             counts[ACCESS_LOG_COLLECTION] += 1
+
+    # Connected chats, plus any link code still outstanding (issue #416).
+    # The codes are not counted: they are unredeemed credentials with a
+    # few minutes to live, not records of anything, and reporting them as
+    # "data deleted" would inflate the receipt with noise.
+    for link in chat_link_service.links_for_user(user_id):
+        if _delete_doc(CHAT_LINKS_COLLECTION, link["id"]):
+            counts[CHAT_LINKS_COLLECTION] += 1
+    chat_link_service.revoke_codes_for(user_id)
 
     # Firebase Auth identity, before the user document is gone — the phone
     # number needed to look it up lives there.
@@ -633,6 +686,14 @@ def _write_audit_record(user_id: str, counts: Dict[str, int]) -> None:
 
 def delete_account(user_id: str) -> Dict[str, Any]:
     """Full erasure: purge every collection, revoke sessions, audit it."""
+    # Read before the purge: reset and verification tokens are filed under
+    # the account's email address, and after the user document is gone
+    # there is nothing left to look that address up from. Without this
+    # they would sit in the store until natural expiry — a live
+    # password-reset token for an account that no longer exists.
+    account = UserService.get_user_by_id(user_id) or {}
+    account_email = account.get("email")
+
     counts = purge_user_data(user_id)
 
     # Revoke refresh tokens *after* the purge: a token that survived a
@@ -644,6 +705,14 @@ def delete_account(user_id: str) -> Dict[str, Any]:
 
     revoke_all_user_refresh_tokens(user_id)
     clear_deletion_tokens_for(user_id)
+
+    if account_email:
+        from core.email_identity import normalize_email
+
+        email_key = normalize_email(account_email)
+        token_store.delete(token_store.KIND_PASSWORD_RESET, email_key)
+        token_store.delete(token_store.KIND_EMAIL_VERIFICATION, email_key)
+
     _write_audit_record(user_id, counts)
 
     return {
@@ -654,7 +723,7 @@ def delete_account(user_id: str) -> Dict[str, Any]:
 
 
 def clear_deletion_tokens_for(user_id: str) -> None:
-    _deletion_tokens.pop(user_id, None)
+    token_store.delete(token_store.KIND_ACCOUNT_DELETION, user_id)
 
 
 def deletion_record_for(user_id: str) -> Optional[Dict[str, Any]]:

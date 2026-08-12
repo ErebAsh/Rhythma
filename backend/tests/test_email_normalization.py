@@ -77,6 +77,7 @@ from core.auth import (  # noqa: E402
 )
 from core.auth_router import normalize_email as router_normalize_email  # noqa: E402
 from core.email_identity import normalize_email, same_email  # noqa: E402
+from services import token_store  # noqa: E402
 from services.firestore_service import MockFirestoreClient, UserService  # noqa: E402
 from services.rate_limit_service import RateLimitService  # noqa: E402
 
@@ -485,10 +486,33 @@ def test_verification_token_still_rejects_a_wrong_token():
     assert verify_email_token(CANONICAL, "not-the-token") is False
 
 
+def _reset_key(email):
+    """The document id a reset token for ``email`` is filed under.
+
+    The store keys on a hash of the canonical address rather than on the
+    address itself (issue #417) — a plaintext email address in a document
+    id is personal data sitting in a collection that treats none of its
+    contents as personal, which is the same reason ``core/rate_limits``
+    hashes its bucket keys. Hashing does not weaken this assertion: a
+    differently-cased address hashes differently, so an id that matches
+    proves the canonicalisation happened before the write.
+    """
+    return token_store.document_id(token_store.KIND_PASSWORD_RESET, email)
+
+
+def _verification_key(email):
+    return token_store.document_id(token_store.KIND_EMAIL_VERIFICATION, email)
+
+
 def test_reset_store_is_keyed_on_the_canonical_address():
     """Asserted directly so the key format is pinned, not just its effect."""
     generate_reset_token("  SANA@Example.com  ")
-    assert list(reset_token_store) == [CANONICAL]
+    assert list(reset_token_store) == [_reset_key(CANONICAL)]
+
+
+def test_reset_store_is_not_keyed_on_the_address_as_typed():
+    generate_reset_token("  SANA@Example.com  ")
+    assert list(reset_token_store) != [_reset_key("SANA@Example.com")]
 
 
 # ─── End-to-end through the routes ────────────────────────────────────────
@@ -508,7 +532,7 @@ def test_forgot_then_reset_with_different_capitalisation():
 
     forgot = client.post(FORGOT_URL, json={"email": "Sana@Example.com"})
     assert forgot.status_code == 200
-    assert list(reset_token_store) == [CANONICAL]
+    assert list(reset_token_store) == [_reset_key(CANONICAL)]
 
     token = generate_reset_token("SANA@EXAMPLE.COM")
 
@@ -549,7 +573,7 @@ def test_resend_verification_accepts_any_capitalisation():
     _seed_user(CANONICAL, verified=False)
     response = client.post(RESEND_URL, json={"email": "Sana@Example.com"})
     assert response.status_code == 200
-    assert list(verification_token_store) == [CANONICAL]
+    assert list(verification_token_store) == [_verification_key(CANONICAL)]
 
 
 def test_verify_email_accepts_any_capitalisation():

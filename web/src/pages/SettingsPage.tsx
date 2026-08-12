@@ -25,6 +25,7 @@ const LANGUAGE_KEY: Record<string, string> = {
 };
 
 export function SettingsPage() {
+  useDocumentMeta('meta.settings.title', 'meta.settings.description');
   const { t, i18n } = useTranslation();
   const { logout } = useAuth();
 
