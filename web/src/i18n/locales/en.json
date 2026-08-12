@@ -186,6 +186,36 @@
     "loadFailed": "Couldn't load your logs for this month.",
     "retry": "Try again"
   },
+  "prediction": {
+    "outlookLabel": "Cycle outlook",
+    "cycleDay": "Cycle day",
+    "estimatedLength": "Est. length",
+    "overdueLabel": "Period is late",
+    "daysLate": "{{count}} days late",
+    "dueToday": "expected today",
+    "range": "Between {{from}} and {{to}}",
+    "ovulation": "Ovulation estimated around {{date}}",
+    "fertileWindow": "Fertile window {{from}} – {{to}} (estimate, not contraception)",
+    "upcoming": "Also expected",
+    "phase": {
+      "period": "Period",
+      "follicular": "Follicular",
+      "ovulation": "Ovulation",
+      "luteal": "Luteal",
+      "late": "Running long",
+      "unknown": "Not enough data"
+    },
+    "confidence": {
+      "high": "High confidence",
+      "medium": "Medium confidence",
+      "low": "Low confidence"
+    },
+    "source": {
+      "logged_history": "Based on your logged cycles",
+      "declared_cycle_length": "Based on the cycle length you entered",
+      "population_default": "Based on a typical 28-day cycle — log a period to make this yours"
+    }
+  },
   "assistant": {
     "title": "AI Assistant",
     "subtitle": "Your personal health companion",

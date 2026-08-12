@@ -25,7 +25,7 @@ vi.mock('../auth/AuthContext', () => ({
 }));
 
 import { HomePage } from './HomePage';
-import { dashboardFixture, renderWithProviders } from '../test/utils';
+import { dashboardFixture, predictionFixture, renderWithProviders } from '../test/utils';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -197,5 +197,53 @@ describe('quick log', () => {
     await waitFor(() => expect(fetchDashboard).toHaveBeenCalled());
 
     expect(submitCycleLog).not.toHaveBeenCalled();
+  });
+});
+
+describe('the next-period answer (issue #419)', () => {
+  it('reports a late period rather than the clamped zero', async () => {
+    // `cycle.nextPeriodDays` is `max(avg - day, 0)`, so it is 0 here —
+    // the same value it would carry on the day the period is due. The
+    // prediction is what carries the difference.
+    fetchDashboard.mockResolvedValue(
+      dashboardFixture({
+        cycle: { day: 32, total: 28, nextPeriodDays: 0 },
+        prediction: predictionFixture({
+          isOverdue: true,
+          daysOverdue: 4,
+          daysUntilNextPeriod: -4,
+        }),
+      }),
+    );
+
+    renderWithProviders(<HomePage />);
+
+    expect(await screen.findByText(/4 days late/i)).toBeInTheDocument();
+  });
+
+  it('shows the predicted range rather than a bare date', async () => {
+    fetchDashboard.mockResolvedValue(dashboardFixture());
+
+    renderWithProviders(<HomePage />);
+
+    expect(await screen.findByText(/Between .* and .*/)).toBeInTheDocument();
+  });
+
+  it('replaces the fixed "High energy" string with real fertile dates', async () => {
+    fetchDashboard.mockResolvedValue(dashboardFixture());
+
+    renderWithProviders(<HomePage />);
+
+    expect(await screen.findByText(/Fertile window .* – .*/)).toBeInTheDocument();
+    expect(screen.queryByText(/High energy/)).not.toBeInTheDocument();
+  });
+
+  it('falls back to the legacy number against an older backend', async () => {
+    fetchDashboard.mockResolvedValue(dashboardFixture({ prediction: null }));
+
+    renderWithProviders(<HomePage />);
+
+    await waitFor(() => expect(fetchDashboard).toHaveBeenCalled());
+    expect(screen.getByText('16')).toBeInTheDocument();
   });
 });

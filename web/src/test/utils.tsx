@@ -89,11 +89,39 @@ export function observationsFixture(overrides: Record<string, unknown> = {}) {
   };
 }
 
+/**
+ * The `prediction` block `/dashboard` embeds (`dashboard_summary()`).
+ *
+ * Defaults describe a routine, not-late cycle. The interesting cases —
+ * overdue, due today, low confidence, population default — are built by
+ * overriding, so each test says in its own body which one it is about.
+ */
+export function predictionFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    nextPeriodDate: '2026-05-29',
+    daysUntilNextPeriod: 16,
+    isOverdue: false,
+    daysOverdue: 0,
+    phase: 'luteal' as const,
+    confidence: 'high' as const,
+    estimateSource: 'logged_history' as const,
+    predictedRange: { earliest: '2026-05-27', latest: '2026-05-31' },
+    fertileWindow: {
+      start: '2026-05-10',
+      end: '2026-05-16',
+      isEstimate: true,
+      notForContraception: true,
+    },
+    ...overrides,
+  };
+}
+
 /** A dashboard payload matching the backend's DashboardResponse model. */
 export function dashboardFixture(overrides: Record<string, unknown> = {}) {
   return {
     user: { name: 'Asha' },
     cycle: { day: 12, total: 28, nextPeriodDays: 16 },
+    prediction: predictionFixture(),
     insights: { averageCycleLength: 28, shortestCycleLength: 25, longestCycleLength: 31, averageBleedingDuration: 5, sleepHours: '7.4h' },
     hasEnoughDataForInsights: true,
     loggedCycleCount: 6,
