@@ -5,11 +5,24 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_bn.dart';
 import 'app_localizations_en.dart';
+import 'app_localizations_gu.dart';
 import 'app_localizations_hi.dart';
+import 'app_localizations_kn.dart';
+import 'app_localizations_ml.dart';
 import 'app_localizations_mr.dart';
 import 'app_localizations_ta.dart';
 import 'app_localizations_te.dart';
+
+import 'app_localizations_as.dart';
+import 'app_localizations_ks.dart';
+import 'app_localizations_mai.dart';
+import 'app_localizations_ne.dart';
+import 'app_localizations_or.dart';
+import 'app_localizations_sat.dart';
+import 'app_localizations_sd.dart';
+import 'app_localizations_ur.dart';
 
 // ignore_for_file: type=lint
 
@@ -97,11 +110,23 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('bn'),
     Locale('en'),
+    Locale('gu'),
     Locale('hi'),
+    Locale('kn'),
+    Locale('ml'),
     Locale('mr'),
     Locale('ta'),
-    Locale('te')
+    Locale('te'),
+    Locale('as'),
+    Locale('ks'),
+    Locale('mai'),
+    Locale('ne'),
+    Locale('or'),
+    Locale('sat'),
+    Locale('sd'),
+    Locale('ur')
   ];
 
   /// The title of the application
@@ -212,6 +237,36 @@ abstract class AppLocalizations {
   /// **'Select Language'**
   String get selectLanguage;
 
+  /// No description provided for @langEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get langEnglish;
+
+  /// No description provided for @langHindi.
+  ///
+  /// In en, this message translates to:
+  /// **'हिन्दी (Hindi)'**
+  String get langHindi;
+
+  /// No description provided for @langTamil.
+  ///
+  /// In en, this message translates to:
+  /// **'தமிழ் (Tamil)'**
+  String get langTamil;
+
+  /// No description provided for @langTelugu.
+  ///
+  /// In en, this message translates to:
+  /// **'తెలుగు (Telugu)'**
+  String get langTelugu;
+
+  /// No description provided for @langMarathi.
+  ///
+  /// In en, this message translates to:
+  /// **'मराठी (Marathi)'**
+  String get langMarathi;
+
   /// No description provided for @homeGreeting.
   ///
   /// In en, this message translates to:
@@ -247,6 +302,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'High energy'**
   String get homeHighEnergy;
+
+  /// No description provided for @homeFertileWindowDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This is an estimate based on your logged data, not medical or contraceptive advice.'**
+  String get homeFertileWindowDisclaimer;
 
   /// No description provided for @homeAiTitle.
   ///
@@ -362,6 +423,24 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get homeRetry;
 
+  /// No description provided for @homeMhs.
+  ///
+  /// In en, this message translates to:
+  /// **'MHS'**
+  String get homeMhs;
+
+  /// No description provided for @homeCvi.
+  ///
+  /// In en, this message translates to:
+  /// **'CVI'**
+  String get homeCvi;
+
+  /// No description provided for @homeSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get homeSleep;
+
   /// No description provided for @homeComingSoon.
   ///
   /// In en, this message translates to:
@@ -373,6 +452,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{topic} is currently under development.'**
   String homeUnderDevelopment(String topic);
+
+  /// No description provided for @homeErrorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your internet connection and try again.'**
+  String get homeErrorNetwork;
+
+  /// No description provided for @homeErrorAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please log in again.'**
+  String get homeErrorAuth;
+
+  /// No description provided for @homeErrorServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong on our end. Please try again later.'**
+  String get homeErrorServer;
+
+  /// No description provided for @homeErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load data. Please try again.'**
+  String get homeErrorGeneric;
+
+  /// No description provided for @homeQuickLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log {label}'**
+  String homeQuickLogTitle(String label);
+
+  /// No description provided for @homeQuickLogSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} logged: {value}'**
+  String homeQuickLogSaved(String label, String value);
 
   /// No description provided for @homePrivacySecurity.
   ///
@@ -391,6 +506,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cycle Tracker'**
   String get cycleTrackerTitle;
+
+  /// No description provided for @cycleToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get cycleToday;
 
   /// No description provided for @cyclePhasePeriod.
   ///
@@ -605,8 +726,8 @@ abstract class AppLocalizations {
   /// No description provided for @assistantWelcome.
   ///
   /// In en, this message translates to:
-  /// **'Hi Aarya 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.'**
-  String get assistantWelcome;
+  /// **'Hi {name} 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.'**
+  String assistantWelcome(String name);
 
   /// No description provided for @assistantSug1.
   ///
@@ -637,6 +758,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?'**
   String get assistantSug5;
+
+  /// No description provided for @assistantDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This assistant provides general wellness information only and is not a substitute for professional medical advice.'**
+  String get assistantDisclaimer;
 
   /// No description provided for @insightsTitle.
   ///
@@ -740,6 +867,12 @@ abstract class AppLocalizations {
   /// **'Hydrate 2.5L during ovulation week'**
   String get insightsRec3;
 
+  /// No description provided for @insightsDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.'**
+  String get insightsDisclaimer;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:
@@ -842,6 +975,12 @@ abstract class AppLocalizations {
   /// **'Save Changes'**
   String get profileSaveChanges;
 
+  /// No description provided for @profileNameEmptyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid name'**
+  String get profileNameEmptyError;
+
   /// No description provided for @profileAddContact.
   ///
   /// In en, this message translates to:
@@ -883,6 +1022,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No emergency contacts set up yet.'**
   String get profileNoContacts;
+
+  /// No description provided for @profileAgeInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid age'**
+  String get profileAgeInvalidError;
+
+  /// No description provided for @profileCycleInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid cycle length'**
+  String get profileCycleInvalidError;
+
+  /// No description provided for @profilePhoneInvalidError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid phone number'**
+  String get profilePhoneInvalidError;
+
+  /// No description provided for @contactNameRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact name is required'**
+  String get contactNameRequiredError;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @onboardingAvatarOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar Option'**
+  String get onboardingAvatarOption;
 
   /// No description provided for @navHome.
   ///
@@ -937,6 +1118,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open email app. Please email us at support@rhythma.com'**
   String get settingsEmailError;
+
+  /// No description provided for @settingsData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsData;
+
+  /// No description provided for @settingsExportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export My Data'**
+  String get settingsExportData;
+
+  /// No description provided for @settingsExportDataDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Download your profile, contacts, and cycle logs as JSON'**
+  String get settingsExportDataDesc;
+
+  /// No description provided for @settingsExportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Data exported successfully'**
+  String get settingsExportSuccess;
 
   /// No description provided for @onboardingPrivacyNote.
   ///
@@ -1094,6 +1299,12 @@ abstract class AppLocalizations {
   /// **'Phone Number (optional)'**
   String get onboardingPhoneLabel;
 
+  /// No description provided for @onboardingPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. +919876543210'**
+  String get onboardingPhoneHint;
+
   /// No description provided for @onboardingCityLabel.
   ///
   /// In en, this message translates to:
@@ -1165,6 +1376,594 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter a valid weight (20–300 kg)'**
   String get onboardingWeightInvalid;
+
+  /// No description provided for @onboardingPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use international format, e.g. +919876543210'**
+  String get onboardingPhoneInvalid;
+
+  /// No description provided for @onboardingAgeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your age or select a range'**
+  String get onboardingAgeRequired;
+
+  /// No description provided for @onboardingHeightRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your height or select a range'**
+  String get onboardingHeightRequired;
+
+  /// No description provided for @onboardingWeightRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your weight or select a range'**
+  String get onboardingWeightRequired;
+
+  /// No description provided for @onboardingNotSure.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sure'**
+  String get onboardingNotSure;
+
+  /// No description provided for @onboardingApproximate.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate'**
+  String get onboardingApproximate;
+
+  /// No description provided for @onboardingAgeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your age'**
+  String get onboardingAgeHint;
+
+  /// No description provided for @onboardingAgeUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get onboardingAgeUnit;
+
+  /// No description provided for @onboardingHeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your height'**
+  String get onboardingHeightHint;
+
+  /// No description provided for @onboardingHeightUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'cm'**
+  String get onboardingHeightUnit;
+
+  /// No description provided for @onboardingWeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your weight'**
+  String get onboardingWeightHint;
+
+  /// No description provided for @onboardingWeightUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get onboardingWeightUnit;
+
+  /// No description provided for @onboardingRangeUnder18.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 18'**
+  String get onboardingRangeUnder18;
+
+  /// No description provided for @onboardingRange18to25.
+  ///
+  /// In en, this message translates to:
+  /// **'18–25'**
+  String get onboardingRange18to25;
+
+  /// No description provided for @onboardingRange26to35.
+  ///
+  /// In en, this message translates to:
+  /// **'26–35'**
+  String get onboardingRange26to35;
+
+  /// No description provided for @onboardingRange36to50.
+  ///
+  /// In en, this message translates to:
+  /// **'36–50'**
+  String get onboardingRange36to50;
+
+  /// No description provided for @onboardingRange51to65.
+  ///
+  /// In en, this message translates to:
+  /// **'51–65'**
+  String get onboardingRange51to65;
+
+  /// No description provided for @onboardingRangeOver65.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 65'**
+  String get onboardingRangeOver65;
+
+  /// No description provided for @onboardingRangeUnder150.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 150 cm'**
+  String get onboardingRangeUnder150;
+
+  /// No description provided for @onboardingRange150to160.
+  ///
+  /// In en, this message translates to:
+  /// **'150–160 cm'**
+  String get onboardingRange150to160;
+
+  /// No description provided for @onboardingRange161to170.
+  ///
+  /// In en, this message translates to:
+  /// **'161–170 cm'**
+  String get onboardingRange161to170;
+
+  /// No description provided for @onboardingRange171to180.
+  ///
+  /// In en, this message translates to:
+  /// **'171–180 cm'**
+  String get onboardingRange171to180;
+
+  /// No description provided for @onboardingRangeOver180.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 180 cm'**
+  String get onboardingRangeOver180;
+
+  /// No description provided for @onboardingRangeUnder50kg.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 50 kg'**
+  String get onboardingRangeUnder50kg;
+
+  /// No description provided for @onboardingRange50to65kg.
+  ///
+  /// In en, this message translates to:
+  /// **'50–65 kg'**
+  String get onboardingRange50to65kg;
+
+  /// No description provided for @onboardingRange66to80kg.
+  ///
+  /// In en, this message translates to:
+  /// **'66–80 kg'**
+  String get onboardingRange66to80kg;
+
+  /// No description provided for @onboardingRange81to100kg.
+  ///
+  /// In en, this message translates to:
+  /// **'81–100 kg'**
+  String get onboardingRange81to100kg;
+
+  /// No description provided for @onboardingRangeOver100kg.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 100 kg'**
+  String get onboardingRangeOver100kg;
+
+  /// No description provided for @onboardingTapToSelectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select date'**
+  String get onboardingTapToSelectDate;
+
+  /// No description provided for @onboardingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get onboardingDays;
+
+  /// No description provided for @onboardingApproximateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'When was your last period?'**
+  String get onboardingApproximateLabel;
+
+  /// No description provided for @onboardingApproximateLessWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than a week ago'**
+  String get onboardingApproximateLessWeek;
+
+  /// No description provided for @onboardingApproximate1to2Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'1–2 weeks ago'**
+  String get onboardingApproximate1to2Weeks;
+
+  /// No description provided for @onboardingApproximate3to4Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'3–4 weeks ago'**
+  String get onboardingApproximate3to4Weeks;
+
+  /// No description provided for @onboardingApproximateMoreMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'More than a month ago'**
+  String get onboardingApproximateMoreMonth;
+
+  /// No description provided for @onboardingPickExactDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick exact date instead'**
+  String get onboardingPickExactDate;
+
+  /// No description provided for @onboardingLastPeriodRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select when your last period started'**
+  String get onboardingLastPeriodRequired;
+
+  /// No description provided for @nudgeCompleteProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Want more accurate predictions?'**
+  String get nudgeCompleteProfileTitle;
+
+  /// No description provided for @nudgeCompleteProfileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the exact start date of your last period to improve cycle predictions.'**
+  String get nudgeCompleteProfileBody;
+
+  /// No description provided for @nudgeCompleteProfileAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get nudgeCompleteProfileAction;
+
+  /// No description provided for @nudgeCompleteProfileDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe later'**
+  String get nudgeCompleteProfileDismiss;
+
+  /// No description provided for @smsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS Summaries'**
+  String get smsScreenTitle;
+
+  /// No description provided for @smsScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay informed even without the app'**
+  String get smsScreenSubtitle;
+
+  /// No description provided for @smsInfoCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Health Summary'**
+  String get smsInfoCardTitle;
+
+  /// No description provided for @smsInfoCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week, Rhythma will send you a brief summary of your cycle status, health score, and any important patterns, directly to your phone via SMS. Works without data or the app.'**
+  String get smsInfoCardBody;
+
+  /// No description provided for @smsConfigTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration'**
+  String get smsConfigTitle;
+
+  /// No description provided for @smsPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get smsPhoneLabel;
+
+  /// No description provided for @smsPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'+91 98765 43210'**
+  String get smsPhoneHint;
+
+  /// No description provided for @smsEnableWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable weekly SMS'**
+  String get smsEnableWeekly;
+
+  /// No description provided for @smsSaveSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Settings'**
+  String get smsSaveSettings;
+
+  /// No description provided for @smsSendSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a Summary Now'**
+  String get smsSendSectionTitle;
+
+  /// No description provided for @smsSendRecipientPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Sends the message below to:'**
+  String get smsSendRecipientPrefix;
+
+  /// No description provided for @smsSendNoPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Add and save a phone number above first.'**
+  String get smsSendNoPhone;
+
+  /// No description provided for @smsSendButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Summary Now'**
+  String get smsSendButton;
+
+  /// No description provided for @smsErrorEnterPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a phone number'**
+  String get smsErrorEnterPhone;
+
+  /// No description provided for @smsErrorInvalidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number in international format, e.g. +919876543210'**
+  String get smsErrorInvalidPhone;
+
+  /// No description provided for @smsSuccessSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS settings saved successfully!'**
+  String get smsSuccessSaved;
+
+  /// No description provided for @smsErrorAddPhoneFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Add and save a phone number first'**
+  String get smsErrorAddPhoneFirst;
+
+  /// No description provided for @smsSuccessSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary sent to your phone!'**
+  String get smsSuccessSent;
+
+  /// No description provided for @smsErrorRateLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can send one summary per minute, please wait a bit and try again.'**
+  String get smsErrorRateLimit;
+
+  /// No description provided for @smsErrorSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please log in again.'**
+  String get smsErrorSessionExpired;
+
+  /// No description provided for @smsErrorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the server. Check your connection and try again.'**
+  String get smsErrorNetwork;
+
+  /// No description provided for @smsErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get smsErrorGeneric;
+
+  /// No description provided for @smsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your SMS settings. Pull to refresh or try again.'**
+  String get smsLoadError;
+
+  /// No description provided for @smsSummaryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'🌸 Rhythma Health Summary\nThis is your on-demand summary from Rhythma.\nOpen the app for your latest cycle insights.\nReply STOP to unsubscribe.'**
+  String get smsSummaryMessage;
+
+  /// No description provided for @insightsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your insights: {error}'**
+  String insightsLoadError(String error);
+
+  /// No description provided for @insightsNotEnoughData.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a few more cycles on the Cycle tab to unlock your full health insights.'**
+  String get insightsNotEnoughData;
+
+  /// No description provided for @insightsNoSymptomsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No symptoms logged yet — log some on the Cycle tab to see patterns here.'**
+  String get insightsNoSymptomsYet;
+
+  /// No description provided for @insightsNotEnoughTrendData.
+  ///
+  /// In en, this message translates to:
+  /// **'Log at least two cycles to see your trend here.'**
+  String get insightsNotEnoughTrendData;
+
+  /// No description provided for @assistantAccessibilitySuggestedPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested prompt'**
+  String get assistantAccessibilitySuggestedPrompt;
+
+  /// No description provided for @assistantAccessibilityMessageInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Message input'**
+  String get assistantAccessibilityMessageInput;
+
+  /// No description provided for @assistantAccessibilityMessageInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your question here'**
+  String get assistantAccessibilityMessageInputHint;
+
+  /// No description provided for @assistantAccessibilitySendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get assistantAccessibilitySendMessage;
+
+  /// No description provided for @assistantAccessibilitySendMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sends your message to the assistant'**
+  String get assistantAccessibilitySendMessageHint;
+
+  /// No description provided for @assistantAccessibilityTyping.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant is typing'**
+  String get assistantAccessibilityTyping;
+
+  /// No description provided for @languageSelectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save language. Please try again.'**
+  String get languageSelectionError;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountConfirmationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account?'**
+  String get deleteAccountConfirmationTitle;
+
+  /// No description provided for @deleteAccountConfirmationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'This action is permanent and cannot be undone. All your data will be wiped.'**
+  String get deleteAccountConfirmationDesc;
+
+  /// No description provided for @accountDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted successfully.'**
+  String get accountDeletedSuccess;
+
+  /// No description provided for @langGujarati.
+  ///
+  /// In en, this message translates to:
+  /// **'ગુજરાતી (Gujarati)'**
+  String get langGujarati;
+
+  /// No description provided for @welcomeToRhythma.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Rhythma'**
+  String get welcomeToRhythma;
+
+  /// No description provided for @loginOrSignUpWithPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in or sign up with your phone number.'**
+  String get loginOrSignUpWithPhone;
+
+  /// No description provided for @enterOtpSentToPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the OTP sent to your phone'**
+  String get enterOtpSentToPhone;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumber;
+
+  /// No description provided for @getOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Get OTP'**
+  String get getOtp;
+
+  /// No description provided for @sendingOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending OTP...'**
+  String get sendingOtp;
+
+  /// No description provided for @otp.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP'**
+  String get otp;
+
+  /// No description provided for @verifyOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify OTP'**
+  String get verifyOtp;
+
+  /// No description provided for @verifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying...'**
+  String get verifying;
+
+  /// No description provided for @useDifferentPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a different phone number'**
+  String get useDifferentPhoneNumber;
+
+  /// No description provided for @pleaseEnterPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your phone number.'**
+  String get pleaseEnterPhoneNumber;
+
+  /// No description provided for @pleaseEnterValidPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid phone number with country code (e.g., +91).'**
+  String get pleaseEnterValidPhoneNumber;
+
+  /// No description provided for @verificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification failed'**
+  String get verificationFailed;
+
+  /// No description provided for @otpSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP sent to {phone}'**
+  String otpSentTo(String phone);
+
+  /// No description provided for @pleaseEnterOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the OTP.'**
+  String get pleaseEnterOtp;
+
+  /// No description provided for @invalidOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid OTP. Please try again.'**
+  String get invalidOtp;
+
+  /// No description provided for @failedToGetIdToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to get ID token'**
+  String get failedToGetIdToken;
 }
 
 class _AppLocalizationsDelegate
@@ -1177,8 +1976,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'hi', 'mr', 'ta', 'te'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+        'bn',
+        'en',
+        'gu',
+        'hi',
+        'kn',
+        'ml',
+        'mr',
+        'ta',
+        'te',
+        'as',
+        'ks',
+        'mai',
+        'ne',
+        'or',
+        'sat',
+        'sd',
+        'ur'
+      ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1187,16 +2003,40 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'bn':
+      return AppLocalizationsBn();
     case 'en':
       return AppLocalizationsEn();
+    case 'gu':
+      return AppLocalizationsGu();
     case 'hi':
       return AppLocalizationsHi();
+    case 'kn':
+      return AppLocalizationsKn();
+    case 'ml':
+      return AppLocalizationsMl();
     case 'mr':
       return AppLocalizationsMr();
     case 'ta':
       return AppLocalizationsTa();
     case 'te':
       return AppLocalizationsTe();
+    case 'as':
+      return AppLocalizationsAs();
+    case 'ks':
+      return AppLocalizationsKs();
+    case 'mai':
+      return AppLocalizationsMai();
+    case 'ne':
+      return AppLocalizationsNe();
+    case 'or':
+      return AppLocalizationsOr();
+    case 'sat':
+      return AppLocalizationsSat();
+    case 'sd':
+      return AppLocalizationsSd();
+    case 'ur':
+      return AppLocalizationsUr();
   }
 
   throw FlutterError(

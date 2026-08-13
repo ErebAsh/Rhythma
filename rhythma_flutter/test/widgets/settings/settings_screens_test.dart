@@ -1,19 +1,26 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
 import 'package:rhythma/providers/locale_provider.dart';
 import 'package:rhythma/providers/theme_provider.dart';
+import 'package:rhythma/providers/profile_provider.dart';
 import 'package:rhythma/screens/settings/language_screen.dart';
 import 'package:rhythma/screens/settings/theme_screen.dart';
-import 'package:rhythma/services/local_storage_service.dart';
+import '../../test_helpers/local_storage_fixture.dart';
 
-/// Coverage for the two screens reached from Settings > App Preferences.
-/// Neither LanguageScreen nor ThemeScreen had any widget test before this
-/// change (issue #29, acceptance criterion: "New Settings UI covered").
 void main() {
-  setUp(() {
-    LocalStorageService.isTesting = true;
+  late Directory tempDir;
+
+  setUp(() async {
+    tempDir = await setUpLocalStorage();
+    await seedCurrentUserId('test-user');
+  });
+
+  tearDown(() async {
+    await tearDownLocalStorage(tempDir);
   });
 
   Future<void> pumpScreen(
@@ -34,6 +41,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (_) => localeProvider ?? LocaleProvider()),
           ChangeNotifierProvider(create: (_) => themeProvider ?? ThemeProvider()),
+          ChangeNotifierProvider(create: (_) => ProfileProvider()), // <-- added
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -52,12 +60,21 @@ void main() {
 
       expect(find.text('Select Language'), findsOneWidget);
 
-      for (final langName in LanguageScreen.languages.keys) {
-        expect(find.text(langName), findsOneWidget);
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(LanguageScreen)),
+      )!;
+      final expectedNames = <String, String>{
+        'en': l10n.langEnglish,
+        'hi': l10n.langHindi,
+        'ta': l10n.langTamil,
+        'te': l10n.langTelugu,
+        'mr': l10n.langMarathi,
+        'gu': l10n.langGujarati,
+      };
+      for (final code in LanguageScreen.supportedLanguageCodes) {
+        expect(find.text(expectedNames[code]!), findsOneWidget);
       }
 
-      // LocalStorageService.preferredLanguage returns 'en' while isTesting,
-      // so English should carry the selected checkmark and nothing else.
       expect(
         find.descendant(
           of: find.widgetWithText(ListTile, 'English'),
@@ -73,7 +90,11 @@ void main() {
       final localeProvider = LocaleProvider();
       await pumpScreen(tester, const LanguageScreen(), localeProvider: localeProvider);
 
-      await tester.tap(find.text('हिन्दी (Hindi)'));
+      // Tap inside runAsync so mergeProfileWithSync (which calls Dio) completes
+      await tester.runAsync(() async {
+        await tester.tap(find.text('हिन्दी (Hindi)'));
+        await Future.delayed(const Duration(seconds: 1));
+      });
       await tester.pumpAndSettle();
 
       expect(localeProvider.locale.languageCode, 'hi');
@@ -84,7 +105,6 @@ void main() {
         ),
         findsOneWidget,
       );
-      // Only one language should ever show the checkmark at a time.
       expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
     });
   });
@@ -95,17 +115,20 @@ void main() {
       final themeProvider = ThemeProvider();
       await pumpScreen(tester, const ThemeScreen(), themeProvider: themeProvider);
 
-      expect(find.text('Theme toggle'), findsOneWidget); // AppBar title (l10n.themeToggle)
+      expect(find.text('Theme toggle'), findsOneWidget);
 
       final darkModeSwitch = find.widgetWithText(SwitchListTile, 'Dark Mode');
       expect(tester.widget<SwitchListTile>(darkModeSwitch).value, isFalse);
       expect(themeProvider.isDarkMode, isFalse);
 
-      await tester.tap(darkModeSwitch);
+      await tester.runAsync(() async {
+        await tester.tap(darkModeSwitch);
+        await Future.delayed(const Duration(seconds: 1));
+      });
       await tester.pumpAndSettle();
 
-      expect(tester.widget<SwitchListTile>(darkModeSwitch).value, isTrue);
       expect(themeProvider.isDarkMode, isTrue);
+      expect(tester.widget<SwitchListTile>(darkModeSwitch).value, isTrue);
     });
 
     testWidgets('tapping a swatch updates ThemeProvider.primaryColor',
@@ -116,13 +139,9 @@ void main() {
       expect(find.text('Theme Color'), findsOneWidget);
 
       final rosePink =
-          ThemeScreen.predefinedColors[1]['color'] as Color; // 'Rose Pink'
+          ThemeScreen.predefinedColors[1]['color'] as Color;
       expect(themeProvider.primaryColor, isNot(rosePink));
 
-      // Locate the swatch by its actual fill color rather than its position
-      // in the widget tree, since several other GestureDetectors/InkWells
-      // exist on screen (back button, switch, etc.) and aren't guaranteed
-      // to come after the swatches in hit-test order.
       final swatchFinder = find.byWidgetPredicate((widget) {
         if (widget is! Container) return false;
         final decoration = widget.decoration;
@@ -130,7 +149,10 @@ void main() {
       });
       expect(swatchFinder, findsOneWidget);
 
-      await tester.tap(swatchFinder);
+      await tester.runAsync(() async {
+        await tester.tap(swatchFinder);
+        await Future.delayed(const Duration(seconds: 1));
+      });
       await tester.pumpAndSettle();
 
       expect(themeProvider.primaryColor, rosePink);

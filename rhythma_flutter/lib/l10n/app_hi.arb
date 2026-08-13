@@ -18,13 +18,13 @@
   "cancel": "रद्द करें",
   "loggedOutSuccess": "सफलतापूर्वक लॉग आउट हो गया",
   "selectLanguage": "भाषा चुनें",
-  
   "homeGreeting": "नमस्ते",
   "homePhaseDesc": "दिन 14 · ओव्यूलेशन चरण",
   "homeNextPeriod": "अगला मासिक धर्म",
   "homeDaysLabel": "दिन",
   "homeFertileWindow": "उपजाऊ अवधि · ",
   "homeHighEnergy": "उच्च ऊर्जा",
+  "homeFertileWindowDisclaimer": "यह आपके लॉग किए गए डेटा पर आधारित एक अनुमान है, चिकित्सीय या गर्भनिरोधक सलाह नहीं।",
   "homeAiTitle": "रिद्मा एआई",
   "homeAiSubtitle": "अपने शरीर से जुड़ा कोई भी प्रश्न अपनी भाषा में मुझसे पूछें।",
   "homeAiPrompt": "मेरे मासिक धर्म अनियमित क्यों हैं?",
@@ -42,7 +42,6 @@
   "homeLearnHormones": "हार्मोन 101",
   "homeLearnIron": "आयरन से भरपूर खाद्य पदार्थ",
   "homeArticle": "लेख",
-  
   "cycleTrackerTitle": "चक्र ट्रैकर",
   "cyclePhasePeriod": "मासिक धर्म",
   "cyclePhaseFollicular": "कूपिक",
@@ -66,17 +65,23 @@
   "logSympAcne": "मुंहासे",
   "logLabelEnergy": "ऊर्जा",
   "logLabelSymptoms": "लक्षण",
-  
   "assistantTitle": "रिद्मा सहायक",
   "assistantSubtitle": "आपकी स्वास्थ्य सहयोगी • सुरक्षित और निजी",
   "assistantInputHint": "अपना प्रश्न पूछें...",
-  "assistantWelcome": "नमस्ते आर्या 🌸 मैं रिद्मा हूँ, आपकी निजी स्वास्थ्य सहयोगी। अपने मासिक धर्म चक्र, लक्षणों या स्वास्थ्य से जुड़ा कोई भी प्रश्न मुझसे अंग्रेज़ी, हिंदी, मराठी या तमिल में पूछ सकती हैं।",
+  "assistantWelcome": "नमस्ते {name} 🌸 मैं रिद्मा हूँ, आपकी निजी स्वास्थ्य सहयोगी। अपने मासिक धर्म चक्र, लक्षणों या स्वास्थ्य से जुड़ा कोई भी प्रश्न मुझसे अंग्रेज़ी, हिंदी, मराठी या तमिल में पूछ सकती हैं।",
+  "@assistantWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assistantSug1": "मेरे मासिक धर्म अनियमित क्यों हैं?",
   "assistantSug2": "गंभीर ऐंठन का क्या कारण है?",
   "assistantSug3": "क्या 35 दिन का चक्र सामान्य है?",
   "assistantSug4": "पीएमएस में मदद करने वाले खाद्य पदार्थ",
   "assistantSug5": "मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?",
-
+  "assistantDisclaimer": "यह सहायक केवल सामान्य स्वास्थ्य जानकारी प्रदान करता है और यह पेशेवर चिकित्सीय सलाह का विकल्प नहीं है।",
   "insightsTitle": "स्वास्थ्य अंतर्दृष्टि",
   "insightsSubtitle": "पिछले 90 दिन",
   "insightsMhsLabel": "मासिक धर्म स्वास्थ्य स्कोर",
@@ -94,7 +99,7 @@
   "insightsRec1": "मासिक धर्म शुरू होने के करीब आयरन युक्त खाद्य पदार्थ शामिल करें",
   "insightsRec2": "ल्यूटियल चरण के दिनों में 10 मिनट का योग आज़माएं",
   "insightsRec3": "ओव्यूलेशन सप्ताह के दौरान 2.5L पानी पिएं",
-  
+  "insightsDisclaimer": "ये जानकारियाँ आपके द्वारा दर्ज किए गए डेटा पर आधारित हैं और केवल व्यक्तिगत ट्रैकिंग के लिए हैं। यह चिकित्सीय निदान नहीं है और किसी योग्य स्वास्थ्य विशेषज्ञ की सलाह का विकल्प नहीं है।",
   "profileTitle": "प्रोफ़ाइल",
   "profileYearsOld": "वर्ष",
   "profileCycleDay": "चक्र का दिन",
@@ -119,18 +124,21 @@
   "profileEmergencyContactsTitle": "आपातकालीन संपर्क",
   "profileAddNew": "नया जोड़ें",
   "profileNoContacts": "अभी तक कोई आपातकालीन संपर्क सेट नहीं किया गया है।",
-  
+  "profileAgeInvalidError": "कृपया मान्य आयु दर्ज करें",
+  "profileCycleInvalidError": "कृपया मान्य मासिक चक्र अवधि दर्ज करें",
+  "profilePhoneInvalidError": "कृपया मान्य फ़ोन नंबर दर्ज करें",
+  "edit": "संपादित करें",
+  "delete": "हटाएँ",
+  "onboardingAvatarOption": "अवतार विकल्प",
   "navHome": "होम",
   "navCycle": "साइकिल",
   "navAsk": "आस्क",
   "navYou": "यू",
   "navInsights": "अंतर्दृष्टि",
-  
   "settingsHelpSupport": "सहायता और समर्थन",
   "settingsContactUs": "हमसे संपर्क करें / बग की रिपोर्ट करें",
   "settingsContactDesc": "हमारी सहायता टीम को ईमेल करें",
   "settingsEmailError": "ईमेल ऐप नहीं खुल सका। कृपया हमें support@rhythma.com पर ईमेल करें",
-
   "onboardingPrivacyNote": "आपकी जानकारी आपके डिवाइस पर रहती है। हम आपकी अनुमति के बिना कभी भी आपका डेटा साझा नहीं करते।",
   "onboardingNext": "आगे",
   "onboardingBack": "वापस",

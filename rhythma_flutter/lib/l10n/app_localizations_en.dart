@@ -64,6 +64,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectLanguage => 'Select Language';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
   String get homeGreeting => 'Namaste';
 
   @override
@@ -80,6 +95,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeHighEnergy => 'High energy';
+
+  @override
+  String get homeFertileWindowDisclaimer =>
+      'This is an estimate based on your logged data, not medical or contraceptive advice.';
 
   @override
   String get homeAiTitle => 'RHYTHMA AI';
@@ -142,11 +161,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeRetry => 'Retry';
 
   @override
+  String get homeMhs => 'MHS';
+
+  @override
+  String get homeCvi => 'CVI';
+
+  @override
+  String get homeSleep => 'Sleep';
+
+  @override
   String get homeComingSoon => 'Coming Soon';
 
   @override
   String homeUnderDevelopment(String topic) {
     return '$topic is currently under development.';
+  }
+
+  @override
+  String get homeErrorNetwork =>
+      'Please check your internet connection and try again.';
+
+  @override
+  String get homeErrorAuth => 'Your session has expired. Please log in again.';
+
+  @override
+  String get homeErrorServer =>
+      'Something went wrong on our end. Please try again later.';
+
+  @override
+  String get homeErrorGeneric => 'Unable to load data. Please try again.';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return 'Log $label';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label logged: $value';
   }
 
   @override
@@ -157,6 +209,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cycleTrackerTitle => 'Cycle Tracker';
+
+  @override
+  String get cycleToday => 'Today';
 
   @override
   String get cyclePhasePeriod => 'Period';
@@ -278,8 +333,9 @@ String get ayurvedaLutealDescription;
   String get assistantInputHint => 'Ask anything about your health...';
 
   @override
-  String get assistantWelcome =>
-      'Hi Aarya 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.';
+  String assistantWelcome(String name) {
+    return 'Hi $name 🌸 I\'m Rhythma, your private health companion. Ask me anything about your cycle, symptoms, or wellbeing — in English, Hindi, Marathi, or Tamil.';
+  }
 
   @override
   String get assistantSug1 => 'Why are my periods irregular?';
@@ -295,6 +351,10 @@ String get ayurvedaLutealDescription;
 
   @override
   String get assistantSug5 => 'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?';
+
+  @override
+  String get assistantDisclaimer =>
+      'This assistant provides general wellness information only and is not a substitute for professional medical advice.';
 
   @override
   String get insightsTitle => 'Health Insights';
@@ -348,6 +408,10 @@ String get ayurvedaLutealDescription;
   String get insightsRec3 => 'Hydrate 2.5L during ovulation week';
 
   @override
+  String get insightsDisclaimer =>
+      'These insights are based on the information you log and are intended for personal tracking only. They are not a medical diagnosis and should not replace advice from a qualified healthcare professional.';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override
@@ -399,6 +463,9 @@ String get ayurvedaLutealDescription;
   String get profileSaveChanges => 'Save Changes';
 
   @override
+  String get profileNameEmptyError => 'Please enter a valid name';
+
+  @override
   String get profileAddContact => 'Add Contact';
 
   @override
@@ -418,6 +485,27 @@ String get ayurvedaLutealDescription;
 
   @override
   String get profileNoContacts => 'No emergency contacts set up yet.';
+
+  @override
+  String get profileAgeInvalidError => 'Please enter a valid age';
+
+  @override
+  String get profileCycleInvalidError => 'Please enter a valid cycle length';
+
+  @override
+  String get profilePhoneInvalidError => 'Please enter a valid phone number';
+
+  @override
+  String get contactNameRequiredError => 'Contact name is required';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get onboardingAvatarOption => 'Avatar Option';
 
   @override
   String get navHome => 'Home';
@@ -446,6 +534,19 @@ String get ayurvedaLutealDescription;
   @override
   String get settingsEmailError =>
       'Could not open email app. Please email us at support@rhythma.com';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
 
   @override
   String get onboardingPrivacyNote =>
@@ -529,6 +630,9 @@ String get ayurvedaLutealDescription;
 
   @override
   String get onboardingPhoneLabel => 'Phone Number (optional)';
+
+  @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
 
   @override
   String get onboardingCityLabel => 'City (optional)';

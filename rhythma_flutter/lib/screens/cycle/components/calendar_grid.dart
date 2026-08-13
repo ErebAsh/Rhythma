@@ -79,28 +79,14 @@ class _CalendarGridState extends State<CalendarGrid> {
 
                 final hasLog = cycleProvider.hasLogsForDate(currentDate);
 
+                final isFuture = currentDate.isAfter(DateTime(today.year, today.month, today.day));
+
                 return GestureDetector(
-                  onTap: () {
-                    context.read<CycleProvider>().selectDate(currentDate);
-
-                    final dateKey = currentDate.toIso8601String().split('T')[0];
-                    final logs = LocalStorageService.getCycleLogs();
-                    final existingLog =
-                        logs.cast<Map<String, dynamic>?>().firstWhere(
-                              (log) => log?['start_date'] == dateKey,
-                              orElse: () => null,
-                            );
-
-                    LogEntrySheet.show(
-                      context,
-                      currentDate,
-                      existingLog: existingLog,
-                    ).then((_) {
-                      if (context.mounted) {
-                        context.read<CycleProvider>().refreshLogs();
-                      }
-                    });
-                  },
+                  onTap: isFuture
+                      ? null
+                      : () {
+                          context.read<CycleProvider>().selectDate(currentDate);
+                        },
                   child: SizedBox(
                     width: cellWidth,
                     height: 46,
@@ -112,9 +98,11 @@ class _CalendarGridState extends State<CalendarGrid> {
                           width: 34,
                           height: 34,
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? phaseColor
-                                : phaseColor.withOpacity(0.14),
+                            color: isFuture
+                                ? Colors.transparent
+                                : isSelected
+                                    ? phaseColor
+                                    : phaseColor.withOpacity(0.14),
                             borderRadius: BorderRadius.circular(10),
                             border: isToday && !isSelected
                                 ? Border.all(color: phaseColor, width: 1.4)
@@ -130,9 +118,11 @@ class _CalendarGridState extends State<CalendarGrid> {
                                   fontWeight: isToday && !isSelected
                                       ? FontWeight.w800
                                       : FontWeight.w600,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : RhythmaColors.foreground,
+                                  color: isFuture
+                                      ? RhythmaColors.mutedFg.withOpacity(0.4)
+                                      : isSelected
+                                          ? Colors.white
+                                          : RhythmaColors.foreground,
                                 ),
                               ),
                               // Marker for logged symptoms

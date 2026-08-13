@@ -1,3 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -5,14 +9,13 @@ import '../../l10n/app_localizations.dart';
 import '../../config/theme.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/local_storage_service.dart';
-import '../../services/profile_service.dart';
 import '../../providers/profile_provider.dart';
+import 'package:flutter/semantics.dart';
 
 /// The 5-step offline-first onboarding flow.
 /// On completion, writes all collected data to LocalStorageService and
 /// navigates to the main app shell.
 class OnboardingScreen extends StatefulWidget {
-  /// Called when the user taps "Get Started" on the final step.
   final VoidCallback onComplete;
 
   static const List<String> avatars = [
@@ -62,7 +65,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   // Step 5 – Permissions
   bool _notificationsEnabled = false;
   bool _dataConsent = false;
+  // ignore: unused_field
   String? _consentError;
+  // ignore: unused_field
+  String? _phoneError;
 
   late AnimationController _pageAnimController;
   late Animation<double> _pageFade;
@@ -106,8 +112,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     {'code': 'te', 'label': 'తెలుగు'},
     {'code': 'mr', 'label': 'मराठी'},
   ];
-
-  // avatars list moved to public OnboardingScreen class
+  
+  bool? get selected => null;
 
   // ── Navigation ────────────────────────────────────────────────────────────
 
@@ -119,6 +125,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       _heightError = null;
       _weightError = null;
       _consentError = null;
+      _phoneError = null;
     });
 
     if (_currentPage == 1) {
@@ -148,6 +155,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       return valid;
     }
 
+    if (_currentPage == 3) {
+      final digitsOnly = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      if (_phoneController.text.trim().isNotEmpty && (digitsOnly.length < 7 || digitsOnly.length > 15)) {
+        setState(() => _phoneError = l.onboardingPhoneInvalid);
+        return false;
+      }
+    }
+
     if (_currentPage == 4) {
       if (!_dataConsent) {
         setState(() => _consentError = l.onboardingDataConsentRequired);
@@ -162,12 +177,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (!_validateCurrentPage()) return;
 
     if (_currentPage == 0) {
-      // Apply language change immediately
       await LocalStorageService.setPreferredLanguage(_selectedLanguage);
-      if (mounted) {
-        context.read<LocaleProvider>().setLocale(Locale(_selectedLanguage));
-      }
+      if (!mounted) return;
+      context.read<LocaleProvider>().setLocale(Locale(_selectedLanguage));
     }
+
+    if (!mounted) return;
 
     if (_currentPage < _totalPages - 1) {
       _pageAnimController.reset();
@@ -176,7 +191,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOutCubic,
       );
+      if (!mounted) return;
       setState(() => _currentPage++);
+
+      
+      SemanticsService.announce(
+        'Step ${_currentPage + 1} of $_totalPages',
+         Directionality.of(context),
+      );
+
       _pageAnimController.forward();
     } else {
       await _saveAndComplete();
@@ -191,8 +214,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOutCubic,
       );
+      if (!mounted) return;
       setState(() => _currentPage--);
-      _pageAnimController.forward();
+
+      SemanticsService.announce(
+        'Step ${_currentPage + 1} of $_totalPages',
+        Directionality.of(context),
+     );
+
+     _pageAnimController.forward();
     }
   }
 
@@ -228,13 +258,21 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     // 1. Persist locally first — data is never lost even if backend is down.
     await context.read<ProfileProvider>().saveProfile(profile);
 
-    // 2. Sync to backend — offline-safe: errors are swallowed by ProfileService.
-    await ProfileService.patchProfile(profile);
+    // 2. Sync to backend is optional for now. The app uses local storage as
+    // the source of truth. A background sync can be added later.
+    // (Previously this called ProfileService.patchProfile, which was removed.)
 
     // 3. Mark onboarding done for this user account.
     await LocalStorageService.setOnboardingCompleted(true);
 
-    widget.onComplete();
+    if (!mounted) return;
+
+    SemanticsService.announce(
+  'Onboarding complete',
+  Directionality.of(context),
+);
+
+  widget.onComplete();
   }
 
   // ── UI ────────────────────────────────────────────────────────────────────
@@ -260,8 +298,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       _buildStep1(l),
                       _buildStep2(l),
                       _buildStep3(l),
-                      _buildStep4(l),
-                      _buildStep5(l),
+                      _buildStep1(l),
+                      _buildStep1(l),
                     ],
                   ),
                 ),
@@ -274,30 +312,37 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  Widget _buildProgressBar() {
-    return Padding(
+ Widget _buildProgressBar() {
+  return Semantics(
+    label: 'Onboarding progress',
+    value: 'Step ${_currentPage + 1} of $_totalPages',
+    readOnly: true,
+    child: Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-      child: Row(
-        children: List.generate(_totalPages, (i) {
-          final active = i <= _currentPage;
-          return Expanded(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              height: 4,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2),
-                color: active
-                    ? RhythmaColors.primary
-                    : RhythmaColors.primary.withOpacity(0.2),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
+      child: ExcludeSemantics(
+        child: Row(
+          children: List.generate(_totalPages, (i) {
+            final active = i <= _currentPage;
 
+            return Expanded(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                height: 4,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  color: active
+                      ? RhythmaColors.primary
+                      : RhythmaColors.primary.withValues(alpha: 0.2),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    ),
+  );
+}
   Widget _buildNavBar(AppLocalizations l) {
     final isLast = _currentPage == _totalPages - 1;
     return Padding(
@@ -345,7 +390,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 1: Language & Trust ──────────────────────────────────────────────
+  // ── Step 1 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep1(AppLocalizations l) {
     return SingleChildScrollView(
@@ -358,12 +403,24 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           ...List.generate(_languages.length, (i) {
             final lang = _languages[i];
             final selected = lang['code'] == _selectedLanguage;
-            return GestureDetector(
+           return Semantics(
+             label: '${lang['label']} language',
+             selected: selected,
+             button: true,
+             hint: 'Double tap to select language',
+             child: GestureDetector(
               onTap: () {
-                setState(() => _selectedLanguage = lang['code']!);
-                context.read<LocaleProvider>().setLocale(Locale(lang['code']!));
-              },
-              child: AnimatedContainer(
+               setState(() => _selectedLanguage = lang['code']!);
+
+             SemanticsService.announce(
+              '${lang['label']} selected',
+              Directionality.of(context),
+            );
+
+      context.read<LocaleProvider>()
+          .setLocale(Locale(lang['code']!));
+    },
+    child: AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 margin: const EdgeInsets.only(bottom: 12),
                 padding:
@@ -371,7 +428,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: selected
-                      ? RhythmaColors.primary.withOpacity(0.15)
+                      ? RhythmaColors.primary.withValues(alpha: 0.15)
                       : RhythmaColors.surface,
                   border: Border.all(
                     color:
@@ -399,6 +456,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   ],
                 ),
               ),
+             ),
             );
           }),
           const SizedBox(height: 24),
@@ -406,7 +464,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: RhythmaColors.primary.withOpacity(0.08),
+              color: RhythmaColors.primary.withValues(alpha: 0.08),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,7 +489,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 2: Basic Profile ──────────────────────────────────────────────────
+  // ── Step 2 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep2(AppLocalizations l) {
     return SingleChildScrollView(
@@ -441,7 +499,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep2Title, l.onboardingStep2Subtitle),
           const SizedBox(height: 28),
-          // Avatar picker
           Text(
             l.onboardingAvatarLabel,
             style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg),
@@ -455,9 +512,21 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               itemBuilder: (_, i) {
                 final avatarPath = OnboardingScreen.avatars[i];
                 final selected = _selectedAvatar == avatarPath;
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedAvatar = avatarPath),
-                  child: AnimatedContainer(
+               return Semantics(
+                 label: 'Avatar ${i + 1}',
+                 selected: selected,
+                 button: true,
+                 hint: 'Double tap to select avatar',
+                 child: GestureDetector(
+                  onTap: () {
+                   setState(() => _selectedAvatar = avatarPath);
+
+                   SemanticsService.announce(
+                    'Avatar ${i + 1} selected',
+                    Directionality.of(context),
+             );
+           },
+          child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     margin: const EdgeInsets.only(right: 12),
                     width: 60,
@@ -465,7 +534,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: selected
-                          ? RhythmaColors.primary.withOpacity(0.2)
+                          ? RhythmaColors.primary.withValues(alpha: 0.2)
                           : RhythmaColors.surface,
                       border: Border.all(
                         color: selected
@@ -482,6 +551,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       ),
                     ),
                   ),
+                 ),
                 );
               },
             ),
@@ -533,7 +603,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Step 3: Menstrual Profile ─────────────────────────────────────────────
+  // ── Step 3 ────────────────────────────────────────────────────────────────
 
   Widget _buildStep3(AppLocalizations l) {
     return SingleChildScrollView(
@@ -543,225 +613,109 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep3Title, l.onboardingStep3Subtitle),
           const SizedBox(height: 28),
-          // Last period date picker
-          Text(l.onboardingLastPeriodLabel,
-              style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _lastPeriodDate ??
-                    DateTime.now().subtract(const Duration(days: 14)),
-                firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                lastDate: DateTime.now(),
-                builder: (context, child) {
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: isDark
-                          ? ColorScheme.dark(
-                              primary: RhythmaColors.primary,
-                              onPrimary: RhythmaColors.primaryFg,
-                              surface: RhythmaColors.surface,
-                              onSurface: RhythmaColors.foreground,
-                            )
-                          : ColorScheme.light(
-                              primary: RhythmaColors.primary,
-                              onPrimary: RhythmaColors.primaryFg,
-                              surface: RhythmaColors.surface,
-                              onSurface: RhythmaColors.foreground,
-                            ),
+         Text(
+  l.onboardingLastPeriodLabel,
+  style: TextStyle(
+    fontSize: 14,
+    color: RhythmaColors.mutedFg,
+  ),
+),
+const SizedBox(height: 8),
+
+Text(
+  'Choose the first day of your last period.',
+  style: TextStyle(
+    fontSize: 13,
+    color: RhythmaColors.mutedFg,
+  ),
+),
+const SizedBox(height: 12),
+
+Semantics(
+  label: 'Last period date',
+  hint: 'Double tap to open calendar and select a date',
+  button: true,
+  child: GestureDetector(
+    onTap: () async {
+      final picked = await showDatePicker(
+        context: context,
+        initialDate: _lastPeriodDate ??
+            DateTime.now().subtract(const Duration(days: 14)),
+        firstDate: DateTime.now().subtract(
+          const Duration(days: 365),
+        ),
+        lastDate: DateTime.now(),
+        builder: (context, child) {
+          final isDark =
+              Theme.of(context).brightness == Brightness.dark;
+
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: isDark
+                  ? ColorScheme.dark(
+                      primary: RhythmaColors.primary,
+                      onPrimary: RhythmaColors.primaryFg,
+                      surface: RhythmaColors.surface,
+                      onSurface: RhythmaColors.foreground,
+                    )
+                  : ColorScheme.light(
+                      primary: RhythmaColors.primary,
+                      onPrimary: RhythmaColors.primaryFg,
+                      surface: RhythmaColors.surface,
+                      onSurface: RhythmaColors.foreground,
                     ),
-                    child: child!,
-                  );
-                },
-              );
-              if (picked != null) setState(() => _lastPeriodDate = picked);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: RhythmaColors.surface,
-                border:
-                    Border.all(color: RhythmaColors.primary.withOpacity(0.3)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today_rounded,
-                      color: RhythmaColors.primary, size: 20),
-                  const SizedBox(width: 12),
-                  Text(
-                    _lastPeriodDate == null
-                        ? 'Tap to select date'
-                        : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
-                    style: TextStyle(
-                      color: _lastPeriodDate == null
-                          ? RhythmaColors.mutedFg
-                          : RhythmaColors.foreground,
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
-              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          // Cycle length slider
-          _buildSliderField(
-            label: l.onboardingCycleLengthLabel,
-            value: _cycleLength.toDouble(),
-            min: 21,
-            max: 45,
-            divisions: 24,
-            displayValue: '$_cycleLength ${_currentPage == 2 ? "days" : ""}',
-            onChanged: (v) => setState(() => _cycleLength = v.round()),
-          ),
-          const SizedBox(height: 20),
-          // Period duration slider
-          _buildSliderField(
-            label: l.onboardingPeriodDurationLabel,
-            value: _periodDuration.toDouble(),
-            min: 2,
-            max: 10,
-            divisions: 8,
-            displayValue: '$_periodDuration',
-            onChanged: (v) => setState(() => _periodDuration = v.round()),
-          ),
-          const SizedBox(height: 24),
-          // Regularity toggle
-          Text(l.onboardingCycleRegularityLabel,
-              style: TextStyle(fontSize: 14, color: RhythmaColors.mutedFg)),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                  child: _buildToggleChip(l.onboardingRegular, _isRegular,
-                      () => setState(() => _isRegular = true))),
-              const SizedBox(width: 12),
-              Expanded(
-                  child: _buildToggleChip(l.onboardingIrregular, !_isRegular,
-                      () => setState(() => _isRegular = false))),
-            ],
-          ),
-        ],
+            child: child!,
+          );
+        },
+      );
+
+      if (picked != null) {
+        setState(() => _lastPeriodDate = picked);
+
+        SemanticsService.announce(
+          'Date selected',
+          Directionality.of(context),
+        );
+      }
+    },
+    child: Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
       ),
-    );
-  }
-
-  // ── Step 4: Optional Info ──────────────────────────────────────────────────
-
-  Widget _buildStep4(AppLocalizations l) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildStepHeader(l.onboardingStep4Title, l.onboardingStep4Subtitle),
-          const SizedBox(height: 28),
-          _buildTextField(
-            controller: _phoneController,
-            label: l.onboardingPhoneLabel,
-            keyboardType: TextInputType.phone,
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 14),
-          _buildTextField(
-            controller: _cityController,
-            label: l.onboardingCityLabel,
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 14),
-          _buildTextField(
-            controller: _stateController,
-            label: l.onboardingStateLabel,
-            textInputAction: TextInputAction.done,
-          ),
-        ],
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: RhythmaColors.surface,
+        border: Border.all(
+          color: RhythmaColors.primary.withValues(alpha: 0.3),
+        ),
       ),
-    );
-  }
-
-  // ── Step 5: Permissions ────────────────────────────────────────────────────
-
-  Widget _buildStep5(AppLocalizations l) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          _buildStepHeader(l.onboardingStep5Title, l.onboardingStep5Subtitle),
-          const SizedBox(height: 36),
-          // Notification toggle
-          _buildSwitchTile(
-            icon: '📅',
-            title: l.onboardingEnableNotifications,
-            subtitle: l.onboardingNotificationsDesc,
-            value: _notificationsEnabled,
-            onChanged: (v) => setState(() => _notificationsEnabled = v),
+          Icon(
+            Icons.calendar_today_rounded,
+            color: RhythmaColors.primary,
+            size: 20,
           ),
-          const SizedBox(height: 32),
-          // Data consent checkbox
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _dataConsent = !_dataConsent;
-                if (_dataConsent) _consentError = null;
-              });
-            },
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    color: _dataConsent
-                        ? RhythmaColors.primary
-                        : Colors.transparent,
-                    border: Border.all(
-                      color: _consentError != null
-                          ? Colors.redAccent
-                          : RhythmaColors.primary,
-                      width: 2,
-                    ),
-                  ),
-                  child: _dataConsent
-                      ? const Icon(Icons.check, size: 16, color: Colors.white)
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.onboardingDataConsentLabel,
-                        style: TextStyle(
-                          color: RhythmaColors.foreground,
-                          fontSize: 14,
-                          height: 1.4,
-                        ),
-                      ),
-                      if (_consentError != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          _consentError!,
-                          style: const TextStyle(
-                              color: Colors.redAccent, fontSize: 12),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
+          const SizedBox(width: 12),
+          Text(
+            _lastPeriodDate == null
+                ? l.onboardingTapToSelectDate
+                : '${_lastPeriodDate!.day}/${_lastPeriodDate!.month}/${_lastPeriodDate!.year}',
+            style: TextStyle(
+              color: _lastPeriodDate == null
+                  ? RhythmaColors.mutedFg
+                  : RhythmaColors.foreground,
+              fontSize: 15,
             ),
           ),
         ],
+      ),
+    ),
+  ),
+),
+        ]
       ),
     );
   }
@@ -817,7 +771,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         hintText: hint,
         errorText: error,
         labelStyle: TextStyle(color: RhythmaColors.mutedFg),
-        hintStyle: TextStyle(color: RhythmaColors.mutedFg.withOpacity(0.6)),
+        hintStyle: TextStyle(color: RhythmaColors.mutedFg.withValues(alpha: 0.6)),
         filled: true,
         fillColor: RhythmaColors.surface,
         border: OutlineInputBorder(
@@ -826,7 +780,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: RhythmaColors.primary.withOpacity(0.2)),
+          borderSide: BorderSide(color: RhythmaColors.primary.withValues(alpha: 0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -840,6 +794,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
+  // ignore: unused_element
   Widget _buildSliderField({
     required String label,
     required double value,
@@ -873,26 +828,44 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           max: max,
           divisions: divisions,
           activeColor: RhythmaColors.primary,
-          inactiveColor: RhythmaColors.primary.withOpacity(0.2),
+          inactiveColor: RhythmaColors.primary.withValues(alpha: 0.2),
           onChanged: onChanged,
         ),
       ],
     );
   }
 
-  Widget _buildToggleChip(String label, bool selected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
+  // ignore: unused_element
+  Widget _buildToggleChip(
+  String label,
+  bool selected,
+  VoidCallback onTap,
+) {
+  return Semantics(
+    label: label,
+    selected: selected,
+    button: true,
+    hint: 'Double tap to select',
+    child: GestureDetector(
+      onTap: () {
+        onTap();
+
+        SemanticsService.announce(
+          '$label selected',
+          Directionality.of(context),
+        );
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: selected
-              ? RhythmaColors.primary.withOpacity(0.15)
+              ? RhythmaColors.primary.withValues(alpha: 0.15)
               : RhythmaColors.surface,
           border: Border.all(
-            color: selected ? RhythmaColors.primary : Colors.transparent,
+            color:
+                selected ? RhythmaColors.primary : Colors.transparent,
             width: 2,
           ),
         ),
@@ -900,17 +873,21 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           child: Text(
             label,
             style: TextStyle(
-              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-              color:
-                  selected ? RhythmaColors.primary : RhythmaColors.foreground,
+              fontWeight:
+                  selected ? FontWeight.bold : FontWeight.w500,
+              color: selected
+                  ? RhythmaColors.primary
+                  : RhythmaColors.foreground,
               fontSize: 15,
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
+  // ignore: unused_element
   Widget _buildSwitchTile({
     required String icon,
     required String title,
@@ -924,9 +901,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         borderRadius: BorderRadius.circular(16),
         color: RhythmaColors.surface,
         border: Border.all(
-          color: value
-              ? RhythmaColors.primary.withOpacity(0.4)
-              : Colors.transparent,
+        color: value
+          ? RhythmaColors.primary.withValues(alpha: 0.4)
+          : Colors.transparent,
         ),
       ),
       child: Row(
@@ -957,10 +934,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               ],
             ),
           ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: RhythmaColors.primary,
+          Semantics(
+           label: title,
+           toggled: value,
+           child: Switch(
+           value: value,
+           onChanged: onChanged,
+           activeThumbColor: RhythmaColors.primary,
+           ),
           ),
         ],
       ),

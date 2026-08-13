@@ -3,19 +3,26 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
+import 'components/biometric_auth_gate.dart';
 import 'components/bottom_nav.dart';
+import 'components/debug_data_indicator.dart';
 import 'components/shared.dart';
 import 'config/theme.dart';
 
+import 'providers/data_mode_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/cycle_provider.dart';
 import 'providers/profile_provider.dart';
+import 'providers/sync_status_provider.dart';
+import 'providers/dashboard_provider.dart';
 
 import 'screens/assistant/assistant_screen.dart';
+import 'screens/auth/language_selection_screen.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/auth/register_screen.dart';
 import 'screens/cycle/cycle_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/insights/insights_screen.dart';
@@ -24,6 +31,7 @@ import 'screens/profile/profile_screen.dart';
 
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
+import 'services/firestore_service.dart';
 import 'services/local_storage_service.dart';
 import 'services/notification_service.dart';
 
@@ -32,8 +40,21 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await LocalStorageService.init();
+
+  // Migration: existing users who completed onboarding already chose a language.
+  // Mark language selection as completed so they are not shown the picker again.
+  if (LocalStorageService.onboardingCompleted &&
+      !LocalStorageService.languageSelectionCompleted) {
+    await LocalStorageService.setLanguageSelectionCompleted(true);
+  }
+
   await NotificationService.instance.init();
+  await NotificationService.instance.scheduleAllAutomaticNotifications();
+  await FirestoreService.init();
 
   ApiClient.init(onUnauthorized: () {
     final navigator = rootNavigatorKey.currentState;
@@ -51,18 +72,35 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => DataModeProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => CycleProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => SyncStatusProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),
       ],
       child: const RhythmaApp(),
     ),
   );
 }
 
-class RhythmaApp extends StatelessWidget {
+class RhythmaApp extends StatefulWidget {
   const RhythmaApp({super.key});
+
+  @override
+  State<RhythmaApp> createState() => _RhythmaAppState();
+}
+
+class _RhythmaAppState extends State<RhythmaApp> {
+  // Created once, not inline in build(): a FutureBuilder whose `future` is
+  // constructed fresh on every build restarts (goes back to `waiting`) on
+  // every rebuild — and rebuilds happen for reasons unrelated to auth,
+  // e.g. a locale or theme change calling notifyListeners(). That was
+  // tearing down RhythmaRoot (and whatever onboarding page the user was
+  // on) back to the splash screen, then to a brand new RhythmaRoot, every
+  // time onboarding's language step changed the locale.
+  late final Future<String?> _sessionFuture = AuthService().validateSession();
 
   @override
   Widget build(BuildContext context) {
@@ -87,24 +125,31 @@ class RhythmaApp extends StatelessWidget {
         Locale('ta'),
         Locale('te'),
         Locale('mr'),
+        Locale('gu'),
+        Locale('kn'),
+        Locale('ml'),
+        Locale('bn'),
       ],
       home: FutureBuilder<String?>(
         // Confirms the stored token is still genuinely valid (not merely
         // present) via a lightweight /auth/me check, and scopes local
         // storage to the resulting account — see AuthService.validateSession.
-        future: AuthService().validateSession(),
+        future: _sessionFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const SplashScreen();
           }
-          return snapshot.data != null
-              ? const RhythmaRoot()
-              : const LoginScreen();
+          if (snapshot.data != null) {
+            return const BiometricAuthGate(child: RhythmaRoot());
+          }
+          if (!LocalStorageService.languageSelectionCompleted) {
+            return const LanguageSelectionScreen();
+          }
+          return const LoginScreen();
         },
       ),
       routes: {
         '/login': (_) => const LoginScreen(),
-        '/register': (_) => const RegisterScreen(),
         '/home': (_) => const RhythmaRoot(),
         '/assistant': (_) => const ShellBackground(child: AssistantScreen()),
       },
@@ -187,20 +232,25 @@ class _RhythmaShellState extends State<RhythmaShell> {
       decoration: BoxDecoration(
         gradient: RhythmaGradients.bg,
       ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        extendBody: true,
-        body: SafeArea(
-          bottom: false,
-          child: IndexedStack(
-            index: _currentIndex,
-            children: _screens,
+      child: Stack(
+        children: [
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            extendBody: true,
+            body: SafeArea(
+              bottom: false,
+              child: IndexedStack(
+                index: _currentIndex,
+                children: _screens,
+              ),
+            ),
+            bottomNavigationBar: RhythmaBottomNav(
+              currentIndex: _currentIndex,
+              onTap: (i) => setState(() => _currentIndex = i),
+            ),
           ),
-        ),
-        bottomNavigationBar: RhythmaBottomNav(
-          currentIndex: _currentIndex,
-          onTap: (i) => setState(() => _currentIndex = i),
-        ),
+          const DebugDataIndicator(),
+        ],
       ),
     );
   }

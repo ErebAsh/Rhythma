@@ -18,13 +18,13 @@
   "cancel": "रद्द करा",
   "loggedOutSuccess": "यशस्वीरित्या लॉग आउट झाले",
   "selectLanguage": "भाषा निवडा",
-  
   "homeGreeting": "नमस्कार",
   "homePhaseDesc": "दिवस 14 · ओव्हुलेशन टप्पा",
   "homeNextPeriod": "पुढील पाळी",
   "homeDaysLabel": "दिवस",
   "homeFertileWindow": "सुपीक काळ · ",
   "homeHighEnergy": "उच्च ऊर्जा",
+  "homeFertileWindowDisclaimer": "हा तुमच्या नोंदवलेल्या माहितीवर आधारित अंदाज आहे, वैद्यकीय किंवा गर्भनिरोधक सल्ला नाही.",
   "homeAiTitle": "रिद्मा एआय",
   "homeAiSubtitle": "मला तुमच्या शरीराबद्दल काहीही विचारा,\nतुमच्या भाषेत.",
   "homeAiPrompt": "माझी पाळी अनियमित का आहे?",
@@ -42,7 +42,6 @@
   "homeLearnHormones": "हार्मोन्स 101",
   "homeLearnIron": "लोहयुक्त पदार्थ",
   "homeArticle": "लेख",
-  
   "cycleTrackerTitle": "चक्र ट्रॅकर",
   "cyclePhasePeriod": "मासिक पाळी",
   "cyclePhaseFollicular": "फॉलिक्युलर",
@@ -66,7 +65,6 @@
   "logSympAcne": "मुरुमे",
   "logLabelEnergy": "ऊर्जा",
   "logLabelSymptoms": "लक्षणे",
-  
   "assistantTitle": "रिद्मा सहाय्यक",
   "assistantSubtitle": "तुमचा वैयक्तिक आरोग्य सोबती",
   "assistantInputHint": "तुमचा प्रश्न विचारा...",
@@ -76,7 +74,7 @@
   "assistantSug3": "35 दिवसांचे चक्र सामान्य आहे का?",
   "assistantSug4": "पीएमएसमध्ये उपयुक्त आहार",
   "assistantSug5": "माझे पीरियड्स अनियमित आहेत — हे सामान्य आहे का?",
-
+  "assistantDisclaimer": "हा सहाय्यक फक्त सामान्य आरोग्य माहिती देतो आणि तो व्यावसायिक वैद्यकीय सल्ल्याचा पर्याय नाही.",
   "insightsTitle": "आरोग्य अंतर्दृष्टी",
   "insightsSubtitle": "मागील 90 दिवस",
   "insightsMhsLabel": "मासिक पाळी आरोग्य स्कोअर",
@@ -94,7 +92,7 @@
   "insightsRec1": "पाळी सुरू होण्यापूर्वी लोहयुक्त पदार्थ घ्या",
   "insightsRec2": "ल्युटियल टप्प्यात 10 मिनिटे योग करा",
   "insightsRec3": "ओव्हुलेशनच्या आठवड्यात 2.5L पाणी प्या",
-  
+  "insightsDisclaimer": "ही माहिती तुम्ही नोंदवलेल्या डेटावर आधारित आहे आणि केवळ वैयक्तिक ट्रॅकिंगसाठी आहे. हे वैद्यकीय निदान नाही आणि पात्र आरोग्य तज्ञाच्या सल्ल्याचा पर्याय नाही.",
   "profileTitle": "प्रोफाइल",
   "profileYearsOld": "वर्षांची",
   "profileCycleDay": "चक्राचा दिवस",
@@ -119,18 +117,21 @@
   "profileEmergencyContactsTitle": "आणीबाणी संपर्क",
   "profileAddNew": "नवीन जोडा",
   "profileNoContacts": "अद्याप कोणताही आणीबाणी संपर्क सेट केलेला नाही.",
-  
+  "profileAgeInvalidError": "कृपया वैध वय प्रविष्ट करा",
+  "profileCycleInvalidError": "कृपया वैध मासिक पाळी चक्र कालावधी प्रविष्ट करा",
+  "profilePhoneInvalidError": "कृपया वैध फोन क्रमांक प्रविष्ट करा",
+  "edit": "संपादित करा",
+  "delete": "हटवा",
+  "onboardingAvatarOption": "अवतार पर्याय",
   "navHome": "होम",
   "navCycle": "सायकल",
   "navAsk": "विचारा",
   "navYou": "प्रोफाइल",
   "navInsights": "अंतर्ज्ञान",
-  
   "settingsHelpSupport": "मदत आणि समर्थन",
   "settingsContactUs": "आमच्याशी संपर्क साधा / बगची तक्रार करा",
   "settingsContactDesc": "आमच्या सपोर्ट टीमला ईमेल पाठवा",
   "settingsEmailError": "ईमेल ॲप उघडू शकलो नाही. कृपया आम्हाला support@rhythma.com वर ईमेल करा",
-
   "onboardingPrivacyNote": "तुमची माहिती तुमच्या डिव्हाइसवर राहते. तुमच्या परवानगीशिवाय आम्ही कधीही तुमचा डेटा शेअर करत नाही.",
   "onboardingNext": "पुढे",
   "onboardingBack": "मागे",

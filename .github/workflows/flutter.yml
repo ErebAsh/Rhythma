@@ -42,6 +42,14 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Validate default API URL is HTTPS
+        run: |
+          if ! grep -q "defaultValue: 'https://" lib/config/app_config.dart; then
+            echo "ERROR: Default API_BASE_URL must use HTTPS for release builds."
+            echo "Use --dart-define=API_BASE_URL=http://... for local development."
+            exit 1
+          fi
+
       - name: Create mock .env for analyzer
         run: cp .env.example .env
 

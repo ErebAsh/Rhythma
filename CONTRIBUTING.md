@@ -54,13 +54,20 @@ Note: `android/`, `ios/`, and the other platform folders are already committed t
 
 **Backend:**
 
-```
+```bash
 cd backend
 python -m venv venv && source venv/bin/activate
 pip install -r ../requirements.txt
 cp .env.example .env    # JWT_SECRET and Firebase credentials are required
 uvicorn main:app --reload
 ```
+**Note on Firestore Mock Mode:**
+
+If no Firebase credentials (FIREBASE_CREDENTIALS_JSON or service account key) are provided in backend/.env, firestore_service.py automatically falls back to an in-memory MockFirestoreClient.
+
+Data Persistence: In mock mode, all logged data is stored strictly in memory and will be lost every time the backend restarts.
+
+Persistent Setup: If your feature requires persistent local backend data across restarts, refer to the Firebase Setup Instructions in README.md to configure your local .env with actual Firebase credentials.
 
 **Web app:**
 
@@ -75,6 +82,42 @@ Note that the web app is an early scaffold — you'll get a working login/regist
 
 Full setup details, environment variables, and Firebase configuration live in the [README](https://github.com/ishita2740/Rhythma/blob/main/README.md#installation) — not duplicating that here; keeping this file focused on the *contribution process*.
 
+## Environment Configuration
+
+The Flutter app supports configuring the backend URL through
+`--dart-define`.
+
+### Development
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1
+```
+
+### Custom Backend
+
+```bash
+flutter run --dart-define=API_BASE_URL=https://your-backend-url/api/v1
+```
+
+### Release Build
+
+```bash
+flutter build apk --dart-define=API_BASE_URL=https://your-backend-url/api/v1
+```
+
+### Helper Scripts
+
+Instead of manually typing the build commands, use:
+
+```bash
+scripts/run_dev.bat
+scripts/run_staging.bat
+scripts/run_prod.bat
+
+scripts/build_dev.bat
+scripts/build_staging.bat
+scripts/build_prod.bat
+```
 ---
 
 ## Feature Areas Open for Contribution

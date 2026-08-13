@@ -68,8 +68,7 @@ class ThemeScreen extends StatelessWidget {
                 alignment: WrapAlignment.center,
                 children: predefinedColors.map((item) {
                   final color = item['color'] as Color;
-                  final isSelected =
-                      themeProvider.primaryColor.value == color.value;
+                  final isSelected = themeProvider.primaryColor.toARGB32() == color.toARGB32();
 
                   return GestureDetector(
                     onTap: () {
@@ -87,7 +86,7 @@ class ThemeScreen extends StatelessWidget {
                             : null,
                         boxShadow: [
                           BoxShadow(
-                            color: color.withOpacity(0.4),
+                            color: color.withValues(alpha: 0.4),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           )

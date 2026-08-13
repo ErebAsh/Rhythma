@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rhythma/l10n/app_localizations.dart';
+import '../../../providers/cycle_provider.dart';
+import '../../../services/cycle_service.dart';
 import '../../../services/local_storage_service.dart';
+import '../../../utils/date_utils.dart';
+import '../../../utils/log_options.dart';
 
 class LogEntrySheet extends StatefulWidget {
   final DateTime date;
@@ -56,7 +61,7 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
   void _saveLog() {
     final log = {
       if (widget.existingLog != null) ...widget.existingLog!,
-      'start_date': widget.date.toIso8601String().split('T')[0],
+      'start_date': RhythmaDateUtils.toDateKey(widget.date),
       if (_flowIntensity != null) 'flow_intensity': _flowIntensity,
       if (_mood != null) 'mood': _mood,
       'sleep_hours': _sleepHours,
@@ -64,6 +69,44 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
       'symptoms': _symptoms,
     };
     LocalStorageService.saveCycleLog(log);
+    Navigator.of(context).pop();
+  }
+
+  Future<void> _deleteLog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Entry'),
+        content: const Text(
+          'Are you sure you want to delete this day\'s log? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final dateKey = RhythmaDateUtils.toDateKey(widget.date);
+    await LocalStorageService.deleteCycleLog(dateKey);
+
+    // Best-effort backend sync — don't block the UI if it fails.
+    try {
+      await CycleService().deleteLog(dateKey);
+    } catch (_) {
+      // Local delete succeeded; backend sync will retry via Firestore.
+    }
+
+    if (!mounted) return;
+    context.read<CycleProvider>().refresh();
     Navigator.of(context).pop();
   }
 
@@ -91,9 +134,20 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
                     style: theme.textTheme.headlineSmall
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
+                  Row(
+                    children: [
+                      if (widget.existingLog != null)
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline_rounded),
+                          color: Colors.red,
+                          tooltip: 'Delete entry',
+                          onPressed: _deleteLog,
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -107,14 +161,12 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
                         style: theme.textTheme.titleMedium),
                     const SizedBox(height: 8),
                     SegmentedButton<String>(
-                      segments: [
-                        ButtonSegment(
-                            value: 'Light', label: Text(l10n.logLight)),
-                        ButtonSegment(
-                            value: 'Medium', label: Text(l10n.logMedium)),
-                        ButtonSegment(
-                            value: 'Heavy', label: Text(l10n.logHeavy)),
-                      ],
+                      segments: LogOptions.flow(l10n)
+                          .where((o) => o.value != 'none')
+                          .map((option) => ButtonSegment(
+                              value: option.value,
+                              label: Text(option.label)))
+                          .toList(),
                       selected: _flowIntensity != null
                           ? {_flowIntensity!}
                           : <String>{},

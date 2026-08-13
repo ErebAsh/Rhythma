@@ -64,6 +64,21 @@ class AppLocalizationsTe extends AppLocalizations {
   String get selectLanguage => 'భాషను ఎంచుకోండి';
 
   @override
+  String get langEnglish => 'English';
+
+  @override
+  String get langHindi => 'हिन्दी (Hindi)';
+
+  @override
+  String get langTamil => 'தமிழ் (Tamil)';
+
+  @override
+  String get langTelugu => 'తెలుగు (Telugu)';
+
+  @override
+  String get langMarathi => 'मराठी (Marathi)';
+
+  @override
   String get homeGreeting => 'నమస్తే';
 
   @override
@@ -80,6 +95,10 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get homeHighEnergy => 'అధిక శక్తి';
+
+  @override
+  String get homeFertileWindowDisclaimer =>
+      'ఇది మీరు నమోదు చేసిన డేటా ఆధారంగా ఒక అంచనా మాత్రమే, వైద్య లేదా గర్భనిరోధక సలహా కాదు.';
 
   @override
   String get homeAiTitle => 'రిథ్మా ఏఐ (Rhythma AI)';
@@ -142,11 +161,46 @@ class AppLocalizationsTe extends AppLocalizations {
   String get homeRetry => 'మళ్లీ ప్రయత్నించండి';
 
   @override
+  String get homeMhs => 'MHS';
+
+  @override
+  String get homeCvi => 'CVI';
+
+  @override
+  String get homeSleep => 'నిద్ర';
+
+  @override
   String get homeComingSoon => 'త్వరలో';
 
   @override
   String homeUnderDevelopment(String topic) {
     return '$topic ప్రస్తుతం అభివృద్ధిలో ఉంది.';
+  }
+
+  @override
+  String get homeErrorNetwork =>
+      'దయచేసి మీ ఇంటర్నెట్ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get homeErrorAuth =>
+      'మీ సెషన్ గడువు ముగిసింది. దయచేసి మళ్లీ లాగిన్ చేయండి.';
+
+  @override
+  String get homeErrorServer =>
+      'మా వైపు ఏదో తప్పు జరిగింది. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get homeErrorGeneric =>
+      'డేటాను లోడ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String homeQuickLogTitle(String label) {
+    return '$label నమోదు చేయండి';
+  }
+
+  @override
+  String homeQuickLogSaved(String label, String value) {
+    return '$label నమోదు చేయబడింది: $value';
   }
 
   @override
@@ -157,6 +211,9 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get cycleTrackerTitle => 'సైకిల్ ట్రాకర్';
+
+  @override
+  String get cycleToday => 'ఈ రోజు';
 
   @override
   String get cyclePhasePeriod => 'రుతుక్రమం';
@@ -264,8 +321,9 @@ class AppLocalizationsTe extends AppLocalizations {
   String get assistantInputHint => 'మీ ప్రశ్న అడగండి...';
 
   @override
-  String get assistantWelcome =>
-      'నమస్తే ఆర్య 🌸 నేను రిథ్మా, మీ వ్యక్తిగత ఆరోగ్య సహచరుడిని. మీ రుతుక్రమం, లక్షణాలు గురించి నన్ను ఏదైనా అడగండి — ఇంగ్లీష్, హిందీ, మరాఠీ లేదా తమిళంలో.';
+  String assistantWelcome(String name) {
+    return 'నమస్తే $name 🌸 నేను రిథ్మా, మీ వ్యక్తిగత ఆరోగ్య సహచరుడిని. మీ రుతుక్రమం, లక్షణాలు గురించి నన్ను ఏదైనా అడగండి — ఇంగ్లీష్, హిందీ, మరాఠీ లేదా తమిళంలో.';
+  }
 
   @override
   String get assistantSug1 => 'నా రుతుక్రమం ఎందుకు క్రమం తప్పింది?';
@@ -281,6 +339,10 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get assistantSug5 => 'నా రుతుక్రమం క్రమం తప్పింది — ఇది సాధారణమేనా?';
+
+  @override
+  String get assistantDisclaimer =>
+      'ఈ సహాయకుడు సాధారణ ఆరోగ్య సమాచారాన్ని మాత్రమే అందిస్తుంది మరియు వృత్తిపరమైన వైద్య సలహాకు ప్రత్యామ్నాయం కాదు.';
 
   @override
   String get insightsTitle => 'ఆరోగ్య అంతర్దృష్టులు';
@@ -335,6 +397,10 @@ class AppLocalizationsTe extends AppLocalizations {
   String get insightsRec3 => 'అండోత్సర్గం వారంలో 2.5L నీరు త్రాగండి';
 
   @override
+  String get insightsDisclaimer =>
+      'ఈ అంతర్దృష్టులు మీరు నమోదు చేసిన సమాచారంపై ఆధారపడి ఉంటాయి మరియు వ్యక్తిగత ట్రాకింగ్ కోసం మాత్రమే ఉద్దేశించబడ్డాయి. ఇది వైద్య నిర్ధారణ కాదు మరియు అర్హత కలిగిన వైద్య నిపుణుల సలహాకు ప్రత్యామ్నాయం కాదు.';
+
+  @override
   String get profileTitle => 'ప్రొఫైల్';
 
   @override
@@ -386,6 +452,9 @@ class AppLocalizationsTe extends AppLocalizations {
   String get profileSaveChanges => 'మార్పులను భద్రపరుచు';
 
   @override
+  String get profileNameEmptyError => 'Please enter a valid name';
+
+  @override
   String get profileAddContact => 'పరిచయాన్ని జోడించండి';
 
   @override
@@ -406,6 +475,29 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get profileNoContacts =>
       'ఇంకా ఎటువంటి అత్యవసర పరిచయాలు సెటప్ చేయబడలేదు.';
+
+  @override
+  String get profileAgeInvalidError => 'దయచేసి సరైన వయస్సును నమోదు చేయండి';
+
+  @override
+  String get profileCycleInvalidError =>
+      'దయచేసి సరైన రుతుచక్ర వ్యవధిని నమోదు చేయండి';
+
+  @override
+  String get profilePhoneInvalidError =>
+      'దయచేసి సరైన ఫోన్ నంబర్‌ను నమోదు చేయండి';
+
+  @override
+  String get contactNameRequiredError => 'Contact name is required';
+
+  @override
+  String get edit => 'సవరించు';
+
+  @override
+  String get delete => 'తొలగించు';
+
+  @override
+  String get onboardingAvatarOption => 'అవతార్ ఎంపిక';
 
   @override
   String get navHome => 'హోమ్';
@@ -434,6 +526,19 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get settingsEmailError =>
       'ఇమెయిల్ యాప్‌ను తెరవలేకపోయాము. దయచేసి మాకు support@rhythma.com లో ఇమెయిల్ చేయండి';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExportData => 'Export My Data';
+
+  @override
+  String get settingsExportDataDesc =>
+      'Download your profile, contacts, and cycle logs as JSON';
+
+  @override
+  String get settingsExportSuccess => 'Data exported successfully';
 
   @override
   String get onboardingPrivacyNote =>
@@ -518,6 +623,9 @@ class AppLocalizationsTe extends AppLocalizations {
   String get onboardingPhoneLabel => 'ఫోన్ నంబర్ (ఐచ్ఛికం)';
 
   @override
+  String get onboardingPhoneHint => 'e.g. +919876543210';
+
+  @override
   String get onboardingCityLabel => 'నగరం (ఐచ్ఛికం)';
 
   @override
@@ -559,4 +667,324 @@ class AppLocalizationsTe extends AppLocalizations {
   @override
   String get onboardingWeightInvalid =>
       'దయచేసి చెల్లుబాటు అయ్యే బరువు నమోదు చేయండి (20–300 కిలో)';
+
+  @override
+  String get onboardingPhoneInvalid =>
+      'దయచేసి చెల్లుబాటు అయ్యే ఫోన్ నంబర్‌ను నమోదు చేయండి';
+
+  @override
+  String get onboardingAgeRequired =>
+      'దయచేసి మీ వయస్సు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
+
+  @override
+  String get onboardingHeightRequired =>
+      'దయచేసి మీ ఎత్తు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
+
+  @override
+  String get onboardingWeightRequired =>
+      'దయచేసి మీ బరువు నమోదు చేయండి లేదా పరిధిని ఎంచుకోండి';
+
+  @override
+  String get onboardingNotSure => 'ఖచ్చితంగా తెలియదు';
+
+  @override
+  String get onboardingApproximate => 'అంచనా';
+
+  @override
+  String get onboardingAgeHint => 'మీ వయస్సు నమోదు చేయండి';
+
+  @override
+  String get onboardingAgeUnit => 'సంవత్సరాలు';
+
+  @override
+  String get onboardingHeightHint => 'మీ ఎత్తు నమోదు చేయండి';
+
+  @override
+  String get onboardingHeightUnit => 'సెం.మీ';
+
+  @override
+  String get onboardingWeightHint => 'మీ బరువు నమోదు చేయండి';
+
+  @override
+  String get onboardingWeightUnit => 'కేజీలు';
+
+  @override
+  String get onboardingRangeUnder18 => '18 కంటే తక్కువ';
+
+  @override
+  String get onboardingRange18to25 => '18–25';
+
+  @override
+  String get onboardingRange26to35 => '26–35';
+
+  @override
+  String get onboardingRange36to50 => '36–50';
+
+  @override
+  String get onboardingRange51to65 => '51–65';
+
+  @override
+  String get onboardingRangeOver65 => '65 కంటే ఎక్కువ';
+
+  @override
+  String get onboardingRangeUnder150 => '150 సెం.మీ కంటే తక్కువ';
+
+  @override
+  String get onboardingRange150to160 => '150–160 సెం.మీ';
+
+  @override
+  String get onboardingRange161to170 => '161–170 సెం.మీ';
+
+  @override
+  String get onboardingRange171to180 => '171–180 సెం.మీ';
+
+  @override
+  String get onboardingRangeOver180 => '180 సెం.మీ కంటే ఎక్కువ';
+
+  @override
+  String get onboardingRangeUnder50kg => '50 కేజీల కంటే తక్కువ';
+
+  @override
+  String get onboardingRange50to65kg => '50–65 కేజీలు';
+
+  @override
+  String get onboardingRange66to80kg => '66–80 కేజీలు';
+
+  @override
+  String get onboardingRange81to100kg => '81–100 కేజీలు';
+
+  @override
+  String get onboardingRangeOver100kg => '100 కేజీల కంటే ఎక్కువ';
+
+  @override
+  String get onboardingTapToSelectDate => 'తేదీని ఎంచుకోవడానికి ట్యాప్ చేయండి';
+
+  @override
+  String get onboardingDays => 'రోజులు';
+
+  @override
+  String get onboardingApproximateLabel => 'When was your last period?';
+
+  @override
+  String get onboardingApproximateLessWeek => 'Less than a week ago';
+
+  @override
+  String get onboardingApproximate1to2Weeks => '1–2 వారాల క్రితం';
+
+  @override
+  String get onboardingApproximate3to4Weeks => '3–4 వారాల క్రితం';
+
+  @override
+  String get onboardingApproximateMoreMonth => 'ఒక నెల కంటే ఎక్కువ క్రితం';
+
+  @override
+  String get onboardingPickExactDate =>
+      'దాని బదులుగా ఖచ్చితమైన తేదీని ఎంచుకోండి';
+
+  @override
+  String get onboardingLastPeriodRequired =>
+      'మీ చివరి పీరియడ్ ఎప్పుడు ప్రారంభమైందో ఎంచుకోండి';
+
+  @override
+  String get nudgeCompleteProfileTitle => 'మరింత ఖచ్చితమైన అంచనాలు కావాలా?';
+
+  @override
+  String get nudgeCompleteProfileBody =>
+      'సైకిల్ అంచనాలను మెరుగుపరచడానికి మీ చివరి పీరియడ్ ఖచ్చితమైన ప్రారంభ తేదీని జోడించండి.';
+
+  @override
+  String get nudgeCompleteProfileAction => 'అప్‌డేట్';
+
+  @override
+  String get nudgeCompleteProfileDismiss => 'తర్వాత';
+
+  @override
+  String get smsScreenTitle => 'ఎస్‌ఎంఎస్ సారాంశాలు';
+
+  @override
+  String get smsScreenSubtitle => 'యాప్ లేకుండా కూడా సమాచారం పొందండి';
+
+  @override
+  String get smsInfoCardTitle => 'వారపు ఆరోగ్య సారాంశం';
+
+  @override
+  String get smsInfoCardBody =>
+      'ప్రతి వారం, మీ చక్ర స్థితి, ఆరోగ్య స్కోరు మరియు ముఖ్యమైన నమూనాల సంక్షిప్త సారాంశాన్ని Rhythma నేరుగా ఎస్‌ఎంఎస్ ద్వారా మీ ఫోన్‌కు పంపుతుంది, డేటా లేదా యాప్ లేకుండా కూడా పనిచేస్తుంది.';
+
+  @override
+  String get smsConfigTitle => 'కాన్ఫిగరేషన్';
+
+  @override
+  String get smsPhoneLabel => 'ఫోన్ నంబర్';
+
+  @override
+  String get smsPhoneHint => '+91 98765 43210';
+
+  @override
+  String get smsEnableWeekly => 'వారపు ఎస్‌ఎంఎస్‌ను ప్రారంభించండి';
+
+  @override
+  String get smsSaveSettings => 'సెట్టింగ్‌లను సేవ్ చేయండి';
+
+  @override
+  String get smsSendSectionTitle => 'ఇప్పుడు సారాంశం పంపండి';
+
+  @override
+  String get smsSendRecipientPrefix => 'దిగువ సందేశం ఈ నంబర్‌కు పంపబడుతుంది:';
+
+  @override
+  String get smsSendNoPhone => 'ముందుగా పైన ఫోన్ నంబర్‌ను జోడించి సేవ్ చేయండి.';
+
+  @override
+  String get smsSendButton => 'ఇప్పుడు సారాంశం పంపండి';
+
+  @override
+  String get smsErrorEnterPhone => 'దయచేసి ఫోన్ నంబర్‌ను నమోదు చేయండి';
+
+  @override
+  String get smsErrorInvalidPhone =>
+      'అంతర్జాతీయ ఆకృతిలో సరైన ఫోన్ నంబర్‌ను నమోదు చేయండి, ఉదా. +919876543210';
+
+  @override
+  String get smsSuccessSaved =>
+      'ఎస్‌ఎంఎస్ సెట్టింగ్‌లు విజయవంతంగా సేవ్ చేయబడ్డాయి!';
+
+  @override
+  String get smsErrorAddPhoneFirst =>
+      'ముందుగా ఫోన్ నంబర్‌ను జోడించి సేవ్ చేయండి';
+
+  @override
+  String get smsSuccessSent => 'సారాంశం మీ ఫోన్‌కు పంపబడింది!';
+
+  @override
+  String get smsErrorRateLimit =>
+      'మీరు నిమిషానికి ఒక సారాంశాన్ని మాత్రమే పంపవచ్చు, దయచేసి కొంత సమయం తర్వాత మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get smsErrorSessionExpired =>
+      'మీ సెషన్ గడువు ముగిసింది. దయచేసి మళ్లీ లాగిన్ చేయండి.';
+
+  @override
+  String get smsErrorNetwork =>
+      'సర్వర్‌ను చేరుకోలేకపోయాము. మీ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get smsErrorGeneric =>
+      'ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get smsLoadError =>
+      'మీ ఎస్‌ఎంఎస్ సెట్టింగ్‌లను లోడ్ చేయలేకపోయాము. రిఫ్రెష్ చేయండి లేదా మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get smsSummaryMessage =>
+      '🌸 Rhythma ఆరోగ్య సారాంశం\nఇది Rhythma నుండి మీ ఆన్-డిమాండ్ సారాంశం.\nమీ తాజా చక్ర సమాచారం కోసం యాప్‌ను తెరవండి.\nసబ్‌స్క్రిప్షన్ రద్దు చేయడానికి STOP అని రిప్లై ఇవ్వండి.';
+
+  @override
+  String insightsLoadError(String error) {
+    return 'మీ విశ్లేషణలను లోడ్ చేయలేకపోయాము: $error';
+  }
+
+  @override
+  String get insightsNotEnoughData =>
+      'మీ పూర్తి ఆరోగ్య విశ్లేషణలను అన్లాక్ చేయడానికి Cycle ట్యాబ్‌లో మరికొన్ని చక్రాలను లాగ్ చేయండి.';
+
+  @override
+  String get insightsNoSymptomsYet =>
+      'ఇంకా లక్షణాలు ఏవీ లాగ్ చేయబడలేదు — Cycle ట్యాబ్‌లో కొన్నింటిని లాగ్ చేయండి.';
+
+  @override
+  String get insightsNotEnoughTrendData =>
+      'మీ ట్రెండ్ చూడటానికి కనీసం రెండు చక్రాలను లాగ్ చేయండి.';
+
+  @override
+  String get assistantAccessibilitySuggestedPrompt => 'Suggested prompt';
+
+  @override
+  String get assistantAccessibilityMessageInput => 'Message input';
+
+  @override
+  String get assistantAccessibilityMessageInputHint =>
+      'Type your question here';
+
+  @override
+  String get assistantAccessibilitySendMessage => 'Send message';
+
+  @override
+  String get assistantAccessibilitySendMessageHint =>
+      'Sends your message to the assistant';
+
+  @override
+  String get assistantAccessibilityTyping => 'Assistant is typing';
+
+  @override
+  String get languageSelectionError =>
+      'భాషను సేవ్ చేయడం సాధ్యం కాలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountConfirmationDesc =>
+      'This action is permanent and cannot be undone. All your data will be wiped.';
+
+  @override
+  String get accountDeletedSuccess => 'Account deleted successfully.';
+
+  @override
+  String get langGujarati => 'ગુજરાતી (Gujarati)';
+
+  @override
+  String get welcomeToRhythma => 'Welcome to Rhythma';
+
+  @override
+  String get loginOrSignUpWithPhone => 'Log in or sign up with your phone number.';
+
+  @override
+  String get enterOtpSentToPhone => 'Enter the OTP sent to your phone';
+
+  @override
+  String get phoneNumber => 'Phone Number';
+
+  @override
+  String get getOtp => 'Get OTP';
+
+  @override
+  String get sendingOtp => 'Sending OTP...';
+
+  @override
+  String get otp => 'OTP';
+
+  @override
+  String get verifyOtp => 'Verify OTP';
+
+  @override
+  String get verifying => 'Verifying...';
+
+  @override
+  String get useDifferentPhoneNumber => 'Use a different phone number';
+
+  @override
+  String get pleaseEnterPhoneNumber => 'Please enter your phone number.';
+
+  @override
+  String get pleaseEnterValidPhoneNumber => 'Please enter a valid phone number with country code (e.g., +91).';
+
+  @override
+  String get verificationFailed => 'Verification failed';
+
+  @override
+  String otpSentTo(String phone) => 'OTP sent to $phone';
+
+  @override
+  String get pleaseEnterOtp => 'Please enter the OTP.';
+
+  @override
+  String get invalidOtp => 'Invalid OTP. Please try again.';
+
+  @override
+  String get failedToGetIdToken => 'Failed to get ID token';
 }
