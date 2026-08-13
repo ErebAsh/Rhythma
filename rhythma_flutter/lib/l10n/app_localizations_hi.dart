@@ -36,7 +36,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get medicineAlerts => 'दवा अलर्ट';
 
   @override
-  String get wellnessTips => 'कल्याण टिप्स';
+  String get wellnessTips => 'स्वास्थ्य संबंधी सुझाव';
 
   @override
   String get securityPrivacyTitle => 'सुरक्षा और गोपनीयता';
@@ -76,7 +76,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get homeDaysLabel => 'दिन';
 
   @override
-  String get homeFertileWindow => 'प्रजनन खिड़की · ';
+  String get homeFertileWindow => 'उपजाऊ अवधि · ';
 
   @override
   String get homeHighEnergy => 'उच्च ऊर्जा';
@@ -86,7 +86,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get homeAiSubtitle =>
-      'मुझसे अपने शरीर के बारे में कुछ भी पूछें,\nअपनी भाषा में।';
+      'अपने शरीर से जुड़ा कोई भी प्रश्न अपनी भाषा में मुझसे पूछें।';
 
   @override
   String get homeAiPrompt => 'मेरे मासिक धर्म अनियमित क्यों हैं?';
@@ -114,7 +114,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get homeWeeklyInsightTitle =>
-      'इस सप्ताह आपकी नींद में 12% सुधार हुआ है - आपका चक्र आपको धन्यवाद दे सकता है।';
+      'इस सप्ताह आपकी नींद में 12% सुधार हुआ है। यह आपके मासिक धर्म चक्र के लिए लाभदायक हो सकता है।';
 
   @override
   String get homeWeeklyInsightDesc =>
@@ -258,14 +258,14 @@ class AppLocalizationsHi extends AppLocalizations {
   String get assistantTitle => 'रिद्मा सहायक';
 
   @override
-  String get assistantSubtitle => 'आपकी स्वास्थ्य साथी • निजी और सुरक्षित';
+  String get assistantSubtitle => 'आपकी स्वास्थ्य सहयोगी • सुरक्षित और निजी';
 
   @override
-  String get assistantInputHint => 'अपना सवाल पूछें...';
+  String get assistantInputHint => 'अपना प्रश्न पूछें...';
 
   @override
   String get assistantWelcome =>
-      'नमस्ते आर्या 🌸 मैं रिद्मा हूँ, आपकी निजी स्वास्थ्य साथी। मुझसे अपने चक्र, लक्षणों या स्वास्थ्य के बारे में कुछ भी पूछें — अंग्रेजी, हिंदी, मराठी या तमिल में।';
+      'नमस्ते आर्या 🌸 मैं रिद्मा हूँ, आपकी निजी स्वास्थ्य सहयोगी। अपने मासिक धर्म चक्र, लक्षणों या स्वास्थ्य से जुड़ा कोई भी प्रश्न मुझसे अंग्रेज़ी, हिंदी, मराठी या तमिल में पूछ सकती हैं।';
 
   @override
   String get assistantSug1 => 'मेरे मासिक धर्म अनियमित क्यों हैं?';
@@ -338,7 +338,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get profileTitle => 'प्रोफ़ाइल';
 
   @override
-  String get profileYearsOld => 'साल की';
+  String get profileYearsOld => 'वर्ष';
 
   @override
   String get profileCycleDay => 'चक्र का दिन';
@@ -429,7 +429,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get settingsContactUs => 'हमसे संपर्क करें / बग की रिपोर्ट करें';
 
   @override
-  String get settingsContactDesc => 'हमारी सहायता टीम को ईमेल भेजें';
+  String get settingsContactDesc => 'हमारी सहायता टीम को ईमेल करें';
 
   @override
   String get settingsEmailError =>

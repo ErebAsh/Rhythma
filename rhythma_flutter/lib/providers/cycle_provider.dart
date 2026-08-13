@@ -73,6 +73,13 @@ class CycleProvider extends ChangeNotifier {
   }
 
   // Phase logic
+  String phaseKey(DateTime date) {
+  final day = date.day;
+  if (day <= 5) return 'menstrual';
+  if (day <= 13) return 'follicular';
+  if (day <= 16) return 'ovulation';
+  return 'luteal';
+}
   String phase(DateTime date, AppLocalizations l10n) {
     final day = date.day;
     if (day <= 5) return l10n.cyclePhasePeriod;
