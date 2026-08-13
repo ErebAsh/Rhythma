@@ -988,4 +988,12 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get failedToGetIdToken => 'Failed to get ID token';
+  @override
+  String get logFlowVeryHeavy => 'Very Heavy';
+  @override
+  String get logFlowSpotting => 'Spotting';
+  @override
+  String get logSympSeverePain => 'Severe Pain';
+  @override
+  String get logSympFainting => 'Fainting';
 }
