@@ -114,7 +114,7 @@ async def send_sms_summary(
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Rate limit exceeded. Please wait 60 seconds before sending another SMS.",
-            headers={"Retry-After": str(remaining)},
+            headers={"Retry-After": str(int(remaining))},
         )
 
     try:
