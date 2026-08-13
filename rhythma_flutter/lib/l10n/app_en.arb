@@ -241,8 +241,6 @@
   "onboardingNameRequired": "Please enter your name",
   "onboardingAgeInvalid": "Please enter a valid age (10–120)",
   "onboardingHeightInvalid": "Please enter a valid height (50–250 cm)",
-  "onboardingWeightInvalid": "Please enter a valid weight (20–300 kg)"
-
   "onboardingWeightInvalid": "Please enter a valid weight (20–300 kg)",
 
 "ayurvedaWellnessTitle": "Ayurveda-inspired wellness",
