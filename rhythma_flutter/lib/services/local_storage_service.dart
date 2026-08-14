@@ -384,6 +384,10 @@ class LocalStorageService {
       await _settings.delete(k);
     }
     
+    // Also remove unscoped legacy profile & dashboard cache keys
+    await _settings.delete(_Keys.profile);
+    await _settings.delete(_Keys.dashboardCache);
+
     // Also remove the current user id marker
     await _settings.delete(_kCurrentUserId);
   }
