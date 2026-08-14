@@ -58,6 +58,13 @@ class CycleProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int _getCycleDay(DateTime date) {
+    return date.day % 28 == 0 ? 28 : date.day % 28;
+  }
+  
+  int get _periodDuration => 5;
+  int get _cycleLength => 28;
+
   // Phase logic
   String phaseKey(DateTime date) {
   final day = date.day;

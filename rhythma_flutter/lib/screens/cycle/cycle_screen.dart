@@ -14,6 +14,7 @@ import '../../services/local_storage_service.dart';
 import '../../utils/date_utils.dart';
 import '../../utils/log_options.dart';
 import 'components/calendar_grid.dart';
+import 'history_screen.dart';
 
 class CycleScreen extends StatefulWidget {
   const CycleScreen({super.key});
@@ -234,6 +235,9 @@ class _CycleScreenState extends State<CycleScreen> {
     final currentPhaseKey = cycleProvider.phaseKey(selectedDate);
     final phaseContent = ayurvedaContent[currentPhaseKey] ?? [];
 
+    final selectedLog = LocalStorageService.getCycleLogForDate(selectedDate) ?? {};
+    final hasSelections = selectedLog.isNotEmpty;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
       child: Column(
@@ -247,6 +251,18 @@ class _CycleScreenState extends State<CycleScreen> {
                 child: _ScreenHeader(
                   title: l10n.cycleTrackerTitle,
                   subtitle: DateFormat('MMMM yyyy').format(displayedMonth),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: IconButton(
+                  icon: const Icon(Icons.history_rounded),
+                  color: RhythmaColors.primary,
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const HistoryScreen()),
+                    );
+                  },
                 ),
               ),
               Padding(

@@ -16,9 +16,6 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
-include: package:flutter_lints/flutter.yaml
-
-analyzer:
   errors:
     deprecated_member_use: ignore
     prefer_const_constructors: ignore
@@ -26,6 +23,8 @@ analyzer:
     unused_import: ignore
     unused_local_variable: ignore
     use_super_parameters: ignore
+
+include: package:flutter_lints/flutter.yaml
 
 linter:
   # The lint rules applied to this project can be customized in the
