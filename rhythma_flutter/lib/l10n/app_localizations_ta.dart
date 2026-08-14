@@ -782,7 +782,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get smsSaveSettings => 'Save';
 
   @override
-  String get smsSendSectionTitle => 'Send';
+  String get smsSendSectionTitle => 'Send Summary';
 
   @override
   String get smsSendRecipientPrefix => 'To';

@@ -1589,7 +1589,7 @@ abstract class AppLocalizations {
   /// No description provided for @smsSendSectionTitle.
   ///
   /// In en, this message translates to:
-  /// **'Send'**
+  /// **'Send Summary'**
   String get smsSendSectionTitle;
 
   /// No description provided for @smsSendRecipientPrefix.

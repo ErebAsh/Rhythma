@@ -663,7 +663,7 @@ class CycleService:
                     # Newest log returned from query has no "next" log in this set
                     results[i]["cycle_length"] = None
                     
-            if extra_fetch:
+            if extra_fetch and results:
                 # Remove the extra newer log we fetched just for length computation
                 results.pop(0)
 

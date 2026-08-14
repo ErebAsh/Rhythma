@@ -58,21 +58,39 @@ class CycleProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  int _getCycleDay(DateTime date) {
-    return date.day % 28 == 0 ? 28 : date.day % 28;
-  }
-  
   int get _periodDuration => 5;
   int get _cycleLength => 28;
 
   // Phase logic
+  int _getCycleDay(DateTime date) {
+    final profile = LocalStorageService.getProfile();
+    if (profile != null && profile.containsKey('last_period')) {
+      final lastPeriodStr = profile['last_period'] as String?;
+      if (lastPeriodStr != null) {
+        final lastPeriod = DateTime.tryParse(lastPeriodStr);
+        if (lastPeriod != null) {
+          final diff = date.difference(lastPeriod).inDays;
+          if (diff >= 0) {
+            return (diff % _cycleLength) + 1;
+          }
+        }
+      }
+    }
+    return date.day % 28 == 0 ? 28 : date.day % 28;
+  }
+
   String phaseKey(DateTime date) {
-  final day = date.day;
-  if (day <= 5) return 'menstrual';
-  if (day <= 13) return 'follicular';
-  if (day <= 16) return 'ovulation';
-  return 'luteal';
-}
+    final day = _getCycleDay(date);
+    final periodEnd = _periodDuration;
+    final follicularEnd = (_cycleLength / 2).floor() - 2;
+    final ovulationEnd = (_cycleLength / 2).floor() + 1;
+
+    if (day <= periodEnd) return 'menstrual';
+    if (day <= follicularEnd) return 'follicular';
+    if (day <= ovulationEnd) return 'ovulation';
+    return 'luteal';
+  }
+
   String phase(DateTime date, AppLocalizations l10n) {
     final day = _getCycleDay(date);
     final periodEnd = _periodDuration;

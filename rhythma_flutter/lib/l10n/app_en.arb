@@ -278,7 +278,7 @@
   "smsPhoneHint": "Phone hint",
   "smsEnableWeekly": "Weekly",
   "smsSaveSettings": "Save",
-  "smsSendSectionTitle": "Send",
+  "smsSendSectionTitle": "Send Summary",
   "smsSendRecipientPrefix": "To",
   "smsSendNoPhone": "No phone",
   "smsSendButton": "Send",
