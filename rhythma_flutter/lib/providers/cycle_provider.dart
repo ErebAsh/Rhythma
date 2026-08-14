@@ -58,25 +58,43 @@ class CycleProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  int get _periodDuration => 5;
-  int get _cycleLength => 28;
+  // ── Cycle-length settings ────────────────────────────────────────────
+  // Read fresh from the profile each time (rather than cached at
+  // construction) so edits made on the Profile/Onboarding screens are
+  // reflected immediately without having to recreate the provider.
 
-  // Phase logic
+  int get _periodDuration {
+    final profile = LocalStorageService.getProfile();
+    return (profile?['period_duration'] as num?)?.toInt() ?? 5;
+  }
+
+  int get _cycleLength {
+    final profile = LocalStorageService.getProfile();
+    return (profile?['cycle_length'] as num?)?.toInt() ?? 28;
+  }
+
+  /// Day-of-cycle for [date], counted from the saved `last_period` start
+  /// date (1-indexed, wraps across multiple cycle lengths). Falls back to
+  /// the plain day-of-month when no `last_period` has been saved yet.
   int _getCycleDay(DateTime date) {
     final profile = LocalStorageService.getProfile();
-    if (profile != null && profile.containsKey('last_period')) {
-      final lastPeriodStr = profile['last_period'] as String?;
-      if (lastPeriodStr != null) {
-        final lastPeriod = DateTime.tryParse(lastPeriodStr);
-        if (lastPeriod != null) {
-          final diff = date.difference(lastPeriod).inDays;
-          if (diff >= 0) {
-            return (diff % _cycleLength) + 1;
-          }
-        }
-      }
-    }
-    return date.day % 28 == 0 ? 28 : date.day % 28;
+    final lastPeriodStr = profile?['last_period'] as String?;
+    if (lastPeriodStr == null) return date.day;
+
+    final lastPeriod = DateTime.tryParse(lastPeriodStr);
+    if (lastPeriod == null) return date.day;
+
+    final normalizedStart =
+        DateTime(lastPeriod.year, lastPeriod.month, lastPeriod.day);
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+
+    final daysSince = normalizedDate.difference(normalizedStart).inDays;
+    final cycleLength = _cycleLength;
+    if (cycleLength <= 0) return date.day;
+
+    // Modulo that stays positive even if `date` falls before `last_period`.
+    final cycleDay = ((daysSince % cycleLength) + cycleLength) % cycleLength;
+    return cycleDay + 1;
   }
 
   String phaseKey(DateTime date) {
