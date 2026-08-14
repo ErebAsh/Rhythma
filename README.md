@@ -24,10 +24,8 @@
 - [Detailed Technology Stack](#️-detailed-technology-stack)
 - [Project Status](#project-status)
 - [Folder Structure](#folder-structure)
-- [Installation](#installation)
 - [Configuration](#configuration)
 - [Future Features](#future-features)
-- [Roadmap](#️-roadmap)
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
@@ -150,7 +148,7 @@ The public landing page is live at **[rhythma-navy.vercel.app](https://rhythma-n
 | 🏥 Hormonal Risk Indicator            | ✅     | 3-tier (Low/Medium/High) alerting derived from CVI.                                       |
 | 📱 Offline-First Architecture         | 🟡     | Hive local storage + Firestore sync and a sync-status indicator are implemented; automatic queue-and-retry on reconnect is not yet built (#229). |
 | 🔒 Privacy-First Design               | ✅     | Auth, password policy, rate limiting, and a dedicated data-privacy/export service are implemented server-side. |
-| 🌍 Indian Regional Languages          | 🟡     | 17 languages have translation files, far beyond the 3 originally announced — but 5 of the `.arb` files, **including the base English one**, currently contain invalid JSON (duplicate/malformed entries) that will break `flutter gen-l10n` codegen until fixed. |
+| 🌍 Indian Regional Languages          | 🟡     | 17 languages have translation files, far beyond the 3 originally announced — but 4 of the `.arb` files (`hi`, `mr`, `ta`, `te`) currently contain invalid JSON (duplicate/malformed entries) that will break `flutter gen-l10n` codegen until fixed. The base `app_en.arb` file is valid. |
 | 📩 SMS Health Summaries               | ✅     | Real Twilio `Client` integration, gated on optional env credentials.                     |
 | 🌿 Ayurvedic Correlation Layer        | ✅     | Educational wellness content layer merged (PR #436).                                     |
 | 💬 WhatsApp / Telegram Bot            | ✅     | Full chat-linking + command engine (`status`, `link`, `unlink`, `help`) implemented — well ahead of the old roadmap's "Phase 4" label. |
@@ -220,7 +218,7 @@ GitHub Actions already configured for **backend** (`pytest`, path-filtered) and 
 
 ## ⚠️ Known Issues (verified against current code)
  
-- **Broken localization JSON**: `app_en.arb`, `app_hi.arb`, `app_mr.arb`, `app_ta.arb`, and `app_te.arb` contain a duplicated/malformed entry (missing comma around the `onboardingWeightInvalid` key) that makes them invalid JSON — this will break Flutter's ARB-based codegen until fixed.
+- **Broken localization JSON**: `app_hi.arb`, `app_mr.arb`, `app_ta.arb`, and `app_te.arb` contain a duplicated/malformed entry that makes them invalid JSON — this will break Flutter's ARB-based codegen until fixed. (`app_en.arb`, the base English file, is now valid.)
 - **Cycle phase display bug**: `CycleProvider.phaseKey()` in `rhythma_flutter/lib/providers/cycle_provider.dart` computes the menstrual phase from the **calendar day of month** (`date.day`) instead of the user's actual cycle day, and is used by `cycle_screen.dart`. A separate, correct method (`phase()`, scaled to the user's real cycle length) exists in the same file but isn't the one wired into the Cycle screen.
 - **MHS is not yet ML-based**: despite the original "Logistic Regression" description, it currently runs as a documented hand-written weighted average, with the lifestyle sub-score defaulting to a flat fallback value until profile fields ship (#112).
 - **No offline auto-retry queue** (#229): the sync-status indicator exists, but reconnect-triggered replay of queued writes does not yet.
@@ -270,7 +268,7 @@ Legend: ✅ **Done** (real, working, verified against source) · 🟡 **Partial*
 | First-period / age-gated onboarding | ✅ | `screens/education/first_period_education_screen.dart` exists as a dedicated flow |
 | Ayurvedic correlation content | ✅ | `lib/data/ayurveda_content.dart` — real content, merged via PR #436 |
 | Cycle phase calculation | 🟡 | Two implementations exist: `phase()` correctly scales to cycle length; `phaseKey()` — the one actually used by the Cycle screen — buggily uses calendar day-of-month instead |
-| Localization — 17 Indian languages + English | 🟡 | Real `.arb` files for all 17, but 5 of them (**including the base English file**) contain malformed JSON that will break `flutter gen-l10n` until fixed |
+| Localization — 17 Indian languages + English | 🟡 | Real `.arb` files for all 17; `hi`, `mr`, `ta`, and `te` contain malformed JSON that will break `flutter gen-l10n` until fixed. The base English file is valid |
 | PDF report export | ✅ | `pw.Document` via `pdf`/`printing` |
 | Widget/unit tests | ✅ | 25 test files |
  
@@ -311,70 +309,104 @@ Legend: ✅ **Done** (real, working, verified against source) · 🟡 **Partial*
 
 ```
 ## 📂 Repository Structure
- 
-```
+
+```text
 Rhythma/
-├── backend/                     # FastAPI backend
-│   ├── api/                     # auth (router lives in core/), health, assistant, cycle,
-│   │                             #   insights, sms, dashboard, bot, privacy, provider
-│   ├── core/                    # auth_router, auth, cycle_validation, errors, logging_config,
-│   │                             #   middleware, password_policy, rate_limits, request_context,
-│   │                             #   security_headers, webhook_auth, email_identity
-│   ├── data/                    # medical_references.json
-│   ├── models/                  # cvi_model.joblib (trained model) + cvi_model.py, mhs_model.py, user.py
-│   ├── scripts/                 # train_cvi_model.py, backfill_email_normalization.py
-│   ├── services/                # firestore_service (incl. in-memory mock), chatbot_service,
-│   │                             #   chat_link_service, prediction_service, scoring_service,
-│   │                             #   provider_service, data_privacy_service, health_check_service,
-│   │                             #   health_observations_service, medical_knowledge_service,
-│   │                             #   access_log_service, rate_limit_service, token_store
-│   ├── tests/                   # 42 test modules
-│   └── main.py                  # FastAPI entrypoint — router registration, middleware, lifespan
+├── backend/                              # FastAPI backend
+│   ├── api/                              # API routes
+│   │   ├── assistant/
+│   │   ├── bot/
+│   │   ├── cycle/
+│   │   ├── dashboard/
+│   │   ├── health/
+│   │   ├── insights/
+│   │   ├── privacy/
+│   │   ├── provider/
+│   │   └── sms/
+│   │
+│   ├── core/                             # Authentication, middleware, security & validation
+│   ├── data/                             # Medical reference datasets
+│   ├── models/                           # ML models & database models
+│   ├── scripts/                          # Utility & training scripts
+│   ├── services/                         # Business logic & AI services
+│   ├── tests/                            # 42 backend test modules
+│   └── main.py                           # FastAPI application entrypoint
 │
-├── rhythma_flutter/             # Flutter mobile app (Android/iOS/desktop targets)
-│   └── lib/
-│       ├── components/          # shared widgets
-│       ├── config/
-│       ├── data/                # e.g. ayurveda_content.dart
-│       ├── l10n/                # 17 Indian-language .arb files + English + generated localizations
-│       ├── models/
-│       ├── providers/           # cycle_provider, sync_status_provider, profile_provider, etc.
-│       ├── screens/             # home, cycle, assistant, insights, profile, settings, sms,
-│       │                         #   onboarding, auth, education/first_period_education_screen
-│       ├── services/            # local_storage_service (Hive + AES), firestore_service,
-│       │                         #   auth_service, notification_service, report_service (PDF)
-│       ├── utils/
-│       └── main.dart
-│   └── test/                    # 25 test files
+├── rhythma_flutter/                      # Flutter mobile application
+│   ├── lib/
+│   │   ├── components/                   # Shared reusable widgets
+│   │   ├── config/                       # App configuration
+│   │   ├── data/                         # Static datasets (Ayurveda, etc.)
+│   │   ├── l10n/                         # 17 Indian language localizations
+│   │   ├── models/
+│   │   ├── providers/                    # State management
+│   │   ├── screens/
+│   │   │   ├── assistant/
+│   │   │   ├── auth/
+│   │   │   ├── cycle/
+│   │   │   ├── education/
+│   │   │   ├── home/
+│   │   │   ├── insights/
+│   │   │   ├── onboarding/
+│   │   │   ├── profile/
+│   │   │   ├── settings/
+│   │   │   └── sms/
+│   │   ├── services/                     # Storage, Firebase, notifications, reports
+│   │   ├── utils/
+│   │   └── main.dart
+│   └── test/                             # Flutter test suite (25 tests)
 │
-├── web/                         # React + TypeScript + Vite web app
+├── web/                                  # React + TypeScript + Vite application
 │   └── src/
-│       ├── api/                 # client.ts (auth-aware axios client + retry)
-│       ├── auth/                # AuthContext
-│       ├── pages/                # HomePage, CyclePage, AssistantPage, InsightsPage, ProfilePage,
-│       │                         #   SettingsPage, SmsPage, DataPrivacyPage, SharingPage,
-│       │                         #   Login/RegisterPage, Provider*Page, NotFoundPage
+│       ├── api/
+│       ├── auth/
 │       ├── components/
 │       ├── i18n/
 │       ├── lib/
-│       └── test/                # shared test utils/fixtures
+│       ├── pages/
+│       │   ├── AssistantPage
+│       │   ├── CyclePage
+│       │   ├── DataPrivacyPage
+│       │   ├── HomePage
+│       │   ├── InsightsPage
+│       │   ├── LoginPage
+│       │   ├── ProfilePage
+│       │   ├── ProviderPages
+│       │   ├── SettingsPage
+│       │   ├── SharingPage
+│       │   └── SmsPage
+│       └── test/
 │
-├── landing-page/                # Next.js marketing site
-│   └── app/                     # page.tsx, layout.tsx, globals.css
+├── landing-page/                         # Next.js marketing website
+│   └── app/
+│       ├── layout.tsx
+│       ├── page.tsx
+│       └── globals.css
 │
-├── docs/                        # architecture.md, auth_refresh.md, deploy_backend.md,
-│                                 #   health-and-readiness.md, health-disclaimers.md,
-│                                 #   medical_sources.md, menstrual_insights_guidelines.md,
-│                                 #   phone_auth.md, Rhythma_Blog.docx
+├── docs/                                 # Project documentation
+│   ├── architecture.md
+│   ├── auth_refresh.md
+│   ├── deploy_backend.md
+│   ├── health-and-readiness.md
+│   ├── health-disclaimers.md
+│   ├── medical_sources.md
+│   ├── menstrual_insights_guidelines.md
+│   ├── phone_auth.md
+│   └── Rhythma_Blog.docx
 │
-├── .github/workflows/           # backend.yml, flutter.yml, web.yml, landing-page.yml
-├── design-concepts/             # UI demo videos
-├── screenshots/
-├── requirements.txt             # floor-pinned (not exact-pinned) Python deps — see file header
-└── LICENSE
+├── .github/
+│   └── workflows/
+│       ├── backend.yml
+│       ├── flutter.yml
+│       ├── landing-page.yml
+│       └── web.yml
+│
+├── design-concepts/                      # UI prototypes & demo videos
+├── screenshots/                          # App screenshots
+├── requirements.txt                      # Python dependencies
+├── LICENSE
+└── README.md
 ```
----
-
 ## Installation
 
 ### Prerequisites
