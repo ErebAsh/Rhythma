@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
+import '../../config/supported_languages.dart';
 import '../../config/theme.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/local_storage_service.dart';
@@ -105,13 +106,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
-  static const List<Map<String, String>> _languages = [
-    {'code': 'en', 'label': 'English'},
-    {'code': 'hi', 'label': 'हिन्दी'},
-    {'code': 'ta', 'label': 'தமிழ்'},
-    {'code': 'te', 'label': 'తెలుగు'},
-    {'code': 'mr', 'label': 'मराठी'},
-  ];
+
   
   bool? get selected => null;
 
@@ -400,25 +395,25 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           _buildStepHeader(l.onboardingStep1Title, l.onboardingStep1Subtitle),
           const SizedBox(height: 32),
-          ...List.generate(_languages.length, (i) {
-            final lang = _languages[i];
-            final selected = lang['code'] == _selectedLanguage;
+          ...List.generate(appSupportedLanguages.length, (i) {
+            final lang = appSupportedLanguages[i];
+            final selected = lang.code == _selectedLanguage;
            return Semantics(
-             label: '${lang['label']} language',
+             label: '${lang.nativeName} language',
              selected: selected,
              button: true,
              hint: 'Double tap to select language',
              child: GestureDetector(
               onTap: () {
-               setState(() => _selectedLanguage = lang['code']!);
+               setState(() => _selectedLanguage = lang.code);
 
              SemanticsService.announce(
-              '${lang['label']} selected',
+              '${lang.nativeName} selected',
               Directionality.of(context),
             );
 
       context.read<LocaleProvider>()
-          .setLocale(Locale(lang['code']!));
+          .setLocale(Locale(lang.code));
     },
     child: AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
@@ -439,7 +434,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 child: Row(
                   children: [
                     Text(
-                      lang['label']!,
+                      lang.nativeName,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight:
