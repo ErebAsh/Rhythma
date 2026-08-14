@@ -91,6 +91,17 @@ export function HomePage() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (!activeTile) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveTile(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTile]);
+
   const handleQuickLog = async (option: { value: string; labelKey: string }) => {
     if (!activeTile || saving) return;
     setSaving(true);
