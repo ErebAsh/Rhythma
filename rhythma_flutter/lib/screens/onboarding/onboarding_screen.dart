@@ -106,10 +106,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
-
-  
-  bool? get selected => null;
-
   // ── Navigation ────────────────────────────────────────────────────────────
 
   bool _validateCurrentPage() {
@@ -293,8 +289,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       _buildStep1(l),
                       _buildStep2(l),
                       _buildStep3(l),
-                      _buildStep1(l),
-                      _buildStep1(l),
+                      _buildStep4(l),
+                      _buildStep5(l),
                     ],
                   ),
                 ),
@@ -711,6 +707,118 @@ Semantics(
   ),
 ),
         ]
+      ),
+    );
+  }
+
+  // ── Step 4 ────────────────────────────────────────────────────────────────
+
+  Widget _buildStep4(AppLocalizations l) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildStepHeader(l.onboardingStep4Title, l.onboardingStep4Subtitle),
+          const SizedBox(height: 28),
+          _buildTextField(
+            controller: _phoneController,
+            label: l.onboardingPhoneLabel,
+            keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.next,
+          ),
+          const SizedBox(height: 14),
+          _buildTextField(
+            controller: _cityController,
+            label: l.onboardingCityLabel,
+            textInputAction: TextInputAction.next,
+          ),
+          const SizedBox(height: 14),
+          _buildTextField(
+            controller: _stateController,
+            label: l.onboardingStateLabel,
+            textInputAction: TextInputAction.done,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Step 5 ────────────────────────────────────────────────────────────────
+
+  Widget _buildStep5(AppLocalizations l) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildStepHeader(l.onboardingStep5Title, l.onboardingStep5Subtitle),
+          const SizedBox(height: 36),
+          // Notification toggle
+          _buildSwitchTile(
+            icon: '📅',
+            title: l.onboardingEnableNotifications,
+            subtitle: l.onboardingNotificationsDesc,
+            value: _notificationsEnabled,
+            onChanged: (v) => setState(() => _notificationsEnabled = v),
+          ),
+          const SizedBox(height: 32),
+          // Data consent checkbox
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _dataConsent = !_dataConsent;
+                if (_dataConsent) _consentError = null;
+              });
+            },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    color: _dataConsent ? RhythmaColors.primary : Colors.transparent,
+                    border: Border.all(
+                      color: _consentError != null
+                          ? Colors.redAccent
+                          : RhythmaColors.primary,
+                      width: 2,
+                    ),
+                  ),
+                  child: _dataConsent
+                      ? const Icon(Icons.check, size: 16, color: Colors.white)
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.onboardingDataConsentLabel,
+                        style: TextStyle(
+                          color: RhythmaColors.foreground,
+                          fontSize: 14,
+                          height: 1.4,
+                        ),
+                      ),
+                      if (_consentError != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          _consentError!,
+                          style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

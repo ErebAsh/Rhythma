@@ -176,7 +176,7 @@
   "onboardingNameRequired": "कृपया अपना नाम दर्ज करें",
   "onboardingAgeInvalid": "कृपया वैध आयु दर्ज करें (10–120)",
   "onboardingHeightInvalid": "कृपया वैध ऊंचाई दर्ज करें (50–250 सेमी)",
-  "onboardingWeightInvalid": "कृपया वैध वज़न दर्ज करें (20–300 किग्रा)"
+  "onboardingWeightInvalid": "कृपया वैध वज़न दर्ज करें (20–300 किग्रा)",
   "ayurvedaWellnessTitle": "आयुर्वेद-प्रेरित स्वास्थ्य जानकारी",
 "ayurvedaDisclaimer": "केवल शैक्षिक जानकारी। आयुर्वेद-प्रेरित सामग्री चिकित्सा सलाह, निदान या उपचार नहीं है।",
 "ayurvedaMenstrualTitle": "आराम और आत्मचिंतन",
