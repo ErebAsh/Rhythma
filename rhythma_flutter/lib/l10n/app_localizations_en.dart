@@ -708,4 +708,12 @@ String get ayurvedaLutealTitle => 'Grounding and routine';
 @override
 String get ayurvedaLutealDescription =>
     'Ayurvedic wellness traditions emphasize maintaining a calm routine and mindful self-care during the later part of the cycle.';
+  @override
+  String get logFlowVeryHeavy => 'Very Heavy';
+  @override
+  String get logFlowSpotting => 'Spotting';
+  @override
+  String get logSympSeverePain => 'Severe Pain';
+  @override
+  String get logSympFainting => 'Fainting';
 }

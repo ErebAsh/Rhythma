@@ -326,5 +326,9 @@
   "deleteAccount": "اکاؤنٹ حذف کریں",
   "deleteAccountConfirmationTitle": "اکاؤنٹ حذف کریں؟",
   "deleteAccountConfirmationDesc": "یہ عمل مستقل ہے اور اسے کالعدم نہیں کیا جا سکتا۔ آپ کا سارا ڈیٹا مٹا دیا جائے گا۔",
-  "accountDeletedSuccess": "اکاؤنٹ کامیابی سے حذف ہو گیا۔"
+  "accountDeletedSuccess": "اکاؤنٹ کامیابی سے حذف ہو گیا۔",
+  "logFlowVeryHeavy": "Very Heavy",
+  "logFlowSpotting": "Spotting",
+  "logSympSeverePain": "Severe Pain",
+  "logSympFainting": "Fainting"
 }

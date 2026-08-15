@@ -1964,6 +1964,10 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to get ID token'**
   String get failedToGetIdToken;
+  String get logFlowVeryHeavy;
+  String get logFlowSpotting;
+  String get logSympSeverePain;
+  String get logSympFainting;
 }
 
 class _AppLocalizationsDelegate
@@ -1998,6 +2002,10 @@ class _AppLocalizationsDelegate
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
+  String get logFlowVeryHeavy;
+  String get logFlowSpotting;
+  String get logSympSeverePain;
+  String get logSympFainting;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
@@ -2044,4 +2052,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       'an issue with the localizations generation tool. Please file an issue '
       'on GitHub with a reproducible sample app and the gen-l10n configuration '
       'that was used.');
+  String get logFlowVeryHeavy;
+  String get logFlowSpotting;
+  String get logSympSeverePain;
+  String get logSympFainting;
 }
