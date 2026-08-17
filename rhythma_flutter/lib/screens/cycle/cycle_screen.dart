@@ -233,6 +233,9 @@ class _CycleScreenState extends State<CycleScreen> {
     final selectedDate = cycleProvider.selectedDate;
     final currentPhaseKey = cycleProvider.phaseKey(selectedDate);
     final phaseContent = ayurvedaContent[currentPhaseKey] ?? [];
+    
+    final selectedLog = LocalStorageService.getCycleLogForDate(selectedDate) ?? {};
+    final hasSelections = selectedLog.isNotEmpty;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
