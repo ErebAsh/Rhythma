@@ -664,41 +664,6 @@ class AppLocalizationsMr extends AppLocalizations {
       'कृपया वैध वजन प्रविष्ट करा (20–300 किग्रा)';
 
   @override
-  String get ayurvedaWellnessTitle => 'आयुर्वेद-प्रेरित स्वास्थ्य जानकारी';
-
-  @override
-  String get ayurvedaDisclaimer =>
-      'केवल शैक्षिक जानकारी। आयुर्वेद-प्रेरित सामग्री चिकित्सा सलाह, निदान या उपचार नहीं है।';
-
-  @override
-  String get ayurvedaMenstrualTitle => 'आराम और आत्मचिंतन';
-
-  @override
-  String get ayurvedaMenstrualDescription =>
-      'आयुर्वेदिक परंपराएँ मासिक धर्म के समय आराम, आत्मचिंतन और हल्की स्व-देखभाल पर ध्यान देने का वर्णन करती हैं।';
-
-  @override
-  String get ayurvedaFollicularTitle => 'नवीनीकरण और गतिविधि';
-
-  @override
-  String get ayurvedaFollicularDescription =>
-      'आयुर्वेदिक स्वास्थ्य परंपराएँ मासिक धर्म के बाद की अवधि को नवीनीकरण और धीरे-धीरे गतिविधि बढ़ाने से जोड़ती हैं।';
-
-  @override
-  String get ayurvedaOvulationTitle => 'संतुलन और जुड़ाव';
-
-  @override
-  String get ayurvedaOvulationDescription =>
-      'कुछ आयुर्वेदिक परंपराएँ चक्र के मध्य को जीवन शक्ति और सामाजिक जुड़ाव से संबंधित समय के रूप में वर्णित करती हैं।';
-
-  @override
-  String get ayurvedaLutealTitle => 'स्थिरता और दिनचर्या';
-
-  @override
-  String get ayurvedaLutealDescription =>
-      'आयुर्वेदिक स्वास्थ्य परंपराएँ चक्र के बाद के हिस्से में शांत दिनचर्या और जागरूक स्व-देखभाल पर जोर देती हैं।';
-
-  @override
   String get onboardingPhoneInvalid => 'Invalid phone';
 
   @override
@@ -893,4 +858,51 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get dayCycle => 'Day cycle';
+
+  @override
+  String get ayurvedaWellnessTitle => 'आयुर्वेद-प्रेरित आरोग्य माहिती';
+
+  @override
+  String get ayurvedaDisclaimer =>
+      'ही माहिती केवळ शैक्षणिक उद्देशांसाठी आहे. आयुर्वेद-प्रेरित मजकूर वैद्यकीय सल्ला, निदान किंवा उपचारांचा पर्याय नाही.';
+
+  @override
+  String get ayurvedaMenstrualTitle => 'विश्रांती आणि आत्मचिंतन';
+
+  @override
+  String get ayurvedaMenstrualDescription =>
+      'आयुर्वेदिक परंपरेनुसार मासिक पाळीदरम्यान विश्रांती, आत्मचिंतन आणि सौम्य स्व-देखभालीवर भर दिला जातो.';
+
+  @override
+  String get ayurvedaFollicularTitle => 'नवचैतन्य आणि सक्रियता';
+
+  @override
+  String get ayurvedaFollicularDescription =>
+      'आयुर्वेदिक आरोग्य परंपरांमध्ये मासिक पाळीनंतरचा काळ नवचैतन्य आणि हळूहळू वाढणाऱ्या सक्रियतेशी जोडला जातो.';
+
+  @override
+  String get ayurvedaOvulationTitle => 'संतुलन आणि सुसंवाद';
+
+  @override
+  String get ayurvedaOvulationDescription =>
+      'काही आयुर्वेदिक परंपरांनुसार चक्राच्या मध्यावधीला ऊर्जा, चैतन्य आणि सामाजिक सुसंवादाचा काळ मानला जातो.';
+
+  @override
+  String get ayurvedaLutealTitle => 'स्थैर्य आणि दिनचर्या';
+
+  @override
+  String get ayurvedaLutealDescription =>
+      'आयुर्वेदिक आरोग्य परंपरांमध्ये चक्राच्या उत्तरार्धात शांत दिनचर्या आणि सजग स्व-देखभालीवर भर दिला जातो.';
+
+  @override
+  String get logFlowVeryHeavy => 'Very Heavy';
+
+  @override
+  String get logFlowSpotting => 'Spotting';
+
+  @override
+  String get logSympSeverePain => 'Severe Pain';
+
+  @override
+  String get logSympFainting => 'Fainting';
 }

@@ -755,7 +755,7 @@ abstract class AppLocalizations {
   /// No description provided for @assistantSug5.
   ///
   /// In en, this message translates to:
-  /// **'मेरे पीरियड्स अनियमित हैं — क्या यह सामान्य है?'**
+  /// **'My periods are irregular — is this normal?'**
   String get assistantSug5;
 
   /// No description provided for @assistantDisclaimer.
@@ -1376,66 +1376,6 @@ abstract class AppLocalizations {
   /// **'Please enter a valid weight (20–300 kg)'**
   String get onboardingWeightInvalid;
 
-  /// No description provided for @ayurvedaWellnessTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Ayurveda-inspired wellness'**
-  String get ayurvedaWellnessTitle;
-
-  /// No description provided for @ayurvedaDisclaimer.
-  ///
-  /// In en, this message translates to:
-  /// **'Educational information only. Ayurveda-inspired content is not medical advice, diagnosis, or treatment.'**
-  String get ayurvedaDisclaimer;
-
-  /// No description provided for @ayurvedaMenstrualTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Rest and reflection'**
-  String get ayurvedaMenstrualTitle;
-
-  /// No description provided for @ayurvedaMenstrualDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Ayurvedic traditions describe menstruation as a time that may be associated with rest, reflection, and gentle self-care.'**
-  String get ayurvedaMenstrualDescription;
-
-  /// No description provided for @ayurvedaFollicularTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Renewal and activity'**
-  String get ayurvedaFollicularTitle;
-
-  /// No description provided for @ayurvedaFollicularDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Ayurvedic wellness traditions associate the post-menstrual period with renewal and gradually increasing activity.'**
-  String get ayurvedaFollicularDescription;
-
-  /// No description provided for @ayurvedaOvulationTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Connection and balance'**
-  String get ayurvedaOvulationTitle;
-
-  /// No description provided for @ayurvedaOvulationDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Some Ayurvedic traditions describe the middle of the cycle as a time associated with vitality and social connection.'**
-  String get ayurvedaOvulationDescription;
-
-  /// No description provided for @ayurvedaLutealTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Grounding and routine'**
-  String get ayurvedaLutealTitle;
-
-  /// No description provided for @ayurvedaLutealDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Ayurvedic wellness traditions emphasize maintaining a calm routine and mindful self-care during the later part of the cycle.'**
-  String get ayurvedaLutealDescription;
-
   /// No description provided for @onboardingPhoneInvalid.
   ///
   /// In en, this message translates to:
@@ -1819,6 +1759,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Day cycle'**
   String get dayCycle;
+
+  /// No description provided for @ayurvedaWellnessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayurveda-inspired wellness'**
+  String get ayurvedaWellnessTitle;
+
+  /// No description provided for @ayurvedaDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Educational information only. Ayurveda-inspired content is not medical advice, diagnosis, or treatment.'**
+  String get ayurvedaDisclaimer;
+
+  /// No description provided for @ayurvedaMenstrualTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest and reflection'**
+  String get ayurvedaMenstrualTitle;
+
+  /// No description provided for @ayurvedaMenstrualDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayurvedic traditions describe menstruation as a time that may be associated with rest, reflection, and gentle self-care.'**
+  String get ayurvedaMenstrualDescription;
+
+  /// No description provided for @ayurvedaFollicularTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal and activity'**
+  String get ayurvedaFollicularTitle;
+
+  /// No description provided for @ayurvedaFollicularDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayurvedic wellness traditions associate the post-menstrual period with renewal and gradually increasing activity.'**
+  String get ayurvedaFollicularDescription;
+
+  /// No description provided for @ayurvedaOvulationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection and balance'**
+  String get ayurvedaOvulationTitle;
+
+  /// No description provided for @ayurvedaOvulationDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Some Ayurvedic traditions describe the middle of the cycle as a time associated with vitality and social connection.'**
+  String get ayurvedaOvulationDescription;
+
+  /// No description provided for @ayurvedaLutealTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Grounding and routine'**
+  String get ayurvedaLutealTitle;
+
+  /// No description provided for @ayurvedaLutealDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayurvedic wellness traditions emphasize maintaining a calm routine and mindful self-care during the later part of the cycle.'**
+  String get ayurvedaLutealDescription;
+
+  /// No description provided for @logFlowVeryHeavy.
+  ///
+  /// In en, this message translates to:
+  /// **'Very Heavy'**
+  String get logFlowVeryHeavy;
+
+  /// No description provided for @logFlowSpotting.
+  ///
+  /// In en, this message translates to:
+  /// **'Spotting'**
+  String get logFlowSpotting;
+
+  /// No description provided for @logSympSeverePain.
+  ///
+  /// In en, this message translates to:
+  /// **'Severe Pain'**
+  String get logSympSeverePain;
+
+  /// No description provided for @logSympFainting.
+  ///
+  /// In en, this message translates to:
+  /// **'Fainting'**
+  String get logSympFainting;
 }
 
 class _AppLocalizationsDelegate

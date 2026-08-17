@@ -672,41 +672,6 @@ class AppLocalizationsTa extends AppLocalizations {
       'தயவுசெய்து சரியான எடையை உள்ளிடவும் (20–300 கிகி)';
 
   @override
-  String get ayurvedaWellnessTitle => 'आयुर्वेद-प्रेरित स्वास्थ्य जानकारी';
-
-  @override
-  String get ayurvedaDisclaimer =>
-      'केवल शैक्षिक जानकारी। आयुर्वेद-प्रेरित सामग्री चिकित्सा सलाह, निदान या उपचार नहीं है।';
-
-  @override
-  String get ayurvedaMenstrualTitle => 'आराम और आत्मचिंतन';
-
-  @override
-  String get ayurvedaMenstrualDescription =>
-      'आयुर्वेदिक परंपराएँ मासिक धर्म के समय आराम, आत्मचिंतन और हल्की स्व-देखभाल पर ध्यान देने का वर्णन करती हैं।';
-
-  @override
-  String get ayurvedaFollicularTitle => 'नवीनीकरण और गतिविधि';
-
-  @override
-  String get ayurvedaFollicularDescription =>
-      'आयुर्वेदिक स्वास्थ्य परंपराएँ मासिक धर्म के बाद की अवधि को नवीनीकरण और धीरे-धीरे गतिविधि बढ़ाने से जोड़ती हैं।';
-
-  @override
-  String get ayurvedaOvulationTitle => 'संतुलन और जुड़ाव';
-
-  @override
-  String get ayurvedaOvulationDescription =>
-      'कुछ आयुर्वेदिक परंपराएँ चक्र के मध्य को जीवन शक्ति और सामाजिक जुड़ाव से संबंधित समय के रूप में वर्णित करती हैं।';
-
-  @override
-  String get ayurvedaLutealTitle => 'स्थिरता और दिनचर्या';
-
-  @override
-  String get ayurvedaLutealDescription =>
-      'आयुर्वेदिक स्वास्थ्य परंपराएँ चक्र के बाद के हिस्से में शांत दिनचर्या और जागरूक स्व-देखभाल पर जोर देती हैं।';
-
-  @override
   String get onboardingPhoneInvalid => 'Invalid phone';
 
   @override
@@ -901,4 +866,52 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get dayCycle => 'Day cycle';
+
+  @override
+  String get ayurvedaWellnessTitle =>
+      'ஆயுர்வேதத்தை அடிப்படையாகக் கொண்ட நலவாழ்வு தகவல்';
+
+  @override
+  String get ayurvedaDisclaimer =>
+      'இது கல்வி நோக்கத்திற்கான தகவல் மட்டுமே. ஆயுர்வேதத்தை அடிப்படையாகக் கொண்ட இந்த உள்ளடக்கம் மருத்துவ ஆலோசனை, நோயறிதல் அல்லது சிகிச்சைக்கு மாற்றாகாது.';
+
+  @override
+  String get ayurvedaMenstrualTitle => 'ஓய்வு மற்றும் சுயபராமரிப்பு';
+
+  @override
+  String get ayurvedaMenstrualDescription =>
+      'ஆயுர்வேத மரபுகளின்படி, மாதவிடாய் காலம் ஓய்வு, சுயபரிசீலனை மற்றும் மென்மையான சுயபராமரிப்பிற்கு முக்கியத்துவம் அளிக்கும் காலமாகக் கருதப்படுகிறது.';
+
+  @override
+  String get ayurvedaFollicularTitle => 'புதுப்பிப்பு மற்றும் செயல்பாடு';
+
+  @override
+  String get ayurvedaFollicularDescription =>
+      'ஆயுர்வேத நலவாழ்வு மரபுகளின்படி, மாதவிடாய்க்குப் பிந்தைய காலம் புத்துணர்ச்சி மற்றும் படிப்படியாக செயல்பாட்டை அதிகரிக்கும் நேரமாகக் கருதப்படுகிறது.';
+
+  @override
+  String get ayurvedaOvulationTitle => 'சமநிலை மற்றும் இணைப்பு';
+
+  @override
+  String get ayurvedaOvulationDescription =>
+      'சில ஆயுர்வேத மரபுகளின்படி, சுழற்சியின் நடுப்பகுதி உயிர்ச்சக்தி மற்றும் சமூக தொடர்புகள் அதிகரிக்கும் காலமாக விவரிக்கப்படுகிறது.';
+
+  @override
+  String get ayurvedaLutealTitle => 'நிலைத்தன்மை மற்றும் ஒழுங்கான வாழ்க்கைமுறை';
+
+  @override
+  String get ayurvedaLutealDescription =>
+      'ஆயுர்வேத நலவாழ்வு மரபுகள், சுழற்சியின் இறுதி கட்டத்தில் அமைதியான தினசரி நடைமுறை மற்றும் விழிப்புணர்வுடன் சுயபராமரிப்பை வலியுறுத்துகின்றன.';
+
+  @override
+  String get logFlowVeryHeavy => 'Very Heavy';
+
+  @override
+  String get logFlowSpotting => 'Spotting';
+
+  @override
+  String get logSympSeverePain => 'Severe Pain';
+
+  @override
+  String get logSympFainting => 'Fainting';
 }

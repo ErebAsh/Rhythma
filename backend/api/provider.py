@@ -215,7 +215,7 @@ async def login_provider(
 
     # Raw for the lookup, canonical for the rate-limit bucket above —
     # see the note in `register_provider`.
-    user = UserService.get_user_by_email(data.email)
+    user = UserService.get_user_by_email(email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
