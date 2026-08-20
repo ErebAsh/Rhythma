@@ -43,9 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final cached = LocalStorageService.getCachedDashboard();
     if (cached != null) {
       setState(() {
-        _userData = cached['user'] ?? {};
-        _cycleData = cached['cycle'] ?? {};
-        _insights = cached['insights'] ?? {};
+        _userData = cached['user'] is Map ? Map<String, dynamic>.from(cached['user'] as Map) : {};
+        _cycleData = cached['cycle'] is Map ? Map<String, dynamic>.from(cached['cycle'] as Map) : {};
+        _insights = cached['insights'] is Map ? Map<String, dynamic>.from(cached['insights'] as Map) : {};
         _loading = false;
       });
     }
