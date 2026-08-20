@@ -114,20 +114,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final localProfile = context.watch<ProfileProvider>().profile;
-    final localName = localProfile['name'] as String?;
-    final apiName = _userData['name'] as String?;
+    final localName = localProfile['name']?.toString();
+    final apiName = _userData['name']?.toString();
     final userName = (localName != null && localName.isNotEmpty)
         ? localName
         : (apiName ?? 'User');
 
     final avatarPath =
-        localProfile['avatar'] as String? ?? 'assets/avatars/avatar_1.png';
-    final nextPeriodDays = _cycleData['nextPeriodDays'] ?? 14;
-    final cycleDay = _cycleData['day'] ?? 14;
-    final totalCycle = _cycleData['total'] ?? 28;
-    final avgCycle = _insights['averageCycleLength'] ?? 28;
-    final avgBleeding = _insights['averageBleedingDuration'] ?? 5;
-    final sleepHours = _insights['sleepHours'] ?? '7.2h';
+        localProfile['avatar']?.toString() ?? 'assets/avatars/avatar_1.png';
+    final nextPeriodDays = int.tryParse(_cycleData['nextPeriodDays']?.toString() ?? '') ?? 14;
+    final cycleDay = int.tryParse(_cycleData['day']?.toString() ?? '') ?? 14;
+    final totalCycle = int.tryParse(_cycleData['total']?.toString() ?? '') ?? 28;
+    final avgCycle = int.tryParse(_insights['averageCycleLength']?.toString() ?? '') ?? 28;
+    final avgBleeding = int.tryParse(_insights['averageBleedingDuration']?.toString() ?? '') ?? 5;
+    final sleepHours = _insights['sleepHours']?.toString() ?? '7.2h';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
@@ -610,13 +610,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Prefer onboarding_completed_at; fall back to last_period date for
     // existing users who completed onboarding before this field was added.
-    final completedAt = profile['onboarding_completed_at'] as String?;
+    final completedAt = profile['onboarding_completed_at']?.toString();
     if (completedAt != null) {
       final date = DateTime.tryParse(completedAt);
       if (date != null) return DateTime.now().difference(date).inDays >= 3;
     }
 
-    final lastPeriod = profile['last_period'] as String?;
+    final lastPeriod = profile['last_period']?.toString();
     if (lastPeriod != null) {
       final date = DateTime.tryParse(lastPeriod);
       if (date != null) return DateTime.now().difference(date).inDays >= 3;
