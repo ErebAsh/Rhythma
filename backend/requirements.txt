@@ -5,6 +5,7 @@ google-generativeai==0.8.6
 loguru==0.7.3
 python-dotenv==1.2.2
 pydantic-settings==2.14.2
+pydantic[email]
 bcrypt==5.0.0
 passlib==1.7.4
 python-jose==3.5.0
